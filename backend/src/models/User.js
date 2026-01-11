@@ -34,7 +34,8 @@ class User {
   static async findByEmail(email) {
     const query = `
       SELECT id, name, email, password_hash, age, current_level,
-             created_at, last_login, total_time_spent, current_streak
+             created_at, last_login, total_time_spent, current_streak,
+             total_points, gamification_level
       FROM users
       WHERE email = $1
     `;
@@ -49,7 +50,8 @@ class User {
   static async findById(id) {
     const query = `
       SELECT id, name, email, age, current_level,
-             created_at, last_login, total_time_spent, current_streak
+             created_at, last_login, total_time_spent, current_streak,
+             total_points, gamification_level
       FROM users
       WHERE id = $1
     `;
@@ -64,7 +66,8 @@ class User {
   static async findByName(name) {
     const query = `
       SELECT id, name, email, password_hash, age, current_level,
-             created_at, last_login, total_time_spent, current_streak
+             created_at, last_login, total_time_spent, current_streak,
+             total_points, gamification_level
       FROM users
       WHERE name = $1
     `;
@@ -160,6 +163,94 @@ class User {
 
     const result = await pool.query(query, [userId]);
     return result.rows[0];
+  }
+
+  // ==================== GAMIFICATION METHODS ====================
+
+  /**
+   * Calculate level from points
+   * Level = floor(totalPoints / 20) + 1
+   */
+  static calculateLevel(totalPoints) {
+    return Math.floor(totalPoints / 20) + 1;
+  }
+
+  /**
+   * Get arena name for level
+   */
+  static getArenaName(level) {
+    const arenas = {
+      1: 'Training Camp',
+      2: 'Goblin Stadium',
+      3: 'Bone Pit',
+      4: 'Barbarian Bowl',
+      5: "P.E.K.K.A's Playhouse",
+      6: 'Royal Arena'
+    };
+    return arenas[Math.min(level, 6)] || arenas[6]; // Fallback to Royal Arena for level 6+
+  }
+
+  /**
+   * Add points to user (with floor at 0)
+   * Returns: { total_points, gamification_level, previousLevel }
+   */
+  static async addPoints(userId, pointsToAdd) {
+    // First get the previous level
+    const previousQuery = `
+      SELECT total_points, gamification_level
+      FROM users
+      WHERE id = $1
+    `;
+    const previousResult = await pool.query(previousQuery, [userId]);
+    const previousLevel = previousResult.rows[0]?.gamification_level || 1;
+
+    // Update points and level atomically
+    const query = `
+      UPDATE users
+      SET total_points = GREATEST(0, total_points + $1),
+          gamification_level = GREATEST(1, FLOOR(GREATEST(0, total_points + $1) / 20.0) + 1)
+      WHERE id = $2
+      RETURNING total_points, gamification_level
+    `;
+
+    const result = await pool.query(query, [pointsToAdd, userId]);
+
+    if (result.rows.length === 0) {
+      throw new Error('User not found');
+    }
+
+    return {
+      ...result.rows[0],
+      previousLevel
+    };
+  }
+
+  /**
+   * Get user's gamification data
+   * Returns: { totalPoints, currentLevel, pointsToNextLevel, arenaName }
+   */
+  static async getGamificationData(userId) {
+    const query = `
+      SELECT total_points, gamification_level
+      FROM users
+      WHERE id = $1
+    `;
+
+    const result = await pool.query(query, [userId]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const { total_points, gamification_level } = result.rows[0];
+    const pointsToNextLevel = (gamification_level * 20) - total_points;
+
+    return {
+      totalPoints: total_points,
+      currentLevel: gamification_level,
+      pointsToNextLevel: pointsToNextLevel > 0 ? pointsToNextLevel : 0,
+      arenaName: this.getArenaName(gamification_level)
+    };
   }
 }
 

@@ -172,6 +172,155 @@
   font-weight: 500;
 }
 
+/* Gamification Card */
+.gamification-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.5s ease 0.5s backwards;
+}
+
+.gamification-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.points-earned-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.points-earned-badge {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+}
+
+.points-earned-value {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #ffc107;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  animation: pointsPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.8s backwards;
+}
+
+@keyframes pointsPop {
+  0% {
+    transform: scale(0);
+  }
+  80% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.points-earned-label {
+  font-size: 1.1rem;
+  color: white;
+  margin-top: 0.5rem;
+  opacity: 0.95;
+}
+
+.points-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.breakdown-item:hover {
+  transform: translateX(-5px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.breakdown-item.correct {
+  border-left: 4px solid #28a745;
+}
+
+.breakdown-item.wrong {
+  border-left: 4px solid #dc3545;
+}
+
+.breakdown-item.bonus {
+  border-left: 4px solid #ffc107;
+}
+
+.breakdown-icon {
+  font-size: 1.5rem;
+}
+
+.breakdown-label {
+  flex: 1;
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.breakdown-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.current-status {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.status-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.status-icon {
+  font-size: 2.5rem;
+}
+
+.status-details {
+  flex: 1;
+}
+
+.status-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+.status-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+}
+
 /* Detailed Results */
 .detailed-results {
   background: white;
@@ -394,12 +543,22 @@
   }
 
   .score-card,
+  .gamification-card,
   .detailed-results {
     padding: 1.5rem;
   }
 
   .results-title {
     font-size: 1.8rem;
+  }
+
+  /* Gamification responsive */
+  .gamification-content {
+    grid-template-columns: 1fr;
+  }
+
+  .points-earned-value {
+    font-size: 3rem;
   }
 
   .score-circle {

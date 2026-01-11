@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import exerciseService from '../../services/exerciseService';
+import LevelUpModal from '../gamification/LevelUpModal';
 import './ResultsPage.css';
 
 const ResultsPage = () => {
@@ -12,6 +13,7 @@ const ResultsPage = () => {
   const [lessonTitle, setLessonTitle] = useState(location.state?.lessonTitle || '');
   const [loading, setLoading] = useState(!result);
   const [error, setError] = useState('');
+  const [showLevelUpModal, setShowLevelUpModal] = useState(false);
 
   useEffect(() => {
     if (!result && resultId) {
@@ -19,6 +21,16 @@ const ResultsPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultId, result]);
+
+  // Show level-up modal when user levels up
+  useEffect(() => {
+    if (result?.gamification?.leveledUp) {
+      // Small delay for dramatic effect
+      setTimeout(() => {
+        setShowLevelUpModal(true);
+      }, 1500);
+    }
+  }, [result]);
 
   const loadResult = async () => {
     try {
@@ -138,6 +150,59 @@ const ResultsPage = () => {
           </div>
         </div>
 
+        {/* Gamification Card */}
+        {result.gamification && (
+          <div className="gamification-card">
+            <h2 className="section-title">🎮 נקודות</h2>
+            <div className="gamification-content">
+              <div className="points-earned-section">
+                <div className="points-earned-badge">
+                  <div className="points-earned-value">
+                    {result.gamification.pointsEarned >= 0 ? '+' : ''}
+                    {result.gamification.pointsEarned}
+                  </div>
+                  <div className="points-earned-label">נקודות שהרווחת</div>
+                </div>
+
+                <div className="points-breakdown">
+                  <div className="breakdown-item correct">
+                    <span className="breakdown-icon">✓</span>
+                    <span className="breakdown-label">תשובות נכונות</span>
+                    <span className="breakdown-value">+{result.gamification.pointsBreakdown.correctPoints}</span>
+                  </div>
+                  <div className="breakdown-item wrong">
+                    <span className="breakdown-icon">✗</span>
+                    <span className="breakdown-label">תשובות שגויות</span>
+                    <span className="breakdown-value">{result.gamification.pointsBreakdown.wrongPoints}</span>
+                  </div>
+                  <div className="breakdown-item bonus">
+                    <span className="breakdown-icon">🎁</span>
+                    <span className="breakdown-label">בונוס (70%+)</span>
+                    <span className="breakdown-value">+{result.gamification.pointsBreakdown.bonusPoints}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="current-status">
+                <div className="status-item">
+                  <div className="status-icon">🏆</div>
+                  <div className="status-details">
+                    <div className="status-label">רמה נוכחית</div>
+                    <div className="status-value">{result.gamification.currentLevel} - {result.gamification.arenaName}</div>
+                  </div>
+                </div>
+                <div className="status-item">
+                  <div className="status-icon">⭐</div>
+                  <div className="status-details">
+                    <div className="status-label">סך כל הנקודות</div>
+                    <div className="status-value">{result.gamification.totalPoints}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Detailed Results */}
         {result.results && result.results.length > 0 && (
           <div className="detailed-results">
@@ -217,6 +282,18 @@ const ResultsPage = () => {
           )}
         </div>
       </div>
+
+      {/* Level Up Modal */}
+      {result?.gamification && (
+        <LevelUpModal
+          isOpen={showLevelUpModal}
+          onClose={() => setShowLevelUpModal(false)}
+          newLevel={result.gamification.currentLevel}
+          arenaName={result.gamification.arenaName}
+          levelImagePath={result.gamification.levelImagePath || `/images/levels/level-${result.gamification.currentLevel}.svg`}
+          totalPoints={result.gamification.totalPoints}
+        />
+      )}
     </div>
   );
 };

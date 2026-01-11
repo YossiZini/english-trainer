@@ -1,5 +1,6 @@
 const UserProgress = require('../models/UserProgress');
 const WrongAnswer = require('../models/WrongAnswer');
+const GamificationService = require('./gamification.service');
 
 class ProgressService {
   /**
@@ -21,6 +22,9 @@ class ProgressService {
     // Get mistake statistics
     const mistakeStats = await WrongAnswer.getStatistics(userId);
 
+    // Get gamification data
+    const gamification = await GamificationService.getUserGamificationStatus(userId);
+
     return {
       stats: {
         ...stats,
@@ -29,7 +33,8 @@ class ProgressService {
       completion,
       nextLesson,
       recentActivity,
-      mistakeStats
+      mistakeStats,
+      gamification
     };
   }
 

@@ -29,6 +29,8 @@ app.use('/api/lessons', require('./routes/lesson.routes'));
 app.use('/api/exercises', require('./routes/exercise.routes'));
 app.use('/api/mistakes', require('./routes/mistakes.routes'));
 app.use('/api/progress', require('./routes/progress.routes'));
+app.use('/api/achievements', require('./routes/achievement.routes'));
+app.use('/api/challenges', require('./routes/challenge.routes'));
 
 // 404 handler
 app.use((req, res) => {

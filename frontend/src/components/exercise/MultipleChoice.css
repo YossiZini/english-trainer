@@ -33,25 +33,13 @@
 .option:hover {
   border-color: #667eea;
   background: #f8f9ff;
-  transform: translateX(-5px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
 .option.hovered {
   border-color: #667eea;
   background: #f0f3ff;
-  transform: translateX(-8px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-  animation: pulse 0.6s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-  }
-  50% {
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-  }
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
 }
 
 .option.selected {
@@ -67,7 +55,8 @@
 }
 
 .option.correct:hover {
-  transform: none;
+  background: #d4edda;
+  box-shadow: none;
 }
 
 .option.wrong {
@@ -77,7 +66,8 @@
 }
 
 .option.wrong:hover {
-  transform: none;
+  background: #f8d7da;
+  box-shadow: none;
 }
 
 .option-indicator {

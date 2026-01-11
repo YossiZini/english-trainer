@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import progressService from '../../services/progressService';
+import DailyChallenge from '../challenges/DailyChallenge';
+import achievementService from '../../services/achievementService';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -9,6 +11,7 @@ const Dashboard = () => {
   const { user } = useAuth();
 
   const [dashboardData, setDashboardData] = useState(null);
+  const [recentAchievements, setRecentAchievements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -20,8 +23,12 @@ const Dashboard = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-      const data = await progressService.getDashboard();
-      setDashboardData(data);
+      const [dashData, achievementsData] = await Promise.all([
+        progressService.getDashboard(),
+        achievementService.getRecentlyUnlocked(3).catch(() => ({ data: [] }))
+      ]);
+      setDashboardData(dashData);
+      setRecentAchievements(achievementsData.data || []);
       setLoading(false);
     } catch (err) {
       console.error('Failed to load dashboard:', err);
@@ -61,7 +68,7 @@ const Dashboard = () => {
     );
   }
 
-  const { stats, completion, nextLesson, recentActivity, mistakeStats } = dashboardData;
+  const { stats, completion, nextLesson, recentActivity, mistakeStats, gamification } = dashboardData;
 
   return (
     <div className="dashboard-page">
@@ -73,6 +80,82 @@ const Dashboard = () => {
           </h1>
           <p className="welcome-subtitle">בוא נמשיך ללמוד אנגלית</p>
         </div>
+
+        {/* Gamification Section */}
+        {gamification && (
+          <div className="gamification-section">
+            <div className="arena-display">
+              <div className="arena-image-container">
+                <img
+                  src={gamification.levelImagePath}
+                  alt={gamification.arenaName}
+                  className="arena-image"
+                />
+                <div className="arena-badge">
+                  <div className="arena-level">Level {gamification.currentLevel}</div>
+                </div>
+              </div>
+              <div className="arena-info">
+                <h3 className="arena-name">{gamification.arenaName}</h3>
+                <div className="points-display">
+                  <div className="points-label">נקודות:</div>
+                  <div className="points-value">{gamification.totalPoints}</div>
+                </div>
+                <div className="next-level-info">
+                  <div className="next-level-label">
+                    {gamification.currentLevel < 6
+                      ? `עוד ${gamification.pointsToNextLevel} נקודות לשלב הבא`
+                      : 'הגעת לשלב הגבוה ביותר! 🎉'}
+                  </div>
+                  {gamification.currentLevel < 6 && (
+                    <div className="level-progress-bar">
+                      <div
+                        className="level-progress-fill"
+                        style={{
+                          width: `${((20 - gamification.pointsToNextLevel) / 20) * 100}%`
+                        }}
+                      ></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Daily Challenge Widget */}
+        <div className="dashboard-challenges-section">
+          <DailyChallenge />
+        </div>
+
+        {/* Recent Achievements */}
+        {recentAchievements && recentAchievements.length > 0 && (
+          <div className="dashboard-achievements-section">
+            <div className="section-header">
+              <h2 className="section-title">הישגים אחרונים</h2>
+              <button
+                className="view-all-link"
+                onClick={() => navigate('/achievements')}
+              >
+                צפה בכל ההישגים ←
+              </button>
+            </div>
+            <div className="recent-achievements-grid">
+              {recentAchievements.map((achievement) => (
+                <div key={achievement.id} className="recent-achievement-card">
+                  <div className="recent-achievement-icon">{achievement.icon}</div>
+                  <div className="recent-achievement-info">
+                    <h4>{achievement.name_he}</h4>
+                    <p>{achievement.description_he}</p>
+                    <span className="recent-achievement-points">
+                      🪙 {achievement.points_reward}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Stats Overview */}
         <div className="stats-grid">

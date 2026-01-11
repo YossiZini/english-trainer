@@ -12,6 +12,8 @@ import CrossTestResultsPage from './components/exercise/CrossTestResultsPage';
 import ResultsPage from './components/results/ResultsPage';
 import ReviewMistakesPage from './components/mistakes/ReviewMistakesPage';
 import ProgressPage from './components/progress/ProgressPage';
+import AchievementsPage from './components/achievements/AchievementsPage';
+import Navbar from './components/navigation/Navbar';
 import PrivateRoute from './components/common/PrivateRoute';
 import './App.css';
 
@@ -20,6 +22,7 @@ function App() {
     <Router>
       <AuthProvider>
         <div className="App">
+          <Navbar />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<LoginPage />} />
@@ -95,6 +98,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <CrossTestResultsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/achievements"
+              element={
+                <PrivateRoute>
+                  <AchievementsPage />
                 </PrivateRoute>
               }
             />

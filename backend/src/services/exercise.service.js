@@ -1,6 +1,9 @@
 const Exercise = require('../models/Exercise');
 const UserProgress = require('../models/UserProgress');
+const User = require('../models/User');
 const { pool } = require('../config/database');
+const AchievementService = require('./achievement.service');
+const DailyChallengeService = require('./dailyChallenge.service');
 
 class ExerciseService {
   /**
@@ -113,6 +116,35 @@ class ExerciseService {
       // Update user progress
       await UserProgress.updateProgress(userId, lessonId, score, Math.floor(timeSpent / 60));
 
+      // Calculate and award gamification points
+      let pointsEarned = 0;
+      pointsEarned += correctAnswers * 1;      // +1 per correct answer
+      pointsEarned += wrongAnswersCount * (-2); // -2 per wrong answer
+      if (score >= 70) {
+        pointsEarned += 3;                     // +3 bonus for completing questionnaire
+      }
+
+      // Get previous level before updating points
+      const previousGamificationData = await User.getGamificationData(userId);
+
+      // Update user points and level
+      const newGamificationData = await User.addPoints(userId, pointsEarned);
+
+      // Check if user leveled up
+      const leveledUp = newGamificationData.gamification_level > newGamificationData.previousLevel;
+      const arenaName = User.getArenaName(newGamificationData.gamification_level);
+
+      // Check for new achievements
+      const newAchievements = await AchievementService.checkAndUnlockAchievements(userId);
+
+      // Update daily challenge progress
+      await DailyChallengeService.checkChallengeProgress(userId, 'lesson_completed', 1);
+      if (score === 100) {
+        await DailyChallengeService.checkChallengeProgress(userId, 'perfect_score', 1);
+      }
+      await DailyChallengeService.checkChallengeProgress(userId, 'correct_answer', correctAnswers);
+      await DailyChallengeService.checkChallengeProgress(userId, 'practice_minute', Math.floor(timeSpent / 60));
+
       await client.query('COMMIT');
 
       // Get next lesson if passed
@@ -138,7 +170,30 @@ class ExerciseService {
         isPassed: score >= 70,
         timeSpent,
         results,
-        nextLesson
+        nextLesson,
+        gamification: {
+          pointsEarned,
+          totalPoints: newGamificationData.total_points,
+          currentLevel: newGamificationData.gamification_level,
+          leveledUp,
+          arenaName,
+          pointsBreakdown: {
+            correctPoints: correctAnswers * 1,
+            wrongPoints: wrongAnswersCount * (-2),
+            bonusPoints: score >= 70 ? 3 : 0
+          }
+        },
+        achievements: {
+          newlyUnlocked: newAchievements.map(a => ({
+            id: a.id,
+            key: a.key,
+            name: a.name_he,
+            description: a.description_he,
+            icon: a.icon,
+            tier: a.tier,
+            pointsReward: a.points_reward
+          }))
+        }
       };
     } catch (error) {
       await client.query('ROLLBACK');

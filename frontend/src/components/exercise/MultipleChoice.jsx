@@ -1,25 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './MultipleChoice.css';
 
 const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback }) => {
   const options = question.options || [];
   const [hoveredOption, setHoveredOption] = useState(null);
-
-  // Handle Enter key to select hovered option
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      // Only handle if hovering an option that's NOT already selected
-      if (event.key === 'Enter' && hoveredOption && !feedback && hoveredOption !== selectedAnswer) {
-        // Select the hovered option
-        onAnswerChange(hoveredOption);
-        event.preventDefault(); // Prevent ExercisePage from checking immediately
-        event.stopPropagation();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown, true); // Use capture phase
-    return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [hoveredOption, feedback, onAnswerChange, selectedAnswer]);
 
   const handleOptionClick = (option) => {
     // Don't allow changing answer after feedback is shown
@@ -62,9 +46,6 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback }) 
                 )}
               </div>
               <div className="option-text">{option}</div>
-              {isHovered && !isSelected && !feedback && (
-                <div className="enter-hint">⏎ Enter</div>
-              )}
             </div>
           );
         })}
