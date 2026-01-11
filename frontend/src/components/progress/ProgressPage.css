@@ -1,0 +1,422 @@
+.progress-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  direction: rtl;
+}
+
+.progress-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.progress-header {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.breadcrumb {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.breadcrumb-link {
+  color: #667eea;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  margin: 0 0.5rem;
+}
+
+.breadcrumb-current {
+  color: #333;
+  font-weight: 500;
+}
+
+.progress-title {
+  font-size: 2.5rem;
+  color: #333;
+  text-align: center;
+}
+
+/* Overall Stats */
+.overall-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-box {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.stat-box:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  font-size: 3.5rem;
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.stat-subtext {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+/* Topic Progress Section */
+.topic-progress-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.section-title {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.topic-card {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.topic-card:hover {
+  background: #e9ecef;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.topic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.topic-name {
+  font-size: 1.3rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.topic-percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.topic-progress-bar {
+  width: 100%;
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.topic-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 1s ease;
+}
+
+.topic-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.topic-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topic-stat-icon {
+  font-size: 1.2rem;
+}
+
+.topic-stat-text {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* Lessons Progress Table */
+.lessons-progress-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.lessons-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: center;
+}
+
+.table-header {
+  background: #f8f9fa;
+  border-radius: 10px;
+  font-weight: 700;
+  color: #333;
+}
+
+.table-row {
+  background: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.table-row:hover {
+  background: #f8f9fa;
+  border-color: #667eea;
+  transform: translateX(-5px);
+}
+
+.table-row.completed {
+  border-color: #28a745;
+}
+
+.table-row.in_progress {
+  border-color: #ffc107;
+}
+
+.table-cell {
+  font-size: 1rem;
+  color: #333;
+}
+
+.lesson-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.lesson-number {
+  display: inline-block;
+  background: #667eea;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.in_progress {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.not_started {
+  background: #e9ecef;
+  color: #6c757d;
+}
+
+.score-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+/* Actions */
+.actions {
+  text-align: center;
+}
+
+.back-btn {
+  padding: 1rem 3rem;
+  background: white;
+  color: #333;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.back-btn:hover {
+  background: #f0f0f0;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading & Error */
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.back-button {
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.back-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .table-cell:nth-child(4),
+  .table-cell:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .progress-page {
+    padding: 1rem;
+  }
+
+  .progress-header,
+  .topic-progress-section,
+  .lessons-progress-section {
+    padding: 1.5rem;
+  }
+
+  .progress-title {
+    font-size: 1.8rem;
+  }
+
+  .overall-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-box {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .topic-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .table-cell {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .table-cell::before {
+    content: attr(data-label);
+    font-weight: 700;
+  }
+}
