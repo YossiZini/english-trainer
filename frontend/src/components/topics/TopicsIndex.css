@@ -199,35 +199,36 @@
 .subtopic-info {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .subtopic-header {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem;
 }
 
 /* Difficulty progress container */
 .difficulty-progress {
   display: flex;
-  gap: 0.5rem;
-  margin: 0.5rem 0;
+  gap: 0.35rem;
+  margin: 0.3rem 0;
   flex-wrap: wrap;
 }
 
-/* Individual difficulty badge - compact horizontal layout */
+/* Individual difficulty badge - minimal compact layout */
 .difficulty-badge {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  border-radius: 8px;
+  gap: 0.25rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-size: 0.75rem;
 }
 
 /* Color states */
@@ -248,7 +249,7 @@
 
 .difficulty-badge:hover {
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .difficulty-badge:active {
@@ -257,18 +258,20 @@
 
 /* Badge content */
 .difficulty-icon {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1;
 }
 
 .difficulty-label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   font-weight: 600;
+  line-height: 1;
 }
 
 .difficulty-score {
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  margin-right: 0.2rem;
+  line-height: 1;
 }
 
 .subtopic-header h3 {
@@ -351,30 +354,30 @@
   }
 
   .subtopic-info {
-    gap: 0.5rem;
+    gap: 0.35rem;
   }
 
   .difficulty-progress {
     flex-direction: row;
     justify-content: flex-start;
-    gap: 0.4rem;
-  }
-
-  .difficulty-badge {
-    padding: 0.35rem 0.6rem;
     gap: 0.3rem;
   }
 
+  .difficulty-badge {
+    padding: 0.2rem 0.4rem;
+    gap: 0.2rem;
+  }
+
   .difficulty-icon {
-    font-size: 1.1rem;
+    font-size: 0.85rem;
   }
 
   .difficulty-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
   }
 
   .difficulty-score {
-    font-size: 0.85rem;
+    font-size: 0.7rem;
   }
 
   .subtopic-actions {
