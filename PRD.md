@@ -42,19 +42,23 @@ A web-based English learning platform for Hebrew-speaking children (age 10+) wit
 
 **Content Per Topic:**
 - Hebrew theory explanation
-- 25-30 exercises split across difficulty levels:
-  - Easy (8-10 exercises)
-  - Medium (9-11 exercises)
-  - Hard (7-10 exercises)
+- **20 advanced exercises minimum** per lesson:
+  - **Hard: 20 exercises** - Complex scenarios, edge cases, exceptions, common mistakes
+- Focus on quality over quantity - each exercise must have comprehensive explanations
 
 ### 2. Exercise System
 
 **Exercise Types:**
-- **Multiple Choice**: 4 options, click to select
+- **Multiple Choice**: 4 options, keyboard or click to select
+  - First option is auto-selected by default
+  - Arrow keys (↑↓) navigate between options
+  - Visual indicator shows selected option (●)
 - **Fill in the Blank**: Text input with auto-focus
 
 **Smart Behavior:**
 - Auto-focus text inputs immediately
+- Multiple choice: first option pre-selected for instant submission
+- Arrow keys (↑↓) navigate between multiple choice options
 - Enter key submits answer
 - After feedback, Enter advances to next question
 - Random selection from chosen difficulty level
@@ -65,6 +69,38 @@ A web-based English learning platform for Hebrew-speaking children (age 10+) wit
 - No automatic progression
 - Can practice any level anytime
 - System suggests level based on past performance (but doesn't enforce)
+
+**Exercise Quality Requirements:**
+
+*Every exercise MUST include:*
+
+1. **Clear Question** in Hebrew (questionTextHe)
+2. **Correct Answer** (correctAnswer)
+3. **Comprehensive Explanation** (explanationHe) that MUST include ALL of the following:
+   - **תשובה נכונה:** (Correct answer) - State the correct answer explicitly
+   - **כלל:** (Rule) - Explain the relevant grammar rule in detail
+   - **שים לב:** (Pay attention) - Highlight important points or nuances
+   - **טעות נפוצה:** (Common mistake) - Explain what students often get wrong and why
+
+   **Example format:**
+   ```
+   "תשובה נכונה: doesn't. כלל: משתמשים ב-does not (doesn't) עם he/she/it.
+   שים לב: הפועל אחרי doesn't בצורת הבסיס ללא s.
+   טעות נפוצה: לכתוב doesn't plays - הפועל אחרי doesn't תמיד בצורת הבסיס."
+   ```
+
+*Advanced Level Focus (20 exercises per lesson):*
+
+- **Edge cases and exceptions** - Test unusual or irregular patterns
+- **Common native-speaker traps** - Mistakes that even fluent speakers make
+- **Multiple grammar points tested** - Combine several rules in one question
+- **Subtle distinctions** - Differentiate between similar constructions
+- **Context-dependent scenarios** - Require understanding, not just memorization
+- **Tricky vocabulary** - Words that follow unexpected rules
+
+*Exercise Types Mix:*
+- 60% Multiple Choice (clear distractors that represent common errors)
+- 40% Fill in the Blank (requires active recall)
 
 ### 3. Progress Tracking
 
@@ -78,6 +114,35 @@ A web-based English learning platform for Hebrew-speaking children (age 10+) wit
 - No lesson locks/prerequisites
 - No forced progression
 - No minimum score requirements
+
+**Progress Visibility Features:**
+
+*Previous Attempt Reminder Modal:*
+- Appears when user returns to a previously completed exercise
+- Shows: best score, number of attempts, last attempt date
+- Provides encouraging message based on score level (90%+: מצוין, 80%+: כל הכבוד, 70%+: יופי, <70%: אל תוותר)
+- Options: "כן, בוא נתחיל!" (Continue) or "חזרה לנושאים" (Go back)
+- Icon changes based on score: 🏆 (90%+), ⭐ (80%+), ✅ (70%+), 📝 (<70%)
+- Does NOT appear in retry mode (reviewing mistakes)
+
+*Enhanced Topics List:*
+- Status icons reflect achievement level:
+  - 🏆 Trophy for 90%+ scores
+  - ⭐ Star for 80-89% scores
+  - ✅ Checkmark for 70-79% scores (completed)
+  - ⏳ Hourglass for in-progress lessons
+  - 📝 Pencil for not-started lessons
+- Score badges displayed next to completed lessons showing exact percentage
+- Color-coded badges:
+  - Gold gradient (90%+): "Excellent"
+  - Green gradient (80-89%): "Great"
+  - Blue gradient (70-79%): "Good"
+  - Yellow gradient (<70%): "Needs work"
+- Progress bars in topic headers showing completion (e.g., "4/5 הושלמו")
+- Visual distinction:
+  - Completed lessons: subtle green background tint with green right border
+  - In-progress lessons: yellow right border
+  - Not started: default appearance
 
 ### 4. Feedback & Results
 
@@ -139,6 +204,21 @@ A web-based English learning platform for Hebrew-speaking children (age 10+) wit
 - Auto-focus on mobile if it triggers keyboard unexpectedly
 - Auto-focus after user has clicked elsewhere
 
+### Default Selection (Multiple Choice)
+
+**Smart Defaults:**
+- **First option auto-selected**: When a multiple choice question appears, the first option is automatically selected by default
+- **Reduces friction**: User can immediately press Enter to submit if the first option is their choice
+- **Still allows navigation**: User can use arrow keys (↑↓) or click to select different options
+- **Visual feedback**: Selected option is clearly highlighted with a filled circle (●) indicator
+- **Keyboard-first**: Optimizes for keyboard users who can navigate with arrows and submit with Enter without ever touching the mouse
+
+**Benefits:**
+- Reduces one click per question (from 2 clicks to 1 for first option)
+- Enables pure keyboard navigation (arrows + Enter)
+- Maintains clear visual state (always shows which option is selected)
+- Aligns with "minimize friction" principle
+
 ### Keyboard Shortcuts
 
 **Global:**
@@ -149,6 +229,7 @@ A web-based English learning platform for Hebrew-speaking children (age 10+) wit
 
 **Exercise Page:**
 - `Enter` = Check answer (if not checked) OR Next question (if checked)
+- `↑↓` = Navigate between multiple choice options (Arrow Up/Down)
 - `1-4` = Select multiple choice option 1-4
 - `←→` = Previous/Next question (with warning if unanswered)
 
@@ -340,6 +421,147 @@ Password: [cursor moves here]
 
 ---
 
+## Content Guidelines: Mixing Hebrew & English
+
+### The Challenge
+Hebrew is RTL (right-to-left) and English is LTR (left-to-right). When mixed together without proper structure, they create confusing layouts that are hard to read.
+
+### Principles for Theory Content
+
+**1. Clear Language Separation**
+- Use Hebrew for explanations and context
+- Use English for examples, formulas, and grammar rules
+- Never mix languages within a single sentence unless using `<span dir="ltr">` tags
+
+**2. Use `dir="ltr"` for English Text Blocks**
+```html
+<!-- Good: English examples with explicit LTR direction -->
+<div class="examples" dir="ltr">
+  <p>• I don't like coffee.</p>
+  <p>• They don't work on weekends.</p>
+</div>
+
+<!-- Bad: Mixed without direction, creates RTL chaos -->
+<ul>
+  <li>I don't like coffee.</li>
+</ul>
+```
+
+**3. Structure Pattern for Grammar Lessons**
+
+```html
+<h2>כותרת בעברית</h2>
+<p class="subtitle">English Translation</p>
+
+<div class="formula">
+  <div class="formula-title">מבנה המשפט:</div>
+  <div class="formula-content" dir="ltr">Subject + verb + object</div>
+  <div class="formula-explanation">(תרגום: נושא + פועל + מושא)</div>
+</div>
+
+<div class="rules">
+  <h3>כללים:</h3>
+
+  <div class="rule-section">
+    <p class="rule-header"><strong>כותרת הכלל בעברית:</strong></p>
+    <p class="rule-explanation">הסבר מפורט בעברית</p>
+    <div class="examples" dir="ltr">
+      <p>• English example sentence here.</p>
+      <p>• Another English example.</p>
+    </div>
+  </div>
+</div>
+```
+
+**4. Inline English Terms in Hebrew Text**
+When mentioning English words/terms within Hebrew sentences:
+```html
+<!-- Good: Wrap English in span with LTR -->
+<p>הפועל אחרי <span dir="ltr">doesn't</span> תמיד בצורת הבסיס</p>
+
+<!-- Bad: No wrapping -->
+<p>הפועל אחרי doesn't תמיד בצורת הבסיס</p>
+```
+
+**5. Comparison Boxes (Right/Wrong)**
+```html
+<div class="comparison">
+  <p class="wrong">❌ <span dir="ltr">She doesn't plays</span></p>
+  <p class="correct">✅ <span dir="ltr">She doesn't play</span></p>
+</div>
+```
+
+### Visual Hierarchy
+
+**Use Containers:**
+- `.formula` - Blue box for grammar formulas
+- `.rules` - Yellow box for rules and explanations
+- `.examples` - Gray box with green border for English examples (always `dir="ltr"`)
+- `.warning` - Yellow box for important notes
+- `.tip` - Green box for helpful tips
+- `.rule-section` - White cards within rules for organized content
+
+### Example: Well-Structured Content
+
+**Before (Confusing):**
+```html
+<h2>משפטים שליליים בזמן הווה פשוט</h2>
+<div class="formula">
+  <strong>Subject + do/does + not + verb</strong>
+</div>
+<p><strong>I / You / We / They - משתמשים ב-don't:</strong></p>
+<ul>
+  <li>I don't like coffee.</li>
+</ul>
+```
+
+**After (Clear):**
+```html
+<h2>משפטים שליליים בזמן הווה פשוט</h2>
+<p class="subtitle">Negative Sentences in Present Simple</p>
+
+<div class="formula">
+  <div class="formula-title">מבנה המשפט:</div>
+  <div class="formula-content" dir="ltr">Subject + do/does + not + verb</div>
+  <div class="formula-explanation">(נושא + do/does + not + פועל)</div>
+</div>
+
+<div class="rules">
+  <h3>כללים:</h3>
+
+  <div class="rule-section">
+    <p class="rule-header"><strong>עם I / You / We / They:</strong></p>
+    <p class="rule-explanation">משתמשים ב-<span dir="ltr"><strong>don't</strong></span></p>
+    <div class="examples" dir="ltr">
+      <p>• I don't like coffee.</p>
+      <p>• They don't work on weekends.</p>
+    </div>
+  </div>
+</div>
+```
+
+### Benefits of This Approach
+
+1. **Visual Clarity**: Hebrew and English are clearly separated into distinct blocks
+2. **Correct Text Flow**: LTR blocks prevent English text from being mangled by RTL
+3. **Consistent Structure**: Every lesson follows the same pattern
+4. **Professional Look**: Clean, organized, easy to scan
+5. **Accessibility**: Screen readers can properly handle directional changes
+
+### CSS Classes Summary
+
+| Class | Purpose | Direction |
+|-------|---------|-----------|
+| `.subtitle` | English translation of Hebrew heading | LTR |
+| `.formula-content` | English grammar formulas | LTR |
+| `.formula-explanation` | Hebrew translation of formula | RTL (default) |
+| `.rule-header` | Hebrew rule title | RTL (default) |
+| `.rule-explanation` | Hebrew explanation | RTL (default) |
+| `.examples` | English example sentences | LTR (always) |
+| `<span dir="ltr">` | Inline English terms in Hebrew text | LTR |
+
+---
+
 ## Appendix: Example User Journey
 
 **Sarah, 11 years old, first time user:**
@@ -350,19 +572,23 @@ Password: [cursor moves here]
 4. Sees 3 topics, clicks "Present Simple"
 5. Reads theory (2 minutes)
 6. Clicks "Easy" difficulty button → First question appears immediately
-7. Sees fill-in-blank question, input is focused, types answer
-8. Presses Enter → Answer checked, feedback shown
+7. Question 1: Multiple choice - first option already selected
+8. Uses arrow down key (↓) to select option 3, presses Enter → Answer checked, feedback shown
 9. Presses Enter again → Next question
-10. Completes 10 questions in 8 minutes
-11. Results page auto-appears
-12. Sees score: 8/10 (80%)
-13. Clicks "Practice Again" → Gets 10 different questions at same level
+10. Question 2: Fill-in-blank, input is focused, types answer, presses Enter
+11. Continues with arrow keys and Enter for navigation
+12. Completes 10 questions in 8 minutes
+13. Results page auto-appears
+14. Sees score: 8/10 (80%)
+15. Clicks "Practice Again" → Gets 10 different questions at same level
 
-**Total clicks: 5**
-**Total keyboard actions: 12 (mostly Enter)**
+**Total clicks: 3** (Login, Select Topic, Select Difficulty)
+**Total keyboard actions: ~25** (arrows for navigation, Enter for submit/continue, typing answers)
 **Time: 10 minutes**
 **Friction points: 0**
+**Pure keyboard navigation: ✅ Possible**
 
 ---
 
-*Last Updated: 2026-01-11*
+*Last Updated: 2026-01-12*
+*Latest addition: Progress Tracking Visibility Features (Previous Attempt Modal & Enhanced Topics List)*

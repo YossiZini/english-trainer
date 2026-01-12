@@ -140,6 +140,21 @@
   gap: 1rem;
 }
 
+/* Topic progress bar */
+.topic-progress-bar {
+  width: 100px;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.topic-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s ease;
+}
+
 .progress-text {
   font-weight: 600;
   color: #666;
@@ -159,11 +174,26 @@
 .subtopic-item {
   padding: 1.5rem;
   border-top: 1px solid #e9ecef;
-  transition: background 0.3s;
+  transition: all 0.3s;
 }
 
 .subtopic-item:hover {
   background: #f8f9fa;
+}
+
+/* Visual distinction for completed lessons */
+.subtopic-item.completed {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.08) 0%, rgba(34, 197, 94, 0.04) 100%);
+  border-right: 4px solid #22c55e;
+}
+
+.subtopic-item.completed:hover {
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.12) 0%, rgba(34, 197, 94, 0.08) 100%);
+}
+
+/* In-progress lessons */
+.subtopic-item.in-progress {
+  border-right: 4px solid #fbbf24;
 }
 
 .subtopic-info {
@@ -177,10 +207,52 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
+  flex: 1;
 }
 
+/* Larger status icons */
 .status-icon {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+/* Score badge next to completed lessons */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-right: auto;
+  margin-left: 1rem;
+  white-space: nowrap;
+}
+
+.score-excellent {
+  background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.score-great {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.score-good {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.score-needs-work {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
 }
 
 .subtopic-title h3 {

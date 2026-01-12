@@ -5,6 +5,7 @@ import exerciseService from '../../services/exerciseService';
 import mistakesService from '../../services/mistakesService';
 import MultipleChoice from './MultipleChoice';
 import FillInBlank from './FillInBlank';
+import PreviousAttemptModal from './PreviousAttemptModal';
 import './ExercisePage.css';
 
 const ExercisePage = () => {
@@ -27,6 +28,8 @@ const ExercisePage = () => {
   const [feedback, setFeedback] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showPreviousAttemptModal, setShowPreviousAttemptModal] = useState(false);
+  const [lessonProgress, setLessonProgress] = useState(null);
 
   useEffect(() => {
     loadExercises();
@@ -70,6 +73,16 @@ const ExercisePage = () => {
       const lessonData = await lessonService.getLessonById(lessonId);
       setLesson(lessonData);
 
+      // Check if user has previous attempts (not in retry mode)
+      if (!isRetryMode && lessonData.progress && lessonData.progress.attempts > 0) {
+        setLessonProgress({
+          bestScore: lessonData.progress.best_score || 0,
+          attempts: lessonData.progress.attempts || 0,
+          lastAttemptedAt: lessonData.progress.last_attempted_at
+        });
+        setShowPreviousAttemptModal(true);
+      }
+
       // Load exercises based on mode
       let exercisesData;
       if (isRetryMode) {
@@ -79,15 +92,25 @@ const ExercisePage = () => {
       }
 
       setExercises(exercisesData.exercises || exercisesData);
-      if (exercisesData.currentDifficulty) {
+
+      // Set current difficulty from URL param or from response
+      if (selectedDifficulty) {
+        setCurrentDifficulty(selectedDifficulty);
+      } else if (exercisesData.currentDifficulty) {
         setCurrentDifficulty(exercisesData.currentDifficulty);
       }
+
       setLoading(false);
     } catch (err) {
       console.error('Failed to load exercises:', err);
       setError('שגיאה בטעינת התרגילים');
       setLoading(false);
     }
+  };
+
+  const handleContinueAnyway = () => {
+    setShowPreviousAttemptModal(false);
+    // Exercises are already loaded, just dismiss modal
   };
 
   const handleAnswerChange = (exerciseId, answer) => {
@@ -182,7 +205,7 @@ const ExercisePage = () => {
       } else {
         // Regular exercise submission
         const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-        const result = await exerciseService.submitExercise(lessonId, answers, timeSpent);
+        const result = await exerciseService.submitExercise(lessonId, answers, timeSpent, currentDifficulty);
 
         // Navigate to results page
         navigate(`/results/${result.resultId}`, {
@@ -230,6 +253,14 @@ const ExercisePage = () => {
 
   return (
     <div className="exercise-page">
+      {/* Previous Attempt Modal */}
+      <PreviousAttemptModal
+        isOpen={showPreviousAttemptModal}
+        onContinue={handleContinueAnyway}
+        progress={lessonProgress}
+        lessonTitle={lesson?.title_he}
+      />
+
       <div className="exercise-container">
         {/* Header */}
         <div className="exercise-header">
