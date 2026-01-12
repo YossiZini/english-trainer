@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import lessonService from '../../services/lessonService';
 import './TopicsIndex.css';
 
 const TopicsIndex = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -158,32 +159,42 @@ const TopicsIndex = () => {
                         className={`subtopic-item ${lesson.progress.status === 'completed' ? 'completed' : ''} ${lesson.progress.status === 'in_progress' ? 'in-progress' : ''}`}
                       >
                         <div className="subtopic-info">
-                          <div className="subtopic-title">
-                            <span className="status-icon">{getStatusIcon(lesson.progress.status, lesson.progress.bestScore)}</span>
-                            <div>
-                              <h3>{lesson.subtopicNumber}. {lesson.titleHe}</h3>
-                              <p className="subtopic-title-en">{lesson.titleEn}</p>
-                            </div>
-                            {/* Score badge for completed lessons */}
-                            {lesson.progress.status === 'completed' && (
-                              <span className={`score-badge score-${getScoreLevel(lesson.progress.bestScore)}`}>
-                                {lesson.progress.bestScore}%
-                              </span>
-                            )}
+                          <div className="subtopic-header">
+                            <h3>{lesson.subtopicNumber}. {lesson.titleHe}</h3>
+                            <p className="subtopic-title-en">{lesson.titleEn}</p>
                           </div>
-                          <div className="subtopic-status">
-                            {lesson.progress.bestScore >= 80 && (
-                              <span className="level-badge level-advanced">מתקדם 🔥</span>
-                            )}
-                            {lesson.progress.bestScore >= 60 && lesson.progress.bestScore < 80 && (
-                              <span className="level-badge level-intermediate">בינוני ⚡</span>
-                            )}
-                            {(lesson.progress.bestScore < 60 || !lesson.progress.bestScore) && (
-                              <span className="level-badge level-beginner">מתחיל 🌱</span>
-                            )}
-                            <span className="status-text">
-                              {getStatusText(lesson.progress.status, lesson.progress.bestScore)}
-                            </span>
+
+                          {/* Difficulty progress badges */}
+                          <div className="difficulty-progress">
+                            {['easy', 'medium', 'hard'].map((level) => {
+                              const levelData = lesson.progress.difficultyScores?.[level];
+                              const scoreClass = !levelData ? 'not-attempted'
+                                : levelData.score >= 80 ? 'passed'
+                                : 'needs-work';
+
+                              return (
+                                <div
+                                  key={level}
+                                  className={`difficulty-badge ${scoreClass}`}
+                                  onClick={() => navigate(`/exercise/${lesson.id}?difficulty=${level}`)}
+                                  title={`לחץ כדי לתרגל ברמת ${level === 'easy' ? 'קל' : level === 'medium' ? 'בינוני' : 'קשה'}`}
+                                >
+                                  <span className="difficulty-icon">
+                                    {level === 'easy' && '🌱'}
+                                    {level === 'medium' && '⚡'}
+                                    {level === 'hard' && '🔥'}
+                                  </span>
+                                  <span className="difficulty-label">
+                                    {level === 'easy' && 'קל'}
+                                    {level === 'medium' && 'בינוני'}
+                                    {level === 'hard' && 'קשה'}
+                                  </span>
+                                  <span className="difficulty-score">
+                                    {levelData ? `${levelData.score}%` : '---'}
+                                  </span>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
 

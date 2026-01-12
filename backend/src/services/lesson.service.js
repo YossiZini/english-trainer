@@ -9,6 +9,31 @@ class LessonService {
   static async getAllLessons(userId, filters = {}) {
     const lessons = await Lesson.findAllWithProgress(userId, filters);
 
+    // Query to get best score per difficulty for each lesson
+    const difficultyScoresQuery = `
+      SELECT
+        lesson_id,
+        difficulty,
+        MAX(score) as best_score,
+        COUNT(*) as attempts
+      FROM exercise_results
+      WHERE user_id = $1
+      GROUP BY lesson_id, difficulty
+    `;
+    const difficultyScoresResult = await pool.query(difficultyScoresQuery, [userId]);
+
+    // Build a map of lesson_id -> difficulty -> {score, attempts}
+    const difficultyScoresMap = {};
+    difficultyScoresResult.rows.forEach(row => {
+      if (!difficultyScoresMap[row.lesson_id]) {
+        difficultyScoresMap[row.lesson_id] = {};
+      }
+      difficultyScoresMap[row.lesson_id][row.difficulty] = {
+        score: parseInt(row.best_score),
+        attempts: parseInt(row.attempts)
+      };
+    });
+
     // Group lessons by topic
     const groupedLessons = lessons.reduce((acc, lesson) => {
       const topicKey = lesson.topic_number;
@@ -20,6 +45,13 @@ class LessonService {
           lessons: []
         };
       }
+
+      // Get difficulty scores for this lesson
+      const difficultyScores = {
+        easy: difficultyScoresMap[lesson.id]?.easy || null,
+        medium: difficultyScoresMap[lesson.id]?.medium || null,
+        hard: difficultyScoresMap[lesson.id]?.hard || null
+      };
 
       acc[topicKey].lessons.push({
         id: lesson.id,
@@ -33,7 +65,8 @@ class LessonService {
           bestScore: lesson.best_score || 0,
           attempts: lesson.attempts || 0,
           firstCompletedAt: lesson.first_completed_at,
-          lastAttemptedAt: lesson.last_attempted_at
+          lastAttemptedAt: lesson.last_attempted_at,
+          difficultyScores // Add per-difficulty scores
         }
       });
 

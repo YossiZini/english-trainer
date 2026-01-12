@@ -17,8 +17,16 @@ class ExerciseService {
   /**
    * Submit complete exercise and save results
    */
-  static async submitExercise(userId, lessonId, answers, timeSpent) {
+  static async submitExercise(userId, lessonId, answers, timeSpent, difficulty = 'easy') {
     const client = await pool.connect();
+
+    // Determine next difficulty level
+    const difficultyMap = {
+      'easy': 'medium',
+      'medium': 'hard',
+      'hard': null // No next level after hard
+    };
+    const nextDifficulty = difficultyMap[difficulty];
 
     try {
       await client.query('BEGIN');
@@ -74,9 +82,9 @@ class ExerciseService {
       const resultQuery = `
         INSERT INTO exercise_results (
           user_id, lesson_id, attempt_number, total_questions,
-          correct_answers, wrong_answers, score, time_spent
+          correct_answers, wrong_answers, score, time_spent, difficulty
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id, attempt_number, score, completed_at
       `;
 
@@ -88,7 +96,8 @@ class ExerciseService {
         correctAnswers,
         wrongAnswersCount,
         score,
-        timeSpent
+        timeSpent,
+        difficulty
       ];
 
       const resultRecord = await client.query(resultQuery, resultValues);
@@ -160,8 +169,19 @@ class ExerciseService {
         nextLesson = nextResult.rows[0] || null;
       }
 
+      // Get previous lesson
+      const previousLessonQuery = `
+        SELECT l2.id, l2.title_en, l2.title_he
+        FROM lessons l1
+        JOIN lessons l2 ON l2.order_index = l1.order_index - 1
+        WHERE l1.id = $1
+      `;
+      const previousResult = await pool.query(previousLessonQuery, [lessonId]);
+      const previousLesson = previousResult.rows[0] || null;
+
       return {
         resultId: resultRecord.rows[0].id,
+        lessonId,
         attemptNumber,
         totalQuestions,
         correctAnswers,
@@ -171,6 +191,9 @@ class ExerciseService {
         timeSpent,
         results,
         nextLesson,
+        previousLesson,
+        currentDifficulty: difficulty,
+        nextDifficulty: nextDifficulty,
         gamification: {
           pointsEarned,
           totalPoints: newGamificationData.total_points,
@@ -211,14 +234,43 @@ class ExerciseService {
       SELECT er.id, er.user_id, er.lesson_id, er.attempt_number,
              er.total_questions, er.correct_answers, er.wrong_answers,
              er.score, er.time_spent, er.completed_at,
-             l.title_en, l.title_he
+             l.title_en, l.title_he, l.order_index
       FROM exercise_results er
       JOIN lessons l ON er.lesson_id = l.id
       WHERE er.id = $1 AND er.user_id = $2
     `;
 
     const result = await pool.query(query, [resultId, userId]);
-    return result.rows[0];
+
+    if (!result.rows[0]) {
+      return null;
+    }
+
+    const resultData = result.rows[0];
+
+    // Get next lesson
+    const nextLessonQuery = `
+      SELECT id, title_en, title_he
+      FROM lessons
+      WHERE order_index = $1
+    `;
+    const nextResult = await pool.query(nextLessonQuery, [resultData.order_index + 1]);
+    const nextLesson = nextResult.rows[0] || null;
+
+    // Get previous lesson
+    const previousLessonQuery = `
+      SELECT id, title_en, title_he
+      FROM lessons
+      WHERE order_index = $1
+    `;
+    const previousResult = await pool.query(previousLessonQuery, [resultData.order_index - 1]);
+    const previousLesson = previousResult.rows[0] || null;
+
+    return {
+      ...resultData,
+      nextLesson,
+      previousLesson
+    };
   }
 }
 
