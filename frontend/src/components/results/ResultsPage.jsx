@@ -237,49 +237,103 @@ const ResultsPage = () => {
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="action-buttons">
-          <button
-            onClick={() => navigate('/topics')}
-            className="action-button secondary"
-          >
-            חזרה לנושאים
-          </button>
+        {/* Navigation Section */}
+        <div className="navigation-section">
+          <h2 className="section-title">מה הלאה?</h2>
 
-          {result.wrongAnswers > 0 && (
+          {/* Lesson Navigation */}
+          <div className="lesson-navigation">
+            {result.previousLesson && (
+              <button
+                onClick={() => navigate(`/learn/${result.previousLesson.id}`)}
+                className="nav-button nav-previous"
+              >
+                <span className="nav-icon">◀️</span>
+                <div className="nav-content">
+                  <div className="nav-label">שיעור קודם</div>
+                  <div className="nav-title">{result.previousLesson.title_he}</div>
+                </div>
+              </button>
+            )}
+
             <button
-              onClick={() => navigate(`/mistakes/review/${result.lessonId}`, {
-                state: { lesson: { title_he: lessonTitle } }
-              })}
-              className="action-button review"
+              onClick={() => navigate(`/learn/${result.lessonId}`)}
+              className="nav-button nav-current"
             >
-              סקור טעויות ({result.wrongAnswers})
+              <span className="nav-icon">📖</span>
+              <div className="nav-content">
+                <div className="nav-label">חזרה לתיאוריה</div>
+                <div className="nav-title">{lessonTitle}</div>
+              </div>
             </button>
-          )}
 
-          {!isPassed && (
-            <button
-              onClick={() => navigate(`/exercise/${result.lessonId}`)}
-              className="action-button retry"
-            >
-              נסה שוב
-            </button>
-          )}
+            {result.nextLesson && (
+              <button
+                onClick={() => navigate(`/learn/${result.nextLesson.id}`)}
+                className="nav-button nav-next"
+              >
+                <div className="nav-content">
+                  <div className="nav-label">שיעור הבא</div>
+                  <div className="nav-title">{result.nextLesson.title_he}</div>
+                </div>
+                <span className="nav-icon">▶️</span>
+              </button>
+            )}
 
-          {isPassed && result.nextLesson && (
-            <button
-              onClick={() => navigate(`/learn/${result.nextLesson.id}`)}
-              className="action-button primary"
-            >
-              המשך לשיעור הבא: {result.nextLesson.title_he}
-            </button>
-          )}
+            {!result.nextLesson && (
+              <div className="completion-message">
+                🎓 סיימת את כל השיעורים! 🎓
+              </div>
+            )}
+          </div>
 
-          {isPassed && !result.nextLesson && (
-            <div className="completion-message">
-              🎓 סיימת את כל השיעורים הזמינים! כל הכבוד! 🎓
+          {/* Difficulty Progression */}
+          {result.nextDifficulty && (
+            <div className="difficulty-progression">
+              <h3 className="progression-title">💪 מוכן לאתגר גדול יותר?</h3>
+              <p className="progression-description">
+                סיימת את רמת {result.currentDifficulty === 'easy' ? 'המתחילים' : 'הביניים'}!
+                {' '}נסה את רמת {result.nextDifficulty === 'medium' ? 'הביניים' : 'המתקדמים'}
+              </p>
+              <button
+                onClick={() => navigate(`/exercise/${result.lessonId}?difficulty=${result.nextDifficulty}`)}
+                className="difficulty-button"
+              >
+                {result.nextDifficulty === 'medium' && '⚡ נסה רמת ביניים'}
+                {result.nextDifficulty === 'hard' && '🔥 נסה רמה מתקדמת'}
+              </button>
             </div>
           )}
+
+          {/* Action Buttons */}
+          <div className="action-buttons">
+            {result.wrongAnswers > 0 && (
+              <button
+                onClick={() => navigate(`/mistakes/review/${result.lessonId}`, {
+                  state: { lesson: { title_he: lessonTitle } }
+                })}
+                className="action-button review"
+              >
+                📝 סקור טעויות ({result.wrongAnswers})
+              </button>
+            )}
+
+            {!isPassed && (
+              <button
+                onClick={() => navigate(`/exercise/${result.lessonId}?difficulty=${result.currentDifficulty || 'easy'}`)}
+                className="action-button retry"
+              >
+                🔄 נסה שוב
+              </button>
+            )}
+
+            <button
+              onClick={() => navigate('/topics')}
+              className="action-button secondary"
+            >
+              🏠 חזרה לנושאים
+            </button>
+          </div>
         </div>
       </div>
 

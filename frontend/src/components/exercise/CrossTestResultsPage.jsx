@@ -148,15 +148,15 @@ const CrossTestResultsPage = () => {
                       <span className="mistake-topic">📚 {result.exercise.lesson_title}</span>
                       <span className="mistake-icon">❌</span>
                     </div>
-                    <div className="mistake-question">{result.exercise.question_text_he}</div>
+                    <div className="mistake-question" dir="ltr">{result.exercise.question_text_he}</div>
                     <div className="mistake-answers">
                       <div className="mistake-answer wrong">
                         <span className="answer-label">תשובתך:</span>
-                        <span className="answer-value">{result.userAnswer || '(לא נענתה)'}</span>
+                        <span className="answer-value" dir="ltr">{result.userAnswer || '(לא נענתה)'}</span>
                       </div>
                       <div className="mistake-answer correct">
                         <span className="answer-label">תשובה נכונה:</span>
-                        <span className="answer-value">{result.feedback?.correctAnswer}</span>
+                        <span className="answer-value" dir="ltr">{result.feedback?.correctAnswer}</span>
                       </div>
                     </div>
                     {result.feedback?.explanationHe && (

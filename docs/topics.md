@@ -1,76 +1,775 @@
 # English Learning Topics - Ordered Curriculum
 
+---
+
 ## Level: Beginner (רמת מתחילים)
 
+Foundational English concepts for students starting their English learning journey.
+
 ---
 
-## Topic 1: Present Simple Tense (זמן הווה פשוט)
 
-### 1.1 Introduction to Present Simple
-- What is Present Simple and when do we use it
-- Habits and routines (הרגלים ושגרה)
-- Facts and general truths (עובדות ואמיתות כלליות)
-- Time expressions: always, usually, often, sometimes, never, every day/week/month
+## Topic 1: Grammar Basics - Introduction (יסודות דקדוק)
 
-### 1.2 Affirmative Sentences (משפטים חיוביים)
-- Structure: Subject + Verb (+ Object)
-- First person: I/We + base verb
-  - Example: I play football. We eat breakfast.
-- Second person: You + base verb
-  - Example: You study English.
-- Third person: He/She/It + verb + s/es
-  - Example: He plays football. She watches TV. It works well.
-- Rules for adding -s/-es/-ies
-  - Regular: play → plays, eat → eats
-  - -es ending: watch → watches, go → goes, do → does
-  - -ies ending: study → studies, fly → flies
+### 1.1 Parts of Speech (חלקי הדיבור)
 
-### 1.3 Negative Sentences (משפטים שליליים)
-- Structure: Subject + do/does + not + base verb
-- I/You/We/They + don't + base verb
-  - Example: I don't like coffee. They don't play tennis.
-- He/She/It + doesn't + base verb
-  - Example: He doesn't watch TV. She doesn't eat meat.
-- Important: The main verb returns to base form (doesn't playS ❌ → doesn't play ✅)
+**מהם חלקי הדיבור?**
 
-### 1.4 Yes/No Questions (שאלות כן/לא)
-- Structure: Do/Does + subject + base verb?
-- Do + I/you/we/they + base verb?
-  - Example: Do you like pizza? Do they play football?
-- Does + he/she/it + base verb?
-  - Example: Does he work here? Does she speak English?
+חלקי הדיבור הם הקטגוריות השונות של מילים בשפה האנגלית. כל מילה שייכת לחלק דיבור אחד או יותר.
+
+**8 חלקי דיבור עיקריים:**
+
+**1. Nouns (שמות עצם)** - שמות של אנשים, מקומות, דברים או רעיונות
+- **אנשים:** teacher (מורה), student (תלמיד), John (ג'ון)
+- **מקומות:** school (בית ספר), park (פארק), Israel (ישראל)
+- **דברים:** book (ספר), car (מכונית), phone (טלפון)
+- **רעיונות:** love (אהבה), freedom (חופש), happiness (אושר)
+
+**2. Verbs (פעלים)** - מילים שמתארות פעולה או מצב
+- **פעולות:** run (לרוץ), eat (לאכול), write (לכתוב), study (ללמוד)
+- **מצב:** be (להיות), have (להיות בעל), seem (להיראות)
+- דוגמאות: I **eat** breakfast. She **runs** fast.
+
+**3. Adjectives (שמות תואר)** - מילים שמתארות שמות עצם
+- **תיאור:** big (גדול), small (קטן), beautiful (יפה), happy (שמח)
+- **צבעים:** red (אדום), blue (כחול), green (ירוק)
+- **מספרים:** one (אחד), first (ראשון), many (הרבה)
+- דוגמאות: a **big** house, a **beautiful** flower
+
+**4. Adverbs (תארי הפועל)** - מילים שמתארות פעלים, תארים או תארי פועל אחרים
+- **איך?** quickly (מהר), slowly (לאט), well (טוב)
+- **מתי?** now (עכשיו), yesterday (אתמול), soon (בקרוב)
+- **איפה?** here (כאן), there (שם), everywhere (בכל מקום)
+- **כמה?** very (מאוד), too (מדי), quite (די)
+- דוגמאות: He runs **quickly**. She is **very** smart.
+
+**5. Pronouns (כינויים)** - מילים שמחליפות שמות עצם
+- **כינויי נושא:** I (אני), you (אתה/את), he (הוא), she (היא), it (זה), we (אנחנו), they (הם)
+- **כינויי מושא:** me (אותי), you (אותך), him (אותו), her (אותה), it (זה), us (אותנו), them (אותם)
+- דוגמה: **John** is a teacher. **He** teaches English.
+
+**6. Prepositions (מילות יחס)** - מילים שמראות קשר בין שמות עצם
+- **מקום:** in (ב), on (על), at (ב), under (מתחת), between (בין)
+- **זמן:** at (ב), on (ב), in (ב), before (לפני), after (אחרי)
+- **כיוון:** to (אל), from (מ), into (לתוך)
+- דוגמה: The book is **on** the table.
+
+**7. Conjunctions (מילות חיבור)** - מילים שמחברות מילים או משפטים
+- **and** (ו): I like apples **and** oranges.
+- **but** (אבל): I'm tired **but** happy.
+- **or** (או): Coffee **or** tea?
+- **because** (כי): I'm happy **because** I passed the test.
+
+**8. Articles (מאמרים)** - a, an, the
+- **a/an** (מאמר לא מוגדר): **a** book, **an** apple
+- **the** (מאמר מוגדר): **the** book, **the** apple
+
+**איך לזהות חלק דיבור:**
+
+1. **שאל שאלות:**
+   - מי? מה? → Noun
+   - עושה מה? → Verb
+   - איזה? איך? → Adjective
+   - איך? מתי? איפה? → Adverb
+
+2. **מיקום במשפט:**
+   - Noun - בדרך כלל נושא או מושא
+   - Verb - בא אחרי הנושא
+   - Adjective - לפני Noun או אחרי be
+   - Adverb - לרוב אחרי verb או לפני adjective
+
+### 1.2 Sentence Structure (מבנה המשפט)
+
+**מבנה המשפט הבסיסי באנגלית:**
+
+```
+Subject + Verb + Object
+נושא + פועל + מושא
+```
+
+**דוגמאות:**
+- **I** eat apples. (אני אוכל תפוחים)
+- **She** reads books. (היא קוראת ספרים)
+- **They** play football. (הם משחקים כדורגל)
+
+**ההבדל בין אנגלית לעברית:**
+
+| אנגלית | עברית |
+|--------|-------|
+| **Strict word order** | **Flexible word order** |
+| Subject → Verb → Object | ניתן לשנות סדר |
+| I love you | אני אוהב אותך / אותך אני אוהב |
+| Must follow order | ניתן לשנות לפי הדגש |
+
+**סדר מילים באנגלית - קבוע!**
+
+❌ **שגוי:** Love I you.
+✅ **נכון:** I love you.
+
+❌ **שגוי:** Apples eat I.
+✅ **נכון:** I eat apples.
+
+**הרחבות למשפט הבסיסי:**
+
+**1. הוספת תואר (Adjective):**
+- I eat **red** apples. (אני אוכל תפוחים אדומים)
+- She reads **interesting** books.
+
+**2. הוספת תואר הפועל (Adverb):**
+- I eat apples **quickly**. (אני אוכל תפוחים מהר)
+- She reads books **carefully**.
+
+**3. הוספת מילות יחס (Prepositions):**
+- I eat apples **in the morning**. (אני אוכל תפוחים בבוקר)
+- She reads books **at home**.
+
+**4. הוספת מילות חיבור (Conjunctions):**
+- I eat apples **and** oranges. (אני אוכל תפוחים ותפוזים)
+- She reads books **but** I watch TV.
+
+**מבנה משפט מורחב:**
+```
+Subject + Adverb + Verb + Adjective + Object + Preposition + Object
+I + always + eat + red + apples + in + the morning
+```
+
+**כללי סדר מילים חשובים:**
+
+1. **Adjective לפני Noun:**
+   - ✅ a **beautiful** house
+   - ❌ a house beautiful
+
+2. **Adverb אחרי Verb (בדרך כלל):**
+   - ✅ He runs **quickly**
+   - ❌ He quickly runs (פחות נפוץ)
+
+3. **נושא לפני הפועל תמיד:**
+   - ✅ I am happy
+   - ❌ Am I happy (רק בשאלה!)
+
+### 1.3 Types of Sentences (סוגי משפטים)
+
+**4 סוגי משפטים עיקריים:**
+
+**1. Declarative Sentences (משפטי הצהרה)** - משפטים שמציגים עובדה או מידע
+
+**מבנה:** Subject + Verb + (Object)
+**סיום:** נקודה (.)
+
+**דוגמאות:**
+- I am a student. (אני תלמיד)
+- She lives in Tel Aviv. (היא גרה בתל אביב)
+- They play football. (הם משחקים כדורגל)
+- The sky is blue. (השמים כחולים)
+- We study English. (אנחנו לומדים אנגלית)
+
+**שימוש:** זה הסוג הנפוץ ביותר - משפטים רגילים שמספרים מידע.
+
+**2. Interrogative Sentences (משפטי שאלה)** - משפטים ששואלים שאלה
+
+**מבנה:**
+- **Yes/No שאלות:** Auxiliary Verb + Subject + Main Verb?
+- **Wh- שאלות:** Wh-word + Auxiliary Verb + Subject + Main Verb?
+
+**סיום:** סימן שאלה (?)
+
+**דוגמאות Yes/No:**
+- Are you a student? (אתה תלמיד?)
+- Do you like pizza? (אתה אוהב פיצה?)
+- Can she swim? (היא יודעת לשחות?)
+
+**דוגמאות Wh-:**
+- What is your name? (מה שמך?)
+- Where do you live? (איפה אתה גר?)
+- When did she arrive? (מתי היא הגיעה?)
+- Why are you sad? (למה אתה עצוב?)
+- How are you? (מה שלומך?)
+
+**3. Imperative Sentences (משפטי ציווי)** - משפטים שנותנים פקודה, בקשה או הוראה
+
+**מבנה:** Verb + (Object)
+**הנושא (You) לא מופיע!**
+
+**סיום:** נקודה (.) או סימן קריאה (!)
+
+**דוגמאות:**
+- Close the door. (סגור את הדלת)
+- Sit down, please. (שב, בבקשה)
+- Don't run! (אל תרוץ!)
+- Be quiet! (היה שקט!)
+- Listen carefully. (הקשב בזהירות)
+- Please help me. (בבקשה תעזור לי)
+
+**ציווי שלילי (Don't):**
+- Don't talk! (אל תדבר!)
+- Don't be late. (אל תאחר)
+- Don't forget your book. (אל תשכח את הספר)
+
+**4. Exclamatory Sentences (משפטי קריאה)** - משפטים שמבטאים רגש חזק
+
+**מבנה:** How/What + (Adjective) + Noun/Verb!
+
+**סיום:** סימן קריאה (!)
+
+**דוגמאות:**
+- What a beautiful day! (איזה יום יפה!)
+- How nice! (כמה נחמד!)
+- What a surprise! (איזו הפתעה!)
+- How wonderful! (כמה נפלא!)
+- What a big house! (איזה בית גדול!)
+- How fast he runs! (כמה מהר הוא רץ!)
+
+**סיכום:**
+
+| Type | Purpose | Ending | Example |
+|------|---------|--------|---------|
+| Declarative | מציג מידע | . | I am happy. |
+| Interrogative | שואל שאלה | ? | Are you happy? |
+| Imperative | נותן פקודה | . או ! | Be happy! |
+| Exclamatory | מביע רגש | ! | How happy you are! |
+
+### 1.4 Subject and Predicate (נושא ונשוא)
+
+**כל משפט מורכב משני חלקים עיקריים:**
+
+**1. Subject (נושא)** - על מי או על מה אנחנו מדברים
+
+**מהו הנושא?**
+- האדם, החפץ או הרעיון שעליו המשפט
+- עונה על השאלה: **מי?** או **מה?**
+
+**סוגי נושאים:**
+
+**א. Noun (שם עצם):**
+- **John** is a teacher. (ג'ון הוא מורה)
+- **The dog** is barking. (הכלב נובח)
+- **My book** is on the table. (הספר שלי על השולחן)
+
+**ב. Pronoun (כינוי):**
+- **I** am happy. (אני שמח)
+- **She** reads books. (היא קוראת ספרים)
+- **They** play football. (הם משחקים כדורגל)
+
+**ג. Noun Phrase (צירוף שם עצם):**
+- **The big red car** is fast. (המכונית הגדולה האדומה מהירה)
+- **My best friend** lives here. (החבר הכי טוב שלי גר כאן)
+
+**2. Predicate (נשוא)** - מה אנחנו אומרים על הנושא
+
+**מהו הנשוא?**
+- כל מה שבא אחרי הנושא
+- כולל את הפועל וכל המידע הנוסף
+- עונה על השאלה: **מה הנושא עושה?** או **מה קורה לנושא?**
+
+**הנשוא תמיד מכיל Verb (פועל):**
+
+**דוגמאות:**
+- John **is a teacher**. (ג'ון **הוא מורה**)
+- The dog **is barking loudly**. (הכלב **נובח בקול**)
+- She **reads interesting books**. (היא **קוראת ספרים מעניינים**)
+- They **play football every Sunday**. (הם **משחקים כדורגל כל יום ראשון**)
+
+**איך לזהות נושא ונשוא?**
+
+**שלב 1:** מצא את הפועל (Verb)
+**שלב 2:** שאל "מי?" או "מה?" + הפועל → זה הנושא
+**שלב 3:** הפועל + כל השאר → זה הנשוא
+
+**דוגמה:**
+משפט: **The little girl** **plays** **in the park**.
+
+1. הפועל: plays
+2. מי plays? → The little girl (נושא)
+3. plays in the park (נשוא)
+
+**עוד דוגמאות עם חלוקה:**
+
+| משפט מלא | Subject (נושא) | Predicate (נשוא) |
+|----------|----------------|------------------|
+| I love pizza | I | love pizza |
+| The cat sleeps | The cat | sleeps |
+| My teacher is nice | My teacher | is nice |
+| They study English | They | study English |
+| The big dog runs fast | The big dog | runs fast |
+
+**משפטים עם נושא ארוך:**
+
+- **The student with the red backpack** is my friend.
+  - נושא: The student with the red backpack
+  - נשוא: is my friend
+
+- **My mother and my father** live in Jerusalem.
+  - נושא: My mother and my father
+  - נשוא: live in Jerusalem
+
+**⚠️ שים לב:**
+- משפט חייב להכיל גם נושא וגם נשוא
+- הנשוא תמיד מכיל פועל
+- הנושא יכול להיות מילה אחת או ביטוי ארוך
+
+### 1.5 Capitalization Rules (כללי אותיות גדולות)
+
+**מתי משתמשים באות גדולה (Capital Letter) באנגלית?**
+
+**1. תחילת משפט - תמיד!**
+
+✅ **T**he sun is shining.
+✅ **S**he is my friend.
+✅ **W**e study English.
+
+❌ the sun is shining. (שגוי!)
+
+**2. כינוי הגוף "I" - תמיד רישית!**
+
+✅ **I** am a student.
+✅ My friend and **I** play football.
+✅ Can **I** help you?
+
+❌ i am a student. (שגוי!)
+
+**3. שמות פרטיים (Proper Nouns):**
+
+**א. שמות אנשים:**
+- **John**, **Mary**, **David**, **Sarah**
+- **Dr. Smith**, **Mr. Cohen**, **Mrs. Brown**
+
+**ב. שמות משפחה:**
+- **Anderson**, **Johnson**, **Goldberg**
+
+**ג. כינויים (Nicknames):**
+- **Tom** (Thomas), **Mike** (Michael), **Liz** (Elizabeth)
+
+**4. שמות מקומות:**
+
+**א. ערים וכפרים:**
+- **Tel Aviv**, **Jerusalem**, **New York**, **London**
+
+**ב. מדינות:**
+- **Israel**, **England**, **United States**, **France**
+
+**ג. יבשות:**
+- **Asia**, **Europe**, **Africa**, **America**
+
+**ד. כתובות:**
+- **King George Street**
+- **Fifth Avenue**
+
+**5. לאומים ושפות:**
+
+- **Israeli** (ישראלי), **American** (אמריקאי)
+- **Hebrew** (עברית), **English** (אנגלית)
+- **French** (צרפתית), **Spanish** (ספרדית)
+
+❌ i speak hebrew and english. (שגוי!)
+✅ **I** speak **Hebrew** and **English**.
+
+**6. ימים וחודשים:**
+
+**ימי השבוע:**
+- **Monday**, **Tuesday**, **Wednesday**, **Thursday**, **Friday**, **Saturday**, **Sunday**
+
+**חודשי השנה:**
+- **January**, **February**, **March**, **April**, **May**, **June**
+- **July**, **August**, **September**, **October**, **November**, **December**
+
+⚠️ **אבל:** seasons (עונות שנה) - קטנות!
+- spring (אביב), summer (קיץ), fall/autumn (סתיו), winter (חורף)
+
+**7. חגים:**
+
+- **Christmas** (חג המולד)
+- **Hanukkah** (חנוכה)
+- **Passover** (פסח)
+- **Ramadan** (רמדאן)
+- **New Year** (שנה חדשה)
+
+**8. תארים מקצועיים (לפני שם):**
+
+✅ **Professor** Smith
+✅ **Doctor** Brown
+✅ **President** Lincoln
+
+❌ The doctor is here. (כשלא לפני שם - אות קטנה!)
+✅ The doctor is here.
+
+**9. כותרות:**
+
+**ספרים, סרטים, שירים:**
+- רוב המילים עם אות גדולה (לא: a, an, the, and, but, or)
+- המילה הראשונה והאחרונה תמיד רישיות
+
+✅ **Harry Potter and the Sorcerer's Stone**
+✅ **The Lion King**
+✅ **To Kill a Mockingbird**
+
+**10. ראשי תיבות (Acronyms):**
+
+- **USA** (United States of America)
+- **UK** (United Kingdom)
+- **UN** (United Nations)
+- **TV** (Television)
+
+**טעויות נפוצות:**
+
+❌ i Live in tel aviv. → ✅ **I** live in **Tel Aviv**.
+❌ my Friend john is american. → ✅ **My** friend **John** is **American**.
+❌ we speak English and hebrew. → ✅ **We** speak **English** and **Hebrew**.
+❌ see you on monday! → ✅ **See** you on **Monday**!
+
+### 1.6 Punctuation Basics (יסודות סימני פיסוק)
+
+**סימני פיסוק עיקריים באנגלית:**
+
+**1. Period (.) - נקודה**
+
+**שימוש:**
+- בסוף משפט רגיל (declarative)
+- בסוף משפט ציווי (imperative) רגיל
+- בקיצורים
+
+**דוגמאות:**
+- I am a student**.** (אני תלמיד)
+- She lives in Tel Aviv**.** (היא גרה בתל אביב)
+- Close the door**.** (סגור את הדלת)
+
+**קיצורים:**
+- Mr**.** (מר), Mrs**.** (גברת), Dr**.** (דוקטור)
+- etc**.** (וכדומה), e.g**.** (לדוגמה), i.e**.** (כלומר)
+
+**2. Question Mark (?) - סימן שאלה**
+
+**שימוש:**
+- בסוף כל שאלה
+
+**דוגמאות:**
+- What is your name**?** (מה שמך?)
+- Are you happy**?** (אתה שמח?)
+- Where do you live**?** (איפה אתה גר?)
+- Can you help me**?** (אתה יכול לעזור לי?)
+
+❌ **שגיאה נפוצה:** מיותר to use period + question mark
+- ❌ How are you.?
+- ✅ How are you**?**
+
+**3. Exclamation Mark (!) - סימן קריאה**
+
+**שימוש:**
+- משפטים עם רגש חזק
+- פקודות דחופות
+- הפתעה, שמחה, כעס
+
+**דוגמאות:**
+- What a beautiful day**!** (איזה יום יפה!)
+- Help**!** (עזרה!)
+- Stop**!** (עצור!)
+- How wonderful**!** (כמה נפלא!)
+- I'm so happy**!** (אני כל כך שמח!)
+
+⚠️ **אל תשתמש יותר מדי:**
+- ❌ I like pizza!!! (מוגזם)
+- ✅ I like pizza**!**
+
+**4. Comma (,) - פסיק**
+
+**שימושים:**
+
+**א. הפרדת פריטים ברשימה:**
+- I like apples**,** oranges**,** and bananas. (אני אוהב תפוחים, תפוזים ובננות)
+- She is smart**,** kind**,** and funny. (היא חכמה, טובת לב ומצחיקה)
+
+**ב. אחרי מילות פתיחה:**
+- Yes**,** I am ready. (כן, אני מוכן)
+- No**,** thank you. (לא, תודה)
+- Well**,** let's see. (ובכן, בוא נראה)
+
+**ג. לפני "and/but/or" בין שני משפטים:**
+- I like pizza**,** but she likes pasta. (אני אוהב פיצה, אבל היא אוהבת פסטה)
+- He is tired**,** and he wants to sleep. (הוא עייף, והוא רוצה לישון)
+
+**ד. אחרי ביטויי זמן בתחילת משפט:**
+- Yesterday**,** I went to the park. (אתמול, הלכתי לפארק)
+- In the morning**,** I drink coffee. (בבוקר, אני שותה קפה)
+
+**5. Apostrophe (') - אפוסטרוף**
+
+**שימושים:**
+
+**א. שייכות (Possessive):**
+- John**'s** book (הספר של ג'ון)
+- The dog**'s** tail (הזנב של הכלב)
+- My mother**'s** car (המכונית של אמא שלי)
+
+**ברבים המסתיימים ב-s - רק אפוסטרוף:**
+- The students**'** books (הספרים של התלמידים)
+- My parents**'** house (הבית של ההורים שלי)
+
+**ב. קיצורים (Contractions):**
+- I am → I**'m**
+- You are → You**'re**
+- He is → He**'s**
+- She is → She**'s**
+- It is → It**'s**
+- We are → We**'re**
+- They are → They**'re**
+- do not → don**'t**
+- cannot → can**'t**
+- will not → won**'t**
+
+❌ **טעות נפוצה:** אל תבלבל בין its ו-it's
+- **it's** = it is (זה הוא)
+- **its** = של זה (שייכות)
+
+✅ It**'s** a beautiful day. (זה יום יפה)
+✅ The dog wagged **its** tail. (הכלב הניף את זנבו)
+
+**6. Quotation Marks (" ") - מרכאות**
+
+**שימוש:**
+- ציטוט מישהו (מה שמישהו אמר)
+
+**דוגמאות:**
+- She said**, "**I am happy**."** (היא אמרה, "אני שמחה")
+- **"**Hello**,"** he said. ("שלום," הוא אמר)
+- My teacher says**, "**Practice every day**."** (המורה שלי אומרת, "תרגל כל יום")
+
+**⚠️ כללים:**
+- Period או comma לפני המרכאה הסוגרת
+- Question mark בתוך המרכאות אם השאלה חלק מהציטוט
+
+✅ She asked**, "**How are you**?"** (היא שאלה, "מה שלומך?")
+✅ Did she say**, "**I'm ready**"?** (האם היא אמרה, "אני מוכנה"?)
+
+### 1.7 Common Grammar Terms (מונחי דקדוק נפוצים)
+
+**מילון מונחי דקדוק חיוניים:**
+
+**מונחים בסיסיים:**
+
+| English | עברית | הסבר | דוגמה |
+|---------|-------|-------|--------|
+| **Noun** | שם עצם | אדם, מקום, דבר או רעיון | book, teacher, love |
+| **Verb** | פועל | פעולה או מצב | run, eat, be |
+| **Adjective** | שם תואר | מתאר noun | big, beautiful, happy |
+| **Adverb** | תואר הפועל | מתאר verb, adjective או adverb | quickly, very, well |
+| **Pronoun** | כינוי | מחליף noun | I, you, he, she, it |
+| **Preposition** | מילת יחס | מראה יחס בין מילים | in, on, at, to, from |
+| **Conjunction** | מילת חיבור | מחברת מילים או משפטים | and, but, or, because |
+| **Article** | מאמר | a, an, the | the book, a car |
+
+**מונחי משפט:**
+
+| English | עברית | הסבר | דוגמה |
+|---------|-------|-------|--------|
+| **Sentence** | משפט | יחידת משמעות שלמה | I am happy. |
+| **Subject** | נושא | על מי/מה המשפט | **I** am happy. |
+| **Predicate** | נשוא | מה אומרים על הנושא | I **am happy**. |
+| **Object** | מושא | מקבל את הפעולה | I love **pizza**. |
+| **Clause** | פסוקית | קבוצת מילים עם subject ו-verb | when I arrive |
+
+**סוגי פעלים:**
+
+| English | עברית | הסבר | דוגמה |
+|---------|-------|-------|--------|
+| **Main Verb** | פועל עיקרי | הפועל המרכזי | I **eat** apples. |
+| **Auxiliary Verb** | פועל עזר | עוזר לפועל העיקרי | I **am eating**. |
+| **Modal Verb** | פועל אופני | can, could, may, might, must | I **can** swim. |
+| **Action Verb** | פועל פעולה | מתאר פעולה | run, jump, write |
+| **Stative Verb** | פועל מצבי | מתאר מצב | know, love, have |
+
+**זמנים (Tenses):**
+
+| English | עברית | דוגמה |
+|---------|-------|--------|
+| **Present Simple** | הווה פשוט | I work |
+| **Present Progressive** | הווה ממושך | I am working |
+| **Past Simple** | עבר פשוט | I worked |
+| **Past Progressive** | עבר ממושך | I was working |
+| **Future Simple** | עתיד פשוט | I will work |
+
+**סוגי משפטים:**
+
+| English | עברית | סימן | דוגמה |
+|---------|-------|------|--------|
+| **Affirmative** | חיובי | . | I am happy. |
+| **Negative** | שלילי | . | I am not happy. |
+| **Question** | שאלה | ? | Are you happy? |
+| **Imperative** | ציווי | . או ! | Be happy! |
+
+**דקדוק נוסף:**
+
+| English | עברית | הסבר |
+|---------|-------|-------|
+| **Singular** | יחיד | אחד | book |
+| **Plural** | רבים | יותר מאחד | books |
+| **Countable** | בר-ספירה | ניתן לספור | apple, apples |
+| **Uncountable** | לא בר-ספירה | לא ניתן לספור | water, love |
+| **Possessive** | שייכות | מראה בעלות | John's book, my car |
+| **Contraction** | קיצור | צורה מקוצרת | I'm = I am |
+
+**מבנה משפט:**
+
+| English | עברית | הסבר |
+|---------|-------|-------|
+| **Subject-Verb-Object** | נושא-פועל-מושא | סדר מילים בסיסי |
+| **Word Order** | סדר מילים | הסדר הנכון של מילים |
+| **Phrase** | ביטוי | קבוצת מילים ללא verb |
+| **Clause** | פסוקית | קבוצת מילים עם subject ו-verb |
+
+**סימני פיסוק:**
+
+| English | Symbol | עברית |
+|---------|--------|-------|
+| **Period** | . | נקודה |
+| **Comma** | , | פסיק |
+| **Question Mark** | ? | סימן שאלה |
+| **Exclamation Mark** | ! | סימן קריאה |
+| **Apostrophe** | ' | אפוסטרוף |
+| **Quotation Marks** | " " | מרכאות |
+
+**מונחים נוספים:**
+
+- **Grammar** (דקדוק) - חוקי השפה
+- **Vocabulary** (אוצר מילים) - מילים
+- **Pronunciation** (הגייה) - איך מבטאים
+- **Spelling** (איות) - איך כותבים
+- **Translation** (תרגום) - המרה משפה לשפה
+
+**⚠️ טיפ:** למד את המונחים הללו - הם יעזרו לך להבין הסברי דקדוק בהמשך!
+
+---
+
+## Topic 2: Verb "To Be" - Present (פועל להיות - הווה)
+
+### 2.1 Forms: am, is, are (הצורות הבסיסיות)
+- I am (אני)
+- You are (אתה/את/אתם/אתן)
+- He is (הוא)
+- She is (היא)
+- It is (זה/זאת)
+- We are (אנחנו)
+- They are (הם/הן)
+
+### 2.2 Affirmative Sentences (משפטים חיוביים)
+- Structure: Subject + am/is/are + complement
+- Examples:
+  - I am a student. (אני תלמיד)
+  - You are smart. (אתה חכם)
+  - He is tall. (הוא גבוה)
+  - She is a teacher. (היא מורה)
+  - It is cold. (קר)
+  - We are friends. (אנחנו חברים)
+  - They are at home. (הם בבית)
+
+- Uses of "To Be":
+  - Identity: I am Tom. She is a doctor.
+  - Description: He is tall. They are happy.
+  - Location: We are at school. It is on the table.
+  - Age: I am 10 years old. (אני בן 10)
+  - Nationality: She is American. (היא אמריקאית)
+  - Feelings: I am tired. (אני עייף)
+
+### 2.3 Contractions (קיצורים)
+- Common in spoken and informal English:
+  - I am → I'm
+  - You are → You're
+  - He is → He's
+  - She is → She's
+  - It is → It's
+  - We are → We're
+  - They are → They're
+
+- Examples:
+  - I'm happy. (אני שמח)
+  - You're late. (אתה מאחר)
+  - He's my brother. (הוא אחי)
+  - She's beautiful. (היא יפה)
+  - It's raining. (יורד גשם)
+  - We're ready. (אנחנו מוכנים)
+  - They're students. (הם תלמידים)
+
+### 2.4 Negative Sentences (משפטים שליליים)
+- Structure: Subject + am/is/are + NOT + complement
+- Full forms:
+  - I am not (אני לא)
+  - You are not (אתה לא)
+  - He is not (הוא לא)
+  - She is not (היא לא)
+  - It is not (זה לא)
+  - We are not (אנחנו לא)
+  - They are not (הם לא)
+
+- Negative contractions:
+  - I'm not (only one form)
+  - You aren't / You're not
+  - He isn't / He's not
+  - She isn't / She's not
+  - It isn't / It's not
+  - We aren't / We're not
+  - They aren't / They're not
+
+- Examples:
+  - I'm not tired. (אני לא עייף)
+  - He isn't at home. (הוא לא בבית)
+  - We aren't ready. (אנחנו לא מוכנים)
+  - They're not students. (הם לא תלמידים)
+
+### 2.5 Yes/No Questions (שאלות כן/לא)
+- Structure: Am/Is/Are + subject + complement?
+- Examples:
+  - Am I late? (אני מאחר?)
+  - Are you ready? (אתה מוכן?)
+  - Is he your brother? (הוא אחיך?)
+  - Is she a teacher? (היא מורה?)
+  - Is it cold? (קר?)
+  - Are we friends? (אנחנו חברים?)
+  - Are they at home? (הם בבית?)
+
 - Short answers:
-  - Yes, I do. / No, I don't.
-  - Yes, he does. / No, he doesn't.
+  - Yes, I am. / No, I'm not.
+  - Yes, you are. / No, you aren't.
+  - Yes, he is. / No, he isn't.
+  - Yes, she is. / No, she isn't.
+  - Yes, it is. / No, it isn't.
+  - Yes, we are. / No, we aren't.
+  - Yes, they are. / No, they aren't.
 
-### 1.5 Wh- Questions (שאלות מידע)
-- Structure: Wh- word + do/does + subject + base verb?
-- What, Where, When, Who, Why, How
-- Examples:
-  - What do you do? (מה אתה עושה? - מקצוע)
-  - Where does she live? (איפה היא גרה?)
-  - When do they arrive? (מתי הם מגיעים?)
-  - Why do you study English? (למה אתה לומד אנגלית?)
-  - How does it work? (איך זה עובד?)
+### 2.6 Wh- Questions (שאלות מידע)
+- Structure: Wh- word + am/is/are + subject?
+- Who is he? (מי הוא?)
+  - He is my friend. (הוא החבר שלי)
+- What is your name? (מה שמך?)
+  - My name is Tom. (שמי טום)
+- Where are you from? (מאיפה אתה?)
+  - I'm from Israel. (אני מישראל)
+- When is the party? (מתי המסיבה?)
+  - It's on Friday. (ביום שישי)
+- Why are you sad? (למה אתה עצוב?)
+  - I'm sad because... (אני עצוב כי...)
+- How old are you? (בן כמה אתה?)
+  - I'm 10 years old. (אני בן 10)
+- How are you? (מה שלומך?)
+  - I'm fine, thank you. (אני בסדר, תודה)
 
-### 1.6 Frequency Adverbs (תארי תדירות)
-- Position in sentence: Subject + adverb + verb
-- always (100%) - תמיד
-- usually (80%) - בדרך כלל
-- often (60%) - לעתים קרובות
-- sometimes (40%) - לפעמים
-- rarely (20%) - לעתים רחוקות
-- never (0%) - אף פעם לא
-- Examples:
-  - I always wake up at 7 AM.
-  - She usually eats lunch at school.
-  - They never watch horror movies.
+### 2.7 Common Mistakes (טעויות נפוצות)
+- ❌ I is a student. → ✅ I am a student.
+- ❌ He am tall. → ✅ He is tall.
+- ❌ They is at home. → ✅ They are at home.
+- ❌ You is my friend. → ✅ You are my friend.
+- ❌ I not tired. → ✅ I'm not tired. (need am/is/are)
+- ❌ He not happy. → ✅ He isn't happy.
+- ❌ Is you ready? → ✅ Are you ready?
+- ❌ Where you are? → ✅ Where are you?
+- ❌ She is have a car. → ✅ She has a car. (not "is have")
+- ❌ I'm have 10 years. → ✅ I'm 10 years old. (age with "be", not "have")
 
 ---
 
-## Topic 2: Personal Pronouns & Possessives (כינויי גוף ושייכות)
 
-### 2.1 Subject Pronouns (כינויי גוף - נושא)
+---
+
+## Topic 3: Personal Pronouns & Possessives (כינויי גוף ושייכות)
+
+### 3.1 Subject Pronouns (כינויי גוף - נושא)
 - I (אני - יחיד)
 - You (אתה/את - יחיד, אתם/אתן - רבים)
 - He (הוא)
@@ -81,7 +780,7 @@
 - When to use each pronoun
 - Replacing nouns with pronouns
 
-### 2.2 Object Pronouns (כינויי גוף - מושא)
+### 3.2 Object Pronouns (כינויי גוף - מושא)
 - me (אותי)
 - you (אותך/אותכם)
 - him (אותו)
@@ -95,7 +794,7 @@
   - I see him every day. (אני רואה אותו כל יום)
   - They help us. (הם עוזרים לנו)
 
-### 2.3 Possessive Adjectives (תארי שייכות)
+### 3.3 Possessive Adjectives (תארי שייכות)
 - my (שלי)
 - your (שלך/שלכם)
 - his (שלו)
@@ -109,7 +808,7 @@
   - your house (הבית שלך)
   - their car (המכונית שלהם)
 
-### 2.4 Possessive Pronouns (כינויי שייכות)
+### 3.4 Possessive Pronouns (כינויי שייכות)
 - mine (שלי)
 - yours (שלך/שלכם)
 - his (שלו)
@@ -123,7 +822,7 @@
   - That car is yours. (המכונית ההיא שלך)
   - The house is theirs. (הבית שלהם)
 
-### 2.5 Possessive 's (apostrophe s)
+### 3.5 Possessive 's (apostrophe s)
 - Showing ownership: noun + 's + noun
 - Examples:
   - Tom's book (הספר של טום)
@@ -135,62 +834,6 @@
 
 ---
 
-## Topic 3: Articles (מאמרים - a, an, the)
-
-### 3.1 Indefinite Articles - A/An (מאמר לא מוגדר)
-- When to use A vs AN
-- A + consonant sound
-  - a book, a car, a university (u sounds like "yu")
-- AN + vowel sound (a, e, i, o, u)
-  - an apple, an egg, an hour (h is silent)
-- Usage:
-  - First mention of something (פעם ראשונה)
-    - I see a dog. (אני רואה כלב - כלב כלשהו)
-  - Talking about one of many
-    - She is a teacher. (היא מורה - אחת מני רבות)
-  - Meaning "one"
-    - I need a pen. (אני צריך עט אחד)
-
-### 3.2 Definite Article - The (מאמר מוגדר)
-- One word for all nouns (the = ה-)
-- Usage:
-  - Specific/known item (דבר מסוים/ידוע)
-    - The dog is big. (הכלב הזה גדול - כלב ספציפי)
-  - Second mention
-    - I see a dog. The dog is brown. (ראיתי כלב. הכלב חום)
-  - Unique things
-    - the sun, the moon, the earth, the internet
-  - Superlatives
-    - the best, the biggest, the most beautiful
-  - Specific places
-    - the park, the school, the supermarket (when specific)
-
-### 3.3 Zero Article (ללא מאמר)
-- When NOT to use articles:
-- Plural nouns (general)
-  - Dogs are animals. (כלבים הם חיות - בכלל)
-  - I like apples. (אני אוהב תפוחים - בכלל)
-- Uncountable nouns (general)
-  - Water is important. (מים חשובים)
-  - I need help. (אני צריך עזרה)
-- Names of people
-  - Tom, Sarah (not "the Tom")
-- Most countries
-  - Israel, England, France
-  - Exceptions: the USA, the UK
-- Meals (general)
-  - I eat breakfast at 7. (לא "the breakfast")
-- Sports and subjects
-  - I play basketball. I study math.
-
-### 3.4 Common Mistakes & Practice
-- ❌ I am teacher. → ✅ I am a teacher.
-- ❌ I like the dogs. (general) → ✅ I like dogs.
-- ❌ A apple is red. → ✅ An apple is red.
-- ❌ He is a best student. → ✅ He is the best student.
-- Comparing Hebrew to English usage
-  - Hebrew often doesn't use articles where English does
-  - Practice identifying when each article is needed
 
 ---
 
@@ -324,135 +967,155 @@
 
 ---
 
-## Topic 5: Verb "To Be" - Present (פועל להיות - הווה)
-
-### 5.1 Forms: am, is, are (הצורות הבסיסיות)
-- I am (אני)
-- You are (אתה/את/אתם/אתן)
-- He is (הוא)
-- She is (היא)
-- It is (זה/זאת)
-- We are (אנחנו)
-- They are (הם/הן)
-
-### 5.2 Affirmative Sentences (משפטים חיוביים)
-- Structure: Subject + am/is/are + complement
-- Examples:
-  - I am a student. (אני תלמיד)
-  - You are smart. (אתה חכם)
-  - He is tall. (הוא גבוה)
-  - She is a teacher. (היא מורה)
-  - It is cold. (קר)
-  - We are friends. (אנחנו חברים)
-  - They are at home. (הם בבית)
-
-- Uses of "To Be":
-  - Identity: I am Tom. She is a doctor.
-  - Description: He is tall. They are happy.
-  - Location: We are at school. It is on the table.
-  - Age: I am 10 years old. (אני בן 10)
-  - Nationality: She is American. (היא אמריקאית)
-  - Feelings: I am tired. (אני עייף)
-
-### 5.3 Contractions (קיצורים)
-- Common in spoken and informal English:
-  - I am → I'm
-  - You are → You're
-  - He is → He's
-  - She is → She's
-  - It is → It's
-  - We are → We're
-  - They are → They're
-
-- Examples:
-  - I'm happy. (אני שמח)
-  - You're late. (אתה מאחר)
-  - He's my brother. (הוא אחי)
-  - She's beautiful. (היא יפה)
-  - It's raining. (יורד גשם)
-  - We're ready. (אנחנו מוכנים)
-  - They're students. (הם תלמידים)
-
-### 5.4 Negative Sentences (משפטים שליליים)
-- Structure: Subject + am/is/are + NOT + complement
-- Full forms:
-  - I am not (אני לא)
-  - You are not (אתה לא)
-  - He is not (הוא לא)
-  - She is not (היא לא)
-  - It is not (זה לא)
-  - We are not (אנחנו לא)
-  - They are not (הם לא)
-
-- Negative contractions:
-  - I'm not (only one form)
-  - You aren't / You're not
-  - He isn't / He's not
-  - She isn't / She's not
-  - It isn't / It's not
-  - We aren't / We're not
-  - They aren't / They're not
-
-- Examples:
-  - I'm not tired. (אני לא עייף)
-  - He isn't at home. (הוא לא בבית)
-  - We aren't ready. (אנחנו לא מוכנים)
-  - They're not students. (הם לא תלמידים)
-
-### 5.5 Yes/No Questions (שאלות כן/לא)
-- Structure: Am/Is/Are + subject + complement?
-- Examples:
-  - Am I late? (אני מאחר?)
-  - Are you ready? (אתה מוכן?)
-  - Is he your brother? (הוא אחיך?)
-  - Is she a teacher? (היא מורה?)
-  - Is it cold? (קר?)
-  - Are we friends? (אנחנו חברים?)
-  - Are they at home? (הם בבית?)
-
-- Short answers:
-  - Yes, I am. / No, I'm not.
-  - Yes, you are. / No, you aren't.
-  - Yes, he is. / No, he isn't.
-  - Yes, she is. / No, she isn't.
-  - Yes, it is. / No, it isn't.
-  - Yes, we are. / No, we aren't.
-  - Yes, they are. / No, they aren't.
-
-### 5.6 Wh- Questions (שאלות מידע)
-- Structure: Wh- word + am/is/are + subject?
-- Who is he? (מי הוא?)
-  - He is my friend. (הוא החבר שלי)
-- What is your name? (מה שמך?)
-  - My name is Tom. (שמי טום)
-- Where are you from? (מאיפה אתה?)
-  - I'm from Israel. (אני מישראל)
-- When is the party? (מתי המסיבה?)
-  - It's on Friday. (ביום שישי)
-- Why are you sad? (למה אתה עצוב?)
-  - I'm sad because... (אני עצוב כי...)
-- How old are you? (בן כמה אתה?)
-  - I'm 10 years old. (אני בן 10)
-- How are you? (מה שלומך?)
-  - I'm fine, thank you. (אני בסדר, תודה)
-
-### 5.7 Common Mistakes (טעויות נפוצות)
-- ❌ I is a student. → ✅ I am a student.
-- ❌ He am tall. → ✅ He is tall.
-- ❌ They is at home. → ✅ They are at home.
-- ❌ You is my friend. → ✅ You are my friend.
-- ❌ I not tired. → ✅ I'm not tired. (need am/is/are)
-- ❌ He not happy. → ✅ He isn't happy.
-- ❌ Is you ready? → ✅ Are you ready?
-- ❌ Where you are? → ✅ Where are you?
-- ❌ She is have a car. → ✅ She has a car. (not "is have")
-- ❌ I'm have 10 years. → ✅ I'm 10 years old. (age with "be", not "have")
 
 ---
 
-## Topic 6: There is / There are (יש)
+## Topic 5: Articles (מאמרים - a, an, the)
 
-### 6.1 Affirmative Sentences (משפטים חיוביים)
+### 5.1 Indefinite Articles - A/An (מאמר לא מוגדר)
+- When to use A vs AN
+- A + consonant sound
+  - a book, a car, a university (u sounds like "yu")
+- AN + vowel sound (a, e, i, o, u)
+  - an apple, an egg, an hour (h is silent)
+- Usage:
+  - First mention of something (פעם ראשונה)
+    - I see a dog. (אני רואה כלב - כלב כלשהו)
+  - Talking about one of many
+    - She is a teacher. (היא מורה - אחת מני רבות)
+  - Meaning "one"
+    - I need a pen. (אני צריך עט אחד)
+
+### 5.2 Definite Article - The (מאמר מוגדר)
+- One word for all nouns (the = ה-)
+- Usage:
+  - Specific/known item (דבר מסוים/ידוע)
+    - The dog is big. (הכלב הזה גדול - כלב ספציפי)
+  - Second mention
+    - I see a dog. The dog is brown. (ראיתי כלב. הכלב חום)
+  - Unique things
+    - the sun, the moon, the earth, the internet
+  - Superlatives
+    - the best, the biggest, the most beautiful
+  - Specific places
+    - the park, the school, the supermarket (when specific)
+
+### 5.3 Zero Article (ללא מאמר)
+- When NOT to use articles:
+- Plural nouns (general)
+  - Dogs are animals. (כלבים הם חיות - בכלל)
+  - I like apples. (אני אוהב תפוחים - בכלל)
+- Uncountable nouns (general)
+  - Water is important. (מים חשובים)
+  - I need help. (אני צריך עזרה)
+- Names of people
+  - Tom, Sarah (not "the Tom")
+- Most countries
+  - Israel, England, France
+  - Exceptions: the USA, the UK
+- Meals (general)
+  - I eat breakfast at 7. (לא "the breakfast")
+- Sports and subjects
+  - I play basketball. I study math.
+
+### 5.4 Common Mistakes & Practice
+- ❌ I am teacher. → ✅ I am a teacher.
+- ❌ I like the dogs. (general) → ✅ I like dogs.
+- ❌ A apple is red. → ✅ An apple is red.
+- ❌ He is a best student. → ✅ He is the best student.
+- Comparing Hebrew to English usage
+  - Hebrew often doesn't use articles where English does
+  - Practice identifying when each article is needed
+
+---
+
+
+---
+
+## Topic 6: Demonstratives (מילות הצבעה)
+
+### 6.1 This - Singular, Near (זה/זאת - יחיד, קרוב)
+- Points to one thing close to you
+- This + singular noun
+- Examples:
+  - This book is mine. (הספר הזה שלי)
+  - This is my pen. (זה העט שלי)
+  - This apple is red. (התפוח הזה אדום)
+  - This is my friend Tom. (זה החבר שלי טום)
+  - I like this song. (אני אוהב את השיר הזה)
+
+### 6.2 That - Singular, Far (ההוא/ההיא - יחיד, רחוק)
+- Points to one thing far from you
+- That + singular noun
+- Examples:
+  - That book is yours. (הספר ההוא שלך)
+  - That is your pen. (זה העט שלך)
+  - That car is expensive. (המכונית ההיא יקרה)
+  - That is my house. (זה הבית שלי - רחוק)
+  - I don't like that movie. (אני לא אוהב את הסרט ההוא)
+
+### 6.3 These - Plural, Near (אלה - רבים, קרוב)
+- Points to multiple things close to you
+- These + plural noun
+- Examples:
+  - These books are mine. (הספרים האלה שלי)
+  - These are my pens. (אלה העטים שלי)
+  - These apples are fresh. (התפוחים האלה טריים)
+  - These are my friends. (אלה החברים שלי)
+  - I like these shoes. (אני אוהב את הנעליים האלה)
+
+### 6.4 Those - Plural, Far (ההם/ההן - רבים, רחוק)
+- Points to multiple things far from you
+- Those + plural noun
+- Examples:
+  - Those books are yours. (הספרים ההם שלך)
+  - Those are your pens. (אלה העטים שלך - רחוק)
+  - Those cars are expensive. (המכוניות ההן יקרות)
+  - Those are my neighbors. (אלה השכנים שלי - רחוק)
+  - I don't like those colors. (אני לא אוהב את הצבעים ההם)
+
+### 6.5 As Adjectives vs Pronouns (תארים או כינויים)
+- As ADJECTIVES (before a noun):
+  - This book (הספר הזה)
+  - That car (המכונית ההיא)
+  - These apples (התפוחים האלה)
+  - Those houses (הבתים ההם)
+
+- As PRONOUNS (standing alone):
+  - This is my book. (זה הספר שלי)
+  - That is expensive. (זה יקר)
+  - These are fresh. (אלה טריים)
+  - Those are beautiful. (אלה יפים)
+
+### 6.6 Common Expressions (ביטויים נפוצים)
+- This morning (הבוקר)
+- This week (השבוע)
+- This year (השנה הזאת)
+- That day (היום ההוא)
+- In those days (בימים ההם)
+- These days (בימים אלה - עכשיו)
+- That's right! (נכון!)
+- That's wrong! (זה לא נכון!)
+- This is it! (זהו!)
+- What is this? (מה זה?)
+- Who is that? (מי זה?)
+
+### 6.7 Common Mistakes (טעויות נפוצות)
+- ❌ This books are mine. → ✅ These books are mine. (plural)
+- ❌ That apples are red. → ✅ Those apples are red. (plural)
+- ❌ These book is good. → ✅ This book is good. (singular)
+- ❌ Those dog is big. → ✅ That dog is big. (singular)
+- ❌ This are my friends. → ✅ These are my friends. (plural)
+- ❌ These is my pen. → ✅ This is my pen. (singular)
+
+---
+
+
+---
+
+## Topic 7: There is / There are (יש)
+
+### 7.1 Affirmative Sentences (משפטים חיוביים)
 - THERE IS + singular noun / uncountable noun
   - There is a book. (יש ספר)
   - There is a dog in the garden. (יש כלב בגינה)
@@ -465,7 +1128,7 @@
   - There are many students. (יש הרבה תלמידים)
   - There are flowers in the garden. (יש פרחים בגינה)
 
-### 6.2 Negative Sentences (משפטים שליליים)
+### 7.2 Negative Sentences (משפטים שליליים)
 - THERE ISN'T (is not) + singular / uncountable
   - There isn't a book. (אין ספר)
   - There isn't any water. (אין מים)
@@ -478,7 +1141,7 @@
   - There aren't many people. (אין הרבה אנשים)
   - There aren't any chairs. (אין כיסאות)
 
-### 6.3 Questions (שאלות)
+### 7.3 Questions (שאלות)
 - IS THERE + singular / uncountable?
   - Is there a book? (יש ספר?)
   - Is there water? (יש מים?)
@@ -491,7 +1154,7 @@
   - Are there many people? (יש הרבה אנשים?)
   - Are there chairs? (יש כיסאות?)
 
-### 6.4 Short Answers (תשובות קצרות)
+### 7.4 Short Answers (תשובות קצרות)
 - Yes, there is. / No, there isn't.
   - Is there a book? Yes, there is. (יש ספר? כן, יש)
   - Is there water? No, there isn't. (יש מים? לא, אין)
@@ -500,7 +1163,7 @@
   - Are there books? Yes, there are. (יש ספרים? כן, יש)
   - Are there dogs? No, there aren't. (יש כלבים? לא, אין)
 
-### 6.5 Some/Any Usage (שימוש ב-some/any)
+### 7.5 Some/Any Usage (שימוש ב-some/any)
 - SOME in affirmative:
   - There is some water. (יש קצת מים)
   - There are some books. (יש כמה ספרים)
@@ -512,7 +1175,7 @@
   - Are there any books? (יש ספרים?)
   - There aren't any books. (אין ספרים)
 
-### 6.6 Describing Rooms and Places (תיאור חדרים ומקומות)
+### 7.6 Describing Rooms and Places (תיאור חדרים ומקומות)
 - In my room there is... (בחדר שלי יש...)
   - There is a bed. (יש מיטה)
   - There is a desk. (יש שולחן)
@@ -529,7 +1192,7 @@
   - There are many shops. (יש הרבה חנויות)
   - There is a museum. (יש מוזיאון)
 
-### 6.7 Common Mistakes (טעויות נפוצות)
+### 7.7 Common Mistakes (טעויות נפוצות)
 - ❌ There are a book. → ✅ There is a book. (singular)
 - ❌ There is three dogs. → ✅ There are three dogs. (plural)
 - ❌ Is there books? → ✅ Are there books? (plural)
@@ -541,81 +1204,6 @@
 
 ---
 
-## Topic 7: Demonstratives (מילות הצבעה)
-
-### 7.1 This - Singular, Near (זה/זאת - יחיד, קרוב)
-- Points to one thing close to you
-- This + singular noun
-- Examples:
-  - This book is mine. (הספר הזה שלי)
-  - This is my pen. (זה העט שלי)
-  - This apple is red. (התפוח הזה אדום)
-  - This is my friend Tom. (זה החבר שלי טום)
-  - I like this song. (אני אוהב את השיר הזה)
-
-### 7.2 That - Singular, Far (ההוא/ההיא - יחיד, רחוק)
-- Points to one thing far from you
-- That + singular noun
-- Examples:
-  - That book is yours. (הספר ההוא שלך)
-  - That is your pen. (זה העט שלך)
-  - That car is expensive. (המכונית ההיא יקרה)
-  - That is my house. (זה הבית שלי - רחוק)
-  - I don't like that movie. (אני לא אוהב את הסרט ההוא)
-
-### 7.3 These - Plural, Near (אלה - רבים, קרוב)
-- Points to multiple things close to you
-- These + plural noun
-- Examples:
-  - These books are mine. (הספרים האלה שלי)
-  - These are my pens. (אלה העטים שלי)
-  - These apples are fresh. (התפוחים האלה טריים)
-  - These are my friends. (אלה החברים שלי)
-  - I like these shoes. (אני אוהב את הנעליים האלה)
-
-### 7.4 Those - Plural, Far (ההם/ההן - רבים, רחוק)
-- Points to multiple things far from you
-- Those + plural noun
-- Examples:
-  - Those books are yours. (הספרים ההם שלך)
-  - Those are your pens. (אלה העטים שלך - רחוק)
-  - Those cars are expensive. (המכוניות ההן יקרות)
-  - Those are my neighbors. (אלה השכנים שלי - רחוק)
-  - I don't like those colors. (אני לא אוהב את הצבעים ההם)
-
-### 7.5 As Adjectives vs Pronouns (תארים או כינויים)
-- As ADJECTIVES (before a noun):
-  - This book (הספר הזה)
-  - That car (המכונית ההיא)
-  - These apples (התפוחים האלה)
-  - Those houses (הבתים ההם)
-
-- As PRONOUNS (standing alone):
-  - This is my book. (זה הספר שלי)
-  - That is expensive. (זה יקר)
-  - These are fresh. (אלה טריים)
-  - Those are beautiful. (אלה יפים)
-
-### 7.6 Common Expressions (ביטויים נפוצים)
-- This morning (הבוקר)
-- This week (השבוע)
-- This year (השנה הזאת)
-- That day (היום ההוא)
-- In those days (בימים ההם)
-- These days (בימים אלה - עכשיו)
-- That's right! (נכון!)
-- That's wrong! (זה לא נכון!)
-- This is it! (זהו!)
-- What is this? (מה זה?)
-- Who is that? (מי זה?)
-
-### 7.7 Common Mistakes (טעויות נפוצות)
-- ❌ This books are mine. → ✅ These books are mine. (plural)
-- ❌ That apples are red. → ✅ Those apples are red. (plural)
-- ❌ These book is good. → ✅ This book is good. (singular)
-- ❌ Those dog is big. → ✅ That dog is big. (singular)
-- ❌ This are my friends. → ✅ These are my friends. (plural)
-- ❌ These is my pen. → ✅ This is my pen. (singular)
 
 ---
 
@@ -745,9 +1333,583 @@ When using multiple adjectives before a noun:
 
 ---
 
-## Topic 9: Prepositions of Place (מילות יחס - מקום)
 
-### 9.1 In, On, At (ב-, על, אצל)
+---
+
+## Topic 9: Present Simple Tense (זמן הווה פשוט)
+
+### 9.1 Introduction to Present Simple
+- What is Present Simple and when do we use it
+- Habits and routines (הרגלים ושגרה)
+- Facts and general truths (עובדות ואמיתות כלליות)
+- Time expressions: always, usually, often, sometimes, never, every day/week/month
+
+### 9.2 Affirmative Sentences (משפטים חיוביים)
+- Structure: Subject + Verb (+ Object)
+- First person: I/We + base verb
+  - Example: I play football. We eat breakfast.
+- Second person: You + base verb
+  - Example: You study English.
+- Third person: He/She/It + verb + s/es
+  - Example: He plays football. She watches TV. It works well.
+- Rules for adding -s/-es/-ies
+  - Regular: play → plays, eat → eats
+  - -es ending: watch → watches, go → goes, do → does
+  - -ies ending: study → studies, fly → flies
+
+### 9.3 Negative Sentences (משפטים שליליים)
+- Structure: Subject + do/does + not + base verb
+- I/You/We/They + don't + base verb
+  - Example: I don't like coffee. They don't play tennis.
+- He/She/It + doesn't + base verb
+  - Example: He doesn't watch TV. She doesn't eat meat.
+- Important: The main verb returns to base form (doesn't playS ❌ → doesn't play ✅)
+
+### 9.4 Yes/No Questions (שאלות כן/לא)
+- Structure: Do/Does + subject + base verb?
+- Do + I/you/we/they + base verb?
+  - Example: Do you like pizza? Do they play football?
+- Does + he/she/it + base verb?
+  - Example: Does he work here? Does she speak English?
+- Short answers:
+  - Yes, I do. / No, I don't.
+  - Yes, he does. / No, he doesn't.
+
+### 9.5 Wh- Questions (שאלות מידע)
+- Structure: Wh- word + do/does + subject + base verb?
+- What, Where, When, Who, Why, How
+- Examples:
+  - What do you do? (מה אתה עושה? - מקצוע)
+  - Where does she live? (איפה היא גרה?)
+  - When do they arrive? (מתי הם מגיעים?)
+  - Why do you study English? (למה אתה לומד אנגלית?)
+  - How does it work? (איך זה עובד?)
+
+### 9.6 Frequency Adverbs (תארי תדירות)
+- Position in sentence: Subject + adverb + verb
+- always (100%) - תמיד
+- usually (80%) - בדרך כלל
+- often (60%) - לעתים קרובות
+- sometimes (40%) - לפעמים
+- rarely (20%) - לעתים רחוקות
+- never (0%) - אף פעם לא
+- Examples:
+  - I always wake up at 7 AM.
+  - She usually eats lunch at school.
+  - They never watch horror movies.
+
+---
+
+
+---
+
+## Topic 10: Question Words & Question Formation (מילות שאלה ויצירת שאלות)
+
+⚠️ **Content pending development - structured stub only**
+
+### 10.1 Question Words Overview (סקירת מילות השאלה)
+- What, Where, When, Who, Why, How, Which
+- Meaning and usage of each
+- Hebrew translations
+
+### 10.2 What Questions (שאלות עם What)
+- What do you do? (profession)
+- What are you doing? (current action)
+- What's your name?
+- Examples and practice
+
+### 10.3 Where, When, Who Questions (שאלות עם Where, When, Who)
+- Where questions: location
+- When questions: time
+- Who questions: people
+- Examples for each
+
+### 10.4 Why and How Questions (שאלות עם Why ו-How)
+- Why: asking for reasons
+- How: asking about manner
+- How + adjective: How old? How much? How many?
+
+### 10.5 Question Formation in Different Tenses (יצירת שאלות בזמנים שונים)
+- Present Simple: Do/Does + subject + verb?
+- Past Simple: Did + subject + verb?
+- Present Progressive: Am/Is/Are + subject + verb-ing?
+- Future: Will + subject + verb?
+
+### 10.6 Yes/No Questions vs. Wh- Questions (שאלות כן/לא לעומת שאלות מידע)
+- Differences in structure
+- When to use each type
+- Examples comparing both
+
+### 10.7 Common Mistakes (טעויות נפוצות)
+- Word order errors
+- Missing auxiliary verbs
+- Common question formation errors
+
+---
+
+**Note**: Each topic includes:
+- Theory explanation in Hebrew with English examples
+- 10-15 exercises (multiple choice + fill-in-the-blank)
+- Practice sentences
+- Common mistakes section
+
+
+---
+
+## Topic 11: Present Progressive (Continuous) (הווה ממושך)
+
+### 11.1 Introduction to Present Progressive
+
+**מהו זמן הווה ממושך?**
+
+זמן הווה ממושך (Present Progressive/Continuous) משמש לתיאור פעולות שמתרחשות כרגע, ברגע הדיבור.
+
+**שימושים עיקריים:**
+
+1. **פעולות המתרחשות עכשיו, ברגע זה:**
+   - I am reading a book now. - אני קורא ספר עכשיו
+   - She is talking on the phone. - היא מדברת בטלפון
+   - They are having lunch. - הם אוכלים ארוחת צהריים
+
+2. **פעולות זמניות שקורות בתקופה זו:**
+   - I am learning English this year. - אני לומד אנגלית השנה
+   - He is working at a restaurant this month. - הוא עובד במסעדה החודש
+   - We are staying at a hotel. - אנחנו שוהים במלון
+
+3. **מצבים משתנים:**
+   - The weather is getting colder. - מזג האוויר נעשה קר יותר
+   - Your English is improving. - האנגלית שלך משתפרת
+
+4. **תוכניות עתידיות מוגדרות:**
+   - I am meeting John tomorrow. - אני נפגש עם ג'ון מחר
+   - We are flying to Paris next week. - אנחנו טסים לפריז בשבוע הבא
+
+**ההבדל בין Present Simple ו-Present Progressive:**
+
+| Present Simple | Present Progressive |
+|----------------|---------------------|
+| הרגלים, שגרה | פעולות עכשיו |
+| I work every day. | I am working now. |
+| עובדות כלליות | מצבים זמניים |
+| She lives in Tel Aviv. | She is staying in Tel Aviv. |
+| מצבים קבועים | שינויים |
+| He speaks English. | His English is improving. |
+
+### 11.2 Structure and Forms (מבנה וצורות)
+
+**המבנה הבסיסי:**
+
+```
+Subject + am/is/are + verb-ing
+נושא + am/is/are + פועל + ing-
+```
+
+**פעלי העזר לפי כינויים:**
+
+| כינוי | פועל עזר | דוגמה |
+|-------|----------|--------|
+| I | am | I am working |
+| You | are | You are studying |
+| He/She/It | is | He is playing |
+| We | are | We are eating |
+| They | are | They are sleeping |
+
+**כללי הכתיב להוספת -ing:**
+
+**1. פעלים רגילים - הוסף -ing:**
+- work → work**ing** (עובד)
+- play → play**ing** (משחק)
+- read → read**ing** (קורא)
+- eat → eat**ing** (אוכל)
+
+**2. פעלים המסתיימים ב-E שקטה - הסר E והוסף -ing:**
+- make → mak**ing** (עושה)
+- write → writ**ing** (כותב)
+- come → com**ing** (בא)
+- take → tak**ing** (לוקח)
+
+**3. פעלים קצרים עם תנועה + עיצור - הכפל את העיצור והוסף -ing:**
+- sit → sitt**ing** (יושב)
+- run → runn**ing** (רץ)
+- swim → swimm**ing** (שוחה)
+- stop → stopp**ing** (עוצר)
+
+**4. פעלים המסתיימים ב-IE - שנה ל-Y והוסף -ing:**
+- lie → ly**ing** (שוכב)
+- die → dy**ing** (מת)
+- tie → ty**ing** (קושר)
+
+### 11.3 Affirmative Sentences (משפטים חיוביים)
+
+**מבנה:**
+```
+Subject + am/is/are + verb-ing
+```
+
+**דוגמאות לפי כינויים:**
+
+**I am (I'm) + verb-ing:**
+- I am working on a project. - אני עובד על פרויקט
+- I am reading a magazine. - אני קורא מגזין
+- I am cooking dinner. - אני מבשל ארוחת ערב
+
+**You are (You're) + verb-ing:**
+- You are watching TV. - אתה צופה בטלוויזיה
+- You are doing great! - אתה עושה מעולה!
+- You are making progress. - אתה מתקדם
+
+**He/She/It is (He's/She's/It's) + verb-ing:**
+- He is playing football. - הוא משחק כדורגל
+- She is writing a letter. - היא כותבת מכתב
+- It is raining. - יורד גשם
+
+**We are (We're) + verb-ing:**
+- We are having a party. - אנחנו עורכים מסיבה
+- We are studying English. - אנחנו לומדים אנגלית
+- We are waiting for you. - אנחנו מחכים לך
+
+**They are (They're) + verb-ing:**
+- They are playing games. - הם משחקים משחקים
+- They are talking loudly. - הם מדברים בקול
+- They are building a house. - הם בונים בית
+
+**צורות מקוצרות נפוצות:**
+- I am = I'm
+- You are = You're
+- He is = He's
+- She is = She's
+- It is = It's
+- We are = We're
+- They are = They're
+
+### 11.4 Negative Sentences (משפטים שליליים)
+
+**מבנה:**
+```
+Subject + am/is/are + not + verb-ing
+נושא + am/is/are + not + פועל-ing
+```
+
+**צורות מלאות:**
+- I am not working. - אני לא עובד
+- You are not listening. - אתה לא מקשיב
+- He is not sleeping. - הוא לא ישן
+- She is not cooking. - היא לא מבשלת
+- It is not working. - זה לא עובד
+- We are not playing. - אנחנו לא משחקים
+- They are not coming. - הם לא באים
+
+**צורות מקוצרות (Contractions):**
+
+**שתי אפשרויות לכל משפט:**
+
+1. **קיצור עם הכינוי:**
+   - I'm not playing
+   - You're not studying
+   - He's not eating
+   - She's not working
+   - It's not raining
+   - We're not watching
+   - They're not sleeping
+
+2. **קיצור עם not (לא עובד עם I am):**
+   - You aren't listening
+   - He isn't coming
+   - She isn't reading
+   - It isn't working
+   - We aren't talking
+   - They aren't helping
+
+⚠️ **שים לב:** עם I משתמשים רק ב-I'm not (לא קיים "I amn't")
+
+**דוגמאות נוספות:**
+- I'm not watching TV right now. - אני לא צופה בטלוויזיה כרגע
+- He isn't answering his phone. - הוא לא עונה לטלפון שלו
+- They aren't doing their homework. - הם לא עושים שיעורי בית
+- We're not making noise. - אנחנו לא עושים רעש
+- She isn't feeling well today. - היא לא מרגישה טוב היום
+
+### 11.5 Questions (שאלות)
+
+**שאלות כן/לא (Yes/No Questions):**
+
+**מבנה:**
+```
+Am/Is/Are + subject + verb-ing?
+Am/Is/Are + נושא + פועל-ing?
+```
+
+**דוגמאות:**
+- Am I disturbing you? - אני מפריע לך?
+  - Yes, you are. / No, you're not.
+
+- Are you listening? - אתה מקשיב?
+  - Yes, I am. / No, I'm not.
+
+- Is he working? - הוא עובד?
+  - Yes, he is. / No, he isn't.
+
+- Is she coming? - היא באה?
+  - Yes, she is. / No, she's not.
+
+- Are we late? - אנחנו מאחרים?
+  - Yes, we are. / No, we aren't.
+
+- Are they playing? - הם משחקים?
+  - Yes, they are. / No, they're not.
+
+**שאלות מידע (Wh- Questions):**
+
+**מבנה:**
+```
+Wh-word + am/is/are + subject + verb-ing?
+מילת שאלה + am/is/are + נושא + פועל-ing?
+```
+
+**What (מה):**
+- What are you doing? - מה אתה עושה?
+- What is he reading? - מה הוא קורא?
+- What are they watching? - מה הם צופים?
+
+**Where (איפה):**
+- Where are you going? - לאן אתה הולך?
+- Where is she working? - איפה היא עובדת?
+- Where are they staying? - איפה הם שוהים?
+
+**Who (מי):**
+- Who are you calling? - למי אתה מתקשר?
+- Who is he meeting? - את מי הוא פוגש?
+- Who are they visiting? - את מי הם מבקרים?
+
+**Why (למה):**
+- Why are you crying? - למה אתה בוכה?
+- Why is she laughing? - למה היא צוחקת?
+- Why are they shouting? - למה הם צועקים?
+
+**When (מתי):**
+- When are you leaving? - מתי אתה עוזב?
+- When is he arriving? - מתי הוא מגיע?
+- When are they coming? - מתי הם באים?
+
+**How (איך):**
+- How are you feeling? - איך אתה מרגיש?
+- How is she doing? - איך היא מסתדרת?
+- How are they traveling? - איך הם נוסעים?
+
+### 11.6 Time Expressions (ביטויי זמן)
+
+**ביטויים המציינים "עכשיו":**
+
+- **now** - עכשיו
+  - I am studying now. - אני לומד עכשיו
+
+- **right now** - ממש עכשיו
+  - She is working right now. - היא עובדת ממש עכשיו
+
+- **at the moment** - ברגע זה, כרגע
+  - He is busy at the moment. - הוא עסוק כרגע
+
+- **currently** - כרגע, בתקופה זו
+  - We are currently renovating. - אנחנו כרגע משפצים
+
+- **at present** - כרגע, בהווה
+  - They are at present in London. - הם כרגע בלונדון
+
+**ביטויים לתקופה זמנית:**
+
+- **today** - היום
+  - I am working from home today. - אני עובד מהבית היום
+
+- **this week** - השבוע
+  - She is staying with friends this week. - היא שוהה אצל חברים השבוע
+
+- **this month** - החודש
+  - He is traveling this month. - הוא נוסע החודש
+
+- **this year** - השנה
+  - We are learning English this year. - אנחנו לומדים אנגלית השנה
+
+- **these days** - בימים אלה
+  - They are very busy these days. - הם מאוד עסוקים בימים אלה
+
+**ביטויים לתוכניות עתידיות:**
+
+- **tomorrow** - מחר
+  - I am meeting her tomorrow. - אני פוגש אותה מחר
+
+- **tonight** - הערב
+  - We are going out tonight. - אנחנו יוצאים הערב
+
+- **next week/month** - בשבוע/בחודש הבא
+  - They are moving next month. - הם עוברים דירה בחודש הבא
+
+**משפטים לדוגמה:**
+- I can't talk now, I'm driving. - אני לא יכול לדבר עכשיו, אני נוהג
+- What are you doing at the moment? - מה אתה עושה כרגע?
+- She is currently studying for exams. - היא כרגע לומדת למבחנים
+- We are having guests tonight. - יש לנו אורחים הערב
+- He is working hard these days. - הוא עובד קשה בימים אלה
+
+### 11.7 Common Mistakes (טעויות נפוצות)
+
+**1. שימוש ב-Progressive במקום Simple (ולהיפך):**
+
+❌ I am knowing the answer.
+✅ I know the answer.
+(know הוא פועל סטטי - לא משתמשים ב-Progressive)
+
+❌ She plays tennis now.
+✅ She is playing tennis now.
+(עכשיו = Progressive)
+
+**2. שכחת am/is/are:**
+
+❌ I working now.
+✅ I am working now.
+
+❌ He playing football.
+✅ He is playing football.
+
+**3. שכחת -ing:**
+
+❌ She is work.
+✅ She is working.
+
+❌ They are study.
+✅ They are studying.
+
+**4. שגיאות כתיב ב-ing:**
+
+❌ I am runing. (צריך להכפיל: run → running)
+✅ I am running.
+
+❌ She is makeing. (צריך להסיר E: make → making)
+✅ She is making.
+
+❌ He is swiming. (צריך להכפיל: swim → swimming)
+✅ He is swimming.
+
+**5. פעלים סטטיים (Stative Verbs) שלא משתמשים ב-Progressive:**
+
+**פעלי תפיסה ותחושה:**
+- ❌ I am knowing - ✅ I know (יודע)
+- ❌ I am understanding - ✅ I understand (מבין)
+- ❌ I am believing - ✅ I believe (מאמין)
+- ❌ I am remembering - ✅ I remember (זוכר)
+
+**פעלי רגש:**
+- ❌ I am loving pizza - ✅ I love pizza (אוהב)
+- ❌ I am liking it - ✅ I like it (אוהב, מחבב)
+- ❌ I am hating this - ✅ I hate this (שונא)
+- ❌ I am wanting water - ✅ I want water (רוצה)
+
+**פעלי קניין:**
+- ❌ I am having a car - ✅ I have a car (יש לי)
+- ❌ She is owning a house - ✅ She owns a house (בבעלות)
+- ❌ I am belonging here - ✅ I belong here (שייך)
+
+**פעלים אחרים:**
+- ❌ I am needing help - ✅ I need help (צריך)
+- ❌ It is seeming good - ✅ It seems good (נראה)
+- ❌ I am meaning this - ✅ I mean this (מתכוון)
+
+⚠️ **חריג:** have יכול להיות Progressive כשמתכוונים ל"לאכול/לשתות/לחוות":
+- ✅ I am having lunch. (אוכל ארוחת צהריים)
+- ✅ We are having a great time. (אנחנו נהנים)
+
+**6. שגיאות בסדר מילים בשאלות:**
+
+❌ You are working?
+✅ Are you working?
+
+❌ What you are doing?
+✅ What are you doing?
+
+❌ Where she is going?
+✅ Where is she going?
+
+**7. שימוש לא נכון ב-not:**
+
+❌ I not am working.
+✅ I am not working.
+
+❌ He not is coming.
+✅ He is not coming.
+
+**8. קיצורים שגויים:**
+
+❌ I amn't working.
+✅ I'm not working.
+
+❌ You isn't coming.
+✅ You aren't coming.
+
+**9. שכחת השאלה במשפט שאלה:**
+
+❌ Are you working.
+✅ Are you working?
+
+❌ What are you doing.
+✅ What are you doing?
+
+**10. בלבול בין Present Progressive לעתיד:**
+
+Present Progressive יכול לשמש גם לעתיד קרוב, אבל רק עם תוכניות מוגדרות:
+- ✅ I am meeting John tomorrow. (תוכנית מוגדרת)
+- ❌ I think it is raining tomorrow. (לא תוכנית - השתמש ב-will)
+- ✅ I think it will rain tomorrow.
+
+---
+
+
+---
+
+## Topic 12: Can / Could (Ability & Permission) (יכול / יכול היה)
+
+⚠️ **Content pending development - structured stub only**
+
+### 12.1 Introduction to Modal Verbs
+- What are modal verbs? (מהם פעלי עזר מודליים)
+- Can and Could - basic meanings
+- Ability, possibility, permission
+
+### 12.2 Can - Present Ability (יכולת בהווה)
+- Structure: Subject + can + base verb
+- Expressing ability: I can swim, She can speak English
+- Examples and practice
+
+### 12.3 Can - Permission and Requests (רשות ובקשות)
+- Asking for permission: Can I...?
+- Making requests: Can you...?
+- Polite usage
+
+### 12.4 Could - Past Ability (יכולת בעבר)
+- Structure: Subject + could + base verb
+- When I was young, I could run fast
+- Examples
+
+### 12.5 Could - Polite Requests (בקשות מנומסות)
+- Could vs. Can for politeness
+- Could you help me?
+- Examples of polite requests
+
+### 12.6 Negative Forms (צורות שליליות)
+- can't / cannot
+- couldn't / could not
+- Usage and examples
+
+### 12.7 Common Mistakes (טעויות נפוצות)
+- Can vs. Could confusion
+- Common errors to avoid
+
+---
+
+
+---
+
+## Topic 13: Prepositions of Place (מילות יחס - מקום)
+
+### 13.1 In, On, At (ב-, על, אצל)
 - IN (בתוך):
   - Inside a container or space
   - in the box (בקופסה)
@@ -776,7 +1938,7 @@ When using multiple adjectives before a noun:
   - at home (בבית)
   - at work (בעבודה)
 
-### 9.2 Under, Over, Above, Below (מתחת, מעל)
+### 13.2 Under, Over, Above, Below (מתחת, מעל)
 - UNDER (מתחת ל-):
   - Directly below, with contact or close
   - under the table (מתחת לשולחן)
@@ -801,7 +1963,7 @@ When using multiple adjectives before a noun:
   - below the surface (מתחת לפני השטח)
   - below zero (מתחת לאפס)
 
-### 9.3 Next to, Beside, Between, Among (ליד, בין)
+### 13.3 Next to, Beside, Between, Among (ליד, בין)
 - NEXT TO / BESIDE (ליד):
   - At the side of
   - next to the door (ליד הדלת)
@@ -821,7 +1983,7 @@ When using multiple adjectives before a noun:
   - among friends (בין חברים)
   - among the crowd (בתוך הקהל)
 
-### 9.4 In front of, Behind (מול, מאחורי)
+### 13.4 In front of, Behind (מול, מאחורי)
 - IN FRONT OF (מול, לפני):
   - At the front side
   - in front of the house (מול הבית)
@@ -834,7 +1996,7 @@ When using multiple adjectives before a noun:
   - behind the tree (מאחורי העץ)
   - sit behind me (שב מאחורי)
 
-### 9.5 Near, Far from (קרוב ל-, רחוק מ-)
+### 13.5 Near, Far from (קרוב ל-, רחוק מ-)
 - NEAR (קרוב ל-):
   - Close to, not far
   - near the school (קרוב לבית הספר)
@@ -847,7 +2009,7 @@ When using multiple adjectives before a noun:
   - far from home (רחוק מהבית)
   - Is it far from here? (זה רחוק מכאן?)
 
-### 9.6 Common Expressions and Idioms (ביטויים נפוצים)
+### 13.6 Common Expressions and Idioms (ביטויים נפוצים)
 - at the top (בראש, בפסגה)
 - at the bottom (בתחתית)
 - in the middle (באמצע)
@@ -861,7 +2023,7 @@ When using multiple adjectives before a noun:
 - upstairs (למעלה, בקומה העליונה)
 - downstairs (למטה, בקומה התחתונה)
 
-### 9.7 Common Mistakes (טעויות נפוצות)
+### 13.7 Common Mistakes (טעויות נפוצות)
 - ❌ The book is in the table. → ✅ The book is on the table.
 - ❌ I live at Tel Aviv. → ✅ I live in Tel Aviv. (cities = in)
 - ❌ He sits in the chair. → ✅ He sits on the chair.
@@ -872,9 +2034,12 @@ When using multiple adjectives before a noun:
 
 ---
 
-## Topic 10: Prepositions of Time (מילות יחס - זמן)
 
-### 10.1 At (ב- לשעות ותקופות)
+---
+
+## Topic 14: Prepositions of Time (מילות יחס - זמן)
+
+### 14.1 At (ב- לשעות ותקופות)
 - AT for specific times:
   - Clock times: at 8 o'clock (בשעה 8)
   - at 7:30 (בשעה 7:30)
@@ -895,7 +2060,7 @@ When using multiple adjectives before a noun:
   - at the same time (באותו זמן)
   - at the weekend (בסוף שבוע - British)
 
-### 10.2 On (ב- לימים ותאריכים)
+### 14.2 On (ב- לימים ותאריכים)
 - ON for days:
   - on Monday (ביום שני)
   - on Tuesday (ביום שלישי)
@@ -914,7 +2079,7 @@ When using multiple adjectives before a noun:
   - on New Year's Day (ביום ראש השנה)
   - on that day (באותו יום)
 
-### 10.3 In (ב- לתקופות ארוכות)
+### 14.3 In (ב- לתקופות ארוכות)
 - IN for months:
   - in January (בינואר)
   - in July (ביולי)
@@ -942,7 +2107,7 @@ When using multiple adjectives before a noun:
   - in the past (בעבר)
   - in the future (בעתיד)
 
-### 10.4 For, Since, During (במשך, מאז, במהלך)
+### 14.4 For, Since, During (במשך, מאז, במהלך)
 - FOR (במשך):
   - Duration of time
   - for two hours (במשך שעתיים)
@@ -966,7 +2131,7 @@ When using multiple adjectives before a noun:
   - during the summer (במהלך הקיץ)
   - during my vacation (במהלך החופשה שלי)
 
-### 10.5 Before, After, Until (לפני, אחרי, עד)
+### 14.5 Before, After, Until (לפני, אחרי, עד)
 - BEFORE (לפני):
   - Earlier than
   - before breakfast (לפני ארוחת הבוקר)
@@ -988,7 +2153,7 @@ When using multiple adjectives before a noun:
   - until next week (עד שבוע הבא)
   - I'll wait until you come. (אחכה עד שתבוא)
 
-### 10.6 Common Time Expressions (ביטויי זמן נפוצים)
+### 14.6 Common Time Expressions (ביטויי זמן נפוצים)
 - in time (בזמן, לא מאוחר)
   - We arrived in time. (הגענו בזמן)
 
@@ -1019,7 +2184,7 @@ When using multiple adjectives before a noun:
   - this week (השבוע)
   - this year (השנה)
 
-### 10.7 Common Mistakes (טעויות נפוצות)
+### 14.7 Common Mistakes (טעויות נפוצות)
 - ❌ in Monday → ✅ on Monday (days = on)
 - ❌ at July → ✅ in July (months = in)
 - ❌ on 8 o'clock → ✅ at 8 o'clock (times = at)
@@ -1033,8 +2198,425 @@ When using multiple adjectives before a noun:
 
 ---
 
-**Note**: Each topic includes:
-- Theory explanation in Hebrew with English examples
-- 10-15 exercises (multiple choice + fill-in-the-blank)
-- Practice sentences
-- Common mistakes section
+## Level: Elementary (רמת יסוד)
+
+Building on beginner foundations with more complex tenses and grammar structures.
+
+---
+
+
+---
+
+## Topic 15: Past Simple Tense (עבר פשוט)
+
+### 15.1 Introduction to Past Simple (מבוא לעבר פשוט)
+
+**מתי משתמשים ב-Past Simple?**
+- Completed actions in the past (פעולות שהסתיימו בעבר)
+  - I watched a movie yesterday. (ראיתי סרט אתמול)
+  - She lived in London in 2020. (היא גרה בלונדון ב-2020)
+- Sequential actions in the past (פעולות ברצף בעבר)
+  - I woke up, ate breakfast, and went to school. (התעוררתי, אכלתי ארוחת בוקר, והלכתי לבית הספר)
+- Habits in the past (הרגלים בעבר)
+  - When I was young, I played football every day. (כשהייתי צעיר, שיחקתי כדורגל כל יום)
+
+**Time Expressions (ביטויי זמן) for Past Simple:**
+- yesterday (אתמול) - I called him yesterday.
+- last (ה...שעבר) - last week, last month, last year, last Monday
+- ago (לפני) - two days ago, a week ago, three years ago
+- in + year (ב-שנה) - in 2020, in 1995
+- when I was... (כש...) - when I was a child, when I was 10 years old
+
+**שני סוגי פעלים:**
+1. **Regular Verbs (פעלים רגילים)** - מוסיפים -ed: play → played
+2. **Irregular Verbs (פעלים בלתי רגילים)** - צורה מיוחדת: go → went, see → saw
+
+---
+
+### 15.2 Affirmative Sentences - Regular Verbs (משפטים חיוביים - פעלים רגילים)
+
+**Structure (מבנה):** Subject + Verb + ed
+
+**Spelling Rules for -ed ending (כללי איות לסיומת -ed):**
+
+1. **Most verbs:** Add -ed
+   - work → worked (עבד)
+   - play → played (שיחק)
+   - watch → watched (צפה)
+   - cook → cooked (בישל)
+
+2. **Verbs ending in -e:** Add only -d
+   - live → lived (גר)
+   - arrive → arrived (הגיע)
+   - close → closed (סגר)
+   - like → liked (אהב)
+
+3. **Verbs ending in consonant + y:** Change y to i + ed
+   - study → studied (למד)
+   - try → tried (ניסה)
+   - cry → cried (בכה)
+   - carry → carried (נשא)
+   - **BUT:** play → played (y after vowel = just add -ed)
+
+4. **Short verbs (1 syllable) ending in CVC (consonant-vowel-consonant):** Double the last consonant + ed
+   - stop → stopped (עצר)
+   - plan → planned (תכנן)
+   - drop → dropped (הפיל)
+   - **BUT:** visit → visited (2 syllables, don't double)
+
+**Examples (דוגמאות):**
+- I worked yesterday. (עבדתי אתמול)
+- She studied English last night. (היא למדה אנגלית אתמול בלילה)
+- We watched a movie. (צפינו בסרט)
+- They played football in the park. (הם שיחקו כדורגל בפארק)
+- He lived in Tel Aviv for 5 years. (הוא גר בתל אביב 5 שנים)
+
+**שימו לב:** הפועל זהה לכל הגופים - לא משתנה!
+- I worked, you worked, he worked, she worked, we worked, they worked
+
+---
+
+### 15.3 Affirmative Sentences - Irregular Verbs (משפטים חיוביים - פעלים בלתי רגילים)
+
+**Important (חשוב):** Irregular verbs don't follow rules - you must memorize them!
+(אין כלל - צריך לשנן!)
+
+**Common Irregular Verbs (פעלים בלתי רגילים נפוצים):**
+
+| Base Form | Past Simple | Hebrew |
+|-----------|-------------|---------|
+| go | went | הלך |
+| come | came | בא |
+| see | saw | ראה |
+| eat | ate | אכל |
+| drink | drank | שתה |
+| make | made | עשה/הכין |
+| take | took | לקח |
+| give | gave | נתן |
+| get | got | קיבל/הגיע |
+| have | had | היה לו |
+| do | did | עשה |
+| say | said | אמר |
+| tell | told | סיפר |
+| write | wrote | כתב |
+| read | read* | קרא |
+| buy | bought | קנה |
+| bring | brought | הביא |
+| think | thought | חשב |
+| know | knew | ידע |
+| find | found | מצא |
+| leave | left | עזב |
+| meet | met | פגש |
+| sit | sat | ישב |
+| stand | stood | עמד |
+| understand | understood | הבין |
+| feel | felt | הרגיש |
+| hear | heard | שמע |
+| win | won | ניצח |
+| lose | lost | הפסיד |
+| break | broke | שבר |
+| speak | spoke | דיבר |
+| wear | wore | לבש |
+| drive | drove | נהג |
+| sleep | slept | ישן |
+| spend | spent | בילה (זמן/כסף) |
+
+*Note: "read" is spelled the same but pronounced differently (red)
+
+**Examples (דוגמאות):**
+- I went to school yesterday. (הלכתי לבית הספר אתמול)
+- She saw a movie last week. (היא ראתה סרט שבוע שעבר)
+- We ate pizza for dinner. (אכלנו פיצה לארוחת ערב)
+- They came to my party. (הם באו למסיבה שלי)
+- He bought a new car. (הוא קנה מכונית חדשה)
+- I had a great time. (היה לי זמן מצוין)
+- We met our friends. (פגשנו את החברים שלנו)
+
+---
+
+### 15.4 Negative Sentences (משפטים שליליים)
+
+**Structure (מבנה):** Subject + did not (didn't) + base verb
+
+**Important (חשוב מאוד):**
+- Use "didn't" + base form of the verb (לא -ed, לא צורת עבר!)
+- Works for ALL verbs - regular and irregular
+
+**Examples (דוגמאות):**
+
+**Regular verbs:**
+- I didn't work yesterday. (לא עבדתי אתמול)
+- She didn't study last night. (היא לא למדה אתמול בלילה)
+- We didn't watch TV. (לא צפינו בטלוויזיה)
+- They didn't play football. (הם לא שיחקו כדורגל)
+
+**Irregular verbs:**
+- I didn't go to school. (לא הלכתי לבית הספר)
+- He didn't see the movie. (הוא לא ראה את הסרט)
+- We didn't eat breakfast. (לא אכלנו ארוחת בוקר)
+- They didn't come to the party. (הם לא באו למסיבה)
+- She didn't buy anything. (היא לא קנתה כלום)
+
+**Common Mistakes (טעויות נפוצות):**
+- ❌ I didn't went to school. → ✅ I didn't go to school.
+- ❌ She didn't played tennis. → ✅ She didn't play tennis.
+- ❌ We didn't saw him. → ✅ We didn't see him.
+
+**זכרו:** didn't + base verb (not past form!)
+
+---
+
+### 15.5 Yes/No Questions (שאלות כן/לא)
+
+**Structure (מבנה):** Did + subject + base verb?
+
+**Important:** Use "did" + base form (not past form!)
+
+**Examples (דוגמאות):**
+- Did you work yesterday? (עבדת אתמול?)
+  - Yes, I did. (כן, עבדתי)
+  - No, I didn't. (לא, לא עבדתי)
+
+- Did she study for the test? (היא למדה למבחן?)
+  - Yes, she did. (כן, היא למדה)
+  - No, she didn't. (לא, היא לא למדה)
+
+- Did they go to the park? (הם הלכו לפארק?)
+  - Yes, they did. (כן, הם הלכו)
+  - No, they didn't. (לא, הם לא הלכו)
+
+- Did he see the movie? (הוא ראה את הסרט?)
+  - Yes, he did. / No, he didn't.
+
+- Did you eat lunch? (אכלת צהריים?)
+  - Yes, I did. / No, I didn't.
+
+**Short Answers (תשובות קצרות):**
+- Yes, I/you/he/she/it/we/they did.
+- No, I/you/he/she/it/we/they didn't.
+
+**Common Mistakes:**
+- ❌ Did you went home? → ✅ Did you go home?
+- ❌ Did she played? → ✅ Did she play?
+- ❌ Did they saw it? → ✅ Did they see it?
+
+---
+
+### 15.6 Wh- Questions (שאלות מידע)
+
+**Structure (מבנה):** Wh- word + did + subject + base verb?
+
+**Question Words:**
+- What (מה) - What did you do?
+- Where (איפה) - Where did you go?
+- When (מתי) - When did it happen?
+- Who (מי) - Who did you meet?
+- Why (למה) - Why did she leave?
+- How (איך) - How did you get here?
+- Which (איזה) - Which movie did you watch?
+
+**Examples (דוגמאות):**
+
+1. **What questions:**
+   - What did you do yesterday? (מה עשית אתמול?)
+   - What did she say? (מה היא אמרה?)
+   - What did they eat? (מה הם אכלו?)
+
+2. **Where questions:**
+   - Where did you go? (לאן הלכת?)
+   - Where did he live? (איפה הוא גר?)
+   - Where did they meet? (איפה הם נפגשו?)
+
+3. **When questions:**
+   - When did you arrive? (מתי הגעת?)
+   - When did it happen? (מתי זה קרה?)
+   - When did she call? (מתי היא התקשרה?)
+
+4. **Who questions:**
+   - Who did you see? (את מי ראית?)
+   - Who did she meet? (את מי היא פגשה?)
+   - Who did they invite? (את מי הם הזמינו?)
+
+5. **Why questions:**
+   - Why did you leave? (למה עזבת?)
+   - Why did he do that? (למה הוא עשה את זה?)
+   - Why did they come late? (למה הם באו מאוחר?)
+
+6. **How questions:**
+   - How did you know? (איך ידעת?)
+   - How did she get there? (איך היא הגיעה לשם?)
+   - How did it work? (איך זה עבד?)
+
+**Special Case - WHO as subject:**
+When "who" is the subject, don't use "did":
+- Who called? (מי התקשר?) - NOT "Who did call?"
+- Who came to the party? (מי בא למסיבה?)
+- Who wrote this? (מי כתב את זה?)
+
+---
+
+### 15.7 Common Mistakes (טעויות נפוצות)
+
+**1. Using past form with did/didn't:**
+- ❌ I didn't went home. → ✅ I didn't go home.
+- ❌ Did you saw him? → ✅ Did you see him?
+- ❌ She didn't played tennis. → ✅ She didn't play tennis.
+- **זכרו:** did/didn't + base verb (not past!)
+
+**2. Forgetting -ed for regular verbs:**
+- ❌ I work yesterday. → ✅ I worked yesterday.
+- ❌ She study last night. → ✅ She studied last night.
+- ❌ They play football. → ✅ They played football.
+
+**3. Using wrong irregular verb form:**
+- ❌ I goed to school. → ✅ I went to school.
+- ❌ She eated pizza. → ✅ She ate pizza.
+- ❌ We seed the movie. → ✅ We saw the movie.
+- ❌ He buyed a car. → ✅ He bought a car.
+
+**4. Spelling mistakes with -ed:**
+- ❌ I stoped working. → ✅ I stopped working. (double p)
+- ❌ She studyed English. → ✅ She studied English. (y → i)
+- ❌ They planed a trip. → ✅ They planned a trip. (double n)
+
+**5. Using present tense for past events:**
+- ❌ Yesterday I go to school. → ✅ Yesterday I went to school.
+- ❌ Last week she sees a movie. → ✅ Last week she saw a movie.
+
+**6. Confusing Present Perfect with Past Simple:**
+- ❌ I have seen him yesterday. → ✅ I saw him yesterday.
+- (With specific past time = use Past Simple, not Present Perfect)
+
+**7. Word order in questions:**
+- ❌ Why you did leave? → ✅ Why did you leave?
+- ❌ Where did you went? → ✅ Where did you go?
+
+**8. Forgetting "did" in questions:**
+- ❌ You went home? → ✅ Did you go home?
+- ❌ She saw the movie? → ✅ Did she see the movie?
+
+---
+
+
+---
+
+## Topic 16: Going to (Future Plans) (הולך ל - תוכניות עתידיות)
+
+⚠️ **Content pending development - structured stub only**
+
+### 16.1 Introduction to "Going to"
+- When to use "going to"
+- Plans and intentions (תוכניות וכוונות)
+- Predictions based on evidence
+
+### 16.2 Structure and Forms (מבנה וצורות)
+- Structure: Subject + am/is/are + going to + base verb
+- Examples across all persons
+
+### 16.3 Affirmative Sentences (משפטים חיוביים)
+- Examples and practice
+- Contractions
+
+### 16.4 Negative Sentences (משפטים שליליים)
+- Structure: Subject + am/is/are + not + going to + base verb
+- Examples
+
+### 16.5 Questions (שאלות)
+- Yes/No questions
+- Wh- questions
+- Short answers
+
+### 16.6 "Will" vs. "Going to" (will לעומת going to)
+- Key differences
+- When to use each
+- Examples comparing both
+
+### 16.7 Common Mistakes (טעויות נפוצות)
+- Common errors to avoid
+
+---
+
+
+---
+
+## Topic 17: Future Simple - will (עתיד פשוט)
+
+⚠️ **Content pending development - structured stub only**
+
+### 17.1 Introduction to Future Simple
+- When to use "will"
+- Predictions, promises, spontaneous decisions
+- Time expressions: tomorrow, next week, in the future
+
+### 17.2 Affirmative Sentences (משפטים חיוביים)
+- Structure: Subject + will + base verb
+- Contractions: I'll, he'll, they'll
+- Examples
+
+### 17.3 Negative Sentences (משפטים שליליים)
+- Structure: Subject + will not/won't + base verb
+- Examples and practice
+
+### 17.4 Questions (שאלות)
+- Structure: Will + subject + base verb?
+- Wh- questions with "will"
+- Short answers
+
+### 17.5 Uses of "will" (שימושים ב-will)
+- Predictions about the future
+- Promises and offers
+- Spontaneous decisions
+- Threats and warnings
+
+### 17.6 Common Mistakes (טעויות נפוצות)
+- Common errors to avoid
+
+---
+
+
+---
+
+## Topic 18: Comparatives and Superlatives (דרגות השוואה)
+
+⚠️ **Content pending development - structured stub only**
+
+### 18.1 Introduction to Comparisons
+- Comparing two things (השוואה בין שני דברים)
+- Comparing three or more things (השוואה בין שלושה דברים או יותר)
+- When to use comparatives vs. superlatives
+
+### 18.2 Comparative Adjectives (שמות תואר השוואתיים)
+- One-syllable adjectives: tall → taller
+- Two-syllable adjectives: pretty → prettier
+- Multi-syllable adjectives: more beautiful
+- Structure: ...er than / more...than
+
+### 18.3 Superlative Adjectives (שמות תואר הפלגיים)
+- One-syllable adjectives: tall → the tallest
+- Two-syllable adjectives: pretty → the prettiest
+- Multi-syllable adjectives: the most beautiful
+- Structure: the...est / the most...
+
+### 18.4 Irregular Comparatives and Superlatives (צורות חריגות)
+- good → better → the best
+- bad → worse → the worst
+- far → farther/further → the farthest/furthest
+- Must memorize these exceptions
+
+### 18.5 Using Comparatives in Sentences (שימוש בהשוואות במשפטים)
+- Structure and examples
+- Common expressions: as...as, not as...as
+
+### 18.6 Using Superlatives in Sentences (שימוש בהפלגות במשפטים)
+- Structure and examples
+- Common contexts
+
+### 18.7 Common Mistakes (טעויות נפוצות)
+- More better ❌ → better ✅
+- Most tallest ❌ → tallest ✅
+- Other common errors
+
+---
+
+
+---

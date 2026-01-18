@@ -1,12 +1,64 @@
 <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-  <!-- Barbarian Bowl - Red/Orange theme -->
-  <rect width="800" height="600" fill="#8b2500"/>
-  <rect x="100" y="100" width="600" height="400" fill="#c44121" stroke="#5a1200" stroke-width="4" rx="10"/>
-  <circle cx="200" cy="200" r="40" fill="#5a1200" opacity="0.3"/>
-  <circle cx="600" cy="200" r="40" fill="#5a1200" opacity="0.3"/>
-  <circle cx="200" cy="500" r="40" fill="#5a1200" opacity="0.3"/>
-  <circle cx="600" cy="500" r="40" fill="#5a1200" opacity="0.3"/>
-  <text x="400" y="280" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Level 4</text>
-  <text x="400" y="340" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF" text-anchor="middle">Barbarian Bowl</text>
-  <text x="400" y="380" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF" opacity="0.7" text-anchor="middle">60-79 points</text>
+  <!-- Barbarian Bowl - Rocky Mountain Arena -->
+  <defs>
+    <linearGradient id="mountainSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F7931E;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rockGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B7D6B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5D5347;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sunset Sky -->
+  <rect width="800" height="600" fill="url(#mountainSky)"/>
+
+  <!-- Mountains in background -->
+  <path d="M 0 300 L 150 150 L 300 300 Z" fill="#5D5347" opacity="0.6"/>
+  <path d="M 200 300 L 400 100 L 600 300 Z" fill="#5D5347" opacity="0.7"/>
+  <path d="M 500 300 L 650 150 L 800 300 Z" fill="#5D5347" opacity="0.6"/>
+
+  <!-- Ground -->
+  <rect x="0" y="400" width="800" height="200" fill="#8B7D6B"/>
+  <rect x="0" y="450" width="800" height="150" fill="#5D5347"/>
+
+  <!-- Bowl Structure -->
+  <path d="M 100 400 L 150 220 L 650 220 L 700 400 Z" fill="url(#rockGrad)" stroke="#3D342C" stroke-width="8"/>
+  <ellipse cx="400" cy="400" rx="300" ry="120" fill="#6B5D51" stroke="#3D342C" stroke-width="6"/>
+
+  <!-- Battle Axes -->
+  <rect x="180" y="180" width="20" height="180" fill="#654321"/>
+  <path d="M 160 200 L 190 160 L 220 200 L 190 180 Z" fill="#C0C0C0" stroke="#808080" stroke-width="2"/>
+  <rect x="600" y="180" width="20" height="180" fill="#654321"/>
+  <path d="M 580 200 L 610 160 L 640 200 L 610 180 Z" fill="#C0C0C0" stroke="#808080" stroke-width="2"/>
+
+  <!-- Barbarian Banners -->
+  <rect x="250" y="200" width="8" height="120" fill="#654321"/>
+  <path d="M 250 200 L 250 230 L 290 215 Z" fill="#8B0000"/>
+  <rect x="542" y="200" width="8" height="120" fill="#654321"/>
+  <path d="M 550 200 L 550 230 L 510 215 Z" fill="#8B0000"/>
+
+  <!-- Fire Bowls -->
+  <ellipse cx="200" cy="380" rx="35" ry="20" fill="#654321"/>
+  <ellipse cx="200" cy="365" rx="30" ry="35" fill="#FF4500" opacity="0.8">
+    <animate attributeName="ry" values="30;40;30" dur="1.5s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="600" cy="380" rx="35" ry="20" fill="#654321"/>
+  <ellipse cx="600" cy="365" rx="30" ry="35" fill="#FF4500" opacity="0.8">
+    <animate attributeName="ry" values="35;45;35" dur="1.5s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- Center Platform -->
+  <ellipse cx="400" cy="360" rx="150" ry="75" fill="#8B7D6B" stroke="#3D342C" stroke-width="5"/>
+
+  <!-- Text -->
+  <text x="400" y="350" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="#FF4500" text-anchor="middle">Level 4</text>
+  <text x="400" y="390" font-family="Arial, sans-serif" font-size="28" fill="#FFFFFF" text-anchor="middle" font-weight="bold">Barbarian Bowl</text>
+
+  <!-- Stars -->
+  <text x="280" y="140" font-size="38">⭐</text>
+  <text x="370" y="120" font-size="38">⭐</text>
+  <text x="460" y="140" font-size="38">⭐</text>
+  <text x="550" y="160" font-size="38" opacity="0.3">⭐</text>
 </svg>

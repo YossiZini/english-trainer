@@ -31,6 +31,9 @@ app.use('/api/mistakes', require('./routes/mistakes.routes'));
 app.use('/api/progress', require('./routes/progress.routes'));
 app.use('/api/achievements', require('./routes/achievement.routes'));
 app.use('/api/challenges', require('./routes/challenge.routes'));
+app.use('/api/vocabulary', require('./routes/vocabulary.routes'));
+app.use('/api/unseen', require('./routes/unseen.routes'));
+app.use('/api/kanban', require('./routes/kanban.routes'));
 
 // 404 handler
 app.use((req, res) => {

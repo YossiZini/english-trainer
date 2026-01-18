@@ -29,8 +29,144 @@
   font-size: 0.9rem;
 }
 
+.lesson-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
 .lesson-breadcrumb .separator {
   margin: 0 0.5rem;
+}
+
+/* Subtopic Dropdown */
+.subtopic-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.subtopic-trigger {
+  background: transparent;
+  border: none;
+  color: #667eea;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.subtopic-trigger:hover {
+  background: #f0f4ff;
+  color: #764ba2;
+}
+
+.dropdown-arrow {
+  font-size: 0.7rem;
+  transition: transform 0.2s;
+}
+
+.subtopics-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  min-width: 350px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-header {
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 12px 12px 0 0;
+  text-align: center;
+}
+
+.dropdown-list {
+  padding: 0.5rem;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s;
+  margin-bottom: 0.25rem;
+}
+
+.dropdown-item:hover {
+  background: #f0f4ff;
+  transform: translateX(-3px);
+}
+
+.dropdown-item.active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border-right: 3px solid #667eea;
+}
+
+.dropdown-item .item-number {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  min-width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.dropdown-item.active .item-number {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.dropdown-item .item-title {
+  flex: 1;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.dropdown-item .item-badge {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.dropdown-loading {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
 }
 
 .learning-content {
@@ -141,6 +277,18 @@
   font-weight: 600;
 }
 
+/* Subtitle styling for English translations */
+.theory-html .subtitle {
+  color: #888;
+  font-size: 1.1rem;
+  font-style: italic;
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+  direction: ltr;
+  text-align: left;
+}
+
+/* Formula box styling */
 .theory-html .formula {
   background: #f0f4ff;
   border: 2px solid #667eea;
@@ -148,9 +296,32 @@
   padding: 1.5rem;
   margin: 1.5rem 0;
   text-align: center;
-  font-size: 1.1rem;
+}
+
+.theory-html .formula-title {
+  font-size: 1rem;
   font-weight: 600;
+  color: #667eea;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.theory-html .formula-content {
+  font-size: 1.3rem;
+  font-weight: 700;
   color: #333;
+  font-family: 'Courier New', monospace;
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}
+
+.theory-html .formula-explanation {
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: 0.75rem;
+  font-style: italic;
 }
 
 .theory-html .examples {
@@ -177,6 +348,28 @@
   border-radius: 8px;
   padding: 1.5rem;
   margin: 1.5rem 0;
+}
+
+/* Rule sections for better organization */
+.theory-html .rule-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 1rem 0;
+  border-right: 4px solid #667eea;
+}
+
+.theory-html .rule-header {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.75rem;
+}
+
+.theory-html .rule-explanation {
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1rem;
 }
 
 .theory-html .warning {
@@ -412,6 +605,27 @@
     gap: 0.5rem;
   }
 
+  .lesson-breadcrumb {
+    flex-wrap: wrap;
+  }
+
+  .subtopics-dropdown {
+    min-width: 300px;
+    max-width: 90vw;
+    right: auto;
+    left: 0;
+  }
+
+  .dropdown-item .item-number {
+    min-width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
+  }
+
+  .dropdown-item .item-title {
+    font-size: 0.85rem;
+  }
+
   .learning-content {
     padding: 1rem;
   }
@@ -440,4 +654,93 @@
   .btn-difficulty {
     max-width: 100%;
   }
+}
+
+/* Bilingual Text Formatting - Separate English and Hebrew */
+.subtitle-en {
+  font-size: 1.1rem;
+  color: #666;
+  font-style: italic;
+  margin: 0.25rem 0 1rem 0;
+  direction: ltr;
+  text-align: left;
+}
+
+.subtitle-he {
+  font-size: 1.1rem;
+  color: #666;
+  font-style: italic;
+  margin: 0.25rem 0 0.75rem 0;
+  direction: rtl;
+  text-align: right;
+}
+
+.sentence-type {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-right: 4px solid #667eea;
+}
+
+.sentence-type h4 {
+  color: #667eea;
+  margin-bottom: 0.5rem;
+  direction: ltr;
+  text-align: left;
+  font-size: 1.2rem;
+}
+
+.example {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 6px;
+}
+
+.en-example {
+  direction: ltr;
+  text-align: left;
+  font-size: 1.05rem;
+  color: #333;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: #e8f4f8;
+  border-radius: 4px;
+}
+
+.he-example {
+  direction: rtl;
+  text-align: right;
+  font-size: 1.05rem;
+  color: #333;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background: #fff4e6;
+  border-radius: 4px;
+}
+
+.example-set {
+  margin-bottom: 2rem;
+}
+
+.example-set > p {
+  font-weight: 600;
+  color: #667eea;
+  margin-bottom: 1rem;
+}
+
+.example-pair {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.example-pair .en-example {
+  margin-bottom: 0.5rem;
+}
+
+.example-pair .he-example {
+  margin-top: 0.5rem;
 }

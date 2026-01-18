@@ -1,6 +1,7 @@
 const Lesson = require('../models/Lesson');
 const Exercise = require('../models/Exercise');
 const { pool } = require('../config/database');
+const { shuffleArray } = require('../utils/shuffle');
 
 class LessonService {
   /**
@@ -184,20 +185,20 @@ class LessonService {
       selectedExercises = [...selectedExercises, ...otherExercises];
     }
 
-    // Shuffle exercises randomly
-    selectedExercises = selectedExercises.sort(() => Math.random() - 0.5);
+    // Shuffle exercises randomly using proper shuffle
+    selectedExercises = shuffleArray(selectedExercises);
 
     // Take first 10 exercises
     selectedExercises = selectedExercises.slice(0, Math.min(10, selectedExercises.length));
 
-    // Renumber questions sequentially
+    // Renumber questions sequentially and shuffle options for each exercise
     selectedExercises = selectedExercises.map((ex, index) => ({
       id: ex.id,
       question_number: index + 1,
       type: ex.type,
       question_text_he: ex.question_text_he,
       question_text_en: ex.question_text_en,
-      options: ex.options,
+      options: ex.type === 'multiple_choice' && ex.options ? shuffleArray(ex.options) : ex.options,
       difficulty: ex.difficulty
     }));
 

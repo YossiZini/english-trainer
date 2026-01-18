@@ -68,7 +68,7 @@ const Dashboard = () => {
     );
   }
 
-  const { stats, completion, nextLesson, recentActivity, mistakeStats, gamification } = dashboardData;
+  const { stats, completion, nextLesson, recentActivity, mistakeStats, gamification, dailyStats } = dashboardData;
 
   return (
     <div className="dashboard-page">
@@ -76,10 +76,30 @@ const Dashboard = () => {
         {/* Welcome Header */}
         <div className="welcome-header">
           <h1 className="welcome-title">
-            שלום, {user?.username || 'תלמיד'}! 👋
+            שלום, {user?.studentName || user?.name || 'תלמיד'}! 👋
           </h1>
           <p className="welcome-subtitle">בוא נמשיך ללמוד אנגלית</p>
         </div>
+
+        {/* Daily Stats Section */}
+        {dailyStats && (
+          <div className="daily-stats-section">
+            <div className="daily-stat-card streak-card">
+              <div className="daily-stat-icon">🔥</div>
+              <div className="daily-stat-content">
+                <div className="daily-stat-value">{dailyStats.currentStreak}</div>
+                <div className="daily-stat-label">ימים רצופים</div>
+              </div>
+            </div>
+            <div className="daily-stat-card points-today-card">
+              <div className="daily-stat-icon">⭐</div>
+              <div className="daily-stat-content">
+                <div className="daily-stat-value">{dailyStats.pointsToday}</div>
+                <div className="daily-stat-label">נקודות היום</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Gamification Section */}
         {gamification && (
@@ -126,6 +146,87 @@ const Dashboard = () => {
         {/* Daily Challenge Widget */}
         <div className="dashboard-challenges-section">
           <DailyChallenge />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="quick-actions">
+          <h2 className="section-title">פעולות מהירות</h2>
+          <div className="actions-grid">
+            {nextLesson ? (
+              <button
+                className="action-card primary"
+                onClick={() => navigate(`/learn/${nextLesson.id}`)}
+              >
+                <div className="action-icon">📚</div>
+                <div className="action-title">המשך ללמוד</div>
+                <div className="action-subtitle">{nextLesson.title_he}</div>
+              </button>
+            ) : (
+              <div className="action-card completed-all">
+                <div className="action-icon">🎓</div>
+                <div className="action-title">סיימת הכל!</div>
+                <div className="action-subtitle">כל הכבוד!</div>
+              </div>
+            )}
+
+            <button
+              className="action-card secondary"
+              onClick={() => navigate('/topics')}
+            >
+              <div className="action-icon">📋</div>
+              <div className="action-title">כל הנושאים</div>
+              <div className="action-subtitle">בחר שיעור</div>
+            </button>
+
+            <button
+              className="action-card secondary"
+              onClick={() => navigate('/progress')}
+            >
+              <div className="action-icon">📈</div>
+              <div className="action-title">התקדמות מפורטת</div>
+              <div className="action-subtitle">סטטיסטיקות וגרפים</div>
+            </button>
+
+            <button
+              className="action-card cross-test-card"
+              onClick={() => navigate('/cross-test')}
+            >
+              <div className="action-icon">🎯</div>
+              <div className="action-title">מבחן משולב</div>
+              <div className="action-subtitle">שאלות מכל הנושאים</div>
+            </button>
+
+            <button
+              className="action-card vocabulary-card"
+              onClick={() => navigate('/vocabulary')}
+            >
+              <div className="action-icon">📝</div>
+              <div className="action-title">לימוד מילים</div>
+              <div className="action-subtitle">תרגול אוצר מילים</div>
+            </button>
+
+            <button
+              className="action-card unseen-card"
+              onClick={() => navigate('/unseen')}
+            >
+              <div className="action-icon">📖</div>
+              <div className="action-title">פסקאות באנגלית</div>
+              <div className="action-subtitle">Unseen - הבנת הנקרא</div>
+            </button>
+
+            {mistakeStats.uncorrected_count > 0 && (
+              <button
+                className="action-card mistakes-card"
+                onClick={() => navigate('/mistakes')}
+              >
+                <div className="action-icon">🔄</div>
+                <div className="action-title">תקן טעויות</div>
+                <div className="action-subtitle">
+                  {mistakeStats.uncorrected_count} ממתינות
+                </div>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Recent Achievements */}
@@ -206,69 +307,6 @@ const Dashboard = () => {
               <span>{completion.completed_lessons} הושלמו</span>
               <span>{completion.total_lessons - completion.completed_lessons} נותרו</span>
             </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="quick-actions">
-          <h2 className="section-title">פעולות מהירות</h2>
-          <div className="actions-grid">
-            {nextLesson ? (
-              <button
-                className="action-card primary"
-                onClick={() => navigate(`/learn/${nextLesson.id}`)}
-              >
-                <div className="action-icon">📚</div>
-                <div className="action-title">המשך ללמוד</div>
-                <div className="action-subtitle">{nextLesson.title_he}</div>
-              </button>
-            ) : (
-              <div className="action-card completed-all">
-                <div className="action-icon">🎓</div>
-                <div className="action-title">סיימת הכל!</div>
-                <div className="action-subtitle">כל הכבוד!</div>
-              </div>
-            )}
-
-            <button
-              className="action-card secondary"
-              onClick={() => navigate('/topics')}
-            >
-              <div className="action-icon">📋</div>
-              <div className="action-title">כל הנושאים</div>
-              <div className="action-subtitle">בחר שיעור</div>
-            </button>
-
-            <button
-              className="action-card secondary"
-              onClick={() => navigate('/progress')}
-            >
-              <div className="action-icon">📈</div>
-              <div className="action-title">התקדמות מפורטת</div>
-              <div className="action-subtitle">סטטיסטיקות וגרפים</div>
-            </button>
-
-            <button
-              className="action-card cross-test-card"
-              onClick={() => navigate('/cross-test')}
-            >
-              <div className="action-icon">🎯</div>
-              <div className="action-title">מבחן משולב</div>
-              <div className="action-subtitle">שאלות מכל הנושאים</div>
-            </button>
-
-            {mistakeStats.uncorrected_count > 0 && (
-              <button
-                className="action-card mistakes-card"
-                onClick={() => navigate('/mistakes')}
-              >
-                <div className="action-icon">🔄</div>
-                <div className="action-title">תקן טעויות</div>
-                <div className="action-subtitle">
-                  {mistakeStats.uncorrected_count} ממתינות
-                </div>
-              </button>
-            )}
           </div>
         </div>
 

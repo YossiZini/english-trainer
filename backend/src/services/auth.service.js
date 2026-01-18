@@ -5,7 +5,7 @@ class AuthService {
   /**
    * Register a new user
    */
-  static async register({ name, email, password, age }) {
+  static async register({ name, email, password, age, studentName }) {
     // Validate required fields
     if (!name || !password) {
       throw new Error('Name and password are required');
@@ -26,7 +26,7 @@ class AuthService {
     }
 
     // Create user
-    const user = await User.create({ name, email, password, age });
+    const user = await User.create({ name, email, password, age, studentName });
 
     // Generate token
     const token = generateToken({ userId: user.id, name: user.name });
@@ -37,7 +37,8 @@ class AuthService {
         name: user.name,
         email: user.email,
         age: user.age,
-        currentLevel: user.current_level
+        currentLevel: user.current_level,
+        studentName: user.student_name
       },
       token
     };
@@ -87,7 +88,8 @@ class AuthService {
         email: user.email,
         age: user.age,
         currentLevel: user.current_level,
-        currentStreak: user.current_streak
+        currentStreak: user.current_streak,
+        studentName: user.student_name
       },
       token
     };
@@ -111,7 +113,8 @@ class AuthService {
       currentLevel: user.current_level,
       totalTimeSpent: user.total_time_spent,
       currentStreak: user.current_streak,
-      lastLogin: user.last_login
+      lastLogin: user.last_login,
+      studentName: user.student_name
     };
   }
 

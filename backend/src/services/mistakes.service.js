@@ -1,6 +1,7 @@
 const WrongAnswer = require('../models/WrongAnswer');
 const Exercise = require('../models/Exercise');
 const { pool } = require('../config/database');
+const { shuffleArray } = require('../utils/shuffle');
 
 class MistakesService {
   /**
@@ -314,8 +315,7 @@ class MistakesService {
     // Prioritize uncorrected mistakes
     if (uncorrectedMistakes.length >= questionCount) {
       // We have enough uncorrected mistakes
-      selectedQuestions = [...uncorrectedMistakes]
-        .sort(() => Math.random() - 0.5)
+      selectedQuestions = shuffleArray([...uncorrectedMistakes])
         .slice(0, questionCount);
     } else {
       // Add all uncorrected mistakes
@@ -324,8 +324,7 @@ class MistakesService {
       // Fill remaining with corrected mistakes
       const remaining = questionCount - selectedQuestions.length;
       if (remaining > 0 && allCorrectedOnly.length > 0) {
-        const additionalQuestions = [...allCorrectedOnly]
-          .sort(() => Math.random() - 0.5)
+        const additionalQuestions = shuffleArray([...allCorrectedOnly])
           .slice(0, remaining);
         selectedQuestions = [...selectedQuestions, ...additionalQuestions];
       }
@@ -354,15 +353,15 @@ class MistakesService {
       selectedQuestions = [...selectedQuestions, ...result.rows];
     }
 
-    // Transform to exercise format with snake_case and shuffle
-    const exercises = selectedQuestions
-      .sort(() => Math.random() - 0.5)
+    // Transform to exercise format with shuffle and shuffle options
+    const shuffledQuestions = shuffleArray(selectedQuestions);
+    const exercises = shuffledQuestions
       .map((question, index) => ({
         id: question.exercise_id,
         question_number: index + 1,
         type: question.type,
         question_text_he: question.question_text_he,
-        options: question.options,
+        options: question.type === 'multiple_choice' && question.options ? shuffleArray(question.options) : question.options,
         difficulty: question.difficulty || 'medium',
         lesson_title: question.lesson_title_he || question.lesson_title,
         is_from_mistakes: !!question.user_answer

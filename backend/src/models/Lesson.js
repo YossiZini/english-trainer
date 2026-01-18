@@ -130,12 +130,12 @@ class Lesson {
       SELECT id, topic_number, subtopic_number, title_en, title_he,
              level, order_index
       FROM lessons
-      WHERE order_index = $1
+      WHERE order_index > $1
       ORDER BY order_index ASC
       LIMIT 1
     `;
 
-    const result = await pool.query(query, [currentOrderIndex + 1]);
+    const result = await pool.query(query, [currentOrderIndex]);
     return result.rows[0];
   }
 
@@ -147,12 +147,12 @@ class Lesson {
       SELECT id, topic_number, subtopic_number, title_en, title_he,
              level, order_index
       FROM lessons
-      WHERE order_index = $1
+      WHERE order_index < $1
       ORDER BY order_index DESC
       LIMIT 1
     `;
 
-    const result = await pool.query(query, [currentOrderIndex - 1]);
+    const result = await pool.query(query, [currentOrderIndex]);
     return result.rows[0];
   }
 }

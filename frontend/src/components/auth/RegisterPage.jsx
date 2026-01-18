@@ -9,6 +9,7 @@ const RegisterPage = () => {
 
   const [formData, setFormData] = useState({
     name: '',
+    studentName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -45,6 +46,7 @@ const RegisterPage = () => {
     try {
       const userData = {
         name: formData.name,
+        studentName: formData.studentName || undefined,
         email: formData.email || undefined,
         password: formData.password,
         age: formData.age ? parseInt(formData.age) : undefined
@@ -91,6 +93,20 @@ const RegisterPage = () => {
                 disabled={loading}
                 minLength={2}
                 maxLength={100}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="studentName">שם מלא (אופציונלי)</label>
+              <input
+                type="text"
+                id="studentName"
+                name="studentName"
+                value={formData.studentName}
+                onChange={handleChange}
+                placeholder="Full Name"
+                disabled={loading}
+                maxLength={255}
               />
             </div>
 

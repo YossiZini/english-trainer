@@ -1,0 +1,261 @@
+.mistakes-list-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  padding: 2rem;
+  direction: rtl;
+}
+
+.mistakes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header */
+.mistakes-header {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mistakes-title {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.mistakes-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Stats */
+.mistakes-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  animation: fadeIn 0.5s ease 0.1s backwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.stat-item {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border: 3px solid #17a2b8;
+}
+
+.stat-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #17a2b8;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 600;
+}
+
+/* Lessons Grid */
+.lessons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  animation: fadeIn 0.5s ease 0.2s backwards;
+}
+
+.lesson-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+}
+
+.lesson-card:hover {
+  transform: translateY(-5px);
+  border-color: #17a2b8;
+  box-shadow: 0 15px 40px rgba(23, 162, 184, 0.3);
+}
+
+.lesson-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.lesson-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  flex: 1;
+}
+
+.mistakes-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: 700;
+  min-width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.lesson-footer {
+  text-align: left;
+  margin-top: 1rem;
+}
+
+.review-link {
+  color: #17a2b8;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* Back Button */
+.back-button {
+  background: white;
+  color: #17a2b8;
+  border: 3px solid #17a2b8;
+  padding: 1rem 2rem;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: block;
+  margin: 0 auto;
+  font-family: inherit;
+}
+
+.back-button:hover {
+  background: #17a2b8;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(23, 162, 184, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+  background: white;
+  border-radius: 20px;
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.5s ease;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Loading & Error */
+.loading,
+.error {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.error {
+  color: #dc3545;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .mistakes-list-page {
+    padding: 1rem;
+  }
+
+  .mistakes-header {
+    padding: 1.5rem;
+  }
+
+  .mistakes-title {
+    font-size: 1.8rem;
+  }
+
+  .mistakes-subtitle {
+    font-size: 1rem;
+  }
+
+  .mistakes-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .lessons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1.5rem;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+  }
+
+  .empty-state h2 {
+    font-size: 1.5rem;
+  }
+}

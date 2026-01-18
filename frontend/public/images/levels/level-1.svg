@@ -1,12 +1,48 @@
 <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-  <!-- Training Camp - Brown/Wooden theme -->
-  <rect width="800" height="600" fill="#8B7355"/>
-  <rect x="100" y="100" width="600" height="400" fill="#A0826D" stroke="#654321" stroke-width="4" rx="10"/>
-  <circle cx="200" cy="200" r="40" fill="#654321" opacity="0.3"/>
-  <circle cx="600" cy="200" r="40" fill="#654321" opacity="0.3"/>
-  <circle cx="200" cy="500" r="40" fill="#654321" opacity="0.3"/>
-  <circle cx="600" cy="500" r="40" fill="#654321" opacity="0.3"/>
-  <text x="400" y="280" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Level 1</text>
-  <text x="400" y="340" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF" text-anchor="middle">Training Camp</text>
-  <text x="400" y="380" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF" opacity="0.7" text-anchor="middle">0-19 points</text>
+  <!-- Training Camp - Wooden Training Arena -->
+  <defs>
+    <linearGradient id="skyGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0F6FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="woodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B7355;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6B5344;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sky Background -->
+  <rect width="800" height="600" fill="url(#skyGrad1)"/>
+
+  <!-- Ground -->
+  <rect x="0" y="450" width="800" height="150" fill="#8B7355"/>
+  <rect x="0" y="480" width="800" height="120" fill="#6B5344"/>
+
+  <!-- Wooden Arena Structure -->
+  <rect x="150" y="250" width="500" height="230" fill="url(#woodGrad)" stroke="#4A3728" stroke-width="6" rx="15"/>
+
+  <!-- Training Dummies -->
+  <ellipse cx="250" cy="350" rx="30" ry="40" fill="#A0826D"/>
+  <circle cx="250" cy="320" r="25" fill="#C4A484"/>
+  <ellipse cx="550" cy="350" rx="30" ry="40" fill="#A0826D"/>
+  <circle cx="550" cy="320" r="25" fill="#C4A484"/>
+
+  <!-- Wooden Posts -->
+  <rect x="180" y="200" width="40" height="280" fill="#6B5344" stroke="#4A3728" stroke-width="2"/>
+  <rect x="580" y="200" width="40" height="280" fill="#6B5344" stroke="#4A3728" stroke-width="2"/>
+
+  <!-- Flags -->
+  <path d="M 200 200 L 200 150 L 250 165 L 200 180 Z" fill="#8B4513" opacity="0.8"/>
+  <path d="M 600 200 L 600 150 L 650 165 L 600 180 Z" fill="#8B4513" opacity="0.8"/>
+
+  <!-- Wooden Sign -->
+  <rect x="300" y="320" width="200" height="100" fill="#8B7355" stroke="#4A3728" stroke-width="4" rx="10"/>
+
+  <!-- Text -->
+  <text x="400" y="360" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#4A3728" text-anchor="middle">Level 1</text>
+  <text x="400" y="395" font-family="Arial, sans-serif" font-size="24" fill="#654321" text-anchor="middle">Training Camp</text>
+
+  <!-- Stars (showing beginner level) -->
+  <text x="320" y="180" font-size="40" opacity="0.3">⭐</text>
+  <text x="440" y="180" font-size="40" opacity="0.2">⭐</text>
 </svg>

@@ -40,6 +40,20 @@ const lessonService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  /**
+   * Get all lessons for a specific topic
+   */
+  async getLessonsByTopic(topicNumber) {
+    try {
+      const topics = await this.getAllLessons({ topicNumber });
+      // Backend returns array of topics, each with lessons array
+      // We want just the lessons from the first (and only) topic
+      return topics.length > 0 && topics[0].lessons ? topics[0].lessons : [];
+    } catch (error) {
+      throw error;
+    }
   }
 };
 

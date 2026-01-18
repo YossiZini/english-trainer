@@ -1,6 +1,7 @@
 const UserProgress = require('../models/UserProgress');
 const WrongAnswer = require('../models/WrongAnswer');
 const GamificationService = require('./gamification.service');
+const User = require('../models/User');
 
 class ProgressService {
   /**
@@ -25,6 +26,9 @@ class ProgressService {
     // Get gamification data
     const gamification = await GamificationService.getUserGamificationStatus(userId);
 
+    // Get daily stats (streak and points today)
+    const dailyStats = await User.getDailyStats(userId);
+
     return {
       stats: {
         ...stats,
@@ -34,7 +38,8 @@ class ProgressService {
       nextLesson,
       recentActivity,
       mistakeStats,
-      gamification
+      gamification,
+      dailyStats
     };
   }
 

@@ -19,12 +19,13 @@ const exerciseService = {
   /**
    * Submit complete exercise
    */
-  async submitExercise(lessonId, answers, timeSpent) {
+  async submitExercise(lessonId, answers, timeSpent, difficulty = 'easy') {
     try {
       const response = await api.post('/exercises/submit', {
         lessonId,
         answers,
-        timeSpent
+        timeSpent,
+        difficulty
       });
       return response.data;
     } catch (error) {

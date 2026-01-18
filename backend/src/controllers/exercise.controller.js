@@ -37,7 +37,7 @@ class ExerciseController {
    */
   static async submitExercise(req, res) {
     try {
-      const { lessonId, answers, timeSpent } = req.body;
+      const { lessonId, answers, timeSpent, difficulty } = req.body;
       const userId = req.userId;
 
       if (!lessonId || !answers || !Array.isArray(answers)) {
@@ -58,7 +58,8 @@ class ExerciseController {
         userId,
         lessonId,
         answers,
-        timeSpent
+        timeSpent,
+        difficulty || 'easy'
       );
 
       res.status(200).json({

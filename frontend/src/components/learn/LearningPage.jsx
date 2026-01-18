@@ -1,18 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
 import './LearningPage.css';
 
 const LearningPage = () => {
   const { lessonId } = useParams();
+  const navigate = useNavigate();
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showSubtopicsDropdown, setShowSubtopicsDropdown] = useState(false);
+  const [topicLessons, setTopicLessons] = useState([]);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     loadLesson();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowSubtopicsDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const loadLesson = async () => {
     try {
@@ -24,6 +42,29 @@ const LearningPage = () => {
       setError(error.message || 'Failed to load lesson');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadTopicLessons = async () => {
+    if (!lesson) return;
+
+    // If already have lessons, just toggle dropdown
+    if (topicLessons.length > 0) {
+      setShowSubtopicsDropdown(!showSubtopicsDropdown);
+      return;
+    }
+
+    // Show dropdown immediately (will show loading state)
+    setShowSubtopicsDropdown(true);
+
+    // Fetch lessons
+    try {
+      const lessons = await lessonService.getLessonsByTopic(lesson.topicNumber);
+      console.log('Loaded topic lessons:', lessons);
+      setTopicLessons(lessons);
+    } catch (error) {
+      console.error('Failed to load topic lessons:', error);
+      setShowSubtopicsDropdown(false);
     }
   };
 
@@ -66,7 +107,44 @@ const LearningPage = () => {
         <div className="lesson-breadcrumb">
           <span>נושא {lesson.topicNumber}</span>
           <span className="separator">›</span>
-          <span>{lesson.subtopicNumber}</span>
+          <div className="subtopic-dropdown-wrapper" ref={dropdownRef}>
+            <button
+              className="subtopic-trigger"
+              onClick={loadTopicLessons}
+              title="לחץ לראות את כל תתי הנושאים"
+            >
+              {lesson.subtopicNumber}
+              <span className="dropdown-arrow">{showSubtopicsDropdown ? '▲' : '▼'}</span>
+            </button>
+
+            {showSubtopicsDropdown && (
+              <div className="subtopics-dropdown">
+                <div className="dropdown-header">
+                  תתי נושאים בנושא {lesson.topicNumber}
+                </div>
+                <div className="dropdown-list">
+                  {topicLessons.length > 0 ? (
+                    topicLessons.map((topicLesson) => (
+                      <Link
+                        key={topicLesson.id}
+                        to={`/learn/${topicLesson.id}`}
+                        className={`dropdown-item ${topicLesson.id === lesson.id ? 'active' : ''}`}
+                        onClick={() => setShowSubtopicsDropdown(false)}
+                      >
+                        <span className="item-number">{topicLesson.subtopicNumber}</span>
+                        <span className="item-title">{topicLesson.titleHe}</span>
+                        {topicLesson.progress?.status === 'completed' && (
+                          <span className="item-badge">✅</span>
+                        )}
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="dropdown-loading">טוען...</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
           <span className="separator">›</span>
           <span>{lesson.titleHe}</span>
         </div>

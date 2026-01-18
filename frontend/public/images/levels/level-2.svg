@@ -1,12 +1,55 @@
 <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
-  <!-- Goblin Stadium - Green/Forest theme -->
-  <rect width="800" height="600" fill="#2D5016"/>
-  <rect x="100" y="100" width="600" height="400" fill="#3A6B1F" stroke="#1a3a0f" stroke-width="4" rx="10"/>
-  <circle cx="200" cy="200" r="40" fill="#1a3a0f" opacity="0.3"/>
-  <circle cx="600" cy="200" r="40" fill="#1a3a0f" opacity="0.3"/>
-  <circle cx="200" cy="500" r="40" fill="#1a3a0f" opacity="0.3"/>
-  <circle cx="600" cy="500" r="40" fill="#1a3a0f" opacity="0.3"/>
-  <text x="400" y="280" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Level 2</text>
-  <text x="400" y="340" font-family="Arial, sans-serif" font-size="32" fill="#FFFFFF" text-anchor="middle">Goblin Stadium</text>
-  <text x="400" y="380" font-family="Arial, sans-serif" font-size="20" fill="#FFFFFF" opacity="0.7" text-anchor="middle">20-39 points</text>
+  <!-- Goblin Stadium - Forest Arena -->
+  <defs>
+    <linearGradient id="skyGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A7C59;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6B9B7A;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2D5016;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a3a0f;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sky Background -->
+  <rect width="800" height="600" fill="url(#skyGrad2)"/>
+
+  <!-- Ground -->
+  <rect x="0" y="420" width="800" height="180" fill="url(#grassGrad)"/>
+
+  <!-- Stadium Structure -->
+  <path d="M 100 400 L 150 200 L 650 200 L 700 400 Z" fill="#3A6B1F" stroke="#1a3a0f" stroke-width="6"/>
+  <rect x="150" y="200" width="500" height="220" fill="#2D5016" opacity="0.7" stroke="#1a3a0f" stroke-width="4" rx="20"/>
+
+  <!-- Trees in background -->
+  <ellipse cx="80" cy="280" rx="60" ry="80" fill="#1a3a0f" opacity="0.5"/>
+  <ellipse cx="720" cy="280" rx="60" ry="80" fill="#1a3a0f" opacity="0.5"/>
+
+  <!-- Stadium Seats -->
+  <rect x="170" y="220" width="460" height="30" fill="#2a4515" opacity="0.6"/>
+  <rect x="170" y="255" width="460" height="30" fill="#2a4515" opacity="0.5"/>
+
+  <!-- Goblin Huts -->
+  <path d="M 220 320 L 250 280 L 280 320 Z" fill="#4a6b2f"/>
+  <rect x="230" y="320" width="40" height="50" fill="#3a5b1f"/>
+  <path d="M 520 320 L 550 280 L 580 320 Z" fill="#4a6b2f"/>
+  <rect x="530" y="320" width="40" height="50" fill="#3a5b1f"/>
+
+  <!-- Center Platform -->
+  <ellipse cx="400" cy="350" rx="120" ry="60" fill="#3A6B1F" stroke="#1a3a0f" stroke-width="4"/>
+
+  <!-- Text -->
+  <text x="400" y="340" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Level 2</text>
+  <text x="400" y="375" font-family="Arial, sans-serif" font-size="26" fill="#90EE90" text-anchor="middle">Goblin Stadium</text>
+
+  <!-- Torches -->
+  <ellipse cx="170" cy="190" rx="15" ry="25" fill="#ff6b1a" opacity="0.7"/>
+  <rect x="165" y="190" width="10" height="60" fill="#654321"/>
+  <ellipse cx="630" cy="190" rx="15" ry="25" fill="#ff6b1a" opacity="0.7"/>
+  <rect x="625" y="190" width="10" height="60" fill="#654321"/>
+
+  <!-- Stars -->
+  <text x="300" y="160" font-size="35" opacity="0.8">⭐</text>
+  <text x="400" y="145" font-size="35" opacity="0.8">⭐</text>
+  <text x="500" y="160" font-size="35" opacity="0.3">⭐</text>
 </svg>

@@ -41,6 +41,12 @@ class GamificationService {
     // Update user points
     const newData = await User.addPoints(userId, pointsEarned);
 
+    // Update streak (consecutive days of activity)
+    await User.updateActivityAndStreak(userId);
+
+    // Update daily points
+    await User.addDailyPoints(userId, pointsEarned);
+
     return {
       pointsEarned,
       totalPoints: newData.total_points,

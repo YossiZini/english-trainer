@@ -31,10 +31,23 @@ const ReviewMistakesPage = () => {
 
       // Load mistakes
       const mistakesData = await mistakesService.getMistakesByLesson(lessonId, false);
-      setMistakes(mistakesData);
+
+      console.log('Mistakes Data:', mistakesData);
+
+      // Handle the response structure - check if mistakesData.data exists
+      const mistakesArray = mistakesData.data || mistakesData || [];
+
+      if (!Array.isArray(mistakesArray)) {
+        console.error('Expected array but got:', mistakesArray);
+        setMistakes([]);
+        setLoading(false);
+        return;
+      }
+
+      setMistakes(mistakesArray);
 
       // Mark as reviewed
-      if (mistakesData.length > 0) {
+      if (mistakesArray.length > 0) {
         await mistakesService.markAsReviewed(lessonId);
       }
 
@@ -142,34 +155,47 @@ const ReviewMistakesPage = () => {
               </div>
 
               <div className="mistake-content">
-                <div className="question-text">{mistake.question_text_he}</div>
+                <div className="question-text" dir="ltr">{mistake.question_text_he}</div>
 
                 {mistake.type === 'multiple_choice' && mistake.options && (
                   <div className="options-display">
-                    {JSON.parse(mistake.options).map((option, idx) => (
-                      <div
-                        key={idx}
-                        className={`option-item ${
-                          option === mistake.user_answer ? 'wrong-choice' : ''
-                        } ${
-                          option === mistake.correct_answer ? 'correct-choice' : ''
-                        }`}
-                      >
-                        {option}
-                      </div>
-                    ))}
+                    {(() => {
+                      let options = mistake.options;
+                      // Handle different formats: array, JSON string, or comma-separated string
+                      if (typeof options === 'string') {
+                        try {
+                          options = JSON.parse(options);
+                        } catch (e) {
+                          // If JSON parse fails, treat it as comma-separated string
+                          options = options.split(',').map(o => o.trim());
+                        }
+                      }
+                      return Array.isArray(options) ? options.map((option, idx) => (
+                        <div
+                          key={idx}
+                          className={`option-item ${
+                            option === mistake.user_answer ? 'wrong-choice' : ''
+                          } ${
+                            option === mistake.correct_answer ? 'correct-choice' : ''
+                          }`}
+                          dir="ltr"
+                        >
+                          {option}
+                        </div>
+                      )) : null;
+                    })()}
                   </div>
                 )}
 
                 <div className="answers-section">
                   <div className="answer-row wrong-answer">
                     <span className="answer-label">התשובה שלך:</span>
-                    <span className="answer-value">{mistake.user_answer}</span>
+                    <span className="answer-value" dir="ltr">{mistake.user_answer}</span>
                   </div>
 
                   <div className="answer-row correct-answer">
                     <span className="answer-label">התשובה הנכונה:</span>
-                    <span className="answer-value">{mistake.correct_answer}</span>
+                    <span className="answer-value" dir="ltr">{mistake.correct_answer}</span>
                   </div>
                 </div>
 
