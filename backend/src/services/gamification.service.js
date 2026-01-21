@@ -97,14 +97,41 @@ class GamificationService {
    * Useful for displaying progression path to users
    */
   static getAllArenas() {
-    return [
+    const arenas = [
       { level: 1, name: 'Training Camp', pointsRequired: 0 },
       { level: 2, name: 'Goblin Stadium', pointsRequired: 20 },
       { level: 3, name: 'Bone Pit', pointsRequired: 40 },
       { level: 4, name: 'Barbarian Bowl', pointsRequired: 60 },
       { level: 5, name: "P.E.K.K.A's Playhouse", pointsRequired: 80 },
-      { level: 6, name: 'Royal Arena', pointsRequired: 100 }
+      { level: 6, name: 'Royal Arena', pointsRequired: 100 },
+      { level: 7, name: 'Frozen Peak', pointsRequired: 120 },
+      { level: 8, name: 'Jungle Arena', pointsRequired: 140 },
+      { level: 9, name: 'Hog Mountain', pointsRequired: 160 },
+      { level: 10, name: 'Electro Valley', pointsRequired: 180 },
+      { level: 11, name: 'Spooky Town', pointsRequired: 200 },
+      { level: 12, name: 'Rascals Hideout', pointsRequired: 220 },
+      { level: 13, name: 'Serenity Peak', pointsRequired: 240 },
+      { level: 14, name: 'Miners Mine', pointsRequired: 260 },
+      { level: 15, name: 'Executioners Kitchen', pointsRequired: 280 },
+      { level: 16, name: 'Royal Crypt', pointsRequired: 300 },
+      { level: 17, name: 'Silent Sanctuary', pointsRequired: 320 },
+      { level: 18, name: 'Dragon Spa', pointsRequired: 340 },
+      { level: 19, name: 'Legendary Arena', pointsRequired: 360 },
+      { level: 20, name: 'Champions Arena', pointsRequired: 380 }
     ];
+
+    // Add higher level arenas (21-99)
+    for (let i = 21; i <= 99; i++) {
+      let name;
+      if (i <= 40) name = `Master Arena ${i - 20}`;
+      else if (i <= 60) name = `Grand Master Arena ${i - 40}`;
+      else if (i <= 80) name = `Epic Arena ${i - 60}`;
+      else name = `Legendary Arena ${i - 80}`;
+
+      arenas.push({ level: i, name, pointsRequired: (i - 1) * 20 });
+    }
+
+    return arenas;
   }
 
   /**
@@ -137,7 +164,7 @@ class GamificationService {
         pointsNeededForNextLevel: status.pointsToNextLevel,
         progressPercent
       },
-      nextArena: status.currentLevel < 6 ? {
+      nextArena: status.currentLevel < 99 ? {
         level: status.currentLevel + 1,
         name: User.getArenaName(status.currentLevel + 1),
         pointsRequired: status.currentLevel * 20

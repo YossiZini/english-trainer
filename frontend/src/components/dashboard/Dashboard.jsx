@@ -101,6 +101,82 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Training Actions Row */}
+        <div className="training-actions-row">
+          {nextLesson ? (
+            (() => {
+              const lastActivity = recentActivity?.[0];
+              const hasIncompleteExercise = lastActivity && lastActivity.score < 70;
+
+              // Difficulty labels in Hebrew
+              const difficultyLabels = {
+                easy: 'קל',
+                medium: 'בינוני',
+                hard: 'מתקדם'
+              };
+
+              const targetTitle = hasIncompleteExercise ? lastActivity.title_he : nextLesson.title_he;
+              const targetDifficulty = hasIncompleteExercise
+                ? (lastActivity.difficulty || 'easy')
+                : null;
+              const difficultyLabel = targetDifficulty
+                ? difficultyLabels[targetDifficulty] || targetDifficulty
+                : null;
+
+              return (
+                <button
+                  className="continue-training-btn"
+                  onClick={() => {
+                    if (hasIncompleteExercise) {
+                      navigate(`/exercise/${lastActivity.lesson_id}?difficulty=${targetDifficulty}`);
+                    } else {
+                      navigate(`/learn/${nextLesson.id}`);
+                    }
+                  }}
+                >
+                  <div className="continue-training-icon">▶️</div>
+                  <div className="continue-training-content">
+                    <div className="continue-training-label">המשך אימון</div>
+                    <div className="continue-training-lesson">{targetTitle}</div>
+                    <div className="continue-training-detail">
+                      {hasIncompleteExercise ? (
+                        <>
+                          תרגול רמה: <span className="difficulty-badge">{difficultyLabel}</span>
+                          {' • '}ציון אחרון: {lastActivity.score}%
+                        </>
+                      ) : (
+                        <>שיעור חדש</>
+                      )}
+                    </div>
+                  </div>
+                  <div className="continue-training-arrow">←</div>
+                </button>
+              );
+            })()
+          ) : (
+            <div className="continue-training-complete">
+              <div className="complete-icon">🎓</div>
+              <div className="complete-text">סיימת הכל!</div>
+            </div>
+          )}
+
+          <button
+            className="quick-training-btn vocabulary-btn"
+            onClick={() => navigate('/vocabulary')}
+          >
+            <span className="quick-training-icon">📝</span>
+            <span className="quick-training-text">לימוד מילים</span>
+          </button>
+
+          <button
+            className="quick-training-btn unseen-btn"
+            onClick={() => navigate('/unseen')}
+          >
+            <span className="quick-training-icon">📖</span>
+            <span className="quick-training-text">לימוד פסקאות</span>
+          </button>
+        </div>
+
         {/* Gamification Section */}
         {gamification && (
           <div className="gamification-section">
@@ -123,11 +199,11 @@ const Dashboard = () => {
                 </div>
                 <div className="next-level-info">
                   <div className="next-level-label">
-                    {gamification.currentLevel < 6
+                    {gamification.currentLevel < 99
                       ? `עוד ${gamification.pointsToNextLevel} נקודות לשלב הבא`
                       : 'הגעת לשלב הגבוה ביותר! 🎉'}
                   </div>
-                  {gamification.currentLevel < 6 && (
+                  {gamification.currentLevel < 99 && (
                     <div className="level-progress-bar">
                       <div
                         className="level-progress-fill"

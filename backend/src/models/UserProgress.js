@@ -161,6 +161,7 @@ class UserProgress {
         er.wrong_answers,
         er.time_spent,
         er.completed_at,
+        er.difficulty,
         l.title_he,
         l.title_en,
         l.subtopic_number

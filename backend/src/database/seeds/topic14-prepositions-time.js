@@ -1587,12 +1587,12 @@ const lessonsData = [
   }
 ];
 
-async function seedTopic11() {
+async function seedTopic14() {
   const client = await pool.connect();
 
   try {
     await client.query('BEGIN');
-    console.log('Starting Topic 11 seeding...');
+    console.log('Starting Topic 14 seeding...');
 
     for (const lessonData of lessonsData) {
       const { exercises, ...lessonInfo } = lessonData;
@@ -1618,7 +1618,7 @@ async function seedTopic11() {
 
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('❌ Error seeding Topic 11:', error);
+    console.error('❌ Error seeding Topic 14:', error);
     throw error;
   } finally {
     client.release();
@@ -1628,7 +1628,7 @@ async function seedTopic11() {
 
 // Run if called directly
 if (require.main === module) {
-  seedTopic11()
+  seedTopic14()
     .then(() => process.exit(0))
     .catch(error => {
       console.error(error);
@@ -1636,4 +1636,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { lessonsData, seedTopic11 };
+module.exports = { lessonsData, seedTopic14 };

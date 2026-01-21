@@ -185,9 +185,33 @@ class User {
       3: 'Bone Pit',
       4: 'Barbarian Bowl',
       5: "P.E.K.K.A's Playhouse",
-      6: 'Royal Arena'
+      6: 'Royal Arena',
+      7: 'Frozen Peak',
+      8: 'Jungle Arena',
+      9: 'Hog Mountain',
+      10: 'Electro Valley',
+      11: 'Spooky Town',
+      12: 'Rascals Hideout',
+      13: 'Serenity Peak',
+      14: 'Miners Mine',
+      15: 'Executioners Kitchen',
+      16: 'Royal Crypt',
+      17: 'Silent Sanctuary',
+      18: 'Dragon Spa',
+      19: 'Legendary Arena',
+      20: 'Champions Arena'
     };
-    return arenas[Math.min(level, 6)] || arenas[6]; // Fallback to Royal Arena for level 6+
+
+    if (level <= 20) {
+      return arenas[level] || 'Champions Arena';
+    }
+
+    // For levels 21-99, use tiered naming
+    if (level <= 40) return `Master Arena ${level - 20}`;
+    if (level <= 60) return `Grand Master Arena ${level - 40}`;
+    if (level <= 80) return `Epic Arena ${level - 60}`;
+    if (level <= 99) return `Legendary Arena ${level - 80}`;
+    return 'Ultimate Champion';
   }
 
   /**

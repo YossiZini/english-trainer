@@ -690,3 +690,215 @@
   font-weight: bold;
   box-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
 }
+
+/* ========================================
+   TRAINING ACTIONS ROW - ALL IN ONE LINE
+   ======================================== */
+
+.training-actions-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  animation: fadeIn 0.5s ease 0.15s backwards;
+}
+
+.continue-training-btn {
+  flex: 2;
+  background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+  border: none;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+  transition: all 0.3s ease;
+}
+
+.continue-training-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 184, 148, 0.5);
+}
+
+.continue-training-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.continue-training-content {
+  flex: 1;
+  text-align: right;
+}
+
+.continue-training-label {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.25rem;
+}
+
+.continue-training-lesson {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+}
+
+.continue-training-detail {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 0.35rem;
+}
+
+.continue-training-detail .difficulty-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* Quick Training Buttons in Row */
+.quick-training-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1rem 0.75rem;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.quick-training-btn.vocabulary-btn {
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+  box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+}
+
+.quick-training-btn.unseen-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+.quick-training-btn:hover {
+  transform: translateY(-3px);
+}
+
+.quick-training-btn.vocabulary-btn:hover {
+  box-shadow: 0 6px 16px rgba(155, 89, 182, 0.5);
+}
+
+.quick-training-btn.unseen-btn:hover {
+  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+}
+
+.quick-training-icon {
+  font-size: 1.5rem;
+}
+
+.quick-training-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+}
+
+.continue-training-arrow {
+  font-size: 2rem;
+  color: white;
+  opacity: 0.8;
+}
+
+.continue-training-complete {
+  flex: 2;
+  background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+}
+
+.complete-icon {
+  font-size: 2rem;
+}
+
+.complete-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* Training Actions Row - Responsive */
+@media (max-width: 768px) {
+  .training-actions-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .continue-training-btn {
+    flex: 1 1 100%;
+    padding: 1rem;
+  }
+
+  .continue-training-icon {
+    font-size: 1.75rem;
+    width: 45px;
+    height: 45px;
+  }
+
+  .continue-training-label {
+    font-size: 0.9rem;
+  }
+
+  .continue-training-lesson {
+    font-size: 1.1rem;
+  }
+
+  .continue-training-detail {
+    font-size: 0.75rem;
+  }
+
+  .continue-training-arrow {
+    font-size: 1.25rem;
+  }
+
+  .continue-training-complete {
+    flex: 1 1 100%;
+    padding: 1rem;
+  }
+
+  .complete-icon {
+    font-size: 1.75rem;
+  }
+
+  .complete-text {
+    font-size: 1rem;
+  }
+
+  .quick-training-btn {
+    flex: 1 1 calc(50% - 0.25rem);
+    padding: 0.75rem 0.5rem;
+  }
+
+  .quick-training-icon {
+    font-size: 1.25rem;
+  }
+
+  .quick-training-text {
+    font-size: 0.75rem;
+  }
+}

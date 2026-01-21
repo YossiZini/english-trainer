@@ -1866,8 +1866,6 @@ Present Progressive יכול לשמש גם לעתיד קרוב, אבל רק עם
 
 ## Topic 12: Can / Could (Ability & Permission) (יכול / יכול היה)
 
-⚠️ **Content pending development - structured stub only**
-
 ### 12.1 Introduction to Modal Verbs
 - What are modal verbs? (מהם פעלי עזר מודליים)
 - Can and Could - basic meanings
