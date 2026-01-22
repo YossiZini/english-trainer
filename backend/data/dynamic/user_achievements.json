@@ -1,0 +1,164 @@
+[
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "52178290-23fb-4ee9-af89-b5036d00db91",
+    "progress": 1,
+    "unlocked_at": "2026-01-21T19:23:14.455Z",
+    "id": "1ad3d3ca-c553-4d06-b96f-a73223df9228",
+    "created_at": "2026-01-21T19:23:14.453Z",
+    "updated_at": "2026-01-21T19:23:14.455Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "c819055b-ec9f-47b3-af58-fe94085993ec",
+    "progress": 1,
+    "unlocked_at": null,
+    "id": "65559a07-264b-4be7-9d5a-f55be23c0125",
+    "created_at": "2026-01-21T19:23:14.455Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "a90a6a9e-f5e0-49b0-bf38-64d9980d48ef",
+    "progress": 1,
+    "unlocked_at": null,
+    "id": "eeb5691a-7865-4cb4-9079-0a0304607a88",
+    "created_at": "2026-01-21T19:23:14.455Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "97e8c0ba-5c27-4a8b-b385-0806f013c365",
+    "progress": 1,
+    "unlocked_at": "2026-01-21T19:23:14.457Z",
+    "id": "585a2ae1-3892-4c24-9c43-8f78106a9b71",
+    "created_at": "2026-01-21T19:23:14.455Z",
+    "updated_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "cc64cfc6-753b-4c11-9fac-617db541e000",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "66cb6e4b-230a-4a8f-9fea-ec06cdf0eaf3",
+    "created_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "d9303719-0f58-485b-90ee-e46a2ead513a",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "d28d3e54-3635-42ac-9ba9-bb7ff0450b9e",
+    "created_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "5fa1ccd5-ec5d-4a76-8ed1-3b061d580166",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "6b25951d-33b5-4293-904a-4bc29d843a9d",
+    "created_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "6a44c1d2-172a-4299-8b04-14f362a8bbca",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "7f6c53f0-b96b-4ff5-8b6a-bf6b92ab23a0",
+    "created_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "fa3a20b2-e08d-46e3-b205-1e8d91500d84",
+    "progress": 1,
+    "unlocked_at": null,
+    "id": "136a1dc3-f4ea-48b2-83fc-888bd7843e5a",
+    "created_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "achievement_id": "bb65f4f0-3c9c-416c-b0f9-1c93ed806f26",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "12d19654-7491-43c2-ac7b-7c76a7afcd3d",
+    "created_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "52178290-23fb-4ee9-af89-b5036d00db91",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "c2441983-d52b-429c-810f-9ae3c15087c8",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "c819055b-ec9f-47b3-af58-fe94085993ec",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "3de26a78-bb85-42ad-b87c-282cb2566500",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "a90a6a9e-f5e0-49b0-bf38-64d9980d48ef",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "8c6aac9c-7eca-4f03-a4bb-a0b950a73c8a",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "97e8c0ba-5c27-4a8b-b385-0806f013c365",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "1ca1e7e9-690a-42b4-abd0-859b836e23a3",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "cc64cfc6-753b-4c11-9fac-617db541e000",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "0a1204b4-3ee7-459a-8ad8-71d2ac7ea6b3",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "d9303719-0f58-485b-90ee-e46a2ead513a",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "f21ab107-31fd-4d2b-9cfd-2d47d2fd208f",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "5fa1ccd5-ec5d-4a76-8ed1-3b061d580166",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "02c07664-c49a-44e4-b80b-9805ed3cc42a",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "6a44c1d2-172a-4299-8b04-14f362a8bbca",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "69781679-70e7-4767-b767-119d8391248a",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "fa3a20b2-e08d-46e3-b205-1e8d91500d84",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "442b5287-a6bb-4d4f-9fb6-0f58077266b0",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "achievement_id": "bb65f4f0-3c9c-416c-b0f9-1c93ed806f26",
+    "progress": 0,
+    "unlocked_at": null,
+    "id": "540db70e-53ef-4fb6-89e6-e8ca09c5e9e2",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  }
+]

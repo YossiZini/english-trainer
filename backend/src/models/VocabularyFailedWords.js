@@ -1,69 +1,101 @@
-const { pool } = require('../config/database');
+const { db } = require('../config/database');
 
 class VocabularyFailedWords {
   /**
    * Add a failed word or increment fail count if it already exists
    */
   static async addOrIncrementFail(userId, wordId) {
-    const query = `
-      INSERT INTO vocabulary_failed_words (user_id, word_id, fail_count, is_pending_review)
-      VALUES ($1, $2, 1, true)
-      ON CONFLICT (user_id, word_id)
-      DO UPDATE SET
-        fail_count = vocabulary_failed_words.fail_count + 1,
-        last_failed_at = CURRENT_TIMESTAMP,
-        is_pending_review = true
-      RETURNING id, user_id, word_id, fail_count, is_pending_review
-    `;
+    // Check if record already exists
+    const existing = db.findOne('vocabulary_failed_words', {
+      user_id: userId,
+      word_id: wordId
+    });
 
-    const result = await pool.query(query, [userId, wordId]);
-    return result.rows[0];
+    if (existing) {
+      // Update existing record
+      const timestamp = new Date().toISOString();
+      db.updateById('vocabulary_failed_words', existing.id, {
+        fail_count: existing.fail_count + 1,
+        last_failed_at: timestamp,
+        is_pending_review: true
+      });
+
+      return {
+        id: existing.id,
+        user_id: existing.user_id,
+        word_id: existing.word_id,
+        fail_count: existing.fail_count + 1,
+        is_pending_review: true
+      };
+    }
+
+    // Create new record
+    const record = db.insert('vocabulary_failed_words', {
+      user_id: userId,
+      word_id: wordId,
+      fail_count: 1,
+      is_pending_review: true,
+      last_failed_at: new Date().toISOString(),
+      reviewed_in_session_id: null
+    });
+
+    return {
+      id: record.id,
+      user_id: record.user_id,
+      word_id: record.word_id,
+      fail_count: record.fail_count,
+      is_pending_review: record.is_pending_review
+    };
   }
 
   /**
    * Get all pending review words for a user
    */
   static async getPendingReviewWords(userId, limit = null) {
-    let query = `
-      SELECT
-        vfw.id,
-        vfw.word_id,
-        vfw.fail_count,
-        vfw.last_failed_at,
-        vw.english_word,
-        vw.hebrew_translation,
-        vw.difficulty_level,
-        vw.sentence_en,
-        vw.sentence_he
-      FROM vocabulary_failed_words vfw
-      JOIN vocabulary_words vw ON vfw.word_id = vw.id
-      WHERE vfw.user_id = $1 AND vfw.is_pending_review = true
-      ORDER BY vfw.last_failed_at DESC
-    `;
+    const failedWords = db.find('vocabulary_failed_words', {
+      user_id: userId,
+      is_pending_review: true
+    });
 
-    const values = [userId];
+    // Get vocabulary words for joining
+    const words = db.getCollection('vocabulary_words', true);
+    const wordMap = new Map(words.map(w => [w.id, w]));
+
+    const result = failedWords.map(fw => {
+      const word = wordMap.get(fw.word_id);
+      return {
+        id: fw.id,
+        word_id: fw.word_id,
+        fail_count: fw.fail_count,
+        last_failed_at: fw.last_failed_at,
+        english_word: word?.english_word,
+        hebrew_translation: word?.hebrew_translation,
+        difficulty_level: word?.difficulty_level,
+        sentence_en: word?.sentence_en,
+        sentence_he: word?.sentence_he
+      };
+    });
+
+    // Sort by last_failed_at descending
+    result.sort((a, b) => new Date(b.last_failed_at) - new Date(a.last_failed_at));
 
     if (limit !== null) {
-      query += ` LIMIT $2`;
-      values.push(limit);
+      return result.slice(0, limit);
     }
 
-    const result = await pool.query(query, values);
-    return result.rows;
+    return result;
   }
 
   /**
    * Get count of pending review words
    */
   static async getPendingReviewCount(userId) {
-    const query = `
-      SELECT COUNT(*) as count
-      FROM vocabulary_failed_words
-      WHERE user_id = $1 AND is_pending_review = true
-    `;
+    const failedWords = db.find('vocabulary_failed_words', {
+      user_id: userId,
+      is_pending_review: true
+    });
 
-    const result = await pool.query(query, [userId]);
-    return parseInt(result.rows[0].count);
+    return failedWords.length;
   }
 
   /**
@@ -74,99 +106,139 @@ class VocabularyFailedWords {
       return [];
     }
 
-    const query = `
-      UPDATE vocabulary_failed_words
-      SET reviewed_in_session_id = $1
-      WHERE user_id = $2 AND word_id = ANY($3)
-      RETURNING id, word_id, reviewed_in_session_id
-    `;
+    const wordIdSet = new Set(wordIds);
+    const failedWords = db.find('vocabulary_failed_words', { user_id: userId });
 
-    const result = await pool.query(query, [sessionId, userId, wordIds]);
-    return result.rows;
+    const updated = [];
+    for (const fw of failedWords) {
+      if (wordIdSet.has(fw.word_id)) {
+        db.updateById('vocabulary_failed_words', fw.id, {
+          reviewed_in_session_id: sessionId
+        });
+        updated.push({
+          id: fw.id,
+          word_id: fw.word_id,
+          reviewed_in_session_id: sessionId
+        });
+      }
+    }
+
+    return updated;
   }
 
   /**
    * Reset word status after successful review (remove from pending)
    */
   static async resetWordStatus(userId, wordId) {
-    const query = `
-      UPDATE vocabulary_failed_words
-      SET is_pending_review = false
-      WHERE user_id = $1 AND word_id = $2
-      RETURNING id, word_id, is_pending_review
-    `;
+    const existing = db.findOne('vocabulary_failed_words', {
+      user_id: userId,
+      word_id: wordId
+    });
 
-    const result = await pool.query(query, [userId, wordId]);
-    return result.rows[0];
+    if (!existing) {
+      return undefined;
+    }
+
+    db.updateById('vocabulary_failed_words', existing.id, {
+      is_pending_review: false
+    });
+
+    return {
+      id: existing.id,
+      word_id: existing.word_id,
+      is_pending_review: false
+    };
   }
 
   /**
    * Remove a word from failed words (if user mastered it)
    */
   static async removeWord(userId, wordId) {
-    const query = `
-      DELETE FROM vocabulary_failed_words
-      WHERE user_id = $1 AND word_id = $2
-      RETURNING id
-    `;
+    const existing = db.findOne('vocabulary_failed_words', {
+      user_id: userId,
+      word_id: wordId
+    });
 
-    const result = await pool.query(query, [userId, wordId]);
-    return result.rows[0];
+    if (!existing) {
+      return undefined;
+    }
+
+    db.deleteById('vocabulary_failed_words', existing.id);
+
+    return { id: existing.id };
   }
 
   /**
    * Get word IDs that are pending review for a user
    */
   static async getPendingReviewWordIds(userId) {
-    const query = `
-      SELECT word_id
-      FROM vocabulary_failed_words
-      WHERE user_id = $1 AND is_pending_review = true
-    `;
+    const failedWords = db.find('vocabulary_failed_words', {
+      user_id: userId,
+      is_pending_review: true
+    });
 
-    const result = await pool.query(query, [userId]);
-    return result.rows.map(row => row.word_id);
+    return failedWords.map(fw => fw.word_id);
   }
 
   /**
    * Get user's failed words statistics
    */
   static async getUserFailedStats(userId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_failed_words,
-        COUNT(CASE WHEN is_pending_review THEN 1 END) as pending_review_words,
-        COUNT(CASE WHEN NOT is_pending_review THEN 1 END) as reviewed_words,
-        COALESCE(SUM(fail_count), 0) as total_fails
-      FROM vocabulary_failed_words
-      WHERE user_id = $1
-    `;
+    const failedWords = db.find('vocabulary_failed_words', { user_id: userId });
 
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
+    let pendingReviewWords = 0;
+    let reviewedWords = 0;
+    let totalFails = 0;
+
+    for (const fw of failedWords) {
+      if (fw.is_pending_review) {
+        pendingReviewWords++;
+      } else {
+        reviewedWords++;
+      }
+      totalFails += fw.fail_count || 0;
+    }
+
+    return {
+      total_failed_words: failedWords.length,
+      pending_review_words: pendingReviewWords,
+      reviewed_words: reviewedWords,
+      total_fails: totalFails
+    };
   }
 
   /**
    * Get most failed words for a user (top mistakes)
    */
   static async getTopFailedWords(userId, limit = 10) {
-    const query = `
-      SELECT
-        vfw.word_id,
-        vfw.fail_count,
-        vfw.is_pending_review,
-        vw.english_word,
-        vw.hebrew_translation,
-        vw.difficulty_level
-      FROM vocabulary_failed_words vfw
-      JOIN vocabulary_words vw ON vfw.word_id = vw.id
-      WHERE vfw.user_id = $1
-      ORDER BY vfw.fail_count DESC, vfw.last_failed_at DESC
-      LIMIT $2
-    `;
+    const failedWords = db.find('vocabulary_failed_words', { user_id: userId });
 
-    const result = await pool.query(query, [userId, limit]);
-    return result.rows;
+    // Get vocabulary words for joining
+    const words = db.getCollection('vocabulary_words', true);
+    const wordMap = new Map(words.map(w => [w.id, w]));
+
+    const result = failedWords.map(fw => {
+      const word = wordMap.get(fw.word_id);
+      return {
+        word_id: fw.word_id,
+        fail_count: fw.fail_count,
+        is_pending_review: fw.is_pending_review,
+        last_failed_at: fw.last_failed_at,
+        english_word: word?.english_word,
+        hebrew_translation: word?.hebrew_translation,
+        difficulty_level: word?.difficulty_level
+      };
+    });
+
+    // Sort by fail_count descending, then by last_failed_at descending
+    result.sort((a, b) => {
+      if (b.fail_count !== a.fail_count) {
+        return b.fail_count - a.fail_count;
+      }
+      return new Date(b.last_failed_at) - new Date(a.last_failed_at);
+    });
+
+    return result.slice(0, limit);
   }
 
   /**
@@ -177,31 +249,35 @@ class VocabularyFailedWords {
       return 0;
     }
 
-    const query = `
-      UPDATE vocabulary_failed_words
-      SET is_pending_review = false
-      WHERE user_id = $1 AND word_id = ANY($2) AND is_pending_review = true
-      RETURNING id
-    `;
+    const wordIdSet = new Set(wordIds);
+    const failedWords = db.find('vocabulary_failed_words', {
+      user_id: userId,
+      is_pending_review: true
+    });
 
-    const result = await pool.query(query, [userId, wordIds]);
-    return result.rows.length;
+    let count = 0;
+    for (const fw of failedWords) {
+      if (wordIdSet.has(fw.word_id)) {
+        db.updateById('vocabulary_failed_words', fw.id, {
+          is_pending_review: false
+        });
+        count++;
+      }
+    }
+
+    return count;
   }
 
   /**
    * Check if a word is in the user's failed words list
    */
   static async isWordFailed(userId, wordId) {
-    const query = `
-      SELECT EXISTS(
-        SELECT 1
-        FROM vocabulary_failed_words
-        WHERE user_id = $1 AND word_id = $2
-      ) as is_failed
-    `;
+    const existing = db.findOne('vocabulary_failed_words', {
+      user_id: userId,
+      word_id: wordId
+    });
 
-    const result = await pool.query(query, [userId, wordId]);
-    return result.rows[0].is_failed;
+    return existing !== null && existing !== undefined;
   }
 }
 

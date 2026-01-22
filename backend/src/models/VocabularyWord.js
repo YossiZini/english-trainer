@@ -1,20 +1,18 @@
-const { pool } = require('../config/database');
+const { db, withTransaction } = require('../config/database');
+const { shuffleArray } = require('../data/loadStaticData');
 
 class VocabularyWord {
   /**
    * Find all words
    */
   static async findAll(limit = 100, offset = 0) {
-    const query = `
-      SELECT id, english_word, hebrew_translation, difficulty_level,
-             source, sentence_en, sentence_he, created_at
-      FROM vocabulary_words
-      ORDER BY difficulty_level ASC, english_word ASC
-      LIMIT $1 OFFSET $2
-    `;
+    const words = db.find('vocabulary_words', {}, {
+      sort: { difficulty_level: 'asc', english_word: 'asc' },
+      offset,
+      limit
+    });
 
-    const result = await pool.query(query, [limit, offset]);
-    return result.rows;
+    return words;
   }
 
   /**
@@ -22,45 +20,56 @@ class VocabularyWord {
    * Used for quiz question selection
    */
   static async findByDifficultyRange(minLevel, maxLevel, excludeWordIds = [], limit = 100, source = null) {
-    let query = `
-      SELECT id, english_word, hebrew_translation, difficulty_level, source
-      FROM vocabulary_words
-      WHERE difficulty_level >= $1 AND difficulty_level <= $2
-    `;
+    let allWords = db.getCollection('vocabulary_words', true);
 
-    const values = [minLevel, maxLevel];
+    // Filter by difficulty range
+    let filtered = allWords.filter(w =>
+      w.difficulty_level >= minLevel && w.difficulty_level <= maxLevel
+    );
 
     // Filter by source if provided
     if (source) {
-      query += ` AND source = $${values.length + 1}`;
-      values.push(source);
+      filtered = filtered.filter(w => w.source === source);
     }
 
+    // Exclude specific word IDs
     if (excludeWordIds.length > 0) {
-      query += ` AND id NOT IN (${excludeWordIds.map((_, i) => `$${values.length + i + 1}`).join(', ')})`;
-      values.push(...excludeWordIds);
+      const excludeSet = new Set(excludeWordIds);
+      filtered = filtered.filter(w => !excludeSet.has(w.id));
     }
 
-    query += ` ORDER BY RANDOM() LIMIT $${values.length + 1}`;
-    values.push(limit);
+    // Shuffle for randomness
+    shuffleArray(filtered);
 
-    const result = await pool.query(query, values);
-    return result.rows;
+    // Limit results
+    const result = filtered.slice(0, limit);
+
+    // Return only needed fields
+    return result.map(w => ({
+      id: w.id,
+      english_word: w.english_word,
+      hebrew_translation: w.hebrew_translation,
+      difficulty_level: w.difficulty_level,
+      source: w.source
+    }));
   }
 
   /**
    * Find a single word by ID
    */
   static async findById(id) {
-    const query = `
-      SELECT id, english_word, hebrew_translation, difficulty_level,
-             source, sentence_en, sentence_he
-      FROM vocabulary_words
-      WHERE id = $1
-    `;
+    const word = db.findById('vocabulary_words', id);
+    if (!word) return null;
 
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    return {
+      id: word.id,
+      english_word: word.english_word,
+      hebrew_translation: word.hebrew_translation,
+      difficulty_level: word.difficulty_level,
+      source: word.source,
+      sentence_en: word.sentence_en,
+      sentence_he: word.sentence_he
+    };
   }
 
   /**
@@ -71,30 +80,33 @@ class VocabularyWord {
     const minDifficulty = Math.max(1, correctDifficulty - 2);
     const maxDifficulty = Math.min(10, correctDifficulty + 2);
 
-    let query = `
-      SELECT id, hebrew_translation
-      FROM vocabulary_words
-      WHERE id != $1
-        AND difficulty_level >= $2
-        AND difficulty_level <= $3
-        AND hebrew_translation NOT IN (
-          SELECT hebrew_translation
-          FROM vocabulary_words
-          WHERE id = $1
-        )`;
+    // Get the correct word's translation to exclude it
+    const correctWord = db.findById('vocabulary_words', correctWordId);
+    const correctTranslation = correctWord?.hebrew_translation;
 
-    const values = [correctWordId, minDifficulty, maxDifficulty];
+    let allWords = db.getCollection('vocabulary_words', true);
 
+    // Filter by criteria
+    let filtered = allWords.filter(w =>
+      w.id !== correctWordId &&
+      w.difficulty_level >= minDifficulty &&
+      w.difficulty_level <= maxDifficulty &&
+      w.hebrew_translation !== correctTranslation
+    );
+
+    // Filter by source if provided
     if (source) {
-      query += ` AND source = $${values.length + 1}`;
-      values.push(source);
+      filtered = filtered.filter(w => w.source === source);
     }
 
-    query += ` ORDER BY RANDOM() LIMIT $${values.length + 1}`;
-    values.push(count);
+    // Shuffle and take count
+    shuffleArray(filtered);
+    const result = filtered.slice(0, count);
 
-    const result = await pool.query(query, values);
-    return result.rows;
+    return result.map(w => ({
+      id: w.id,
+      hebrew_translation: w.hebrew_translation
+    }));
   }
 
   /**
@@ -105,16 +117,24 @@ class VocabularyWord {
       return [];
     }
 
-    const query = `
-      SELECT id, english_word, hebrew_translation, difficulty_level,
-             sentence_en, sentence_he
-      FROM vocabulary_words
-      WHERE id = ANY($1)
-      ORDER BY difficulty_level ASC
-    `;
+    const wordIdSet = new Set(wordIds);
+    const allWords = db.getCollection('vocabulary_words', true);
 
-    const result = await pool.query(query, [wordIds]);
-    return result.rows;
+    const result = allWords
+      .filter(w => wordIdSet.has(w.id))
+      .map(w => ({
+        id: w.id,
+        english_word: w.english_word,
+        hebrew_translation: w.hebrew_translation,
+        difficulty_level: w.difficulty_level,
+        sentence_en: w.sentence_en,
+        sentence_he: w.sentence_he
+      }));
+
+    // Sort by difficulty
+    result.sort((a, b) => a.difficulty_level - b.difficulty_level);
+
+    return result;
   }
 
   /**
@@ -130,31 +150,43 @@ class VocabularyWord {
       sentenceHe = null
     } = wordData;
 
-    const query = `
-      INSERT INTO vocabulary_words (
-        english_word, hebrew_translation, difficulty_level,
-        source, sentence_en, sentence_he
-      )
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (english_word, source) DO UPDATE
-      SET hebrew_translation = EXCLUDED.hebrew_translation,
-          difficulty_level = EXCLUDED.difficulty_level,
-          sentence_en = EXCLUDED.sentence_en,
-          sentence_he = EXCLUDED.sentence_he
-      RETURNING id, english_word, hebrew_translation, difficulty_level
-    `;
+    // Check if word already exists (upsert)
+    const existing = db.findOne('vocabulary_words', {
+      english_word: englishWord,
+      source
+    });
 
-    const values = [
-      englishWord,
-      hebrewTranslation,
-      difficultyLevel,
+    if (existing) {
+      db.updateById('vocabulary_words', existing.id, {
+        hebrew_translation: hebrewTranslation,
+        difficulty_level: difficultyLevel,
+        sentence_en: sentenceEn,
+        sentence_he: sentenceHe
+      });
+      return {
+        id: existing.id,
+        english_word: englishWord,
+        hebrew_translation: hebrewTranslation,
+        difficulty_level: difficultyLevel
+      };
+    }
+
+    const word = db.insert('vocabulary_words', {
+      english_word: englishWord,
+      hebrew_translation: hebrewTranslation,
+      difficulty_level: difficultyLevel,
       source,
-      sentenceEn,
-      sentenceHe
-    ];
+      sentence_en: sentenceEn,
+      sentence_he: sentenceHe,
+      created_at: new Date().toISOString()
+    });
 
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    return {
+      id: word.id,
+      english_word: word.english_word,
+      hebrew_translation: word.hebrew_translation,
+      difficulty_level: word.difficulty_level
+    };
   }
 
   /**
@@ -166,46 +198,16 @@ class VocabularyWord {
       return [];
     }
 
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
+    return withTransaction(async () => {
       const insertedWords = [];
+
       for (const wordData of wordsArray) {
-        const result = await client.query(
-          `
-          INSERT INTO vocabulary_words (
-            english_word, hebrew_translation, difficulty_level,
-            source, sentence_en, sentence_he
-          )
-          VALUES ($1, $2, $3, $4, $5, $6)
-          ON CONFLICT (english_word, source) DO UPDATE
-          SET hebrew_translation = EXCLUDED.hebrew_translation,
-              difficulty_level = EXCLUDED.difficulty_level,
-              sentence_en = EXCLUDED.sentence_en,
-              sentence_he = EXCLUDED.sentence_he
-          RETURNING id
-          `,
-          [
-            wordData.englishWord,
-            wordData.hebrewTranslation,
-            wordData.difficultyLevel,
-            wordData.source,
-            wordData.sentenceEn || null,
-            wordData.sentenceHe || null
-          ]
-        );
-        insertedWords.push(result.rows[0]);
+        const result = await this.create(wordData);
+        insertedWords.push(result);
       }
 
-      await client.query('COMMIT');
       return insertedWords;
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   /**
@@ -213,24 +215,30 @@ class VocabularyWord {
    * Useful for statistics
    */
   static async getCountByDifficulty() {
-    const query = `
-      SELECT difficulty_level, COUNT(*) as count
-      FROM vocabulary_words
-      GROUP BY difficulty_level
-      ORDER BY difficulty_level ASC
-    `;
+    const allWords = db.getCollection('vocabulary_words', true);
 
-    const result = await pool.query(query);
-    return result.rows;
+    // Group by difficulty level
+    const counts = new Map();
+    for (const word of allWords) {
+      const level = word.difficulty_level;
+      counts.set(level, (counts.get(level) || 0) + 1);
+    }
+
+    // Convert to array and sort
+    const result = [];
+    for (const [difficulty_level, count] of counts) {
+      result.push({ difficulty_level, count });
+    }
+    result.sort((a, b) => a.difficulty_level - b.difficulty_level);
+
+    return result;
   }
 
   /**
    * Get total word count
    */
   static async getTotalCount() {
-    const query = 'SELECT COUNT(*) as total FROM vocabulary_words';
-    const result = await pool.query(query);
-    return parseInt(result.rows[0].total);
+    return db.count('vocabulary_words');
   }
 }
 

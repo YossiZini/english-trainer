@@ -1,53 +1,43 @@
-const { pool } = require('../config/database');
+const { db, withTransaction } = require('../config/database');
 
 class Exercise {
   /**
    * Get all exercises for a lesson
    */
   static async findByLessonId(lessonId) {
-    const query = `
-      SELECT id, lesson_id, question_number, type,
-             question_text_he, question_text_en, options,
-             correct_answer, explanation_he, explanation_en, difficulty
-      FROM exercises
-      WHERE lesson_id = $1
-      ORDER BY question_number ASC
-    `;
+    const exercises = db.findByIndex('exercises', 'lesson_id', lessonId);
 
-    const result = await pool.query(query, [lessonId]);
-    return result.rows;
+    // Sort by question_number
+    exercises.sort((a, b) => a.question_number - b.question_number);
+
+    return exercises;
   }
 
   /**
    * Get exercises without answers (for client)
    */
   static async findByLessonIdForClient(lessonId) {
-    const query = `
-      SELECT id, lesson_id, question_number, type,
-             question_text_he, question_text_en, options, difficulty
-      FROM exercises
-      WHERE lesson_id = $1
-      ORDER BY question_number ASC
-    `;
+    const exercises = await this.findByLessonId(lessonId);
 
-    const result = await pool.query(query, [lessonId]);
-    return result.rows;
+    // Return without correct_answer and explanations
+    return exercises.map(e => ({
+      id: e.id,
+      lesson_id: e.lesson_id,
+      question_number: e.question_number,
+      type: e.type,
+      question_text_he: e.question_text_he,
+      question_text_en: e.question_text_en,
+      options: e.options,
+      difficulty: e.difficulty
+    }));
   }
 
   /**
    * Get single exercise by ID
    */
   static async findById(id) {
-    const query = `
-      SELECT id, lesson_id, question_number, type,
-             question_text_he, question_text_en, options,
-             correct_answer, explanation_he, explanation_en, difficulty
-      FROM exercises
-      WHERE id = $1
-    `;
-
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    const exercise = db.findById('exercises', id);
+    return exercise || null;
   }
 
   /**
@@ -67,54 +57,40 @@ class Exercise {
       difficulty
     } = exerciseData;
 
-    const query = `
-      INSERT INTO exercises (
-        lesson_id, question_number, type, question_text_he, question_text_en,
-        options, correct_answer, explanation_he, explanation_en, difficulty
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING id, lesson_id, question_number, type
-    `;
-
-    const values = [
-      lessonId,
-      questionNumber,
+    const exercise = db.insert('exercises', {
+      lesson_id: lessonId,
+      question_number: questionNumber,
       type,
-      questionTextHe,
-      questionTextEn || null,
-      options ? JSON.stringify(options) : null,
-      correctAnswer,
-      explanationHe,
-      explanationEn || null,
-      difficulty || 'medium'
-    ];
+      question_text_he: questionTextHe,
+      question_text_en: questionTextEn || null,
+      options: options || null,
+      correct_answer: correctAnswer,
+      explanation_he: explanationHe,
+      explanation_en: explanationEn || null,
+      difficulty: difficulty || 'medium',
+      created_at: new Date().toISOString()
+    });
 
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    return {
+      id: exercise.id,
+      lesson_id: exercise.lesson_id,
+      question_number: exercise.question_number,
+      type: exercise.type
+    };
   }
 
   /**
    * Create multiple exercises at once
    */
   static async createMany(exercises) {
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
+    return withTransaction(async () => {
       const createdExercises = [];
-      for (const exercise of exercises) {
-        const result = await this.create(exercise);
+      for (const exerciseData of exercises) {
+        const result = await this.create(exerciseData);
         createdExercises.push(result);
       }
-
-      await client.query('COMMIT');
       return createdExercises;
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   /**

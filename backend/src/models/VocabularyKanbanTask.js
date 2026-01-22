@@ -1,4 +1,4 @@
-const { pool } = require('../config/database');
+const { db } = require('../config/database');
 
 /**
  * VocabularyKanbanTask Model
@@ -10,14 +10,17 @@ class VocabularyKanbanTask {
    * @returns {Array} All Kanban tasks
    */
   static async findAll() {
-    const query = `
-      SELECT *
-      FROM vocabulary_kanban_tasks
-      ORDER BY priority ASC, created_at ASC
-    `;
+    const tasks = db.find('vocabulary_kanban_tasks', {});
 
-    const result = await pool.query(query);
-    return result.rows;
+    // Sort by priority ascending, then by created_at ascending
+    tasks.sort((a, b) => {
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
+
+    return tasks;
   }
 
   /**
@@ -26,15 +29,17 @@ class VocabularyKanbanTask {
    * @returns {Array} Tasks with the specified status
    */
   static async findByStatus(status) {
-    const query = `
-      SELECT *
-      FROM vocabulary_kanban_tasks
-      WHERE status = $1
-      ORDER BY priority ASC, created_at ASC
-    `;
+    const tasks = db.find('vocabulary_kanban_tasks', { status });
 
-    const result = await pool.query(query, [status]);
-    return result.rows;
+    // Sort by priority ascending, then by created_at ascending
+    tasks.sort((a, b) => {
+      if (a.priority !== b.priority) {
+        return a.priority - b.priority;
+      }
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
+
+    return tasks;
   }
 
   /**
@@ -57,15 +62,17 @@ class VocabularyKanbanTask {
    * @returns {Array} Tasks in the specified category
    */
   static async findByCategory(category) {
-    const query = `
-      SELECT *
-      FROM vocabulary_kanban_tasks
-      WHERE category = $1
-      ORDER BY status ASC, priority ASC
-    `;
+    const tasks = db.find('vocabulary_kanban_tasks', { category });
 
-    const result = await pool.query(query, [category]);
-    return result.rows;
+    // Sort by status ascending, then by priority ascending
+    const statusOrder = { backlog: 0, in_progress: 1, done: 2 };
+    tasks.sort((a, b) => {
+      const statusDiff = (statusOrder[a.status] || 0) - (statusOrder[b.status] || 0);
+      if (statusDiff !== 0) return statusDiff;
+      return a.priority - b.priority;
+    });
+
+    return tasks;
   }
 
   /**
@@ -74,14 +81,8 @@ class VocabularyKanbanTask {
    * @returns {object|null} Task
    */
   static async findById(id) {
-    const query = `
-      SELECT *
-      FROM vocabulary_kanban_tasks
-      WHERE id = $1
-    `;
-
-    const result = await pool.query(query, [id]);
-    return result.rows[0] || null;
+    const task = db.findById('vocabulary_kanban_tasks', id);
+    return task || null;
   }
 
   /**
@@ -100,25 +101,23 @@ class VocabularyKanbanTask {
       assignee = null
     } = taskData;
 
-    const query = `
-      INSERT INTO vocabulary_kanban_tasks
-        (title, description, status, priority, category, estimated_hours, assignee)
-      VALUES
-        ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
-    `;
+    const timestamp = new Date().toISOString();
 
-    const result = await pool.query(query, [
+    const task = db.insert('vocabulary_kanban_tasks', {
       title,
       description,
       status,
       priority,
       category,
       estimated_hours,
-      assignee
-    ]);
+      actual_hours: null,
+      assignee,
+      completed_at: null,
+      created_at: timestamp,
+      updated_at: timestamp
+    });
 
-    return result.rows[0];
+    return task;
   }
 
   /**
@@ -128,20 +127,18 @@ class VocabularyKanbanTask {
    * @returns {object} Updated task
    */
   static async updateStatus(id, newStatus) {
-    const completedAt = newStatus === 'done' ? 'CURRENT_TIMESTAMP' : 'NULL';
+    const timestamp = new Date().toISOString();
+    const completedAt = newStatus === 'done' ? timestamp : null;
 
-    const query = `
-      UPDATE vocabulary_kanban_tasks
-      SET
-        status = $1,
-        completed_at = ${completedAt},
-        updated_at = CURRENT_TIMESTAMP
-      WHERE id = $2
-      RETURNING *
-    `;
+    const result = db.updateById('vocabulary_kanban_tasks', id, {
+      status: newStatus,
+      completed_at: completedAt,
+      updated_at: timestamp
+    });
 
-    const result = await pool.query(query, [newStatus, id]);
-    return result.rows[0];
+    if (result.modified === 0) return undefined;
+
+    return db.findById('vocabulary_kanban_tasks', id);
   }
 
   /**
@@ -162,41 +159,32 @@ class VocabularyKanbanTask {
       'assignee'
     ];
 
-    const fields = [];
-    const values = [];
-    let paramIndex = 1;
+    const updateData = { updated_at: new Date().toISOString() };
+    let hasUpdates = false;
 
-    Object.keys(updates).forEach(key => {
-      if (allowedFields.includes(key)) {
-        fields.push(`${key} = $${paramIndex}`);
-        values.push(updates[key]);
-        paramIndex++;
+    for (const key of allowedFields) {
+      if (updates[key] !== undefined) {
+        updateData[key] = updates[key];
+        hasUpdates = true;
       }
-    });
+    }
 
-    if (fields.length === 0) {
+    if (!hasUpdates) {
       throw new Error('No valid fields to update');
     }
 
     // Handle completed_at when status changes to done
     if (updates.status === 'done') {
-      fields.push('completed_at = CURRENT_TIMESTAMP');
+      updateData.completed_at = new Date().toISOString();
     } else if (updates.status && updates.status !== 'done') {
-      fields.push('completed_at = NULL');
+      updateData.completed_at = null;
     }
 
-    fields.push('updated_at = CURRENT_TIMESTAMP');
-    values.push(id);
+    const result = db.updateById('vocabulary_kanban_tasks', id, updateData);
 
-    const query = `
-      UPDATE vocabulary_kanban_tasks
-      SET ${fields.join(', ')}
-      WHERE id = $${paramIndex}
-      RETURNING *
-    `;
+    if (result.modified === 0) return undefined;
 
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    return db.findById('vocabulary_kanban_tasks', id);
   }
 
   /**
@@ -205,14 +193,8 @@ class VocabularyKanbanTask {
    * @returns {boolean} Success status
    */
   static async delete(id) {
-    const query = `
-      DELETE FROM vocabulary_kanban_tasks
-      WHERE id = $1
-      RETURNING id
-    `;
-
-    const result = await pool.query(query, [id]);
-    return result.rows.length > 0;
+    const result = db.deleteById('vocabulary_kanban_tasks', id);
+    return result.deleted > 0;
   }
 
   /**
@@ -220,44 +202,52 @@ class VocabularyKanbanTask {
    * @returns {object} Statistics about tasks
    */
   static async getStats() {
-    const query = `
-      SELECT
-        COUNT(*) as total_tasks,
-        COUNT(*) FILTER (WHERE status = 'backlog') as backlog_count,
-        COUNT(*) FILTER (WHERE status = 'in_progress') as in_progress_count,
-        COUNT(*) FILTER (WHERE status = 'done') as done_count,
-        COUNT(*) FILTER (WHERE category = 'database') as database_count,
-        COUNT(*) FILTER (WHERE category = 'backend') as backend_count,
-        COUNT(*) FILTER (WHERE category = 'frontend') as frontend_count,
-        COUNT(*) FILTER (WHERE category = 'testing') as testing_count,
-        SUM(estimated_hours) FILTER (WHERE estimated_hours IS NOT NULL) as total_estimated_hours,
-        SUM(actual_hours) FILTER (WHERE actual_hours IS NOT NULL) as total_actual_hours
-      FROM vocabulary_kanban_tasks
-    `;
+    const tasks = db.find('vocabulary_kanban_tasks', {});
 
-    const result = await pool.query(query);
-    const stats = result.rows[0];
-
-    return {
-      totalTasks: parseInt(stats.total_tasks),
+    const stats = {
+      totalTasks: tasks.length,
       byStatus: {
-        backlog: parseInt(stats.backlog_count),
-        in_progress: parseInt(stats.in_progress_count),
-        done: parseInt(stats.done_count)
+        backlog: 0,
+        in_progress: 0,
+        done: 0
       },
       byCategory: {
-        database: parseInt(stats.database_count),
-        backend: parseInt(stats.backend_count),
-        frontend: parseInt(stats.frontend_count),
-        testing: parseInt(stats.testing_count)
+        database: 0,
+        backend: 0,
+        frontend: 0,
+        testing: 0
       },
-      completionPercentage:
-        stats.total_tasks > 0
-          ? Math.round((stats.done_count / stats.total_tasks) * 100)
-          : 0,
-      totalEstimatedHours: parseFloat(stats.total_estimated_hours || 0),
-      totalActualHours: parseFloat(stats.total_actual_hours || 0)
+      completionPercentage: 0,
+      totalEstimatedHours: 0,
+      totalActualHours: 0
     };
+
+    for (const task of tasks) {
+      // Count by status
+      if (stats.byStatus.hasOwnProperty(task.status)) {
+        stats.byStatus[task.status]++;
+      }
+
+      // Count by category
+      if (task.category && stats.byCategory.hasOwnProperty(task.category)) {
+        stats.byCategory[task.category]++;
+      }
+
+      // Sum hours
+      if (task.estimated_hours) {
+        stats.totalEstimatedHours += parseFloat(task.estimated_hours);
+      }
+      if (task.actual_hours) {
+        stats.totalActualHours += parseFloat(task.actual_hours);
+      }
+    }
+
+    // Calculate completion percentage
+    if (stats.totalTasks > 0) {
+      stats.completionPercentage = Math.round((stats.byStatus.done / stats.totalTasks) * 100);
+    }
+
+    return stats;
   }
 }
 

@@ -1,7 +1,9 @@
 const Exercise = require('../models/Exercise');
 const UserProgress = require('../models/UserProgress');
 const User = require('../models/User');
-const { pool } = require('../config/database');
+const Lesson = require('../models/Lesson');
+const WrongAnswer = require('../models/WrongAnswer');
+const { db, withTransaction } = require('../config/database');
 const AchievementService = require('./achievement.service');
 const DailyChallengeService = require('./dailyChallenge.service');
 
@@ -18,8 +20,6 @@ class ExerciseService {
    * Submit complete exercise and save results
    */
   static async submitExercise(userId, lessonId, answers, timeSpent, difficulty = 'easy') {
-    const client = await pool.connect();
-
     // Determine next difficulty level
     const difficultyMap = {
       'easy': 'medium',
@@ -28,9 +28,7 @@ class ExerciseService {
     };
     const nextDifficulty = difficultyMap[difficulty];
 
-    try {
-      await client.query('BEGIN');
-
+    return withTransaction(async () => {
       // Get all exercises for this lesson to validate
       const exercises = await Exercise.findByLessonId(lessonId);
 
@@ -79,47 +77,29 @@ class ExerciseService {
       const attemptNumber = progress.attempts + 1;
 
       // Save exercise result
-      const resultQuery = `
-        INSERT INTO exercise_results (
-          user_id, lesson_id, attempt_number, total_questions,
-          correct_answers, wrong_answers, score, time_spent, difficulty
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id, attempt_number, score, completed_at
-      `;
-
-      const resultValues = [
-        userId,
-        lessonId,
-        attemptNumber,
-        totalQuestions,
-        correctAnswers,
-        wrongAnswersCount,
+      const resultRecord = db.insert('exercise_results', {
+        user_id: userId,
+        lesson_id: lessonId,
+        attempt_number: attemptNumber,
+        total_questions: totalQuestions,
+        correct_answers: correctAnswers,
+        wrong_answers: wrongAnswersCount,
         score,
-        timeSpent,
-        difficulty
-      ];
-
-      const resultRecord = await client.query(resultQuery, resultValues);
+        time_spent: timeSpent,
+        difficulty,
+        completed_at: new Date().toISOString()
+      });
 
       // Save wrong answers for retry functionality
       for (const wrongAnswer of wrongAnswers) {
-        const wrongAnswerQuery = `
-          INSERT INTO wrong_answers (
-            user_id, lesson_id, exercise_id, user_answer,
-            correct_answer, attempt_number
-          )
-          VALUES ($1, $2, $3, $4, $5, $6)
-        `;
-
-        await client.query(wrongAnswerQuery, [
+        await WrongAnswer.create({
           userId,
           lessonId,
-          wrongAnswer.exerciseId,
-          wrongAnswer.userAnswer,
-          wrongAnswer.correctAnswer,
+          exerciseId: wrongAnswer.exerciseId,
+          userAnswer: wrongAnswer.userAnswer,
+          correctAnswer: wrongAnswer.correctAnswer,
           attemptNumber
-        ]);
+        });
       }
 
       // Update user progress
@@ -154,33 +134,23 @@ class ExerciseService {
       await DailyChallengeService.checkChallengeProgress(userId, 'correct_answer', correctAnswers);
       await DailyChallengeService.checkChallengeProgress(userId, 'practice_minute', Math.floor(timeSpent / 60));
 
-      await client.query('COMMIT');
+      // Get current lesson to find next/previous
+      const currentLesson = await Lesson.findById(lessonId);
 
       // Get next lesson if passed
       let nextLesson = null;
-      if (score >= 70) {
-        const lessonQuery = `
-          SELECT l2.id, l2.title_en, l2.title_he
-          FROM lessons l1
-          JOIN lessons l2 ON l2.order_index = l1.order_index + 1
-          WHERE l1.id = $1
-        `;
-        const nextResult = await pool.query(lessonQuery, [lessonId]);
-        nextLesson = nextResult.rows[0] || null;
+      if (score >= 70 && currentLesson) {
+        nextLesson = await Lesson.getNextLesson(currentLesson.order_index);
       }
 
       // Get previous lesson
-      const previousLessonQuery = `
-        SELECT l2.id, l2.title_en, l2.title_he
-        FROM lessons l1
-        JOIN lessons l2 ON l2.order_index = l1.order_index - 1
-        WHERE l1.id = $1
-      `;
-      const previousResult = await pool.query(previousLessonQuery, [lessonId]);
-      const previousLesson = previousResult.rows[0] || null;
+      let previousLesson = null;
+      if (currentLesson) {
+        previousLesson = await Lesson.getPreviousLesson(currentLesson.order_index);
+      }
 
       return {
-        resultId: resultRecord.rows[0].id,
+        resultId: resultRecord.id,
         lessonId,
         attemptNumber,
         totalQuestions,
@@ -218,56 +188,45 @@ class ExerciseService {
           }))
         }
       };
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   /**
    * Get results for a specific attempt
    */
   static async getResultById(resultId, userId) {
-    const query = `
-      SELECT er.id, er.user_id, er.lesson_id, er.attempt_number,
-             er.total_questions, er.correct_answers, er.wrong_answers,
-             er.score, er.time_spent, er.completed_at,
-             l.title_en, l.title_he, l.order_index
-      FROM exercise_results er
-      JOIN lessons l ON er.lesson_id = l.id
-      WHERE er.id = $1 AND er.user_id = $2
-    `;
+    const result = db.findOne('exercise_results', { id: resultId, user_id: userId });
 
-    const result = await pool.query(query, [resultId, userId]);
-
-    if (!result.rows[0]) {
+    if (!result) {
       return null;
     }
 
-    const resultData = result.rows[0];
+    // Get lesson info
+    const lesson = await Lesson.findById(result.lesson_id);
 
-    // Get next lesson
-    const nextLessonQuery = `
-      SELECT id, title_en, title_he
-      FROM lessons
-      WHERE order_index = $1
-    `;
-    const nextResult = await pool.query(nextLessonQuery, [resultData.order_index + 1]);
-    const nextLesson = nextResult.rows[0] || null;
+    // Get next and previous lessons
+    let nextLesson = null;
+    let previousLesson = null;
 
-    // Get previous lesson
-    const previousLessonQuery = `
-      SELECT id, title_en, title_he
-      FROM lessons
-      WHERE order_index = $1
-    `;
-    const previousResult = await pool.query(previousLessonQuery, [resultData.order_index - 1]);
-    const previousLesson = previousResult.rows[0] || null;
+    if (lesson) {
+      nextLesson = await Lesson.getNextLesson(lesson.order_index);
+      previousLesson = await Lesson.getPreviousLesson(lesson.order_index);
+    }
 
     return {
-      ...resultData,
+      id: result.id,
+      user_id: result.user_id,
+      lesson_id: result.lesson_id,
+      attempt_number: result.attempt_number,
+      total_questions: result.total_questions,
+      correct_answers: result.correct_answers,
+      wrong_answers: result.wrong_answers,
+      score: result.score,
+      time_spent: result.time_spent,
+      completed_at: result.completed_at,
+      title_en: lesson?.title_en,
+      title_he: lesson?.title_he,
+      order_index: lesson?.order_index,
       nextLesson,
       previousLesson
     };

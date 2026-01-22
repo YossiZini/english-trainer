@@ -1,36 +1,132 @@
-const { Pool } = require('pg');
-require('dotenv').config();
+const path = require('path');
+const JsonDatabase = require('../data/JsonDatabase');
+const IndexManager = require('../data/IndexManager');
 
-// Database connection pool
-const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'english_tutorial_dev',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD,
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+// Initialize JSON Database
+const dataDir = path.join(__dirname, '../../data');
+const db = new JsonDatabase(dataDir);
+const indexManager = new IndexManager(db);
 
-// Test connection
-pool.on('connect', () => {
-  console.log('✅ Connected to PostgreSQL database');
-});
+// Flag to track initialization
+let initialized = false;
 
-pool.on('error', (err) => {
-  console.error('❌ Unexpected error on idle client', err);
-  process.exit(-1);
-});
+/**
+ * Initialize the database
+ * Call this during server startup
+ */
+async function initializeDatabase() {
+  if (initialized) return;
 
-// Helper function to execute queries
-const query = (text, params) => pool.query(text, params);
+  console.log('🔄 Initializing JSON Database...');
 
-// Helper function to get a client from the pool
-const getClient = () => pool.connect();
+  await db.initialize();
+  indexManager.initializeCommonIndexes();
+
+  initialized = true;
+  console.log('✅ JSON Database initialized successfully');
+
+  return { db, indexManager };
+}
+
+/**
+ * Shutdown the database
+ * Call this during server shutdown
+ */
+async function shutdownDatabase() {
+  console.log('🔄 Shutting down JSON Database...');
+  await db.shutdown();
+  console.log('✅ JSON Database shut down successfully');
+}
+
+/**
+ * Get the database instance
+ */
+function getDatabase() {
+  return db;
+}
+
+/**
+ * Get the index manager instance
+ */
+function getIndexManager() {
+  return indexManager;
+}
+
+/**
+ * Transaction helper - wraps operations in a transaction
+ * Returns a client-like object for compatibility
+ */
+function getClient() {
+  const transactionId = db.beginTransaction();
+
+  return {
+    transactionId,
+    query: async (sql, params) => {
+      // This is for backwards compatibility during migration
+      // Models should be updated to use db methods directly
+      console.warn('Warning: Direct SQL query detected. Please migrate to JSON methods.');
+      return { rows: [] };
+    },
+    release: () => {
+      // No-op for JSON database
+    }
+  };
+}
+
+/**
+ * Begin a transaction
+ */
+function beginTransaction() {
+  return db.beginTransaction();
+}
+
+/**
+ * Commit a transaction
+ */
+function commitTransaction(transactionId) {
+  return db.commitTransaction(transactionId);
+}
+
+/**
+ * Rollback a transaction
+ */
+function rollbackTransaction(transactionId) {
+  return db.rollbackTransaction(transactionId);
+}
+
+/**
+ * Execute within a transaction
+ */
+async function withTransaction(callback) {
+  return db.withTransaction(callback);
+}
+
+// Legacy pool-like interface for gradual migration
+const pool = {
+  query: async (text, params) => {
+    console.warn('Warning: pool.query() called. Please migrate to JSON methods.');
+    return { rows: [] };
+  },
+  connect: async () => {
+    return getClient();
+  }
+};
 
 module.exports = {
-  query,
+  // New JSON Database API
+  db,
+  indexManager,
+  initializeDatabase,
+  shutdownDatabase,
+  getDatabase,
+  getIndexManager,
+  beginTransaction,
+  commitTransaction,
+  rollbackTransaction,
+  withTransaction,
+
+  // Legacy API for backwards compatibility during migration
+  pool,
   getClient,
-  pool
+  query: pool.query
 };

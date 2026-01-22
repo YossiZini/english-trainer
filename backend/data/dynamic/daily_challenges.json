@@ -1,0 +1,28 @@
+[
+  {
+    "challenge_date": "2026-01-21",
+    "challenge_type": "perfect_score",
+    "challenge_target": 2,
+    "title_en": "Perfect Score Challenge",
+    "title_he": "אתגר ציון מושלם",
+    "description_en": "Get 2 perfect scores (100%)",
+    "description_he": "השג 2 ציונים מושלמים (100%)",
+    "points_reward": 25,
+    "icon": "💯",
+    "id": "9b152131-8a53-4bf6-a6b6-16f679bdd50b",
+    "created_at": "2026-01-21T19:23:14.457Z"
+  },
+  {
+    "challenge_date": "2026-01-22",
+    "challenge_type": "practice_time",
+    "challenge_target": 10,
+    "title_en": "Practice Time",
+    "title_he": "זמן תרגול",
+    "description_en": "Practice for 10 minutes",
+    "description_he": "תרגל למשך 10 דקות",
+    "points_reward": 10,
+    "icon": "⏱️",
+    "id": "f823dfa1-27e4-4d46-99b3-303b35cef3d9",
+    "created_at": "2026-01-22T06:32:05.753Z"
+  }
+]

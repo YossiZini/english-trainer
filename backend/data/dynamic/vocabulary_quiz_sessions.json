@@ -1,0 +1,21 @@
+[
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "quiz_type": "regular",
+    "quiz_size": 10,
+    "difficulty_range_start": 3,
+    "difficulty_range_end": 5,
+    "current_difficulty_stage": 2,
+    "source": null,
+    "total_questions": 0,
+    "correct_answers": 0,
+    "wrong_answers": 0,
+    "points_earned": 0,
+    "consecutive_correct": 0,
+    "started_at": "2026-01-22T06:32:10.379Z",
+    "completed_at": null,
+    "status": "in_progress",
+    "id": "a73900f9-dd7f-4d17-ba1d-8ec0100b142b",
+    "created_at": "2026-01-22T06:32:10.379Z"
+  }
+]

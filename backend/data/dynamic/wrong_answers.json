@@ -1,0 +1,98 @@
+[
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "791b505e-0784-4c55-9095-6820bf83e46d",
+    "user_answer": "Pronoun/Adjective",
+    "correct_answer": "Pronoun",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "e5ca5547-5864-4caa-83d3-bc8474ee4b22"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "35e29843-3792-466c-b700-81941a4f959a",
+    "user_answer": "Noun",
+    "correct_answer": "Conjunction",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "e08e3952-aa96-45b2-871e-84d7fbbf5109"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "659b2e97-6eba-4c27-aabe-af2e434905dd",
+    "user_answer": "Noun",
+    "correct_answer": "Pronoun",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "ed25f5ba-083b-4d02-a7e9-8d631a2a5fe8"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "669595c5-0d10-41bd-bdee-714127afcdd4",
+    "user_answer": "3",
+    "correct_answer": "0",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "c224a2ec-ae17-4349-ad63-2d0fd8c909d7"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "e9b3d99f-2e1d-4245-b682-507bd0a23a7c",
+    "user_answer": "Noun",
+    "correct_answer": "Adverb",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "94e84c7f-17eb-48d3-9357-779e8f1b66b6"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "26a31ebe-0c70-4542-87f4-036d632a6843",
+    "user_answer": "Conjunction/Preposition",
+    "correct_answer": "Conjunction",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "01d323f1-c5a8-4a89-ab1a-39942c17f092"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "be389ecb-cbb0-47ee-93dd-2a701cbe2ca6",
+    "user_answer": "Adverb",
+    "correct_answer": "Preposition",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "ec165c58-0db1-480f-9538-8bfd59645347"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "exercise_id": "694430e5-9554-49e3-85f1-301edaf6c528",
+    "user_answer": "Adjective/Noun",
+    "correct_answer": "Adjective",
+    "attempt_number": 1,
+    "is_reviewed": false,
+    "is_corrected": false,
+    "created_at": "2026-01-22T06:58:50.787Z",
+    "id": "db4ccc08-9300-487b-9861-ff8f5aba8f0a"
+  }
+]

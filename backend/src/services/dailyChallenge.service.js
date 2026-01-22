@@ -1,4 +1,4 @@
-const { pool } = require('../config/database');
+const { db, withTransaction } = require('../config/database');
 const User = require('../models/User');
 
 /**
@@ -13,16 +13,11 @@ class DailyChallengeService {
     const today = new Date().toISOString().split('T')[0];
 
     // Check if challenge exists for today
-    let challenge = await pool.query(
-      'SELECT * FROM daily_challenges WHERE challenge_date = $1',
-      [today]
-    );
+    let challenge = db.findOne('daily_challenges', { challenge_date: today });
 
-    if (challenge.rows.length === 0) {
+    if (!challenge) {
       // Generate new challenge
       challenge = await this.generateDailyChallenge(today);
-    } else {
-      challenge = challenge.rows[0];
     }
 
     return challenge;
@@ -38,24 +33,26 @@ class DailyChallengeService {
     const challenge = await this.getTodayChallenge();
 
     // Get user progress
-    const progressResult = await pool.query(
-      `SELECT udc.*, dc.*
-       FROM user_daily_challenges udc
-       JOIN daily_challenges dc ON udc.challenge_id = dc.id
-       WHERE udc.user_id = $1 AND dc.challenge_date = $2`,
-      [userId, today]
-    );
+    const userProgress = db.findOne('user_daily_challenges', {
+      user_id: userId,
+      challenge_id: challenge.id
+    });
 
-    if (progressResult.rows.length > 0) {
-      return progressResult.rows[0];
+    if (userProgress) {
+      return {
+        ...challenge,
+        ...userProgress
+      };
     }
 
     // Create initial progress record
-    await pool.query(
-      `INSERT INTO user_daily_challenges (user_id, challenge_id, progress, completed)
-       VALUES ($1, $2, 0, false)`,
-      [userId, challenge.id]
-    );
+    db.insert('user_daily_challenges', {
+      user_id: userId,
+      challenge_id: challenge.id,
+      progress: 0,
+      completed: false,
+      completed_at: null
+    });
 
     return {
       ...challenge,
@@ -73,69 +70,52 @@ class DailyChallengeService {
     const challenge = await this.getTodayChallenge();
 
     // Get current progress
-    const currentProgress = await pool.query(
-      `SELECT udc.*, dc.challenge_target, dc.points_reward
-       FROM user_daily_challenges udc
-       JOIN daily_challenges dc ON udc.challenge_id = dc.id
-       WHERE udc.user_id = $1 AND dc.challenge_date = $2`,
-      [userId, today]
-    );
+    let currentProgress = db.findOne('user_daily_challenges', {
+      user_id: userId,
+      challenge_id: challenge.id
+    });
 
-    if (currentProgress.rows.length === 0) {
+    if (!currentProgress) {
       // Create progress record
-      await pool.query(
-        `INSERT INTO user_daily_challenges (user_id, challenge_id, progress)
-         VALUES ($1, $2, $3)`,
-        [userId, challenge.id, progressIncrement]
-      );
+      currentProgress = db.insert('user_daily_challenges', {
+        user_id: userId,
+        challenge_id: challenge.id,
+        progress: progressIncrement,
+        completed: false,
+        completed_at: null
+      });
       return { completed: false, progress: progressIncrement };
     }
 
-    const current = currentProgress.rows[0];
-
     // If already completed, don't update
-    if (current.completed) {
+    if (currentProgress.completed) {
       return { completed: true, alreadyCompleted: true };
     }
 
-    // Update progress
-    const newProgress = current.progress + progressIncrement;
-    const isCompleted = newProgress >= current.challenge_target;
-
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
+    return withTransaction(async () => {
       // Update progress
-      await client.query(
-        `UPDATE user_daily_challenges
-         SET progress = $1,
-             completed = $2,
-             completed_at = CASE WHEN $2 THEN CURRENT_TIMESTAMP ELSE NULL END
-         WHERE user_id = $3 AND challenge_id = $4`,
-        [newProgress, isCompleted, userId, challenge.id]
-      );
+      const newProgress = currentProgress.progress + progressIncrement;
+      const isCompleted = newProgress >= challenge.challenge_target;
+
+      db.updateById('user_daily_challenges', currentProgress.id, {
+        progress: newProgress,
+        completed: isCompleted,
+        completed_at: isCompleted ? new Date().toISOString() : null
+      });
 
       // If completed, award bonus points
-      if (isCompleted && !current.completed) {
-        await User.addPoints(userId, current.points_reward);
+      if (isCompleted && !currentProgress.completed) {
+        await User.addPoints(userId, challenge.points_reward);
       }
-
-      await client.query('COMMIT');
 
       return {
         completed: isCompleted,
-        newlyCompleted: isCompleted && !current.completed,
+        newlyCompleted: isCompleted && !currentProgress.completed,
         progress: newProgress,
-        target: current.challenge_target,
-        pointsAwarded: isCompleted ? current.points_reward : 0
+        target: challenge.challenge_target,
+        pointsAwarded: isCompleted ? challenge.points_reward : 0
       };
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   /**
@@ -199,22 +179,25 @@ class DailyChallengeService {
     const desc_en = challenge.descTemplate.en.replace('{target}', target);
     const desc_he = challenge.descTemplate.he.replace('{target}', target);
 
-    const result = await pool.query(
-      `INSERT INTO daily_challenges
-       (challenge_date, challenge_type, challenge_target, title_en, title_he, description_en, description_he, points_reward, icon)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING *`,
-      [date, challenge.type, target, title_en, title_he, desc_en, desc_he, points, challenge.icon]
-    );
+    const newChallenge = db.insert('daily_challenges', {
+      challenge_date: date,
+      challenge_type: challenge.type,
+      challenge_target: target,
+      title_en,
+      title_he,
+      description_en: desc_en,
+      description_he: desc_he,
+      points_reward: points,
+      icon: challenge.icon
+    });
 
-    return result.rows[0];
+    return newChallenge;
   }
 
   /**
    * Check and update challenge progress based on activity
    */
   static async checkChallengeProgress(userId, activityType, value = 1) {
-    const today = new Date().toISOString().split('T')[0];
     const challenge = await this.getTodayChallenge();
 
     // Map activity types to challenge types
@@ -239,43 +222,55 @@ class DailyChallengeService {
    * Get challenge history for a user
    */
   static async getChallengeHistory(userId, limit = 7) {
-    const query = `
-      SELECT dc.*, udc.progress, udc.completed, udc.completed_at
-      FROM daily_challenges dc
-      LEFT JOIN user_daily_challenges udc
-        ON dc.id = udc.challenge_id AND udc.user_id = $1
-      WHERE dc.challenge_date <= CURRENT_DATE
-      ORDER BY dc.challenge_date DESC
-      LIMIT $2
-    `;
+    const today = new Date().toISOString().split('T')[0];
 
-    const result = await pool.query(query, [userId, limit]);
-    return result.rows;
+    // Get all challenges up to today
+    const challenges = db.find('daily_challenges', {
+      challenge_date: { $lte: today }
+    }, {
+      sort: { challenge_date: 'desc' },
+      limit
+    });
+
+    // Get user progress for these challenges
+    const userProgress = db.find('user_daily_challenges', { user_id: userId });
+    const progressMap = new Map(userProgress.map(up => [up.challenge_id, up]));
+
+    return challenges.map(dc => {
+      const udc = progressMap.get(dc.id);
+      return {
+        ...dc,
+        progress: udc?.progress || 0,
+        completed: udc?.completed || false,
+        completed_at: udc?.completed_at || null
+      };
+    });
   }
 
   /**
    * Get challenge completion stats
    */
   static async getChallengeStats(userId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_challenges,
-        COUNT(CASE WHEN udc.completed = true THEN 1 END) as completed_count
-      FROM daily_challenges dc
-      LEFT JOIN user_daily_challenges udc
-        ON dc.id = udc.challenge_id AND udc.user_id = $1
-      WHERE dc.challenge_date <= CURRENT_DATE
-    `;
+    const today = new Date().toISOString().split('T')[0];
 
-    const result = await pool.query(query, [userId]);
-    const stats = result.rows[0];
+    // Get all challenges up to today
+    const challenges = db.find('daily_challenges', {
+      challenge_date: { $lte: today }
+    });
+
+    // Get user's completed challenges
+    const userProgress = db.find('user_daily_challenges', {
+      user_id: userId,
+      completed: true
+    });
+
+    const total = challenges.length;
+    const completed = userProgress.length;
 
     return {
-      total: parseInt(stats.total_challenges),
-      completed: parseInt(stats.completed_count),
-      percentage: stats.total_challenges > 0
-        ? Math.round((parseInt(stats.completed_count) / parseInt(stats.total_challenges)) * 100)
-        : 0
+      total,
+      completed,
+      percentage: total > 0 ? Math.round((completed / total) * 100) : 0
     };
   }
 }

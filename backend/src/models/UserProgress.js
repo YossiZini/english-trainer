@@ -1,34 +1,31 @@
-const { pool } = require('../config/database');
+const { db, indexManager } = require('../config/database');
 
 class UserProgress {
   /**
    * Get or create progress for a lesson
    */
   static async findOrCreate(userId, lessonId) {
-    // Check if progress exists
-    const findQuery = `
-      SELECT id, user_id, lesson_id, status, best_score, attempts,
-             first_completed_at, last_attempted_at, time_spent
-      FROM user_progress
-      WHERE user_id = $1 AND lesson_id = $2
-    `;
+    // Try to find using composite index
+    const existing = indexManager.findByCompositeIndex('user_progress_user_id_lesson_id', [userId, lessonId]);
 
-    const result = await pool.query(findQuery, [userId, lessonId]);
-
-    if (result.rows.length > 0) {
-      return result.rows[0];
+    if (existing.length > 0) {
+      return existing[0];
     }
 
     // Create new progress record
-    const createQuery = `
-      INSERT INTO user_progress (user_id, lesson_id, status, best_score, attempts, time_spent)
-      VALUES ($1, $2, 'not_started', 0, 0, 0)
-      RETURNING id, user_id, lesson_id, status, best_score, attempts,
-                first_completed_at, last_attempted_at, time_spent
-    `;
+    const progress = db.insert('user_progress', {
+      user_id: userId,
+      lesson_id: lessonId,
+      status: 'not_started',
+      best_score: 0,
+      attempts: 0,
+      time_spent: 0,
+      first_completed_at: null,
+      last_attempted_at: null,
+      created_at: new Date().toISOString()
+    });
 
-    const createResult = await pool.query(createQuery, [userId, lessonId]);
-    return createResult.rows[0];
+    return progress;
   }
 
   /**
@@ -41,178 +38,265 @@ class UserProgress {
     const newBestScore = Math.max(progress.best_score, score);
     const newTotalTime = progress.time_spent + timeSpent;
     const newStatus = score >= 70 ? 'completed' : 'in_progress';
-    const firstCompletedAt = progress.first_completed_at || (score >= 70 ? new Date() : null);
+    const firstCompletedAt = progress.first_completed_at || (score >= 70 ? new Date().toISOString() : null);
+    const lastAttemptedAt = new Date().toISOString();
 
-    const query = `
-      UPDATE user_progress
-      SET status = $1,
-          best_score = $2,
-          attempts = $3,
-          time_spent = $4,
-          first_completed_at = $5,
-          last_attempted_at = CURRENT_TIMESTAMP
-      WHERE user_id = $6 AND lesson_id = $7
-      RETURNING id, user_id, lesson_id, status, best_score, attempts,
-                first_completed_at, last_attempted_at, time_spent
-    `;
+    db.updateById('user_progress', progress.id, {
+      status: newStatus,
+      best_score: newBestScore,
+      attempts: newAttempts,
+      time_spent: newTotalTime,
+      first_completed_at: firstCompletedAt,
+      last_attempted_at: lastAttemptedAt
+    });
 
-    const values = [
-      newStatus,
-      newBestScore,
-      newAttempts,
-      newTotalTime,
-      firstCompletedAt,
-      userId,
-      lessonId
-    ];
-
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    return {
+      id: progress.id,
+      user_id: userId,
+      lesson_id: lessonId,
+      status: newStatus,
+      best_score: newBestScore,
+      attempts: newAttempts,
+      first_completed_at: firstCompletedAt,
+      last_attempted_at: lastAttemptedAt,
+      time_spent: newTotalTime
+    };
   }
 
   /**
    * Get progress for a specific lesson
    */
   static async getProgress(userId, lessonId) {
-    const query = `
-      SELECT id, user_id, lesson_id, status, best_score, attempts,
-             first_completed_at, last_attempted_at, time_spent
-      FROM user_progress
-      WHERE user_id = $1 AND lesson_id = $2
-    `;
-
-    const result = await pool.query(query, [userId, lessonId]);
-    return result.rows[0];
+    const results = indexManager.findByCompositeIndex('user_progress_user_id_lesson_id', [userId, lessonId]);
+    return results[0] || null;
   }
 
   /**
    * Get all progress for a user
    */
   static async getAllProgress(userId) {
-    const query = `
-      SELECT up.id, up.user_id, up.lesson_id, up.status, up.best_score, up.attempts,
-             up.first_completed_at, up.last_attempted_at, up.time_spent,
-             l.title_en, l.title_he, l.topic_number, l.subtopic_number
-      FROM user_progress up
-      JOIN lessons l ON up.lesson_id = l.id
-      WHERE up.user_id = $1
-      ORDER BY l.order_index ASC
-    `;
+    const progress = db.findByIndex('user_progress', 'user_id', userId);
 
-    const result = await pool.query(query, [userId]);
-    return result.rows;
+    // Get lessons for joining
+    const lessons = db.getCollection('lessons', true);
+    const lessonMap = new Map(lessons.map(l => [l.id, l]));
+
+    // Join with lessons
+    const result = progress.map(up => {
+      const lesson = lessonMap.get(up.lesson_id);
+      return {
+        id: up.id,
+        user_id: up.user_id,
+        lesson_id: up.lesson_id,
+        status: up.status,
+        best_score: up.best_score,
+        attempts: up.attempts,
+        first_completed_at: up.first_completed_at,
+        last_attempted_at: up.last_attempted_at,
+        time_spent: up.time_spent,
+        title_en: lesson?.title_en,
+        title_he: lesson?.title_he,
+        topic_number: lesson?.topic_number,
+        subtopic_number: lesson?.subtopic_number
+      };
+    });
+
+    // Sort by lesson order_index
+    result.sort((a, b) => {
+      const lessonA = lessonMap.get(a.lesson_id);
+      const lessonB = lessonMap.get(b.lesson_id);
+      return (lessonA?.order_index || 0) - (lessonB?.order_index || 0);
+    });
+
+    return result;
   }
 
   /**
    * Get overall statistics for a user
    */
   static async getOverallStats(userId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_lessons_attempted,
-        COUNT(CASE WHEN status = 'completed' THEN 1 END) as lessons_completed,
-        COUNT(CASE WHEN status = 'in_progress' THEN 1 END) as lessons_in_progress,
-        COALESCE(AVG(CASE WHEN best_score > 0 THEN best_score END), 0) as average_score,
-        COALESCE(SUM(time_spent), 0) as total_time_spent,
-        COALESCE(SUM(attempts), 0) as total_attempts,
-        MAX(last_attempted_at) as last_activity
-      FROM user_progress
-      WHERE user_id = $1
-    `;
+    const progress = db.findByIndex('user_progress', 'user_id', userId);
 
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
+    const stats = {
+      total_lessons_attempted: progress.length,
+      lessons_completed: 0,
+      lessons_in_progress: 0,
+      average_score: 0,
+      total_time_spent: 0,
+      total_attempts: 0,
+      last_activity: null
+    };
+
+    let scoreSum = 0;
+    let scoreCount = 0;
+
+    for (const p of progress) {
+      if (p.status === 'completed') {
+        stats.lessons_completed++;
+      } else if (p.status === 'in_progress') {
+        stats.lessons_in_progress++;
+      }
+
+      if (p.best_score > 0) {
+        scoreSum += p.best_score;
+        scoreCount++;
+      }
+
+      stats.total_time_spent += p.time_spent || 0;
+      stats.total_attempts += p.attempts || 0;
+
+      if (!stats.last_activity || (p.last_attempted_at && p.last_attempted_at > stats.last_activity)) {
+        stats.last_activity = p.last_attempted_at;
+      }
+    }
+
+    stats.average_score = scoreCount > 0 ? Math.round(scoreSum / scoreCount * 100) / 100 : 0;
+
+    return stats;
   }
 
   /**
    * Get progress grouped by topic
    */
   static async getProgressByTopic(userId) {
-    const query = `
-      SELECT
-        l.topic_number,
-        COUNT(*) as total_lessons,
-        COUNT(CASE WHEN up.status = 'completed' THEN 1 END) as completed_count,
-        COUNT(CASE WHEN up.status = 'in_progress' THEN 1 END) as in_progress_count,
-        COUNT(CASE WHEN up.status IS NULL OR up.status = 'not_started' THEN 1 END) as not_started_count,
-        COALESCE(AVG(CASE WHEN up.best_score > 0 THEN up.best_score END), 0) as average_score
-      FROM lessons l
-      LEFT JOIN user_progress up ON l.id = up.lesson_id AND up.user_id = $1
-      GROUP BY l.topic_number
-      ORDER BY l.topic_number
-    `;
+    const lessons = db.getCollection('lessons', true);
+    const progress = db.findByIndex('user_progress', 'user_id', userId);
+    const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
-    const result = await pool.query(query, [userId]);
-    return result.rows;
+    // Group by topic
+    const topicStats = new Map();
+
+    for (const lesson of lessons) {
+      const topic = lesson.topic_number;
+      if (!topicStats.has(topic)) {
+        topicStats.set(topic, {
+          topic_number: topic,
+          total_lessons: 0,
+          completed_count: 0,
+          in_progress_count: 0,
+          not_started_count: 0,
+          scores: []
+        });
+      }
+
+      const stat = topicStats.get(topic);
+      stat.total_lessons++;
+
+      const p = progressMap.get(lesson.id);
+      if (!p || p.status === 'not_started') {
+        stat.not_started_count++;
+      } else if (p.status === 'completed') {
+        stat.completed_count++;
+        if (p.best_score > 0) stat.scores.push(p.best_score);
+      } else if (p.status === 'in_progress') {
+        stat.in_progress_count++;
+        if (p.best_score > 0) stat.scores.push(p.best_score);
+      }
+    }
+
+    // Calculate averages and format results
+    const result = [];
+    for (const [topic, stat] of topicStats) {
+      result.push({
+        topic_number: stat.topic_number,
+        total_lessons: stat.total_lessons,
+        completed_count: stat.completed_count,
+        in_progress_count: stat.in_progress_count,
+        not_started_count: stat.not_started_count,
+        average_score: stat.scores.length > 0
+          ? Math.round(stat.scores.reduce((a, b) => a + b, 0) / stat.scores.length * 100) / 100
+          : 0
+      });
+    }
+
+    result.sort((a, b) => a.topic_number - b.topic_number);
+    return result;
   }
 
   /**
    * Get recent activity (last N attempts)
    */
   static async getRecentActivity(userId, limit = 10) {
-    const query = `
-      SELECT
-        er.id,
-        er.lesson_id,
-        er.attempt_number,
-        er.score,
-        er.total_questions,
-        er.correct_answers,
-        er.wrong_answers,
-        er.time_spent,
-        er.completed_at,
-        er.difficulty,
-        l.title_he,
-        l.title_en,
-        l.subtopic_number
-      FROM exercise_results er
-      JOIN lessons l ON er.lesson_id = l.id
-      WHERE er.user_id = $1
-      ORDER BY er.completed_at DESC
-      LIMIT $2
-    `;
+    const results = db.find('exercise_results', { user_id: userId });
 
-    const result = await pool.query(query, [userId, limit]);
-    return result.rows;
+    // Get lessons for joining
+    const lessons = db.getCollection('lessons', true);
+    const lessonMap = new Map(lessons.map(l => [l.id, l]));
+
+    // Join and sort by completed_at
+    const activity = results.map(er => {
+      const lesson = lessonMap.get(er.lesson_id);
+      return {
+        id: er.id,
+        lesson_id: er.lesson_id,
+        attempt_number: er.attempt_number,
+        score: er.score,
+        total_questions: er.total_questions,
+        correct_answers: er.correct_answers,
+        wrong_answers: er.wrong_answers,
+        time_spent: er.time_spent,
+        completed_at: er.completed_at,
+        difficulty: er.difficulty,
+        title_he: lesson?.title_he,
+        title_en: lesson?.title_en,
+        subtopic_number: lesson?.subtopic_number
+      };
+    });
+
+    // Sort by completed_at descending
+    activity.sort((a, b) => {
+      if (!a.completed_at) return 1;
+      if (!b.completed_at) return -1;
+      return new Date(b.completed_at) - new Date(a.completed_at);
+    });
+
+    return activity.slice(0, limit);
   }
 
   /**
    * Get next lesson to study (first incomplete or not started)
    */
   static async getNextLesson(userId) {
-    const query = `
-      SELECT l.id, l.title_he, l.title_en, l.subtopic_number,
-             COALESCE(up.status, 'not_started') as status
-      FROM lessons l
-      LEFT JOIN user_progress up ON l.id = up.lesson_id AND up.user_id = $1
-      WHERE COALESCE(up.status, 'not_started') != 'completed'
-      ORDER BY l.order_index ASC
-      LIMIT 1
-    `;
+    const lessons = db.getCollection('lessons', true);
+    const progress = db.findByIndex('user_progress', 'user_id', userId);
+    const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
+    // Sort lessons by order_index
+    const sortedLessons = [...lessons].sort((a, b) => a.order_index - b.order_index);
+
+    for (const lesson of sortedLessons) {
+      const p = progressMap.get(lesson.id);
+      const status = p?.status || 'not_started';
+
+      if (status !== 'completed') {
+        return {
+          id: lesson.id,
+          title_he: lesson.title_he,
+          title_en: lesson.title_en,
+          subtopic_number: lesson.subtopic_number,
+          status
+        };
+      }
+    }
+
+    return null;
   }
 
   /**
    * Get lesson completion percentage
    */
   static async getCompletionPercentage(userId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_lessons,
-        COUNT(CASE WHEN up.status = 'completed' THEN 1 END) as completed_lessons
-      FROM lessons l
-      LEFT JOIN user_progress up ON l.id = up.lesson_id AND up.user_id = $1
-    `;
+    const lessons = db.getCollection('lessons', true);
+    const progress = db.findByIndex('user_progress', 'user_id', userId);
 
-    const result = await pool.query(query, [userId]);
-    const { total_lessons, completed_lessons } = result.rows[0];
-    const percentage = total_lessons > 0 ? Math.round((completed_lessons / total_lessons) * 100) : 0;
+    const completedLessons = progress.filter(p => p.status === 'completed').length;
+    const totalLessons = lessons.length;
+
+    const percentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
     return {
-      total_lessons: parseInt(total_lessons),
-      completed_lessons: parseInt(completed_lessons),
+      total_lessons: totalLessons,
+      completed_lessons: completedLessons,
       percentage
     };
   }

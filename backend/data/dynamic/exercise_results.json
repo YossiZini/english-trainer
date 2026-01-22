@@ -1,0 +1,30 @@
+[
+  {
+    "user_id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "lesson_id": "ebfb0a0f-cfe0-41eb-9219-2160200f774a",
+    "attempt_number": 1,
+    "total_questions": 1,
+    "correct_answers": 1,
+    "wrong_answers": 0,
+    "score": 100,
+    "time_spent": 60,
+    "difficulty": "easy",
+    "completed_at": "2026-01-21T19:23:14.453Z",
+    "id": "667f7894-d55d-40c1-89dc-54902b7c0cf4",
+    "created_at": "2026-01-21T19:23:14.453Z"
+  },
+  {
+    "user_id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "lesson_id": "90e485a2-0bb8-4e30-a1da-d0c44ebe60ce",
+    "attempt_number": 1,
+    "total_questions": 10,
+    "correct_answers": 2,
+    "wrong_answers": 8,
+    "score": 20,
+    "time_spent": 3,
+    "difficulty": "easy",
+    "completed_at": "2026-01-22T06:58:50.787Z",
+    "id": "85ddec16-ca26-44a5-8480-5b252c40febc",
+    "created_at": "2026-01-22T06:58:50.787Z"
+  }
+]

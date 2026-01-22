@@ -1,0 +1,1202 @@
+[
+  {
+    "id": "e67dc671-50be-4d52-ac67-45901dd24cda",
+    "paragraph_id": "91d891bd-ab93-4b17-92df-36a8afd94af6",
+    "question_number": 1,
+    "question_text_en": "How often does the writer play basketball?",
+    "question_text_he": "באיזו תדירות הכותב משחק כדורסל?",
+    "options": [
+      "Every day",
+      "Twice a week",
+      "Once a week",
+      "Only on weekends"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב משחק כדורסל עם חברים בימי שלישי וחמישי אחרי בית הספר - זה פעמיים בשבוע.",
+    "created_at": "2026-01-22T06:54:27.977Z"
+  },
+  {
+    "id": "852c4312-282d-4a8f-8480-cec90540faef",
+    "paragraph_id": "91d891bd-ab93-4b17-92df-36a8afd94af6",
+    "question_number": 2,
+    "question_text_en": "What does basketball help the writer do?",
+    "question_text_he": "במה כדורסל עוזר לכותב?",
+    "options": [
+      "Make money",
+      "Stay healthy",
+      "Do homework",
+      "Sleep better"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר ש-\"Basketball helps me stay healthy and strong\" - כדורסל עוזר לו להישאר בריא וחזק.",
+    "created_at": "2026-01-22T06:54:27.977Z"
+  },
+  {
+    "id": "ff1341d1-2ee3-4787-ac9d-70b743d11276",
+    "paragraph_id": "91d891bd-ab93-4b17-92df-36a8afd94af6",
+    "question_number": 3,
+    "question_text_en": "When did the school team win?",
+    "question_text_he": "מתי קבוצת בית הספר זכתה?",
+    "options": [
+      "Yesterday",
+      "Last week",
+      "Last month",
+      "Last year"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב מציין ש-\"Last month, our school team won a championship game\" - בחודש שעבר הקבוצה זכתה במשחק אליפות.",
+    "created_at": "2026-01-22T06:54:27.977Z"
+  },
+  {
+    "id": "bc258666-9a60-4052-a328-6df803dd95d4",
+    "paragraph_id": "91d891bd-ab93-4b17-92df-36a8afd94af6",
+    "question_number": 4,
+    "question_text_en": "What important lesson did basketball teach the writer?",
+    "question_text_he": "איזה לקח חשוב למד הכותב מכדורסל?",
+    "options": [
+      "How to win",
+      "Teamwork is important",
+      "Running is easy",
+      "Friends are fun"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסכם ש-\"teamwork and practice are very important\" - עבודת צוות ותרגול חשובים מאוד.",
+    "created_at": "2026-01-22T06:54:27.977Z"
+  },
+  {
+    "id": "1149e05e-9441-4e0c-8360-dc52c5d410f0",
+    "paragraph_id": "91d891bd-ab93-4b17-92df-36a8afd94af6",
+    "question_number": 5,
+    "question_text_en": "How does the writer feel when playing basketball?",
+    "question_text_he": "איך מרגיש הכותב כשהוא משחק כדורסל?",
+    "options": [
+      "Tired and bored",
+      "Energetic and happy",
+      "Scared and nervous",
+      "Sleepy and calm"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר בבירור: \"It makes me feel energetic and happy\" - זה גורם לו להרגיש אנרגטי ומאושר.",
+    "created_at": "2026-01-22T06:54:27.977Z"
+  },
+  {
+    "id": "4af309d1-b41a-4fef-98b0-3175af37950f",
+    "paragraph_id": "c1948465-af51-469e-a79e-c2c0b199696d",
+    "question_number": 1,
+    "question_text_en": "When did the family visit the zoo?",
+    "question_text_he": "מתי המשפחה ביקרה בגן החיות?",
+    "options": [
+      "Last Saturday",
+      "Last Sunday",
+      "Yesterday",
+      "Two weeks ago"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הפסקה הראשונה מתחילה ב-\"Last Sunday, my family and I visited the city zoo\" - ביום ראשון האחרון.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "b90ec4f7-8948-42ff-8c24-2c6685511cec",
+    "paragraph_id": "c1948465-af51-469e-a79e-c2c0b199696d",
+    "question_number": 2,
+    "question_text_en": "What were the writer's favorite animals?",
+    "question_text_he": "מהן החיות האהובות על הכותב?",
+    "options": [
+      "Tigers",
+      "Elephants",
+      "Monkeys",
+      "Lions"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר בפירוש: \"My favorite animals were the elephants\" - החיות האהובות עליו היו הפילים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "931832f7-0af3-4b42-9ca9-736de5f62a5e",
+    "paragraph_id": "c1948465-af51-469e-a79e-c2c0b199696d",
+    "question_number": 3,
+    "question_text_en": "What did the elephant do with its trunk?",
+    "question_text_he": "מה עשה הפיל עם החדק שלו?",
+    "options": [
+      "Ate food",
+      "Sprayed water",
+      "Picked up rocks",
+      "Made sounds"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט אומר: \"One elephant used its trunk to spray water on itself\" - פיל אחד השתמש בחדק כדי לרסס מים על עצמו.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "f14f5ab9-8e50-476a-8ae3-bdf42125cd8c",
+    "paragraph_id": "c1948465-af51-469e-a79e-c2c0b199696d",
+    "question_number": 4,
+    "question_text_en": "Why are white tigers special?",
+    "question_text_he": "למה נמרים לבנים מיוחדים?",
+    "options": [
+      "They are very big",
+      "They are endangered",
+      "They can swim",
+      "They live in trees"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר שנמרים לבנים הם \"endangered species\" ושיש מעט מאוד כאלה בעולם - הם בסכנת הכחדה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "452aca95-9b6c-43c3-8719-742e6e69bc6b",
+    "paragraph_id": "c1948465-af51-469e-a79e-c2c0b199696d",
+    "question_number": 5,
+    "question_text_en": "What lesson did the writer learn?",
+    "question_text_he": "איזה לקח למד הכותב?",
+    "options": [
+      "Zoos are fun",
+      "We need to protect animals",
+      "Elephants are smart",
+      "Weather is important"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסיים עם המחשבה: \"we need to protect animals and their homes\" - אנחנו צריכים להגן על בעלי חיים ועל בתיהם.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "df3ad7fb-0f7e-4aa5-be92-9892361d9c9f",
+    "paragraph_id": "c440a4ff-1ac0-4348-bc35-c2a5b37e256d",
+    "question_number": 1,
+    "question_text_en": "When does the writer visit the library?",
+    "question_text_he": "מתי הכותב מבקר בספרייה?",
+    "options": [
+      "After school",
+      "During lunch break",
+      "In the morning",
+      "On weekends"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר שהספרייה היא המקום האהוב עליו \"during lunch break\" - בהפסקת הצהריים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "fe3efb1d-f95a-47d6-b2fa-89b160d91583",
+    "paragraph_id": "c440a4ff-1ac0-4348-bc35-c2a5b37e256d",
+    "question_number": 2,
+    "question_text_en": "What is Mrs. Johnson's job?",
+    "question_text_he": "מה התפקיד של גברת ג׳ונסון?",
+    "options": [
+      "Teacher",
+      "Principal",
+      "Librarian",
+      "Student"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט אומר בבירור: \"Mrs. Johnson, our librarian\" - גברת ג'ונסון היא הספרנית שלנו.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "0f8f4b7d-4905-4183-9a53-bfbd27d0911b",
+    "paragraph_id": "c440a4ff-1ac0-4348-bc35-c2a5b37e256d",
+    "question_number": 3,
+    "question_text_en": "What type of book did Mrs. Johnson recommend?",
+    "question_text_he": "איזה סוג של ספר גברת ג'ונסון המליצה?",
+    "options": [
+      "Science book",
+      "History book",
+      "Mystery novel",
+      "Comic book"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב מספר: \"she recommended a mystery novel to me\" - היא המליצה לו על רומן מסתורין.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "379c1929-1a74-4762-b04a-c2b5d660681a",
+    "paragraph_id": "c440a4ff-1ac0-4348-bc35-c2a5b37e256d",
+    "question_number": 4,
+    "question_text_en": "What can students do on the library computers?",
+    "question_text_he": "מה תלמידים יכולים לעשות במחשבי הספרייה?",
+    "options": [
+      "Play games",
+      "Watch movies",
+      "Do research",
+      "Send emails"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מציין שבספרייה יש \"computers where we can do research for our homework\" - מחשבים שבהם אפשר לעשות מחקר לשיעורי הבית.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "53388759-e8bc-4303-97e2-a4227cf966cc",
+    "paragraph_id": "c440a4ff-1ac0-4348-bc35-c2a5b37e256d",
+    "question_number": 5,
+    "question_text_en": "What does the writer use the reference section for?",
+    "question_text_he": "לשם מה הכותב משתמש במדור העיון?",
+    "options": [
+      "Reading stories",
+      "Writing essays",
+      "Borrowing books",
+      "Meeting friends"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר: \"I often use these resources when I write essays for my English class\" - הוא משתמש במשאבים אלה כשהוא כותב חיבורים לשיעור אנגלית.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "f86e96d6-7cd8-4b96-991e-e2fe914304c8",
+    "paragraph_id": "91dc8f91-8745-4a9e-aeaa-22a5d0c6d116",
+    "question_number": 1,
+    "question_text_en": "How did the writer feel about starting at a new school?",
+    "question_text_he": "איך הכותב הרגיש לגבי התחלה בבית ספר חדש?",
+    "options": [
+      "Excited and happy",
+      "Awkward and nervous",
+      "Angry and sad",
+      "Bored and tired"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מתאר שזה יכול להרגיש \"awkward\" והוא היה \"nervous\" - מביך ועצבני.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "4fbdc546-8e8b-4df8-966f-2df554f88d97",
+    "paragraph_id": "91dc8f91-8745-4a9e-aeaa-22a5d0c6d116",
+    "question_number": 2,
+    "question_text_en": "Who was the first person to help the writer?",
+    "question_text_he": "מי היה האדם הראשון שעזר לכותב?",
+    "options": [
+      "A teacher",
+      "Sarah",
+      "His parents",
+      "A boy from class"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט אומר: \"a girl named Sarah introduced herself during lunch\" - בחורה בשם שרה הציגה את עצמה בהפסקת צהריים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "4818794a-b35d-43d6-a103-30be1d26b608",
+    "paragraph_id": "91dc8f91-8745-4a9e-aeaa-22a5d0c6d116",
+    "question_number": 3,
+    "question_text_en": "When did Sarah introduce herself?",
+    "question_text_he": "מתי שרה הציגה את עצמה?",
+    "options": [
+      "Before class",
+      "During lunch",
+      "After school",
+      "In the morning"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "שרה הציגה את עצמה \"during lunch\" - במהלך ארוחת הצהריים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "6bdfa242-b4a7-4abe-853e-19ce3d9e01dc",
+    "paragraph_id": "91dc8f91-8745-4a9e-aeaa-22a5d0c6d116",
+    "question_number": 4,
+    "question_text_en": "What is the relationship between the writer and Sarah now?",
+    "question_text_he": "מה הקשר בין הכותב לשרה עכשיו?",
+    "options": [
+      "Classmates only",
+      "Best friends",
+      "They don't talk",
+      "Teacher and student"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר בבירור: \"Now Sarah is my best friend\" - עכשיו שרה היא החברה הכי טובה שלו.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "023cf7ab-299a-4406-ae0f-c3360d4c1e0c",
+    "paragraph_id": "91dc8f91-8745-4a9e-aeaa-22a5d0c6d116",
+    "question_number": 5,
+    "question_text_en": "What lesson did the writer learn?",
+    "question_text_he": "איזה לקח למד הכותב?",
+    "options": [
+      "School is hard",
+      "Being friendly helps make friends",
+      "Music is important",
+      "Lunch is the best time"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסכם: \"being friendly and open to new experiences helps you make connections\" - להיות ידידותי ופתוח עוזר ליצור קשרים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "0d3431b7-2651-4ee3-98d8-f06a9bc55387",
+    "paragraph_id": "47ffac3e-e07f-40b0-8dd3-f450f404d2e1",
+    "question_number": 1,
+    "question_text_en": "What causes the Earth's atmosphere to get warmer?",
+    "question_text_he": "מה גורם לאטמוספירה של כדור הארץ להתחמם?",
+    "options": [
+      "The sun only",
+      "Human activities",
+      "Rain and snow",
+      "Plants and trees"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט אומר בפירוש: \"The Earth's atmosphere is getting warmer because of human activities\" - פעילויות אנושיות.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "1930620a-dc67-48d8-99be-2ca0c66e0beb",
+    "paragraph_id": "47ffac3e-e07f-40b0-8dd3-f450f404d2e1",
+    "question_number": 2,
+    "question_text_en": "What happens when we burn fossil fuels?",
+    "question_text_he": "מה קורה כשאנחנו שורפים דלקים מאובנים?",
+    "options": [
+      "They create water",
+      "They trap heat in atmosphere",
+      "They cool the Earth",
+      "They make plants grow"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר: \"we release gases that trap heat in the atmosphere\" - אנו משחררים גזים שלוכדים חום באטמוספירה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "e4307574-e84b-4528-9b18-4bcfc3096faf",
+    "paragraph_id": "47ffac3e-e07f-40b0-8dd3-f450f404d2e1",
+    "question_number": 3,
+    "question_text_en": "What is one visible consequence of climate change?",
+    "question_text_he": "מהי השלכה אחת הנראית לעין של שינויי האקלים?",
+    "options": [
+      "More schools",
+      "Melting ice caps",
+      "Cheaper food",
+      "Better weather"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מונה מספר השלכות, כולל: \"Ice caps are melting\" - כיפות הקרח נמסות.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "ba570c65-23b4-4a61-a8db-2709885175a9",
+    "paragraph_id": "47ffac3e-e07f-40b0-8dd3-f450f404d2e1",
+    "question_number": 4,
+    "question_text_en": "According to scientists, when should we take action?",
+    "question_text_he": "לפי מדענים, מתי צריך לנקוט פעולה?",
+    "options": [
+      "Next year",
+      "In 10 years",
+      "Now",
+      "Never"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "המדענים מסכימים ש: \"we must take action now\" - אנחנו חייבים לפעול עכשיו.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "60a3ff51-82f8-4048-92c8-356c494c6b11",
+    "paragraph_id": "47ffac3e-e07f-40b0-8dd3-f450f404d2e1",
+    "question_number": 5,
+    "question_text_en": "What is one way we can help reduce climate change?",
+    "question_text_he": "מהי דרך אחת שבה נוכל לעזור להפחית שינויי אקלים?",
+    "options": [
+      "Drive more cars",
+      "Use more plastic",
+      "Use sustainable transportation",
+      "Build more factories"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב מציע: \"choosing sustainable transportation like bikes or public buses\" - בחירה בתחבורה ברת-קיימא.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "bca6934f-4bc6-4cdd-b028-30cc0b28f003",
+    "paragraph_id": "99627c56-f4d4-4b28-a0f4-09eaefabc41f",
+    "question_number": 1,
+    "question_text_en": "What do neurons do?",
+    "question_text_he": "מה נוירונים עושים?",
+    "options": [
+      "Store food",
+      "Send electrical signals",
+      "Pump blood",
+      "Clean the body"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסביר: \"These neurons send electrical signals to each other\" - הנוירונים שולחים אותות חשמליים אחד לשני.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "227b20c0-741b-42a8-b986-2683226c768d",
+    "paragraph_id": "99627c56-f4d4-4b28-a0f4-09eaefabc41f",
+    "question_number": 2,
+    "question_text_en": "What does the frontal lobe help us do?",
+    "question_text_he": "במה האונה הקדמית עוזרת לנו?",
+    "options": [
+      "Breathe",
+      "Make decisions",
+      "Digest food",
+      "Hear sounds"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר: \"The frontal lobe helps us make decisions and solve problems\" - האונה הקדמית עוזרת לנו לקבל החלטות ולפתור בעיות.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "438f80ed-85d2-4ada-a107-2d8e2c1c5117",
+    "paragraph_id": "99627c56-f4d4-4b28-a0f4-09eaefabc41f",
+    "question_number": 3,
+    "question_text_en": "Which part of the brain controls balance?",
+    "question_text_he": "איזה חלק במוח שולט על האיזון?",
+    "options": [
+      "Frontal lobe",
+      "Hippocampus",
+      "Cerebellum",
+      "Neurons"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מציין: \"The cerebellum controls our balance and coordination\" - המוח הקטן שולט על האיזון והקואורדינציה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "cf1d24ef-f972-4468-9b03-25d9a2596165",
+    "paragraph_id": "99627c56-f4d4-4b28-a0f4-09eaefabc41f",
+    "question_number": 4,
+    "question_text_en": "What is the hippocampus responsible for?",
+    "question_text_he": "על מה ההיפוקמפוס אחראי?",
+    "options": [
+      "Moving muscles",
+      "Forming memories",
+      "Controlling temperature",
+      "Making sounds"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "לפי הטקסט: \"The hippocampus is responsible for forming new memories and learning new information\" - ההיפוקמפוס אחראי ליצירת זיכרונות חדשים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "c2967fa9-6d83-4645-b4f4-8c7659db7e6a",
+    "paragraph_id": "99627c56-f4d4-4b28-a0f4-09eaefabc41f",
+    "question_number": 5,
+    "question_text_en": "What does neuroplasticity mean?",
+    "question_text_he": "מה משמעות נוירופלסטיות?",
+    "options": [
+      "The brain never changes",
+      "The brain can change and adapt",
+      "The brain stops growing",
+      "The brain is made of plastic"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מגדיר: \"This ability, called neuroplasticity, means we can always learn new skills\" - היכולת של המוח להשתנות ולהסתגל.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "911f0884-84ed-4045-967e-66111b6d1d43",
+    "paragraph_id": "b74527a7-a745-4811-a591-72988a67fa12",
+    "question_number": 1,
+    "question_text_en": "What do social media algorithms do?",
+    "question_text_he": "מה אלגוריתמים של מדיה חברתית עושים?",
+    "options": [
+      "Delete posts",
+      "Show us content we might like",
+      "Take photos",
+      "Send emails"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסביר: \"These apps use complex algorithms to show us content we might like\" - האפליקציות משתמשות באלגוריתמים כדי להראות לנו תוכן שאולי נאהב.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "330cede7-5811-4d64-b55e-0eec103f4515",
+    "paragraph_id": "b74527a7-a745-4811-a591-72988a67fa12",
+    "question_number": 2,
+    "question_text_en": "What is one negative effect of spending too much time on social media?",
+    "question_text_he": "מהי השפעה שלילית אחת של בילוי זמן רב מדי במדיה חברתית?",
+    "options": [
+      "Better grades",
+      "More friends",
+      "Affected sleep",
+      "More exercise"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב מזכיר שזה \"can affect their sleep and homework\" - יכול להשפיע על השינה ועל שיעורי הבית.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "e87eff82-a1d2-4b3d-b313-76127535baba",
+    "paragraph_id": "b74527a7-a745-4811-a591-72988a67fa12",
+    "question_number": 3,
+    "question_text_en": "Why might comparing ourselves to others' posts be harmful?",
+    "question_text_he": "למה השוואה לפוסטים של אחרים עשויה להזיק?",
+    "options": [
+      "It makes us famous",
+      "It can make people feel inadequate",
+      "It helps us learn",
+      "It saves time"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט אומר: \"The constant comparison... can sometimes make people feel inadequate or sad\" - ההשוואה יכולה לגרום לאנשים להרגיש לא מספיק טובים או עצובים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "9e563c21-1397-43b5-9552-f9f9fe3ec3e3",
+    "paragraph_id": "b74527a7-a745-4811-a591-72988a67fa12",
+    "question_number": 4,
+    "question_text_en": "What is one positive use of social media mentioned?",
+    "question_text_he": "מהו שימוש חיובי אחד במדיה חברתית שהוזכר?",
+    "options": [
+      "Playing games",
+      "Raising awareness about issues",
+      "Avoiding homework",
+      "Sleeping better"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מזכיר: \"This can be positive when used to raise awareness about important issues\" - זה יכול להיות חיובי כשמשתמשים בזה כדי להעלות מודעות לנושאים חשובים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "4aed175a-cf8b-438d-8577-2912f111cc6c",
+    "paragraph_id": "b74527a7-a745-4811-a591-72988a67fa12",
+    "question_number": 5,
+    "question_text_en": "What should we do before believing information online?",
+    "question_text_he": "מה צריך לעשות לפני שמאמינים למידע באינטרנט?",
+    "options": [
+      "Share it immediately",
+      "Check if it's true",
+      "Ignore it",
+      "Delete it"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מדגיש: \"we must be careful to think critically... and not believe everything without checking if it's true\" - אנחנו חייבים לבדוק אם זה נכון.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "275c3e8c-c653-4c03-bbdf-1234a7f984c6",
+    "paragraph_id": "54d5f7ea-b2f4-4ddf-9722-10ffbdd2e294",
+    "question_number": 1,
+    "question_text_en": "Who was the first astronaut to orbit Earth?",
+    "question_text_he": "מי היה האסטרונאוט הראשון שהקיף את כדור הארץ?",
+    "options": [
+      "Neil Armstrong",
+      "Yuri Gagarin",
+      "Buzz Aldrin",
+      "John Glenn"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מציין בבירור: \"Since the first astronaut, Yuri Gagarin, orbited Earth in 1961\" - יורי גגרין היה הראשון.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "66cae597-79de-4769-a347-b81f417a3d26",
+    "paragraph_id": "54d5f7ea-b2f4-4ddf-9722-10ffbdd2e294",
+    "question_number": 2,
+    "question_text_en": "Where do astronauts currently live and work in space?",
+    "question_text_he": "איפה אסטרונאוטים חיים ועובדים בחלל כיום?",
+    "options": [
+      "On the Moon",
+      "On Mars",
+      "On the International Space Station",
+      "On satellites"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב אומר: \"astronauts live and work on the International Space Station\" - אסטרונאוטים חיים ועובדים בתחנת החלל הבינלאומית.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "5320a81d-d5d9-435c-acf5-92322d57f20a",
+    "paragraph_id": "54d5f7ea-b2f4-4ddf-9722-10ffbdd2e294",
+    "question_number": 3,
+    "question_text_en": "What is one challenge astronauts face in space?",
+    "question_text_he": "מהו אתגר אחד שאסטרונאוטים מתמודדים איתו בחלל?",
+    "options": [
+      "Too much food",
+      "Living in zero gravity",
+      "Too many visitors",
+      "Loud noises"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מתאר מספר אתגרים, כולל: \"living in zero gravity\" - חיים בהעדר כוח משיכה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "c5c16bc2-1025-4e22-a859-b1c0bba9177b",
+    "paragraph_id": "54d5f7ea-b2f4-4ddf-9722-10ffbdd2e294",
+    "question_number": 4,
+    "question_text_en": "Where are space agencies planning future missions?",
+    "question_text_he": "לאן סוכנויות החלל מתכננות משימות עתידיות?",
+    "options": [
+      "To the Moon only",
+      "To Mars and beyond",
+      "Back to Earth",
+      "To the Sun"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מציין: \"space agencies are planning missions to Mars and beyond\" - סוכנויות החלל מתכננות משימות למאדים ומעבר לו.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "41a9524f-ef87-4d86-9181-b7a4810f4eed",
+    "paragraph_id": "54d5f7ea-b2f4-4ddf-9722-10ffbdd2e294",
+    "question_number": 5,
+    "question_text_en": "What should we be careful about when colonizing space?",
+    "question_text_he": "ממה צריך להיזהר כשמתיישבים בחלל?",
+    "options": [
+      "Building too fast",
+      "Not repeating Earth's mistakes",
+      "Spending too much money",
+      "Forgetting Earth"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מזהיר: \"ensure we don't repeat the mistakes we've made on Earth\" - לוודא שלא נחזור על הטעויות שעשינו על כדור הארץ.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "306013ab-991c-4b29-a00a-4734fb33c657",
+    "paragraph_id": "dd63b569-bfb1-4624-9855-c3e03081fd25",
+    "question_number": 1,
+    "question_text_en": "How long did ancient Egyptian civilization last?",
+    "question_text_he": "כמה זמן נמשכה הציוויליזציה המצרית העתיקה?",
+    "options": [
+      "100 years",
+      "1,000 years",
+      "Over 3,000 years",
+      "5,000 years"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט אומר: \"For over 3,000 years, powerful pharaohs ruled\" - למעלה מ-3,000 שנה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "0bfa5c91-fdcb-46a2-be75-e6671fb910da",
+    "paragraph_id": "dd63b569-bfb1-4624-9855-c3e03081fd25",
+    "question_number": 2,
+    "question_text_en": "What was the Egyptian writing system called?",
+    "question_text_he": "איך נקראה מערכת הכתיבה המצרית?",
+    "options": [
+      "Alphabet",
+      "Hieroglyphics",
+      "Cuneiform",
+      "Latin"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר: \"The ancient Egyptians developed a complex writing system called hieroglyphics\" - היירוגליפים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "da1445bc-da56-44ff-a4ef-d11a6c235ac2",
+    "paragraph_id": "dd63b569-bfb1-4624-9855-c3e03081fd25",
+    "question_number": 3,
+    "question_text_en": "What was the center of Egyptian life?",
+    "question_text_he": "מה היה מרכז החיים במצרים?",
+    "options": [
+      "The desert",
+      "The Nile River",
+      "The pyramids",
+      "The palace"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מציין: \"Life in ancient Egypt was centered around the Nile River\" - החיים במצרים התמקדו סביב נהר הנילוס.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "ee3a1877-848a-4ae1-b46c-7da2326d5b03",
+    "paragraph_id": "dd63b569-bfb1-4624-9855-c3e03081fd25",
+    "question_number": 4,
+    "question_text_en": "Why was the Nile River important to farmers?",
+    "question_text_he": "למה נהר הנילוס היה חשוב לחקלאים?",
+    "options": [
+      "It was beautiful",
+      "Annual floods left fertile soil",
+      "It was cold",
+      "Fish lived there"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר: \"Egyptian farmers grew wheat and barley in the fertile soil left by annual floods\" - השיטפונות השנתיים השאירו אדמה פורייה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "d4a5aadd-2069-428c-b511-c8e34c383ef2",
+    "paragraph_id": "dd63b569-bfb1-4624-9855-c3e03081fd25",
+    "question_number": 5,
+    "question_text_en": "What have archaeologists been doing with hieroglyphics?",
+    "question_text_he": "מה ארכיאולוגים עושים עם ההירוגליפים?",
+    "options": [
+      "Destroying them",
+      "Deciphering them",
+      "Copying them only",
+      "Ignoring them"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט אומר: \"Archaeologists have spent decades deciphering these ancient texts\" - ארכיאולוגים מבלים עשרות שנים בפענוח הטקסטים העתיקים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "7739542d-ceed-4db8-9dd1-6a576ab01fac",
+    "paragraph_id": "d0194cd8-a588-401e-bc31-52163e13dcc6",
+    "question_number": 1,
+    "question_text_en": "What do nutrients help our bodies do?",
+    "question_text_he": "במה חומרים מזינים עוזרים לגוף שלנו?",
+    "options": [
+      "Sleep longer",
+      "Grow strong and stay energized",
+      "Play games",
+      "Watch TV"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסביר: \"we give our bodies the nutrients they need to grow strong and stay energized\" - חומרים מזינים עוזרים לגדול חזק ולהישאר עם אנרגיה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "84c4189d-42c3-4c67-a6ec-f829e8ba530d",
+    "paragraph_id": "d0194cd8-a588-401e-bc31-52163e13dcc6",
+    "question_number": 2,
+    "question_text_en": "Why do many teenagers love fast food?",
+    "question_text_he": "למה הרבה בני נוער אוהבים מזון מהיר?",
+    "options": [
+      "It's healthy",
+      "It tastes good and is convenient",
+      "It's expensive",
+      "It's colorful"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב אומר: \"Many teenagers love fast food because it tastes good and is convenient\" - זה טעים ונוח.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "e7aa6200-a0a1-41de-bf7d-df898371f1b2",
+    "paragraph_id": "d0194cd8-a588-401e-bc31-52163e13dcc6",
+    "question_number": 3,
+    "question_text_en": "What problem can poor eating habits lead to?",
+    "question_text_he": "לאיזו בעיה הרגלי אכילה גרועים יכולים להוביל?",
+    "options": [
+      "Better grades",
+      "More friends",
+      "Obesity and low energy",
+      "Stronger muscles"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מזהיר: \"poor eating habits can lead to health problems like obesity and low energy\" - השמנה ואנרגיה נמוכה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "b7d71120-75c3-4711-bf04-752bf48b7f7f",
+    "paragraph_id": "d0194cd8-a588-401e-bc31-52163e13dcc6",
+    "question_number": 4,
+    "question_text_en": "What is one healthy snack suggestion from the text?",
+    "question_text_he": "מהי הצעה אחת לחטיף בריא מהטקסט?",
+    "options": [
+      "Chips",
+      "Candy",
+      "Fruits",
+      "Cookies"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב ממליץ: \"snacking on fruits instead of chips\" - לחטוף פירות במקום צ'יפס.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "07f68ce0-4715-4f0d-a6ea-3fe2ae028e47",
+    "paragraph_id": "d0194cd8-a588-401e-bc31-52163e13dcc6",
+    "question_number": 5,
+    "question_text_en": "What should we drink instead of sugary sodas?",
+    "question_text_he": "מה צריך לשתות במקום משקאות ממותקים?",
+    "options": [
+      "Coffee",
+      "Juice",
+      "Water",
+      "Milk only"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט ממליץ: \"drinking water instead of sugary sodas\" - לשתות מים במקום משקאות מוגזים ממותקים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "cde5c612-8684-4b03-ac60-c89f1a771c43",
+    "paragraph_id": "1677035e-96b9-47ee-9419-0dcab3b385ff",
+    "question_number": 1,
+    "question_text_en": "What features do modern games have?",
+    "question_text_he": "אילו תכונות יש למשחקים מודרניים?",
+    "options": [
+      "Only music",
+      "Graphics, stories, and online play",
+      "Just text",
+      "Nothing special"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מתאר: \"Modern games feature incredible graphics, exciting stories, and the ability to play with friends online\" - גרפיקה מדהימה, סיפורים מרגשים ויכולת למשחק מקוון.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "59acd8a9-ed67-4575-a34d-fb383237fe3d",
+    "paragraph_id": "1677035e-96b9-47ee-9419-0dcab3b385ff",
+    "question_number": 2,
+    "question_text_en": "How can strategy games help players?",
+    "question_text_he": "איך משחקי אסטרטגיה יכולים לעזור לשחקנים?",
+    "options": [
+      "Make them tired",
+      "Improve problem-solving skills",
+      "Waste their time",
+      "Make them sleepy"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר: \"Strategy games help improve problem-solving skills and quick thinking\" - משחקי אסטרטגיה עוזרים לשפר כישורי פתרון בעיות.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "d729d9e5-0c03-4d8d-9074-8e8417e9a48d",
+    "paragraph_id": "1677035e-96b9-47ee-9419-0dcab3b385ff",
+    "question_number": 3,
+    "question_text_en": "What do multiplayer games teach?",
+    "question_text_he": "מה משחקים רב-משתתפים מלמדים?",
+    "options": [
+      "How to be alone",
+      "Teamwork and communication",
+      "How to sleep",
+      "How to read"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "לפי הטקסט: \"Multiplayer games teach teamwork and communication\" - משחקים רב-משתתפים מלמדים עבודת צוות ותקשורת.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "2690df71-afcf-4e4f-ad62-37484923f9e4",
+    "paragraph_id": "1677035e-96b9-47ee-9419-0dcab3b385ff",
+    "question_number": 4,
+    "question_text_en": "What can spending too much time gaming affect?",
+    "question_text_he": "על מה בילוי זמן רב מדי במשחקים יכול להשפיע?",
+    "options": [
+      "Nothing at all",
+      "Schoolwork and health",
+      "Only sleep",
+      "Only food"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מזהיר: \"Spending too much time playing games can affect schoolwork, physical health, and real-world social interactions\" - משפיע על לימודים, בריאות ויחסים חברתיים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "d0ceab90-08b5-4765-8827-5193974e30c7",
+    "paragraph_id": "1677035e-96b9-47ee-9419-0dcab3b385ff",
+    "question_number": 5,
+    "question_text_en": "What should games be according to the text?",
+    "question_text_he": "מה משחקים צריכים להיות לפי הטקסט?",
+    "options": [
+      "Your whole life",
+      "A fun hobby",
+      "A job",
+      "A problem"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסכם: \"games should be a fun hobby, not something that takes over your entire life\" - משחקים צריכים להיות תחביב מהנה, לא משהו שמשתלט על כל החיים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "e28488f4-e170-4b88-866b-85251543b10c",
+    "paragraph_id": "99df2d7f-f23e-40cc-9518-1505b865e292",
+    "question_number": 1,
+    "question_text_en": "How much of Earth's surface do oceans cover?",
+    "question_text_he": "כמה אחוזים משטח כדור הארץ מכוסה באוקיינוסים?",
+    "options": [
+      "30%",
+      "50%",
+      "More than 70%",
+      "90%"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מתחיל ב: \"The ocean covers more than 70% of Earth's surface\" - יותר מ-70% משטח כדור הארץ.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "2b59e328-0657-4844-b3e0-97b880e4c45f",
+    "paragraph_id": "99df2d7f-f23e-40cc-9518-1505b865e292",
+    "question_number": 2,
+    "question_text_en": "What percentage of ocean species do coral reefs support?",
+    "question_text_he": "כמה אחוזים ממיני האוקיינוס שוניות האלמוגים תומכות?",
+    "options": [
+      "5%",
+      "10%",
+      "25%",
+      "50%"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב מציין: \"Coral reefs alone support about 25% of all ocean species\" - שוניות האלמוגים תומכות בכ-25% מכל מיני האוקיינוס.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "412380e0-a76b-455c-a6b4-58956b8d0b63",
+    "paragraph_id": "99df2d7f-f23e-40cc-9518-1505b865e292",
+    "question_number": 3,
+    "question_text_en": "How do some deep-sea fish see in darkness?",
+    "question_text_he": "איך דגים מהים העמוק רואים בחושך?",
+    "options": [
+      "They use flashlights",
+      "They produce their own light",
+      "They don't see",
+      "They use sound"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסביר: \"Some deep-sea fish produce their own light through bioluminescence\" - דגים מהים העמוק מייצרים אור משלהם.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "e9e2380f-e9d4-48f5-9e34-f44d02977db6",
+    "paragraph_id": "99df2d7f-f23e-40cc-9518-1505b865e292",
+    "question_number": 4,
+    "question_text_en": "What is one threat to ocean ecosystems?",
+    "question_text_he": "מהו איום אחד על מערכות אקולוגיות ימיות?",
+    "options": [
+      "Too many fish",
+      "Overfishing",
+      "Too much water",
+      "More coral"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מונה מספר איומים, כולל: \"Overfishing, pollution, and climate change\" - דיג יתר, זיהום ושינויי אקלים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "48dd1a54-1e62-41f7-86ab-39a9a17e9ada",
+    "paragraph_id": "99df2d7f-f23e-40cc-9518-1505b865e292",
+    "question_number": 5,
+    "question_text_en": "Why are oceans important for humans?",
+    "question_text_he": "למה אוקיינוסים חשובים לבני אדם?",
+    "options": [
+      "Only for swimming",
+      "They produce oxygen we breathe",
+      "They are pretty",
+      "For ships only"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מדגיש: \"Oceans produce much of the oxygen we breathe and absorb carbon dioxide\" - האוקיינוסים מייצרים הרבה מהחמצן שאנו נושמים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "576c6610-4b43-4586-825f-9ae4c7608153",
+    "paragraph_id": "c7d8e025-bd3c-4830-80d4-c610c67d8c9a",
+    "question_number": 1,
+    "question_text_en": "What can AI systems do now?",
+    "question_text_he": "מה מערכות בינה מלאכותית יכולות לעשות כיום?",
+    "options": [
+      "Only play games",
+      "Recognize faces and understand speech",
+      "Nothing useful",
+      "Only turn on lights"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מציין: \"AI systems can now recognize faces, understand speech, and even create art\" - מערכות AI יכולות לזהות פנים, להבין דיבור ואף ליצור אמנות.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "14e15c27-8f04-47d6-bcae-292ea4a9d3f1",
+    "paragraph_id": "c7d8e025-bd3c-4830-80d4-c610c67d8c9a",
+    "question_number": 2,
+    "question_text_en": "Where are robots being used?",
+    "question_text_he": "איפה משתמשים ברובוטים?",
+    "options": [
+      "Only in schools",
+      "Only in space",
+      "In factories, hospitals, and homes",
+      "Nowhere"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב מונה: \"Robots are being used in factories... in hospitals... and in homes\" - רובוטים משמשים במפעלים, בבתי חולים ובבתים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "ddccc9f9-8f28-41b7-ad43-b21acce7e5de",
+    "paragraph_id": "c7d8e025-bd3c-4830-80d4-c610c67d8c9a",
+    "question_number": 3,
+    "question_text_en": "What concern does AI raise about jobs?",
+    "question_text_he": "איזו דאגה מעלה AI לגבי מקומות עבודה?",
+    "options": [
+      "Too many new jobs",
+      "Some jobs may become obsolete",
+      "Everyone will be rich",
+      "No concerns"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מזכיר: \"some jobs may become obsolete\" - חלק מהמשרות עלולות להפוך למיושנות.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "2af7d424-3bd4-4074-9c6b-8f98573c979a",
+    "paragraph_id": "c7d8e025-bd3c-4830-80d4-c610c67d8c9a",
+    "question_number": 4,
+    "question_text_en": "What is one ethical challenge mentioned?",
+    "question_text_he": "מהו אתגר אתי אחד שהוזכר?",
+    "options": [
+      "Robots are too expensive",
+      "Privacy and bias in algorithms",
+      "AI is too slow",
+      "Not enough robots"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מונה אתגרים כמו: \"Issues like privacy, bias in algorithms, and the potential misuse of technology\" - פרטיות, הטיה באלגוריתמים ושימוש לרעה בטכנולוגיה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "75bccab2-529f-44a4-b1f8-455cad26a2d6",
+    "paragraph_id": "c7d8e025-bd3c-4830-80d4-c610c67d8c9a",
+    "question_number": 5,
+    "question_text_en": "How should we develop AI technologies?",
+    "question_text_he": "איך צריך לפתח טכנולוגיות AI?",
+    "options": [
+      "As fast as possible",
+      "Responsibly to benefit humanity",
+      "Without any rules",
+      "Only for profit"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מדגיש: \"The key is to develop these technologies responsibly, ensuring they benefit all of humanity\" - המפתח הוא לפתח את הטכנולוגיות בצורה אחראית.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "fd87327e-7344-43d7-88cf-20d17c07f88b",
+    "paragraph_id": "f8e6446a-03c6-4905-844f-cde410d8c2e3",
+    "question_number": 1,
+    "question_text_en": "When did the modern Olympics begin?",
+    "question_text_he": "מתי התחילו האולימפיאדה המודרנית?",
+    "options": [
+      "In 1776",
+      "In 1896",
+      "In 1936",
+      "In 1980"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מציין: \"The modern Olympics began in 1896 in Athens, Greece\" - האולימפיאדה המודרנית התחילה ב-1896 באתונה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "def267b1-a391-45e6-85aa-6526aa31fb78",
+    "paragraph_id": "f8e6446a-03c6-4905-844f-cde410d8c2e3",
+    "question_number": 2,
+    "question_text_en": "How often are the Olympics held?",
+    "question_text_he": "באיזו תדירות נערכת האולימפיאדה?",
+    "options": [
+      "Every year",
+      "Every two years",
+      "Every four years",
+      "Every ten years"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב אומר: \"both Summer and Winter Olympics are held every four years\" - אולימפיאדת הקיץ והחורף נערכות כל ארבע שנים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "c21bd578-39fc-45cc-a942-33cc016d1503",
+    "paragraph_id": "f8e6446a-03c6-4905-844f-cde410d8c2e3",
+    "question_number": 3,
+    "question_text_en": "What is the Olympic motto?",
+    "question_text_he": "מהו המוטו האולימפי?",
+    "options": [
+      "Never give up",
+      "Faster, Higher, Stronger",
+      "Win at all costs",
+      "Just do it"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מזכיר: \"The Olympic motto, 'Faster, Higher, Stronger'\" - המוטו האולימפי הוא \"מהיר יותר, גבוה יותר, חזק יותר\".",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "8fe0ab1a-3c89-4496-b25e-9536b40d7c18",
+    "paragraph_id": "f8e6446a-03c6-4905-844f-cde410d8c2e3",
+    "question_number": 4,
+    "question_text_en": "What values do the Olympics embody?",
+    "question_text_he": "אילו ערכים האולימפיאדה מייצגת?",
+    "options": [
+      "Only winning",
+      "Sportsmanship, dedication, and respect",
+      "Making money",
+      "Being famous"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר: \"They embody values like sportsmanship, dedication, and respect\" - הם מגלמים ערכים כמו רוח ספורטיבית, מסירות וכבוד.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "6ea4151b-744d-4d95-a863-3bc9aafc1fe1",
+    "paragraph_id": "f8e6446a-03c6-4905-844f-cde410d8c2e3",
+    "question_number": 5,
+    "question_text_en": "What do the Olympics promote besides competition?",
+    "question_text_he": "מה האולימפיאדה מקדמת מלבד תחרות?",
+    "options": [
+      "War",
+      "International cooperation and peace",
+      "Separation",
+      "Conflict"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מדגיש: \"The Games also promote international cooperation and peace\" - המשחקים גם מקדמים שיתוף פעולה בינלאומי ושלום.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "03c69b90-88fa-4d40-89e4-367d4c8029c6",
+    "paragraph_id": "32f75397-a2c3-444d-9d90-8bc2ac8b858c",
+    "question_number": 1,
+    "question_text_en": "According to Einstein's theory, what affects how time moves?",
+    "question_text_he": "לפי תיאוריית איינשטיין, מה משפיע על האופן שבו הזמן נע?",
+    "options": [
+      "Only the weather",
+      "Speed and gravity",
+      "Only temperature",
+      "The Moon"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסביר: \"Einstein's theory of relativity suggests that time moves differently depending on speed and gravity\" - לפי תורת היחסות, הזמן נע אחרת בהתאם למהירות ולכוח המשיכה.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "c230a57d-748c-49fa-8ed8-81b0605b2437",
+    "paragraph_id": "32f75397-a2c3-444d-9d90-8bc2ac8b858c",
+    "question_number": 2,
+    "question_text_en": "What is the \"grandfather paradox\"?",
+    "question_text_he": "מהו \"פרדוקס הסבא\"?",
+    "options": [
+      "A story about families",
+      "A time travel contradiction about preventing your own birth",
+      "A type of clock",
+      "A grandfather's story"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מתאר: אם תמנע מהסבא שלך לפגוש את הסבתא, לא תיוולד - אז איך יכולת לנסוע אחורה בזמן? זוהי סתירה לוגית.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "18906740-06f7-4334-acb0-88f9013a3577",
+    "paragraph_id": "32f75397-a2c3-444d-9d90-8bc2ac8b858c",
+    "question_number": 3,
+    "question_text_en": "What have scientists proposed to solve time travel paradoxes?",
+    "question_text_he": "מה מדענים הציעו כדי לפתור פרדוקסים של מסע בזמן?",
+    "options": [
+      "Ignore the problems",
+      "Parallel universes and predetermined timelines",
+      "Stop thinking about it",
+      "Time doesn't exist"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מציין: \"scientists to propose many theories, including parallel universes and predetermined timelines\" - מדענים הציעו תיאוריות כמו יקומים מקבילים וציר זמן מוגדר מראש.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "55abaaad-4eed-4cec-9b26-3e3e4c9761f3",
+    "paragraph_id": "32f75397-a2c3-444d-9d90-8bc2ac8b858c",
+    "question_number": 4,
+    "question_text_en": "Why do most scientists think practical time travel is impossible?",
+    "question_text_he": "למה רוב המדענים חושבים שמסע בזמן מעשי הוא בלתי אפשרי?",
+    "options": [
+      "It's too expensive",
+      "Enormous energy requirements and physics laws",
+      "Nobody wants it",
+      "It's boring"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר: \"most scientists believe practical time travel is impossible due to enormous energy requirements and fundamental laws of physics\" - בגלל דרישות אנרגיה עצומות וחוקי פיזיקה בסיסיים.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "dcab9e55-619d-47b4-bd21-c4b23213e8d8",
+    "paragraph_id": "32f75397-a2c3-444d-9d90-8bc2ac8b858c",
+    "question_number": 5,
+    "question_text_en": "What does thinking about time travel help us understand?",
+    "question_text_he": "במה חשיבה על מסע בזמן עוזרת לנו להבין?",
+    "options": [
+      "How to cook",
+      "The nature of the universe",
+      "How to drive",
+      "How to sleep"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסכם: \"thinking about time travel helps us understand the nature of the universe better\" - חשיבה על מסע בזמן עוזרת לנו להבין את טבע היקום טוב יותר.",
+    "created_at": "2026-01-22T06:54:27.978Z"
+  }
+]

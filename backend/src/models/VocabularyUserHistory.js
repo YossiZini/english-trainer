@@ -1,20 +1,27 @@
-const { pool } = require('../config/database');
+const { db } = require('../config/database');
 
 class VocabularyUserHistory {
   /**
    * Record a user's answer to a word
    */
   static async recordAnswer(userId, wordId, sessionId, isCorrect) {
-    const query = `
-      INSERT INTO vocabulary_user_history (
-        user_id, word_id, quiz_session_id, is_correct
-      )
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, user_id, word_id, is_correct, answered_at
-    `;
+    const timestamp = new Date().toISOString();
 
-    const result = await pool.query(query, [userId, wordId, sessionId, isCorrect]);
-    return result.rows[0];
+    const record = db.insert('vocabulary_user_history', {
+      user_id: userId,
+      word_id: wordId,
+      quiz_session_id: sessionId,
+      is_correct: isCorrect,
+      answered_at: timestamp
+    });
+
+    return {
+      id: record.id,
+      user_id: record.user_id,
+      word_id: record.word_id,
+      is_correct: record.is_correct,
+      answered_at: record.answered_at
+    };
   }
 
   /**
@@ -22,143 +29,197 @@ class VocabularyUserHistory {
    * Used to avoid repeating words
    */
   static async getCorrectlyAnsweredWordIds(userId) {
-    const query = `
-      SELECT DISTINCT word_id
-      FROM vocabulary_user_history
-      WHERE user_id = $1 AND is_correct = true
-    `;
+    const history = db.find('vocabulary_user_history', {
+      user_id: userId,
+      is_correct: true
+    });
 
-    const result = await pool.query(query, [userId]);
-    return result.rows.map(row => row.word_id);
+    // Get distinct word_ids
+    const wordIdSet = new Set(history.map(h => h.word_id));
+    return Array.from(wordIdSet);
   }
 
   /**
    * Get user's overall word performance statistics
    */
   static async getUserWordStats(userId) {
-    const query = `
-      SELECT
-        COUNT(DISTINCT word_id) as total_words_attempted,
-        COUNT(DISTINCT CASE WHEN is_correct THEN word_id END) as words_learned,
-        COUNT(*) as total_attempts,
-        SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) as correct_attempts,
-        SUM(CASE WHEN NOT is_correct THEN 1 ELSE 0 END) as wrong_attempts
-      FROM vocabulary_user_history
-      WHERE user_id = $1
-    `;
+    const history = db.find('vocabulary_user_history', { user_id: userId });
 
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
+    const wordIds = new Set();
+    const correctWordIds = new Set();
+    let correctAttempts = 0;
+    let wrongAttempts = 0;
+
+    for (const h of history) {
+      wordIds.add(h.word_id);
+      if (h.is_correct) {
+        correctWordIds.add(h.word_id);
+        correctAttempts++;
+      } else {
+        wrongAttempts++;
+      }
+    }
+
+    return {
+      total_words_attempted: wordIds.size,
+      words_learned: correctWordIds.size,
+      total_attempts: history.length,
+      correct_attempts: correctAttempts,
+      wrong_attempts: wrongAttempts
+    };
   }
 
   /**
    * Get all answers for a specific session
    */
   static async getSessionHistory(sessionId) {
-    const query = `
-      SELECT
-        vuh.id,
-        vuh.word_id,
-        vuh.is_correct,
-        vuh.answered_at,
-        vw.english_word,
-        vw.hebrew_translation,
-        vw.difficulty_level
-      FROM vocabulary_user_history vuh
-      JOIN vocabulary_words vw ON vuh.word_id = vw.id
-      WHERE vuh.quiz_session_id = $1
-      ORDER BY vuh.answered_at ASC
-    `;
+    const history = db.find('vocabulary_user_history', { quiz_session_id: sessionId });
 
-    const result = await pool.query(query, [sessionId]);
-    return result.rows;
+    // Get vocabulary words for joining
+    const words = db.getCollection('vocabulary_words', true);
+    const wordMap = new Map(words.map(w => [w.id, w]));
+
+    const result = history.map(h => {
+      const word = wordMap.get(h.word_id);
+      return {
+        id: h.id,
+        word_id: h.word_id,
+        is_correct: h.is_correct,
+        answered_at: h.answered_at,
+        english_word: word?.english_word,
+        hebrew_translation: word?.hebrew_translation,
+        difficulty_level: word?.difficulty_level
+      };
+    });
+
+    // Sort by answered_at ascending
+    result.sort((a, b) => new Date(a.answered_at) - new Date(b.answered_at));
+
+    return result;
   }
 
   /**
    * Get user's recent activity
    */
   static async getRecentActivity(userId, limit = 10) {
-    const query = `
-      SELECT
-        vuh.id,
-        vuh.word_id,
-        vuh.is_correct,
-        vuh.answered_at,
-        vw.english_word,
-        vw.hebrew_translation,
-        vw.difficulty_level,
-        vqs.quiz_type
-      FROM vocabulary_user_history vuh
-      JOIN vocabulary_words vw ON vuh.word_id = vw.id
-      LEFT JOIN vocabulary_quiz_sessions vqs ON vuh.quiz_session_id = vqs.id
-      WHERE vuh.user_id = $1
-      ORDER BY vuh.answered_at DESC
-      LIMIT $2
-    `;
+    const history = db.find('vocabulary_user_history', { user_id: userId });
 
-    const result = await pool.query(query, [userId, limit]);
-    return result.rows;
+    // Get vocabulary words for joining
+    const words = db.getCollection('vocabulary_words', true);
+    const wordMap = new Map(words.map(w => [w.id, w]));
+
+    // Get quiz sessions for joining
+    const sessions = db.getCollection('vocabulary_quiz_sessions', true);
+    const sessionMap = new Map(sessions.map(s => [s.id, s]));
+
+    const result = history.map(h => {
+      const word = wordMap.get(h.word_id);
+      const session = sessionMap.get(h.quiz_session_id);
+      return {
+        id: h.id,
+        word_id: h.word_id,
+        is_correct: h.is_correct,
+        answered_at: h.answered_at,
+        english_word: word?.english_word,
+        hebrew_translation: word?.hebrew_translation,
+        difficulty_level: word?.difficulty_level,
+        quiz_type: session?.quiz_type
+      };
+    });
+
+    // Sort by answered_at descending
+    result.sort((a, b) => new Date(b.answered_at) - new Date(a.answered_at));
+
+    return result.slice(0, limit);
   }
 
   /**
    * Get word accuracy for a user (how many times correct vs incorrect)
    */
   static async getWordAccuracy(userId, wordId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_attempts,
-        SUM(CASE WHEN is_correct THEN 1 ELSE 0 END) as correct_attempts,
-        SUM(CASE WHEN NOT is_correct THEN 1 ELSE 0 END) as wrong_attempts
-      FROM vocabulary_user_history
-      WHERE user_id = $1 AND word_id = $2
-    `;
+    const history = db.find('vocabulary_user_history', {
+      user_id: userId,
+      word_id: wordId
+    });
 
-    const result = await pool.query(query, [userId, wordId]);
-    return result.rows[0];
+    let correctAttempts = 0;
+    let wrongAttempts = 0;
+
+    for (const h of history) {
+      if (h.is_correct) {
+        correctAttempts++;
+      } else {
+        wrongAttempts++;
+      }
+    }
+
+    return {
+      total_attempts: history.length,
+      correct_attempts: correctAttempts,
+      wrong_attempts: wrongAttempts
+    };
   }
 
   /**
    * Check if user has ever answered a word correctly
    */
   static async hasAnsweredCorrectly(userId, wordId) {
-    const query = `
-      SELECT EXISTS(
-        SELECT 1
-        FROM vocabulary_user_history
-        WHERE user_id = $1 AND word_id = $2 AND is_correct = true
-      ) as has_answered_correctly
-    `;
+    const history = db.find('vocabulary_user_history', {
+      user_id: userId,
+      word_id: wordId,
+      is_correct: true
+    });
 
-    const result = await pool.query(query, [userId, wordId]);
-    return result.rows[0].has_answered_correctly;
+    return history.length > 0;
   }
 
   /**
    * Get user's progress by difficulty level
    */
   static async getProgressByDifficulty(userId) {
-    const query = `
-      SELECT
-        vw.difficulty_level,
-        COUNT(DISTINCT vw.id) as total_words_in_level,
-        COUNT(DISTINCT CASE WHEN vuh.is_correct THEN vw.id END) as words_learned_in_level
-      FROM vocabulary_words vw
-      LEFT JOIN vocabulary_user_history vuh
-        ON vw.id = vuh.word_id AND vuh.user_id = $1
-      GROUP BY vw.difficulty_level
-      ORDER BY vw.difficulty_level ASC
-    `;
+    const words = db.getCollection('vocabulary_words', true);
+    const history = db.find('vocabulary_user_history', { user_id: userId });
 
-    const result = await pool.query(query, [userId]);
-    return result.rows;
+    // Build a set of word IDs that user has answered correctly
+    const correctWordIds = new Set();
+    for (const h of history) {
+      if (h.is_correct) {
+        correctWordIds.add(h.word_id);
+      }
+    }
+
+    // Group words by difficulty level
+    const levelStats = new Map();
+
+    for (const word of words) {
+      const level = word.difficulty_level;
+      if (!levelStats.has(level)) {
+        levelStats.set(level, {
+          difficulty_level: level,
+          total_words_in_level: 0,
+          words_learned_in_level: 0
+        });
+      }
+
+      const stats = levelStats.get(level);
+      stats.total_words_in_level++;
+      if (correctWordIds.has(word.id)) {
+        stats.words_learned_in_level++;
+      }
+    }
+
+    // Convert to array and sort
+    const result = Array.from(levelStats.values());
+    result.sort((a, b) => a.difficulty_level - b.difficulty_level);
+
+    return result;
   }
 
   /**
    * Delete history for a specific session (if needed for cleanup)
    */
   static async deleteSessionHistory(sessionId) {
-    const query = 'DELETE FROM vocabulary_user_history WHERE quiz_session_id = $1';
-    await pool.query(query, [sessionId]);
+    db.delete('vocabulary_user_history', { quiz_session_id: sessionId });
   }
 
   /**
@@ -178,83 +239,72 @@ class VocabularyUserHistory {
     } = options;
 
     const offset = (page - 1) * limit;
-    const conditions = ['vuh.user_id = $1'];
-    const params = [userId];
-    let paramIndex = 2;
 
-    // Filter by result
+    // Get all history for user
+    let history = db.find('vocabulary_user_history', { user_id: userId });
+
+    // Apply filters
     if (filter === 'success') {
-      conditions.push('vuh.is_correct = true');
+      history = history.filter(h => h.is_correct === true);
     } else if (filter === 'failed') {
-      conditions.push('vuh.is_correct = false');
+      history = history.filter(h => h.is_correct === false);
     }
 
-    // Filter by specific word
     if (wordId) {
-      conditions.push(`vuh.word_id = $${paramIndex}`);
-      params.push(wordId);
-      paramIndex++;
+      history = history.filter(h => h.word_id === wordId);
     }
 
-    // Filter by date range
     if (startDate) {
-      conditions.push(`vuh.answered_at >= $${paramIndex}`);
-      params.push(startDate);
-      paramIndex++;
+      history = history.filter(h => new Date(h.answered_at) >= new Date(startDate));
     }
 
     if (endDate) {
-      conditions.push(`vuh.answered_at <= $${paramIndex}`);
-      params.push(endDate);
-      paramIndex++;
+      history = history.filter(h => new Date(h.answered_at) <= new Date(endDate));
     }
 
-    const whereClause = conditions.join(' AND ');
+    const totalRecords = history.length;
 
-    // Get total count for pagination
-    const countQuery = `
-      SELECT COUNT(*) as total
-      FROM vocabulary_user_history vuh
-      WHERE ${whereClause}
-    `;
-    const countResult = await pool.query(countQuery, params);
-    const totalRecords = parseInt(countResult.rows[0].total);
+    // Sort by answered_at descending
+    history.sort((a, b) => new Date(b.answered_at) - new Date(a.answered_at));
 
-    // Get history records
-    const historyQuery = `
-      SELECT
-        vuh.id,
-        vuh.word_id,
-        vuh.is_correct,
-        vuh.answered_at,
-        vuh.quiz_session_id,
-        vw.english_word,
-        vw.hebrew_translation,
-        vw.difficulty_level,
-        vw.source,
-        vqs.quiz_type,
-        vqs.quiz_size,
-        vqs.difficulty_range_start,
-        vqs.difficulty_range_end
-      FROM vocabulary_user_history vuh
-      JOIN vocabulary_words vw ON vuh.word_id = vw.id
-      LEFT JOIN vocabulary_quiz_sessions vqs ON vuh.quiz_session_id = vqs.id
-      WHERE ${whereClause}
-      ORDER BY vuh.answered_at DESC
-      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
-    `;
+    // Apply pagination
+    const paginated = history.slice(offset, offset + limit);
 
-    params.push(limit, offset);
-    const historyResult = await pool.query(historyQuery, params);
+    // Get vocabulary words and sessions for joining
+    const words = db.getCollection('vocabulary_words', true);
+    const wordMap = new Map(words.map(w => [w.id, w]));
+
+    const sessions = db.getCollection('vocabulary_quiz_sessions', true);
+    const sessionMap = new Map(sessions.map(s => [s.id, s]));
+
+    const records = paginated.map(h => {
+      const word = wordMap.get(h.word_id);
+      const session = sessionMap.get(h.quiz_session_id);
+      return {
+        id: h.id,
+        word_id: h.word_id,
+        is_correct: h.is_correct,
+        answered_at: h.answered_at,
+        quiz_session_id: h.quiz_session_id,
+        english_word: word?.english_word,
+        hebrew_translation: word?.hebrew_translation,
+        difficulty_level: word?.difficulty_level,
+        source: word?.source,
+        quiz_type: session?.quiz_type,
+        quiz_size: session?.quiz_size,
+        difficulty_range_start: session?.difficulty_range_start,
+        difficulty_range_end: session?.difficulty_range_end
+      };
+    });
 
     return {
-      records: historyResult.rows,
+      records,
       pagination: {
         page,
         limit,
         totalRecords,
         totalPages: Math.ceil(totalRecords / limit),
-        hasMore: offset + historyResult.rows.length < totalRecords
+        hasMore: offset + paginated.length < totalRecords
       },
       filters: {
         filter,
@@ -271,38 +321,68 @@ class VocabularyUserHistory {
    * @returns {object} Statistics summary
    */
   static async getHistoryStats(userId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_attempts,
-        COUNT(*) FILTER (WHERE is_correct = true) as total_successes,
-        COUNT(*) FILTER (WHERE is_correct = false) as total_failures,
-        COUNT(DISTINCT word_id) as unique_words_attempted,
-        COUNT(DISTINCT word_id) FILTER (WHERE is_correct = true) as unique_words_succeeded,
-        COUNT(DISTINCT word_id) FILTER (WHERE is_correct = false) as unique_words_failed,
-        COUNT(DISTINCT quiz_session_id) as total_quiz_sessions,
-        MIN(answered_at) as first_attempt_date,
-        MAX(answered_at) as last_attempt_date
-      FROM vocabulary_user_history
-      WHERE user_id = $1
-    `;
+    const history = db.find('vocabulary_user_history', { user_id: userId });
 
-    const result = await pool.query(query, [userId]);
-    const stats = result.rows[0];
-
-    return {
-      totalAttempts: parseInt(stats.total_attempts),
-      totalSuccesses: parseInt(stats.total_successes),
-      totalFailures: parseInt(stats.total_failures),
-      successRate: stats.total_attempts > 0
-        ? Math.round((stats.total_successes / stats.total_attempts) * 100)
-        : 0,
-      uniqueWordsAttempted: parseInt(stats.unique_words_attempted),
-      uniqueWordsSucceeded: parseInt(stats.unique_words_succeeded),
-      uniqueWordsFailed: parseInt(stats.unique_words_failed),
-      totalQuizSessions: parseInt(stats.total_quiz_sessions),
-      firstAttemptDate: stats.first_attempt_date,
-      lastAttemptDate: stats.last_attempt_date
+    const stats = {
+      totalAttempts: 0,
+      totalSuccesses: 0,
+      totalFailures: 0,
+      uniqueWordsAttempted: 0,
+      uniqueWordsSucceeded: 0,
+      uniqueWordsFailed: 0,
+      totalQuizSessions: 0,
+      firstAttemptDate: null,
+      lastAttemptDate: null
     };
+
+    if (history.length === 0) {
+      return {
+        ...stats,
+        successRate: 0
+      };
+    }
+
+    const wordIds = new Set();
+    const succeededWordIds = new Set();
+    const failedWordIds = new Set();
+    const sessionIds = new Set();
+
+    let firstDate = null;
+    let lastDate = null;
+
+    for (const h of history) {
+      stats.totalAttempts++;
+      wordIds.add(h.word_id);
+      sessionIds.add(h.quiz_session_id);
+
+      if (h.is_correct) {
+        stats.totalSuccesses++;
+        succeededWordIds.add(h.word_id);
+      } else {
+        stats.totalFailures++;
+        failedWordIds.add(h.word_id);
+      }
+
+      const answeredAt = new Date(h.answered_at);
+      if (!firstDate || answeredAt < firstDate) {
+        firstDate = answeredAt;
+      }
+      if (!lastDate || answeredAt > lastDate) {
+        lastDate = answeredAt;
+      }
+    }
+
+    stats.uniqueWordsAttempted = wordIds.size;
+    stats.uniqueWordsSucceeded = succeededWordIds.size;
+    stats.uniqueWordsFailed = failedWordIds.size;
+    stats.totalQuizSessions = sessionIds.size;
+    stats.firstAttemptDate = firstDate ? firstDate.toISOString() : null;
+    stats.lastAttemptDate = lastDate ? lastDate.toISOString() : null;
+    stats.successRate = stats.totalAttempts > 0
+      ? Math.round((stats.totalSuccesses / stats.totalAttempts) * 100)
+      : 0;
+
+    return stats;
   }
 
   /**
@@ -320,83 +400,84 @@ class VocabularyUserHistory {
 
     const offset = (page - 1) * limit;
 
-    // Build WHERE clause for filtering
-    let filterClause = '';
-    if (filter === 'success') {
-      // Words where latest attempt was success
-      filterClause = `AND (
-        SELECT is_correct
-        FROM vocabulary_user_history sub
-        WHERE sub.user_id = vuh.user_id AND sub.word_id = vuh.word_id
-        ORDER BY answered_at DESC LIMIT 1
-      ) = true`;
-    } else if (filter === 'failed') {
-      // Words where latest attempt was failure
-      filterClause = `AND (
-        SELECT is_correct
-        FROM vocabulary_user_history sub
-        WHERE sub.user_id = vuh.user_id AND sub.word_id = vuh.word_id
-        ORDER BY answered_at DESC LIMIT 1
-      ) = false`;
+    const history = db.find('vocabulary_user_history', { user_id: userId });
+
+    // Get vocabulary words and sessions for joining
+    const words = db.getCollection('vocabulary_words', true);
+    const wordMap = new Map(words.map(w => [w.id, w]));
+
+    const sessions = db.getCollection('vocabulary_quiz_sessions', true);
+    const sessionMap = new Map(sessions.map(s => [s.id, s]));
+
+    // Group by word_id
+    const wordGroups = new Map();
+
+    for (const h of history) {
+      if (!wordGroups.has(h.word_id)) {
+        wordGroups.set(h.word_id, []);
+      }
+      wordGroups.get(h.word_id).push(h);
     }
 
-    // Get aggregated words with their attempts
-    const query = `
-      WITH word_summary AS (
-        SELECT
-          vuh.word_id,
-          vw.english_word,
-          vw.hebrew_translation,
-          vw.difficulty_level,
-          COUNT(*) as total_attempts,
-          COUNT(*) FILTER (WHERE vuh.is_correct = true) as success_count,
-          COUNT(*) FILTER (WHERE vuh.is_correct = false) as fail_count,
-          MAX(vuh.answered_at) as last_attempt_at,
-          MIN(vuh.answered_at) as first_attempt_at,
-          json_agg(
-            json_build_object(
-              'id', vuh.id,
-              'is_correct', vuh.is_correct,
-              'answered_at', vuh.answered_at,
-              'quiz_type', vqs.quiz_type,
-              'source', vqs.source
-            ) ORDER BY vuh.answered_at DESC
-          ) as attempts
-        FROM vocabulary_user_history vuh
-        JOIN vocabulary_words vw ON vuh.word_id = vw.id
-        LEFT JOIN vocabulary_quiz_sessions vqs ON vuh.quiz_session_id = vqs.id
-        WHERE vuh.user_id = $1
-        ${filterClause}
-        GROUP BY vuh.word_id, vw.english_word, vw.hebrew_translation, vw.difficulty_level
-      )
-      SELECT * FROM word_summary
-      ORDER BY last_attempt_at DESC
-      LIMIT $2 OFFSET $3
-    `;
+    // Build aggregated records
+    let aggregated = [];
 
-    // Get total count for pagination
-    const countQuery = `
-      SELECT COUNT(DISTINCT vuh.word_id) as total
-      FROM vocabulary_user_history vuh
-      WHERE vuh.user_id = $1
-      ${filterClause}
-    `;
+    for (const [wordId, attempts] of wordGroups) {
+      const word = wordMap.get(wordId);
 
-    const [historyResult, countResult] = await Promise.all([
-      pool.query(query, [userId, limit, offset]),
-      pool.query(countQuery, [userId])
-    ]);
+      // Sort attempts by answered_at descending
+      attempts.sort((a, b) => new Date(b.answered_at) - new Date(a.answered_at));
 
-    const totalRecords = parseInt(countResult.rows[0].total);
+      const successCount = attempts.filter(a => a.is_correct).length;
+      const failCount = attempts.filter(a => !a.is_correct).length;
+      const lastAttempt = attempts[0];
+      const firstAttempt = attempts[attempts.length - 1];
+
+      // Apply filter based on latest attempt result
+      if (filter === 'success' && !lastAttempt.is_correct) continue;
+      if (filter === 'failed' && lastAttempt.is_correct) continue;
+
+      const attemptsArray = attempts.map(a => {
+        const session = sessionMap.get(a.quiz_session_id);
+        return {
+          id: a.id,
+          is_correct: a.is_correct,
+          answered_at: a.answered_at,
+          quiz_type: session?.quiz_type,
+          source: session?.source
+        };
+      });
+
+      aggregated.push({
+        word_id: wordId,
+        english_word: word?.english_word,
+        hebrew_translation: word?.hebrew_translation,
+        difficulty_level: word?.difficulty_level,
+        total_attempts: attempts.length,
+        success_count: successCount,
+        fail_count: failCount,
+        last_attempt_at: lastAttempt.answered_at,
+        first_attempt_at: firstAttempt.answered_at,
+        attempts: attemptsArray
+      });
+    }
+
+    const totalRecords = aggregated.length;
+
+    // Sort by last_attempt_at descending
+    aggregated.sort((a, b) => new Date(b.last_attempt_at) - new Date(a.last_attempt_at));
+
+    // Apply pagination
+    const paginated = aggregated.slice(offset, offset + limit);
 
     return {
-      records: historyResult.rows,
+      records: paginated,
       pagination: {
         page,
         limit,
         totalRecords,
         totalPages: Math.ceil(totalRecords / limit),
-        hasMore: offset + historyResult.rows.length < totalRecords
+        hasMore: offset + paginated.length < totalRecords
       },
       filters: {
         filter

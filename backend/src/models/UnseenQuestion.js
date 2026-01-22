@@ -1,35 +1,46 @@
-const { pool } = require('../config/database');
+const { db, withTransaction } = require('../config/database');
 
 class UnseenQuestion {
   /**
    * Find all questions for a paragraph
    */
   static async findByParagraphId(paragraphId) {
-    const query = `
-      SELECT id, paragraph_id, question_number, question_text_en, question_text_he,
-             options, correct_answer, explanation_he, created_at
-      FROM unseen_questions
-      WHERE paragraph_id = $1
-      ORDER BY question_number ASC
-    `;
+    const questions = db.find('unseen_questions', { paragraph_id: paragraphId });
 
-    const result = await pool.query(query, [paragraphId]);
-    return result.rows;
+    // Sort by question_number ascending
+    questions.sort((a, b) => a.question_number - b.question_number);
+
+    return questions.map(q => ({
+      id: q.id,
+      paragraph_id: q.paragraph_id,
+      question_number: q.question_number,
+      question_text_en: q.question_text_en,
+      question_text_he: q.question_text_he,
+      options: q.options,
+      correct_answer: q.correct_answer,
+      explanation_he: q.explanation_he,
+      created_at: q.created_at
+    }));
   }
 
   /**
    * Find a single question by ID
    */
   static async findById(id) {
-    const query = `
-      SELECT id, paragraph_id, question_number, question_text_en, question_text_he,
-             options, correct_answer, explanation_he, created_at
-      FROM unseen_questions
-      WHERE id = $1
-    `;
+    const question = db.findById('unseen_questions', id);
+    if (!question) return undefined;
 
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    return {
+      id: question.id,
+      paragraph_id: question.paragraph_id,
+      question_number: question.question_number,
+      question_text_en: question.question_text_en,
+      question_text_he: question.question_text_he,
+      options: question.options,
+      correct_answer: question.correct_answer,
+      explanation_he: question.explanation_he,
+      created_at: question.created_at
+    };
   }
 
   /**
@@ -46,27 +57,25 @@ class UnseenQuestion {
       explanationHe = null
     } = questionData;
 
-    const query = `
-      INSERT INTO unseen_questions (
-        paragraph_id, question_number, question_text_en, question_text_he,
-        options, correct_answer, explanation_he
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id, paragraph_id, question_number, question_text_en
-    `;
+    const timestamp = new Date().toISOString();
 
-    const values = [
-      paragraphId,
-      questionNumber,
-      questionTextEn,
-      questionTextHe,
-      JSON.stringify(options),
-      correctAnswer,
-      explanationHe
-    ];
+    const question = db.insert('unseen_questions', {
+      paragraph_id: paragraphId,
+      question_number: questionNumber,
+      question_text_en: questionTextEn,
+      question_text_he: questionTextHe,
+      options: options,
+      correct_answer: correctAnswer,
+      explanation_he: explanationHe,
+      created_at: timestamp
+    });
 
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    return {
+      id: question.id,
+      paragraph_id: question.paragraph_id,
+      question_number: question.question_number,
+      question_text_en: question.question_text_en
+    };
   }
 
   /**
@@ -77,42 +86,31 @@ class UnseenQuestion {
       return [];
     }
 
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
+    return withTransaction(async () => {
       const createdQuestions = [];
+
       for (const questionData of questionsArray) {
-        const result = await client.query(
-          `
-          INSERT INTO unseen_questions (
-            paragraph_id, question_number, question_text_en, question_text_he,
-            options, correct_answer, explanation_he
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          RETURNING id, question_number
-          `,
-          [
-            paragraphId,
-            questionData.questionNumber,
-            questionData.questionTextEn,
-            questionData.questionTextHe || null,
-            JSON.stringify(questionData.options),
-            questionData.correctAnswer,
-            questionData.explanationHe || null
-          ]
-        );
-        createdQuestions.push(result.rows[0]);
+        const timestamp = new Date().toISOString();
+
+        const question = db.insert('unseen_questions', {
+          paragraph_id: paragraphId,
+          question_number: questionData.questionNumber,
+          question_text_en: questionData.questionTextEn,
+          question_text_he: questionData.questionTextHe || null,
+          options: questionData.options,
+          correct_answer: questionData.correctAnswer,
+          explanation_he: questionData.explanationHe || null,
+          created_at: timestamp
+        });
+
+        createdQuestions.push({
+          id: question.id,
+          question_number: question.question_number
+        });
       }
 
-      await client.query('COMMIT');
       return createdQuestions;
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   /**
@@ -127,60 +125,59 @@ class UnseenQuestion {
       explanationHe
     } = questionData;
 
-    const query = `
-      UPDATE unseen_questions
-      SET question_text_en = COALESCE($1, question_text_en),
-          question_text_he = COALESCE($2, question_text_he),
-          options = COALESCE($3, options),
-          correct_answer = COALESCE($4, correct_answer),
-          explanation_he = COALESCE($5, explanation_he)
-      WHERE id = $6
-      RETURNING id, paragraph_id, question_number
-    `;
+    const existing = db.findById('unseen_questions', id);
+    if (!existing) return undefined;
 
-    const values = [
-      questionTextEn,
-      questionTextHe,
-      options ? JSON.stringify(options) : null,
-      correctAnswer,
-      explanationHe,
-      id
-    ];
+    const updateData = {};
 
-    const result = await pool.query(query, values);
-    return result.rows[0];
+    if (questionTextEn !== undefined) updateData.question_text_en = questionTextEn;
+    if (questionTextHe !== undefined) updateData.question_text_he = questionTextHe;
+    if (options !== undefined) updateData.options = options;
+    if (correctAnswer !== undefined) updateData.correct_answer = correctAnswer;
+    if (explanationHe !== undefined) updateData.explanation_he = explanationHe;
+
+    db.updateById('unseen_questions', id, updateData);
+
+    const updated = db.findById('unseen_questions', id);
+    return {
+      id: updated.id,
+      paragraph_id: updated.paragraph_id,
+      question_number: updated.question_number
+    };
   }
 
   /**
    * Delete a question
    */
   static async delete(id) {
-    const query = 'DELETE FROM unseen_questions WHERE id = $1 RETURNING id';
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    const existing = db.findById('unseen_questions', id);
+    if (!existing) return undefined;
+
+    db.deleteById('unseen_questions', id);
+    return { id };
   }
 
   /**
    * Delete all questions for a paragraph
    */
   static async deleteByParagraphId(paragraphId) {
-    const query = 'DELETE FROM unseen_questions WHERE paragraph_id = $1 RETURNING id';
-    const result = await pool.query(query, [paragraphId]);
-    return result.rows;
+    const questions = db.find('unseen_questions', { paragraph_id: paragraphId });
+
+    const deleted = [];
+    for (const q of questions) {
+      db.deleteById('unseen_questions', q.id);
+      deleted.push({ id: q.id });
+    }
+
+    return deleted;
   }
 
   /**
    * Get count of questions for a paragraph
    */
   static async getCountByParagraphId(paragraphId) {
-    const query = `
-      SELECT COUNT(*) as count
-      FROM unseen_questions
-      WHERE paragraph_id = $1
-    `;
-
-    const result = await pool.query(query, [paragraphId]);
-    return parseInt(result.rows[0].count);
+    const questions = db.find('unseen_questions', { paragraph_id: paragraphId });
+    return questions.length;
   }
 }
 

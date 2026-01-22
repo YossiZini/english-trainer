@@ -1,4 +1,4 @@
-const { pool } = require('../config/database');
+const { db, indexManager } = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 class User {
@@ -8,72 +8,71 @@ class User {
   static async create({ name, email, password, age, studentName }) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const query = `
-      INSERT INTO users (name, email, password_hash, age, current_level, student_name)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, name, email, age, current_level, student_name, created_at
-    `;
-
-    const values = [name, email || null, hashedPassword, age || null, 'beginner', studentName || name];
-
-    try {
-      const result = await pool.query(query, values);
-      return result.rows[0];
-    } catch (error) {
-      if (error.code === '23505') {
-        // Unique violation - email already exists
+    // Check if email already exists
+    if (email) {
+      const existingUser = db.findOne('users', { email });
+      if (existingUser) {
         throw new Error('Email already registered');
       }
-      throw error;
     }
+
+    // Check unique constraint
+    const uniqueCheck = indexManager.checkUniqueConstraint('users', { email });
+    if (uniqueCheck.violated) {
+      throw new Error('Email already registered');
+    }
+
+    const timestamp = new Date().toISOString();
+
+    const user = db.insert('users', {
+      name,
+      email: email || null,
+      password_hash: hashedPassword,
+      age: age || null,
+      current_level: 'beginner',
+      student_name: studentName || name,
+      created_at: timestamp,
+      last_login: null,
+      total_time_spent: 0,
+      current_streak: 0,
+      total_points: 0,
+      gamification_level: 1,
+      last_activity_date: null,
+      points_today: 0,
+      points_today_date: null
+    });
+
+    // Return without password_hash
+    const { password_hash, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   /**
    * Find user by email
    */
   static async findByEmail(email) {
-    const query = `
-      SELECT id, name, email, password_hash, age, current_level,
-             created_at, last_login, total_time_spent, current_streak,
-             total_points, gamification_level, student_name
-      FROM users
-      WHERE email = $1
-    `;
-
-    const result = await pool.query(query, [email]);
-    return result.rows[0];
+    const users = db.findByIndex('users', 'email', email);
+    return users[0] || null;
   }
 
   /**
    * Find user by ID
    */
   static async findById(id) {
-    const query = `
-      SELECT id, name, email, age, current_level,
-             created_at, last_login, total_time_spent, current_streak,
-             total_points, gamification_level, student_name
-      FROM users
-      WHERE id = $1
-    `;
+    const user = db.findById('users', id);
+    if (!user) return null;
 
-    const result = await pool.query(query, [id]);
-    return result.rows[0];
+    // Return without exposing password hash in standard findById
+    const { password_hash, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   /**
    * Find user by name (for login without email)
    */
   static async findByName(name) {
-    const query = `
-      SELECT id, name, email, password_hash, age, current_level,
-             created_at, last_login, total_time_spent, current_streak,
-             total_points, gamification_level, student_name
-      FROM users
-      WHERE name = $1
-    `;
-
-    const result = await pool.query(query, [name]);
-    return result.rows[0];
+    const users = db.findByIndex('users', 'name', name);
+    return users[0] || null;
   }
 
   /**
@@ -87,82 +86,82 @@ class User {
    * Update last login time
    */
   static async updateLastLogin(userId) {
-    const query = `
-      UPDATE users
-      SET last_login = CURRENT_TIMESTAMP
-      WHERE id = $1
-      RETURNING last_login
-    `;
+    const timestamp = new Date().toISOString();
+    const result = db.updateById('users', userId, { last_login: timestamp });
 
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
+    if (result.modified === 0) {
+      throw new Error('User not found');
+    }
+
+    return { last_login: timestamp };
   }
 
   /**
    * Update user streak
    */
   static async updateStreak(userId, streak) {
-    const query = `
-      UPDATE users
-      SET current_streak = $1
-      WHERE id = $2
-      RETURNING current_streak
-    `;
+    const result = db.updateById('users', userId, { current_streak: streak });
 
-    const result = await pool.query(query, [streak, userId]);
-    return result.rows[0];
+    if (result.modified === 0) {
+      throw new Error('User not found');
+    }
+
+    return { current_streak: streak };
   }
 
   /**
    * Update total time spent
    */
   static async addTimeSpent(userId, minutes) {
-    const query = `
-      UPDATE users
-      SET total_time_spent = total_time_spent + $1
-      WHERE id = $2
-      RETURNING total_time_spent
-    `;
+    const user = db.findById('users', userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
 
-    const result = await pool.query(query, [minutes, userId]);
-    return result.rows[0];
+    const newTotalTime = (user.total_time_spent || 0) + minutes;
+    db.updateById('users', userId, { total_time_spent: newTotalTime });
+
+    return { total_time_spent: newTotalTime };
   }
 
   /**
    * Update user level
    */
   static async updateLevel(userId, level) {
-    const query = `
-      UPDATE users
-      SET current_level = $1
-      WHERE id = $2
-      RETURNING current_level
-    `;
+    const result = db.updateById('users', userId, { current_level: level });
 
-    const result = await pool.query(query, [level, userId]);
-    return result.rows[0];
+    if (result.modified === 0) {
+      throw new Error('User not found');
+    }
+
+    return { current_level: level };
   }
 
   /**
    * Get user statistics
    */
   static async getStats(userId) {
-    const query = `
-      SELECT
-        u.name,
-        u.current_level,
-        u.total_time_spent,
-        u.current_streak,
-        COUNT(DISTINCT up.lesson_id) FILTER (WHERE up.status = 'completed') as completed_lessons,
-        COALESCE(AVG(up.best_score) FILTER (WHERE up.status = 'completed'), 0) as average_score
-      FROM users u
-      LEFT JOIN user_progress up ON u.id = up.user_id
-      WHERE u.id = $1
-      GROUP BY u.id, u.name, u.current_level, u.total_time_spent, u.current_streak
-    `;
+    const user = db.findById('users', userId);
+    if (!user) return null;
 
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
+    // Get user progress data
+    const userProgress = db.find('user_progress', { user_id: userId });
+
+    // Calculate statistics
+    const completedProgress = userProgress.filter(p => p.status === 'completed');
+    const completedLessons = completedProgress.length;
+    const averageScore = completedProgress.length > 0
+      ? completedProgress.reduce((sum, p) => sum + (p.best_score || 0), 0) / completedProgress.length
+      : 0;
+
+    return {
+      name: user.name,
+      current_level: user.current_level,
+      total_time_spent: user.total_time_spent || 0,
+      current_streak: user.current_streak || 0,
+      completed_lessons: completedLessons,
+      average_score: Math.round(averageScore * 100) / 100
+    };
   }
 
   // ==================== GAMIFICATION METHODS ====================
@@ -219,32 +218,23 @@ class User {
    * Returns: { total_points, gamification_level, previousLevel }
    */
   static async addPoints(userId, pointsToAdd) {
-    // First get the previous level
-    const previousQuery = `
-      SELECT total_points, gamification_level
-      FROM users
-      WHERE id = $1
-    `;
-    const previousResult = await pool.query(previousQuery, [userId]);
-    const previousLevel = previousResult.rows[0]?.gamification_level || 1;
-
-    // Update points and level atomically
-    const query = `
-      UPDATE users
-      SET total_points = GREATEST(0, total_points + $1),
-          gamification_level = GREATEST(1, FLOOR(GREATEST(0, total_points + $1) / 20.0) + 1)
-      WHERE id = $2
-      RETURNING total_points, gamification_level
-    `;
-
-    const result = await pool.query(query, [pointsToAdd, userId]);
-
-    if (result.rows.length === 0) {
+    const user = db.findById('users', userId);
+    if (!user) {
       throw new Error('User not found');
     }
 
+    const previousLevel = user.gamification_level || 1;
+    const newTotalPoints = Math.max(0, (user.total_points || 0) + pointsToAdd);
+    const newLevel = Math.max(1, Math.floor(newTotalPoints / 20) + 1);
+
+    db.updateById('users', userId, {
+      total_points: newTotalPoints,
+      gamification_level: newLevel
+    });
+
     return {
-      ...result.rows[0],
+      total_points: newTotalPoints,
+      gamification_level: newLevel,
       previousLevel
     };
   }
@@ -254,26 +244,20 @@ class User {
    * Returns: { totalPoints, currentLevel, pointsToNextLevel, arenaName }
    */
   static async getGamificationData(userId) {
-    const query = `
-      SELECT total_points, gamification_level
-      FROM users
-      WHERE id = $1
-    `;
-
-    const result = await pool.query(query, [userId]);
-
-    if (result.rows.length === 0) {
+    const user = db.findById('users', userId);
+    if (!user) {
       return null;
     }
 
-    const { total_points, gamification_level } = result.rows[0];
-    const pointsToNextLevel = (gamification_level * 20) - total_points;
+    const totalPoints = user.total_points || 0;
+    const currentLevel = user.gamification_level || 1;
+    const pointsToNextLevel = Math.max(0, (currentLevel * 20) - totalPoints);
 
     return {
-      totalPoints: total_points,
-      currentLevel: gamification_level,
-      pointsToNextLevel: pointsToNextLevel > 0 ? pointsToNextLevel : 0,
-      arenaName: this.getArenaName(gamification_level)
+      totalPoints,
+      currentLevel,
+      pointsToNextLevel,
+      arenaName: this.getArenaName(currentLevel)
     };
   }
 
@@ -287,28 +271,47 @@ class User {
    * Returns: { currentStreak, lastActivityDate }
    */
   static async updateActivityAndStreak(userId) {
-    const query = `
-      UPDATE users
-      SET
-        current_streak = CASE
-          WHEN last_activity_date = CURRENT_DATE THEN current_streak
-          WHEN last_activity_date = CURRENT_DATE - INTERVAL '1 day' THEN current_streak + 1
-          ELSE 1
-        END,
-        last_activity_date = CURRENT_DATE
-      WHERE id = $1
-      RETURNING current_streak, last_activity_date
-    `;
-
-    const result = await pool.query(query, [userId]);
-
-    if (result.rows.length === 0) {
+    const user = db.findById('users', userId);
+    if (!user) {
       throw new Error('User not found');
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const lastActivity = user.last_activity_date ? new Date(user.last_activity_date) : null;
+    if (lastActivity) {
+      lastActivity.setHours(0, 0, 0, 0);
+    }
+
+    let newStreak = user.current_streak || 0;
+
+    if (!lastActivity) {
+      // First activity
+      newStreak = 1;
+    } else {
+      const daysDiff = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
+
+      if (daysDiff === 0) {
+        // Same day, no change
+      } else if (daysDiff === 1) {
+        // Yesterday, increment streak
+        newStreak = (user.current_streak || 0) + 1;
+      } else {
+        // More than 1 day, reset streak
+        newStreak = 1;
+      }
+    }
+
+    const todayStr = today.toISOString().split('T')[0];
+    db.updateById('users', userId, {
+      current_streak: newStreak,
+      last_activity_date: todayStr
+    });
+
     return {
-      currentStreak: result.rows[0].current_streak,
-      lastActivityDate: result.rows[0].last_activity_date
+      currentStreak: newStreak,
+      lastActivityDate: todayStr
     };
   }
 
@@ -318,27 +321,31 @@ class User {
    * Returns: { pointsToday, pointsTodayDate }
    */
   static async addDailyPoints(userId, points) {
-    const query = `
-      UPDATE users
-      SET
-        points_today = CASE
-          WHEN points_today_date = CURRENT_DATE THEN points_today + $1
-          ELSE $1
-        END,
-        points_today_date = CURRENT_DATE
-      WHERE id = $2
-      RETURNING points_today, points_today_date
-    `;
-
-    const result = await pool.query(query, [points, userId]);
-
-    if (result.rows.length === 0) {
+    const user = db.findById('users', userId);
+    if (!user) {
       throw new Error('User not found');
     }
 
+    const today = new Date().toISOString().split('T')[0];
+    const lastPointsDate = user.points_today_date;
+
+    let newPointsToday;
+    if (lastPointsDate === today) {
+      // Same day, add to existing
+      newPointsToday = (user.points_today || 0) + points;
+    } else {
+      // New day, reset counter
+      newPointsToday = points;
+    }
+
+    db.updateById('users', userId, {
+      points_today: newPointsToday,
+      points_today_date: today
+    });
+
     return {
-      pointsToday: result.rows[0].points_today,
-      pointsTodayDate: result.rows[0].points_today_date
+      pointsToday: newPointsToday,
+      pointsTodayDate: today
     };
   }
 
@@ -347,27 +354,18 @@ class User {
    * Returns: { currentStreak, pointsToday, lastActivityDate }
    */
   static async getDailyStats(userId) {
-    const query = `
-      SELECT current_streak, points_today, points_today_date, last_activity_date
-      FROM users
-      WHERE id = $1
-    `;
-
-    const result = await pool.query(query, [userId]);
-
-    if (result.rows.length === 0) {
+    const user = db.findById('users', userId);
+    if (!user) {
       return null;
     }
 
-    const { current_streak, points_today, points_today_date, last_activity_date } = result.rows[0];
-
-    // If points_today_date is not today, return 0 for points_today
-    const isToday = points_today_date && new Date(points_today_date).toDateString() === new Date().toDateString();
+    const today = new Date().toISOString().split('T')[0];
+    const isToday = user.points_today_date === today;
 
     return {
-      currentStreak: current_streak || 0,
-      pointsToday: isToday ? points_today : 0,
-      lastActivityDate: last_activity_date
+      currentStreak: user.current_streak || 0,
+      pointsToday: isToday ? (user.points_today || 0) : 0,
+      lastActivityDate: user.last_activity_date
     };
   }
 }

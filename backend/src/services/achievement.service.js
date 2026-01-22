@@ -1,4 +1,4 @@
-const { pool } = require('../config/database');
+const { db, withTransaction } = require('../config/database');
 const User = require('../models/User');
 
 /**
@@ -10,26 +10,29 @@ class AchievementService {
    * Get all achievements with user progress
    */
   static async getUserAchievements(userId) {
-    const query = `
-      SELECT
-        a.*,
-        ua.unlocked_at,
-        ua.progress,
-        CASE WHEN ua.id IS NOT NULL THEN true ELSE false END as unlocked
-      FROM achievements a
-      LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = $1
-      ORDER BY
-        CASE a.tier
-          WHEN 'bronze' THEN 1
-          WHEN 'silver' THEN 2
-          WHEN 'gold' THEN 3
-          WHEN 'platinum' THEN 4
-        END,
-        a.requirement_value
-    `;
+    const achievements = db.getCollection('achievements', true);
+    const userAchievements = db.find('user_achievements', { user_id: userId });
+    const uaMap = new Map(userAchievements.map(ua => [ua.achievement_id, ua]));
 
-    const result = await pool.query(query, [userId]);
-    return result.rows;
+    const result = achievements.map(a => {
+      const ua = uaMap.get(a.id);
+      return {
+        ...a,
+        unlocked_at: ua?.unlocked_at || null,
+        progress: ua?.progress || 0,
+        unlocked: ua?.unlocked_at ? true : false
+      };
+    });
+
+    // Sort by tier and requirement_value
+    const tierOrder = { 'bronze': 1, 'silver': 2, 'gold': 3, 'platinum': 4 };
+    result.sort((a, b) => {
+      const tierDiff = (tierOrder[a.tier] || 0) - (tierOrder[b.tier] || 0);
+      if (tierDiff !== 0) return tierDiff;
+      return (a.requirement_value || 0) - (b.requirement_value || 0);
+    });
+
+    return result;
   }
 
   /**
@@ -40,18 +43,18 @@ class AchievementService {
     const stats = await this.getUserStats(userId);
 
     // Get all achievements
-    const achievements = await pool.query('SELECT * FROM achievements');
+    const achievements = db.getCollection('achievements', true);
 
     const newlyUnlocked = [];
 
-    for (const achievement of achievements.rows) {
+    for (const achievement of achievements) {
       // Check if already unlocked
-      const existingCheck = await pool.query(
-        'SELECT id FROM user_achievements WHERE user_id = $1 AND achievement_id = $2',
-        [userId, achievement.id]
-      );
+      const existing = db.findOne('user_achievements', {
+        user_id: userId,
+        achievement_id: achievement.id
+      });
 
-      if (existingCheck.rows.length > 0) {
+      if (existing && existing.unlocked_at) {
         continue; // Already unlocked
       }
 
@@ -71,12 +74,29 @@ class AchievementService {
           break;
 
         case 'streak':
+        case 'streak_days':
           progress = stats.current_streak;
           requirementMet = progress >= achievement.requirement_value;
           break;
 
         case 'mistakes_corrected':
+        case 'mistakes_fixed':
           progress = stats.mistakes_corrected;
+          requirementMet = progress >= achievement.requirement_value;
+          break;
+
+        case 'words_learned':
+          progress = stats.words_learned || 0;
+          requirementMet = progress >= achievement.requirement_value;
+          break;
+
+        case 'quizzes_completed':
+          progress = stats.quizzes_completed || 0;
+          requirementMet = progress >= achievement.requirement_value;
+          break;
+
+        case 'time_spent':
+          progress = stats.time_spent || 0;
           requirementMet = progress >= achievement.requirement_value;
           break;
 
@@ -85,13 +105,16 @@ class AchievementService {
       }
 
       // Update or create user achievement record with progress
-      await pool.query(
-        `INSERT INTO user_achievements (user_id, achievement_id, progress)
-         VALUES ($1, $2, $3)
-         ON CONFLICT (user_id, achievement_id)
-         DO UPDATE SET progress = $3`,
-        [userId, achievement.id, progress]
-      );
+      if (existing) {
+        db.updateById('user_achievements', existing.id, { progress });
+      } else {
+        db.insert('user_achievements', {
+          user_id: userId,
+          achievement_id: achievement.id,
+          progress,
+          unlocked_at: null
+        });
+      }
 
       // If requirement met, unlock it
       if (requirementMet) {
@@ -107,39 +130,38 @@ class AchievementService {
    * Unlock a specific achievement for a user
    */
   static async unlockAchievement(userId, achievementId) {
-    const client = await pool.connect();
+    return withTransaction(async () => {
+      // Find user achievement record
+      const ua = db.findOne('user_achievements', {
+        user_id: userId,
+        achievement_id: achievementId
+      });
 
-    try {
-      await client.query('BEGIN');
-
-      // Mark as unlocked
-      await client.query(
-        `UPDATE user_achievements
-         SET unlocked_at = CURRENT_TIMESTAMP
-         WHERE user_id = $1 AND achievement_id = $2 AND unlocked_at IS NULL`,
-        [userId, achievementId]
-      );
-
-      // Get achievement details
-      const achievement = await client.query(
-        'SELECT * FROM achievements WHERE id = $1',
-        [achievementId]
-      );
-
-      // Award bonus points
-      if (achievement.rows[0] && achievement.rows[0].points_reward > 0) {
-        await User.addPoints(userId, achievement.rows[0].points_reward);
+      if (!ua) {
+        // Create and unlock
+        db.insert('user_achievements', {
+          user_id: userId,
+          achievement_id: achievementId,
+          progress: 0,
+          unlocked_at: new Date().toISOString()
+        });
+      } else if (!ua.unlocked_at) {
+        // Mark as unlocked
+        db.updateById('user_achievements', ua.id, {
+          unlocked_at: new Date().toISOString()
+        });
       }
 
-      await client.query('COMMIT');
+      // Get achievement details
+      const achievement = db.findById('achievements', achievementId);
 
-      return achievement.rows[0];
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+      // Award bonus points
+      if (achievement && achievement.points_reward > 0) {
+        await User.addPoints(userId, achievement.points_reward);
+      }
+
+      return achievement;
+    });
   }
 
   /**
@@ -147,40 +169,40 @@ class AchievementService {
    */
   static async getUserStats(userId) {
     // Lessons completed
-    const lessonsResult = await pool.query(
-      `SELECT COUNT(DISTINCT lesson_id) as count
-       FROM user_progress
-       WHERE user_id = $1 AND status = 'completed'`,
-      [userId]
-    );
+    const userProgress = db.find('user_progress', { user_id: userId, status: 'completed' });
+    const lessonsCompleted = new Set(userProgress.map(up => up.lesson_id)).size;
 
     // Perfect scores (100%)
-    const perfectScoresResult = await pool.query(
-      `SELECT COUNT(*) as count
-       FROM exercise_results
-       WHERE user_id = $1 AND score = 100`,
-      [userId]
-    );
+    const exerciseResults = db.find('exercise_results', { user_id: userId });
+    const perfectScores = exerciseResults.filter(er => er.score === 100).length;
 
     // Current streak
-    const userResult = await pool.query(
-      'SELECT current_streak FROM users WHERE id = $1',
-      [userId]
-    );
+    const user = db.findById('users', userId);
+    const currentStreak = user?.current_streak || 0;
 
-    // Mistakes corrected
-    const mistakesResult = await pool.query(
-      `SELECT COUNT(*) as count
-       FROM wrong_answers
-       WHERE user_id = $1 AND is_reviewed = true`,
-      [userId]
-    );
+    // Mistakes corrected (reviewed)
+    const wrongAnswers = db.find('wrong_answers', { user_id: userId, is_reviewed: true });
+    const mistakesCorrected = wrongAnswers.length;
+
+    // Words learned
+    const wordScores = db.find('vocabulary_word_scores', { user_id: userId, mastery_level: 'mastered' });
+    const wordsLearned = wordScores.length;
+
+    // Quizzes completed
+    const quizSessions = db.find('vocabulary_quiz_sessions', { user_id: userId, status: 'completed' });
+    const quizzesCompleted = quizSessions.length;
+
+    // Total time spent
+    const totalTimeSpent = userProgress.reduce((sum, up) => sum + (up.time_spent || 0), 0);
 
     return {
-      lessons_completed: parseInt(lessonsResult.rows[0].count),
-      perfect_scores: parseInt(perfectScoresResult.rows[0].count),
-      current_streak: userResult.rows[0]?.current_streak || 0,
-      mistakes_corrected: parseInt(mistakesResult.rows[0].count)
+      lessons_completed: lessonsCompleted,
+      perfect_scores: perfectScores,
+      current_streak: currentStreak,
+      mistakes_corrected: mistakesCorrected,
+      words_learned: wordsLearned,
+      quizzes_completed: quizzesCompleted,
+      time_spent: totalTimeSpent
     };
   }
 
@@ -188,41 +210,39 @@ class AchievementService {
    * Get recently unlocked achievements
    */
   static async getRecentlyUnlocked(userId, limit = 5) {
-    const query = `
-      SELECT a.*, ua.unlocked_at
-      FROM user_achievements ua
-      JOIN achievements a ON ua.achievement_id = a.id
-      WHERE ua.user_id = $1 AND ua.unlocked_at IS NOT NULL
-      ORDER BY ua.unlocked_at DESC
-      LIMIT $2
-    `;
+    const userAchievements = db.find('user_achievements', { user_id: userId });
+    const achievements = db.getCollection('achievements', true);
+    const achievementMap = new Map(achievements.map(a => [a.id, a]));
 
-    const result = await pool.query(query, [userId, limit]);
-    return result.rows;
+    const unlocked = userAchievements
+      .filter(ua => ua.unlocked_at)
+      .map(ua => ({
+        ...achievementMap.get(ua.achievement_id),
+        unlocked_at: ua.unlocked_at
+      }))
+      .filter(a => a.id); // Filter out any nulls
+
+    // Sort by unlocked_at descending
+    unlocked.sort((a, b) => new Date(b.unlocked_at) - new Date(a.unlocked_at));
+
+    return unlocked.slice(0, limit);
   }
 
   /**
    * Get achievement statistics
    */
   static async getAchievementStats(userId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_achievements,
-        COUNT(CASE WHEN ua.unlocked_at IS NOT NULL THEN 1 END) as unlocked_count
-      FROM achievements a
-      LEFT JOIN user_achievements ua ON a.id = ua.achievement_id AND ua.user_id = $1
-    `;
+    const achievements = db.getCollection('achievements', true);
+    const userAchievements = db.find('user_achievements', { user_id: userId });
 
-    const result = await pool.query(query, [userId]);
-    const stats = result.rows[0];
+    const unlockedCount = userAchievements.filter(ua => ua.unlocked_at).length;
+    const total = achievements.length;
 
     return {
-      total: parseInt(stats.total_achievements),
-      unlocked: parseInt(stats.unlocked_count),
-      locked: parseInt(stats.total_achievements) - parseInt(stats.unlocked_count),
-      percentage: stats.total_achievements > 0
-        ? Math.round((parseInt(stats.unlocked_count) / parseInt(stats.total_achievements)) * 100)
-        : 0
+      total,
+      unlocked: unlockedCount,
+      locked: total - unlockedCount,
+      percentage: total > 0 ? Math.round((unlockedCount / total) * 100) : 0
     };
   }
 }

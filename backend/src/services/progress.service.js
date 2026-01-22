@@ -2,6 +2,7 @@ const UserProgress = require('../models/UserProgress');
 const WrongAnswer = require('../models/WrongAnswer');
 const GamificationService = require('./gamification.service');
 const User = require('../models/User');
+const { db } = require('../config/database');
 
 class ProgressService {
   /**
@@ -87,27 +88,25 @@ class ProgressService {
     }
 
     // Get attempt history for this lesson
-    const { pool } = require('../config/database');
-    const query = `
-      SELECT
-        id,
-        attempt_number,
-        score,
-        total_questions,
-        correct_answers,
-        wrong_answers,
-        time_spent,
-        completed_at
-      FROM exercise_results
-      WHERE user_id = $1 AND lesson_id = $2
-      ORDER BY attempt_number DESC
-    `;
+    const results = db.find('exercise_results', { user_id: userId, lesson_id: lessonId });
 
-    const result = await pool.query(query, [userId, lessonId]);
+    // Sort by attempt_number descending
+    results.sort((a, b) => (b.attempt_number || 0) - (a.attempt_number || 0));
+
+    const attemptsHistory = results.map(r => ({
+      id: r.id,
+      attempt_number: r.attempt_number,
+      score: r.score,
+      total_questions: r.total_questions,
+      correct_answers: r.correct_answers,
+      wrong_answers: r.wrong_answers,
+      time_spent: r.time_spent,
+      completed_at: r.completed_at
+    }));
 
     return {
       ...progress,
-      attempts_history: result.rows
+      attempts_history: attemptsHistory
     };
   }
 
@@ -115,51 +114,62 @@ class ProgressService {
    * Get statistics for charts
    */
   static async getChartStats(userId) {
-    const { pool } = require('../config/database');
-
     // Score progression over time
-    const scoresQuery = `
-      SELECT
-        DATE(completed_at) as date,
-        AVG(score) as average_score,
-        COUNT(*) as attempts
-      FROM exercise_results
-      WHERE user_id = $1
-      GROUP BY DATE(completed_at)
-      ORDER BY date DESC
-      LIMIT 30
-    `;
+    const exerciseResults = db.find('exercise_results', { user_id: userId });
 
-    const scoresResult = await pool.query(scoresQuery, [userId]);
+    // Group by date and calculate averages
+    const dateStats = new Map();
+    for (const result of exerciseResults) {
+      if (!result.completed_at) continue;
+      const date = result.completed_at.split('T')[0];
+      if (!dateStats.has(date)) {
+        dateStats.set(date, { scores: [], count: 0 });
+      }
+      dateStats.get(date).scores.push(result.score || 0);
+      dateStats.get(date).count++;
+    }
+
+    const scoreProgression = Array.from(dateStats.entries())
+      .map(([date, data]) => ({
+        date,
+        average_score: Math.round(data.scores.reduce((a, b) => a + b, 0) / data.scores.length),
+        attempts: data.count
+      }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 30);
 
     // Lessons completed per topic
-    const topicsQuery = `
-      SELECT
-        l.topic_number,
-        COUNT(CASE WHEN up.status = 'completed' THEN 1 END) as completed,
-        COUNT(*) as total
-      FROM lessons l
-      LEFT JOIN user_progress up ON l.id = up.lesson_id AND up.user_id = $1
-      GROUP BY l.topic_number
-      ORDER BY l.topic_number
-    `;
+    const lessons = db.getCollection('lessons', true);
+    const userProgress = db.find('user_progress', { user_id: userId });
+    const progressMap = new Map(userProgress.map(p => [p.lesson_id, p]));
 
-    const topicsResult = await pool.query(topicsQuery, [userId]);
+    // Group by topic
+    const topicStats = new Map();
+    for (const lesson of lessons) {
+      const topic = lesson.topic_number;
+      if (!topicStats.has(topic)) {
+        topicStats.set(topic, { total: 0, completed: 0 });
+      }
+      topicStats.get(topic).total++;
+
+      const progress = progressMap.get(lesson.id);
+      if (progress && progress.status === 'completed') {
+        topicStats.get(topic).completed++;
+      }
+    }
+
+    const topicsCompletion = Array.from(topicStats.entries())
+      .map(([topic_number, data]) => ({
+        topic_number,
+        completed: data.completed,
+        total: data.total,
+        percentage: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0
+      }))
+      .sort((a, b) => a.topic_number - b.topic_number);
 
     return {
-      scoreProgression: scoresResult.rows.map(row => ({
-        date: row.date,
-        average_score: Math.round(parseFloat(row.average_score)),
-        attempts: parseInt(row.attempts)
-      })),
-      topicsCompletion: topicsResult.rows.map(row => ({
-        topic_number: parseInt(row.topic_number),
-        completed: parseInt(row.completed),
-        total: parseInt(row.total),
-        percentage: parseInt(row.total) > 0
-          ? Math.round((parseInt(row.completed) / parseInt(row.total)) * 100)
-          : 0
-      }))
+      scoreProgression,
+      topicsCompletion
     };
   }
 }

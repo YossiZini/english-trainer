@@ -1,6 +1,7 @@
 const Lesson = require('../models/Lesson');
 const Exercise = require('../models/Exercise');
-const { pool } = require('../config/database');
+const UserProgress = require('../models/UserProgress');
+const { db } = require('../config/database');
 const { shuffleArray } = require('../utils/shuffle');
 
 class LessonService {
@@ -10,30 +11,23 @@ class LessonService {
   static async getAllLessons(userId, filters = {}) {
     const lessons = await Lesson.findAllWithProgress(userId, filters);
 
-    // Query to get best score per difficulty for each lesson
-    const difficultyScoresQuery = `
-      SELECT
-        lesson_id,
-        difficulty,
-        MAX(score) as best_score,
-        COUNT(*) as attempts
-      FROM exercise_results
-      WHERE user_id = $1
-      GROUP BY lesson_id, difficulty
-    `;
-    const difficultyScoresResult = await pool.query(difficultyScoresQuery, [userId]);
+    // Get difficulty scores for all lessons
+    const exerciseResults = db.find('exercise_results', { user_id: userId });
 
     // Build a map of lesson_id -> difficulty -> {score, attempts}
     const difficultyScoresMap = {};
-    difficultyScoresResult.rows.forEach(row => {
-      if (!difficultyScoresMap[row.lesson_id]) {
-        difficultyScoresMap[row.lesson_id] = {};
+    for (const result of exerciseResults) {
+      if (!difficultyScoresMap[result.lesson_id]) {
+        difficultyScoresMap[result.lesson_id] = {};
       }
-      difficultyScoresMap[row.lesson_id][row.difficulty] = {
-        score: parseInt(row.best_score),
-        attempts: parseInt(row.attempts)
-      };
-    });
+      const difficulty = result.difficulty || 'easy';
+      if (!difficultyScoresMap[result.lesson_id][difficulty]) {
+        difficultyScoresMap[result.lesson_id][difficulty] = { score: 0, attempts: 0 };
+      }
+      const current = difficultyScoresMap[result.lesson_id][difficulty];
+      current.score = Math.max(current.score, result.score || 0);
+      current.attempts++;
+    }
 
     // Group lessons by topic
     const groupedLessons = lessons.reduce((acc, lesson) => {
@@ -88,14 +82,8 @@ class LessonService {
     }
 
     // Get user progress for this lesson
-    const progressQuery = `
-      SELECT status, best_score, attempts, first_completed_at, last_attempted_at
-      FROM user_progress
-      WHERE user_id = $1 AND lesson_id = $2
-    `;
-
-    const progressResult = await pool.query(progressQuery, [userId, lessonId]);
-    const progress = progressResult.rows[0] || {
+    const progressResult = await UserProgress.getProgress(userId, lessonId);
+    const progress = progressResult || {
       status: 'not_started',
       best_score: 0,
       attempts: 0
@@ -150,13 +138,7 @@ class LessonService {
       targetDifficulty = manualDifficulty;
     } else {
       // Determine user's current difficulty level for this lesson based on progress
-      const progressQuery = `
-        SELECT best_score, attempts
-        FROM user_progress
-        WHERE user_id = $1 AND lesson_id = $2
-      `;
-      const progressResult = await pool.query(progressQuery, [userId, lessonId]);
-      const progress = progressResult.rows[0];
+      const progress = await UserProgress.getProgress(userId, lessonId);
 
       // Determine difficulty level based on progress
       if (!progress || progress.attempts === 0) {
@@ -233,14 +215,7 @@ class LessonService {
       return true; // No previous lesson, allow access
     }
 
-    const progressQuery = `
-      SELECT status, best_score
-      FROM user_progress
-      WHERE user_id = $1 AND lesson_id = $2
-    `;
-
-    const result = await pool.query(progressQuery, [userId, previousLesson.id]);
-    const progress = result.rows[0];
+    const progress = await UserProgress.getProgress(userId, previousLesson.id);
 
     // Previous lesson must be completed with at least 70% score
     return progress && progress.status === 'completed' && progress.best_score >= 70;

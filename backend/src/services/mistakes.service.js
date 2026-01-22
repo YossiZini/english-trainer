@@ -1,6 +1,7 @@
 const WrongAnswer = require('../models/WrongAnswer');
 const Exercise = require('../models/Exercise');
-const { pool } = require('../config/database');
+const Lesson = require('../models/Lesson');
+const { db, withTransaction } = require('../config/database');
 const { shuffleArray } = require('../utils/shuffle');
 
 class MistakesService {
@@ -32,11 +33,7 @@ class MistakesService {
    * Submit retry attempt for wrong answers
    */
   static async submitRetry(userId, lessonId, answers) {
-    const client = await pool.connect();
-
-    try {
-      await client.query('BEGIN');
-
+    return withTransaction(async () => {
       // Get all uncorrected mistakes for this lesson
       const mistakes = await WrongAnswer.findByUserAndLesson(userId, lessonId, true);
 
@@ -74,8 +71,6 @@ class MistakesService {
         }
       }
 
-      await client.query('COMMIT');
-
       const totalQuestions = results.length;
       const correctAnswers = results.filter(r => r.isCorrect).length;
       const score = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
@@ -92,12 +87,7 @@ class MistakesService {
         hasMoreMistakes,
         results
       };
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
+    });
   }
 
   /**
@@ -183,16 +173,14 @@ class MistakesService {
       const formattedRules = [];
 
       for (const block of ruleBlocks.slice(0, 3)) { // Take first 3 rule blocks
-        // Extract the rule title (handles both "1. Title" and "Title" formats)
         const titleMatch = block.match(/^(\d+\.\s*)?(.*?)<\/strong><\/p>/);
         if (titleMatch) {
           const title = titleMatch[2].trim();
 
-          // Extract examples (items in ul/li)
           const exampleMatches = block.match(/<li[^>]*>(.*?)<\/li>/g);
           if (exampleMatches) {
             const examples = exampleMatches
-              .slice(0, 4) // Take first 4 examples per rule
+              .slice(0, 4)
               .map(ex => ex.replace(/<[^>]+>/g, '').trim())
               .filter(ex => ex)
               .join(', ');
@@ -209,43 +197,6 @@ class MistakesService {
       if (formattedRules.length > 0) {
         summary += `חוקי דקדוק:\n${formattedRules.join('\n\n')}\n\n`;
       }
-    } else {
-      // If no formal rules section, try to extract useful lists from h3 sections
-      // Look for sections like "Time Expressions", "Key Points", etc.
-      const h3Sections = htmlContent.match(/<h3[^>]*>(.*?)<\/h3>([\s\S]*?)(?=<h3|<h2|$)/gi);
-      if (h3Sections && h3Sections.length > 0) {
-        const usefulSections = [];
-
-        for (const section of h3Sections.slice(0, 2)) { // Take first 2 h3 sections
-          const titleMatch = section.match(/<h3[^>]*>(.*?)<\/h3>/i);
-          const contentMatch = section.match(/<h3[^>]*>.*?<\/h3>([\s\S]*)/i);
-
-          if (titleMatch && contentMatch) {
-            const title = titleMatch[1].replace(/<[^>]+>/g, '').trim();
-            const content = contentMatch[1];
-
-            // Extract list items
-            const listItems = content.match(/<li[^>]*>(.*?)<\/li>/g);
-            if (listItems && listItems.length > 0) {
-              const items = listItems
-                .slice(0, 5)
-                .map(li => {
-                  const text = li.replace(/<[^>]+>/g, '').trim();
-                  return `• ${text}`;
-                })
-                .join('\n');
-
-              if (items) {
-                usefulSections.push(`**${title}**\n${items}`);
-              }
-            }
-          }
-        }
-
-        if (usefulSections.length > 0) {
-          summary += `מידע שימושי:\n${usefulSections.join('\n\n')}\n\n`;
-        }
-      }
     }
 
     // 4. Extract examples (from div.examples)
@@ -258,28 +209,21 @@ class MistakesService {
         .replace(/<[^>]+>/g, '')
         .trim();
 
-      // Split by newlines and filter for lines with content
       const lines = examplesText.split('\n').map(line => line.trim()).filter(line => line);
 
-      // Group examples: take first 5-6 examples with their categories
       const exampleLines = [];
       let count = 0;
-      let lastWasCategory = false;
 
       for (const line of lines) {
         if (line.includes('**') && !line.includes('-')) {
-          // This is a category label (like "הרגלים:" or "עובדות:")
           if (exampleLines.length > 0) {
-            exampleLines.push(''); // Add spacing between categories
+            exampleLines.push('');
           }
           exampleLines.push(line);
-          lastWasCategory = true;
         } else if (line.includes('-')) {
-          // This is an actual example with translation
           exampleLines.push(line);
           count++;
-          lastWasCategory = false;
-          if (count >= 5) break; // Take up to 5 examples total
+          if (count >= 5) break;
         }
       }
 
@@ -332,25 +276,33 @@ class MistakesService {
 
     // If still not enough questions, get some random exercises from all lessons
     if (selectedQuestions.length < questionCount) {
-      const existingExerciseIds = selectedQuestions.map(q => q.exercise_id);
+      const existingExerciseIds = new Set(selectedQuestions.map(q => q.exercise_id));
 
-      // Get random exercises from database
-      const query = `
-        SELECT e.id as exercise_id, e.question_number, e.type,
-               e.question_text_he, e.options, e.correct_answer,
-               e.explanation_he, e.explanation_en, e.difficulty,
-               l.id as lesson_id, l.title_he as lesson_title_he
-        FROM exercises e
-        JOIN lessons l ON e.lesson_id = l.id
-        WHERE e.id NOT IN (${existingExerciseIds.length > 0 ? existingExerciseIds.map((_, i) => `$${i + 1}`).join(',') : 'NULL'})
-        ORDER BY RANDOM()
-        LIMIT $${existingExerciseIds.length + 1}
-      `;
+      // Get all exercises from static collection
+      const allExercises = db.getCollection('exercises', true);
+      const lessons = db.getCollection('lessons', true);
+      const lessonMap = new Map(lessons.map(l => [l.id, l]));
 
-      const params = [...existingExerciseIds, questionCount - selectedQuestions.length];
-      const result = await pool.query(query, params);
+      // Filter out already selected exercises and shuffle
+      const availableExercises = allExercises
+        .filter(e => !existingExerciseIds.has(e.id))
+        .map(e => ({
+          exercise_id: e.id,
+          question_number: e.question_number,
+          type: e.type,
+          question_text_he: e.question_text_he,
+          options: e.options,
+          correct_answer: e.correct_answer,
+          explanation_he: e.explanation_he,
+          explanation_en: e.explanation_en,
+          difficulty: e.difficulty,
+          lesson_id: e.lesson_id,
+          lesson_title_he: lessonMap.get(e.lesson_id)?.title_he
+        }));
 
-      selectedQuestions = [...selectedQuestions, ...result.rows];
+      const shuffled = shuffleArray(availableExercises);
+      const needed = questionCount - selectedQuestions.length;
+      selectedQuestions = [...selectedQuestions, ...shuffled.slice(0, needed)];
     }
 
     // Transform to exercise format with shuffle and shuffle options
@@ -368,32 +320,38 @@ class MistakesService {
       }));
 
     // Get unique topics with mistakes and their theory content
-    const topicsQuery = `
-      SELECT DISTINCT
-        l.id as lesson_id,
-        l.title_he,
-        l.title_en,
-        l.theory_content_he,
-        COUNT(wa.id) as mistake_count,
-        COUNT(CASE WHEN wa.is_corrected = FALSE THEN 1 END) as uncorrected_count
-      FROM wrong_answers wa
-      JOIN lessons l ON wa.lesson_id = l.id
-      WHERE wa.user_id = $1
-      GROUP BY l.id, l.title_he, l.title_en, l.theory_content_he
-      ORDER BY uncorrected_count DESC, mistake_count DESC
-      LIMIT 5
-    `;
+    const wrongAnswers = db.find('wrong_answers', { user_id: userId });
+    const lessonMistakeCounts = new Map();
 
-    const topicsResult = await pool.query(topicsQuery, [userId]);
+    for (const wa of wrongAnswers) {
+      if (!lessonMistakeCounts.has(wa.lesson_id)) {
+        lessonMistakeCounts.set(wa.lesson_id, { total: 0, uncorrected: 0 });
+      }
+      lessonMistakeCounts.get(wa.lesson_id).total++;
+      if (!wa.is_corrected) {
+        lessonMistakeCounts.get(wa.lesson_id).uncorrected++;
+      }
+    }
 
-    const topicSummaries = topicsResult.rows.map(topic => ({
-      lessonId: topic.lesson_id,
-      titleHe: topic.title_he,
-      titleEn: topic.title_en,
-      mistakeCount: parseInt(topic.mistake_count),
-      uncorrectedCount: parseInt(topic.uncorrected_count),
-      theorySummary: this.extractTheorySummary(topic.theory_content_he)
-    }));
+    const lessons = db.getCollection('lessons', true);
+    const lessonMap = new Map(lessons.map(l => [l.id, l]));
+
+    const topicSummaries = Array.from(lessonMistakeCounts.entries())
+      .map(([lessonId, counts]) => {
+        const lesson = lessonMap.get(lessonId);
+        if (!lesson) return null;
+        return {
+          lessonId,
+          titleHe: lesson.title_he,
+          titleEn: lesson.title_en,
+          mistakeCount: counts.total,
+          uncorrectedCount: counts.uncorrected,
+          theorySummary: this.extractTheorySummary(lesson.theory_content_he)
+        };
+      })
+      .filter(s => s !== null)
+      .sort((a, b) => b.uncorrectedCount - a.uncorrectedCount || b.mistakeCount - a.mistakeCount)
+      .slice(0, 5);
 
     return {
       totalQuestions: exercises.length,

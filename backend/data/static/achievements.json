@@ -1,0 +1,122 @@
+[
+  {
+    "id": "52178290-23fb-4ee9-af89-b5036d00db91",
+    "name_en": "First Steps",
+    "name_he": "צעדים ראשונים",
+    "description_en": "Complete your first lesson",
+    "description_he": "השלם את השיעור הראשון שלך",
+    "icon": "🎯",
+    "requirement_type": "lessons_completed",
+    "requirement_value": 1,
+    "points": 10,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "c819055b-ec9f-47b3-af58-fe94085993ec",
+    "name_en": "Getting Started",
+    "name_he": "בדרך הנכונה",
+    "description_en": "Complete 5 lessons",
+    "description_he": "השלם 5 שיעורים",
+    "icon": "⭐",
+    "requirement_type": "lessons_completed",
+    "requirement_value": 5,
+    "points": 25,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "a90a6a9e-f5e0-49b0-bf38-64d9980d48ef",
+    "name_en": "Dedicated Learner",
+    "name_he": "לומד מסור",
+    "description_en": "Complete 10 lessons",
+    "description_he": "השלם 10 שיעורים",
+    "icon": "🌟",
+    "requirement_type": "lessons_completed",
+    "requirement_value": 10,
+    "points": 50,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "97e8c0ba-5c27-4a8b-b385-0806f013c365",
+    "name_en": "Perfect Score",
+    "name_he": "ציון מושלם",
+    "description_en": "Get 100% on any lesson",
+    "description_he": "קבל 100% בשיעור כלשהו",
+    "icon": "💯",
+    "requirement_type": "perfect_score",
+    "requirement_value": 1,
+    "points": 30,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "cc64cfc6-753b-4c11-9fac-617db541e000",
+    "name_en": "Streak Master",
+    "name_he": "אלוף הרצף",
+    "description_en": "Maintain a 7-day streak",
+    "description_he": "שמור על רצף של 7 ימים",
+    "icon": "🔥",
+    "requirement_type": "streak_days",
+    "requirement_value": 7,
+    "points": 50,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "d9303719-0f58-485b-90ee-e46a2ead513a",
+    "name_en": "Vocabulary Builder",
+    "name_he": "בונה אוצר מילים",
+    "description_en": "Learn 50 vocabulary words",
+    "description_he": "למד 50 מילים",
+    "icon": "📚",
+    "requirement_type": "words_learned",
+    "requirement_value": 50,
+    "points": 40,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "5fa1ccd5-ec5d-4a76-8ed1-3b061d580166",
+    "name_en": "Word Master",
+    "name_he": "מאסטר מילים",
+    "description_en": "Learn 200 vocabulary words",
+    "description_he": "למד 200 מילים",
+    "icon": "🏆",
+    "requirement_type": "words_learned",
+    "requirement_value": 200,
+    "points": 100,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "6a44c1d2-172a-4299-8b04-14f362a8bbca",
+    "name_en": "Quiz Champion",
+    "name_he": "אלוף החידונים",
+    "description_en": "Complete 10 vocabulary quizzes",
+    "description_he": "השלם 10 חידוני אוצר מילים",
+    "icon": "🎓",
+    "requirement_type": "quizzes_completed",
+    "requirement_value": 10,
+    "points": 35,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "fa3a20b2-e08d-46e3-b205-1e8d91500d84",
+    "name_en": "Time Warrior",
+    "name_he": "לוחם הזמן",
+    "description_en": "Study for 60 minutes total",
+    "description_he": "למד 60 דקות סה״כ",
+    "icon": "⏰",
+    "requirement_type": "time_spent",
+    "requirement_value": 60,
+    "points": 25,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  },
+  {
+    "id": "bb65f4f0-3c9c-416c-b0f9-1c93ed806f26",
+    "name_en": "Mistake Fixer",
+    "name_he": "מתקן שגיאות",
+    "description_en": "Review and fix 20 mistakes",
+    "description_he": "עבור על 20 שגיאות ותקן אותן",
+    "icon": "✏️",
+    "requirement_type": "mistakes_fixed",
+    "requirement_value": 20,
+    "points": 30,
+    "created_at": "2026-01-21T19:05:34.857Z"
+  }
+]

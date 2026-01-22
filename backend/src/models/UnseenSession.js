@@ -1,195 +1,292 @@
-const { pool } = require('../config/database');
+const { db } = require('../config/database');
 
 class UnseenSession {
   /**
    * Create a new reading session
    */
   static async create(userId, paragraphId) {
-    const query = `
-      INSERT INTO unseen_sessions (user_id, paragraph_id, total_questions, status)
-      VALUES ($1, $2, 5, 'in_progress')
-      RETURNING id, user_id, paragraph_id, total_questions, status, started_at
-    `;
+    const timestamp = new Date().toISOString();
 
-    const result = await pool.query(query, [userId, paragraphId]);
-    return result.rows[0];
+    const session = db.insert('unseen_sessions', {
+      user_id: userId,
+      paragraph_id: paragraphId,
+      total_questions: 5,
+      status: 'in_progress',
+      score: null,
+      correct_answers: null,
+      started_at: timestamp,
+      completed_at: null
+    });
+
+    return {
+      id: session.id,
+      user_id: session.user_id,
+      paragraph_id: session.paragraph_id,
+      total_questions: session.total_questions,
+      status: session.status,
+      started_at: session.started_at
+    };
   }
 
   /**
    * Find a session by ID
    */
   static async findById(sessionId) {
-    const query = `
-      SELECT id, user_id, paragraph_id, score, correct_answers, total_questions,
-             started_at, completed_at, status
-      FROM unseen_sessions
-      WHERE id = $1
-    `;
+    const session = db.findById('unseen_sessions', sessionId);
+    if (!session) return undefined;
 
-    const result = await pool.query(query, [sessionId]);
-    return result.rows[0];
+    return {
+      id: session.id,
+      user_id: session.user_id,
+      paragraph_id: session.paragraph_id,
+      score: session.score,
+      correct_answers: session.correct_answers,
+      total_questions: session.total_questions,
+      started_at: session.started_at,
+      completed_at: session.completed_at,
+      status: session.status
+    };
   }
 
   /**
    * Get session with paragraph and questions details
    */
   static async getSessionWithDetails(sessionId) {
-    const query = `
-      SELECT
-        s.id, s.user_id, s.paragraph_id, s.score, s.correct_answers, s.total_questions,
-        s.started_at, s.completed_at, s.status,
-        p.title_en, p.title_he, p.content, p.complexity_level, p.topic, p.hard_words
-      FROM unseen_sessions s
-      JOIN unseen_paragraphs p ON s.paragraph_id = p.id
-      WHERE s.id = $1
-    `;
+    const session = db.findById('unseen_sessions', sessionId);
+    if (!session) return undefined;
 
-    const result = await pool.query(query, [sessionId]);
-    return result.rows[0];
+    // Get paragraph details
+    const paragraphs = db.getCollection('unseen_paragraphs', true);
+    const paragraphMap = new Map(paragraphs.map(p => [p.id, p]));
+    const paragraph = paragraphMap.get(session.paragraph_id);
+
+    return {
+      id: session.id,
+      user_id: session.user_id,
+      paragraph_id: session.paragraph_id,
+      score: session.score,
+      correct_answers: session.correct_answers,
+      total_questions: session.total_questions,
+      started_at: session.started_at,
+      completed_at: session.completed_at,
+      status: session.status,
+      title_en: paragraph?.title_en,
+      title_he: paragraph?.title_he,
+      content: paragraph?.content,
+      complexity_level: paragraph?.complexity_level,
+      topic: paragraph?.topic,
+      hard_words: paragraph?.hard_words
+    };
   }
 
   /**
    * Record an answer for a session
    */
   static async recordAnswer(sessionId, questionId, userAnswer, isCorrect) {
-    const query = `
-      INSERT INTO unseen_answers (session_id, question_id, user_answer, is_correct)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, session_id, question_id, is_correct
-    `;
+    const timestamp = new Date().toISOString();
 
-    const result = await pool.query(query, [sessionId, questionId, userAnswer, isCorrect]);
-    return result.rows[0];
+    const answer = db.insert('unseen_answers', {
+      session_id: sessionId,
+      question_id: questionId,
+      user_answer: userAnswer,
+      is_correct: isCorrect,
+      answered_at: timestamp
+    });
+
+    return {
+      id: answer.id,
+      session_id: answer.session_id,
+      question_id: answer.question_id,
+      is_correct: answer.is_correct
+    };
   }
 
   /**
    * Get all answers for a session
    */
   static async getSessionAnswers(sessionId) {
-    const query = `
-      SELECT
-        a.id, a.session_id, a.question_id, a.user_answer, a.is_correct, a.answered_at,
-        q.question_number, q.question_text_en, q.question_text_he,
-        q.options, q.correct_answer, q.explanation_he
-      FROM unseen_answers a
-      JOIN unseen_questions q ON a.question_id = q.id
-      WHERE a.session_id = $1
-      ORDER BY q.question_number ASC
-    `;
+    const answers = db.find('unseen_answers', { session_id: sessionId });
 
-    const result = await pool.query(query, [sessionId]);
-    return result.rows;
+    // Get questions for joining
+    const questions = db.getCollection('unseen_questions', true);
+    const questionMap = new Map(questions.map(q => [q.id, q]));
+
+    const result = answers.map(a => {
+      const question = questionMap.get(a.question_id);
+      return {
+        id: a.id,
+        session_id: a.session_id,
+        question_id: a.question_id,
+        user_answer: a.user_answer,
+        is_correct: a.is_correct,
+        answered_at: a.answered_at,
+        question_number: question?.question_number,
+        question_text_en: question?.question_text_en,
+        question_text_he: question?.question_text_he,
+        options: question?.options,
+        correct_answer: question?.correct_answer,
+        explanation_he: question?.explanation_he
+      };
+    });
+
+    // Sort by question_number ascending
+    result.sort((a, b) => (a.question_number || 0) - (b.question_number || 0));
+
+    return result;
   }
 
   /**
    * Complete a session and calculate final score
    */
   static async complete(sessionId) {
-    // First, count correct answers
-    const countQuery = `
-      SELECT COUNT(*) as correct_count
-      FROM unseen_answers
-      WHERE session_id = $1 AND is_correct = TRUE
-    `;
-
-    const countResult = await pool.query(countQuery, [sessionId]);
-    const correctCount = parseInt(countResult.rows[0].correct_count);
+    // Count correct answers
+    const answers = db.find('unseen_answers', { session_id: sessionId });
+    const correctCount = answers.filter(a => a.is_correct === true).length;
 
     // Calculate score percentage (out of 5 questions)
     const score = Math.round((correctCount / 5) * 100);
+    const timestamp = new Date().toISOString();
 
-    // Update session
-    const updateQuery = `
-      UPDATE unseen_sessions
-      SET correct_answers = $1,
-          score = $2,
-          completed_at = CURRENT_TIMESTAMP,
-          status = 'completed'
-      WHERE id = $3
-      RETURNING id, user_id, paragraph_id, score, correct_answers, total_questions, completed_at
-    `;
+    db.updateById('unseen_sessions', sessionId, {
+      correct_answers: correctCount,
+      score: score,
+      completed_at: timestamp,
+      status: 'completed'
+    });
 
-    const result = await pool.query(updateQuery, [correctCount, score, sessionId]);
-    return result.rows[0];
+    const session = db.findById('unseen_sessions', sessionId);
+    return {
+      id: session.id,
+      user_id: session.user_id,
+      paragraph_id: session.paragraph_id,
+      score: session.score,
+      correct_answers: session.correct_answers,
+      total_questions: session.total_questions,
+      completed_at: session.completed_at
+    };
   }
 
   /**
    * Get all sessions for a user
    */
   static async getByUser(userId, limit = 50) {
-    const query = `
-      SELECT
-        s.id, s.paragraph_id, s.score, s.correct_answers, s.total_questions,
-        s.started_at, s.completed_at, s.status,
-        p.title_en, p.title_he, p.complexity_level
-      FROM unseen_sessions s
-      JOIN unseen_paragraphs p ON s.paragraph_id = p.id
-      WHERE s.user_id = $1
-      ORDER BY s.started_at DESC
-      LIMIT $2
-    `;
+    const sessions = db.find('unseen_sessions', { user_id: userId });
 
-    const result = await pool.query(query, [userId, limit]);
-    return result.rows;
+    // Get paragraphs for joining
+    const paragraphs = db.getCollection('unseen_paragraphs', true);
+    const paragraphMap = new Map(paragraphs.map(p => [p.id, p]));
+
+    const result = sessions.map(s => {
+      const paragraph = paragraphMap.get(s.paragraph_id);
+      return {
+        id: s.id,
+        paragraph_id: s.paragraph_id,
+        score: s.score,
+        correct_answers: s.correct_answers,
+        total_questions: s.total_questions,
+        started_at: s.started_at,
+        completed_at: s.completed_at,
+        status: s.status,
+        title_en: paragraph?.title_en,
+        title_he: paragraph?.title_he,
+        complexity_level: paragraph?.complexity_level
+      };
+    });
+
+    // Sort by started_at descending
+    result.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+
+    return result.slice(0, limit);
   }
 
   /**
    * Get sessions for a specific paragraph by a user
    */
   static async getByUserAndParagraph(userId, paragraphId, limit = 10) {
-    const query = `
-      SELECT id, user_id, paragraph_id, score, correct_answers, total_questions,
-             started_at, completed_at, status
-      FROM unseen_sessions
-      WHERE user_id = $1 AND paragraph_id = $2
-      ORDER BY started_at DESC
-      LIMIT $3
-    `;
+    const sessions = db.find('unseen_sessions', {
+      user_id: userId,
+      paragraph_id: paragraphId
+    });
 
-    const result = await pool.query(query, [userId, paragraphId, limit]);
-    return result.rows;
+    const result = sessions.map(s => ({
+      id: s.id,
+      user_id: s.user_id,
+      paragraph_id: s.paragraph_id,
+      score: s.score,
+      correct_answers: s.correct_answers,
+      total_questions: s.total_questions,
+      started_at: s.started_at,
+      completed_at: s.completed_at,
+      status: s.status
+    }));
+
+    // Sort by started_at descending
+    result.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+
+    return result.slice(0, limit);
   }
 
   /**
    * Mark session as abandoned
    */
   static async abandon(sessionId) {
-    const query = `
-      UPDATE unseen_sessions
-      SET status = 'abandoned'
-      WHERE id = $1
-      RETURNING id, status
-    `;
+    const result = db.updateById('unseen_sessions', sessionId, {
+      status: 'abandoned'
+    });
 
-    const result = await pool.query(query, [sessionId]);
-    return result.rows[0];
+    if (result.modified === 0) return undefined;
+
+    return { id: sessionId, status: 'abandoned' };
   }
 
   /**
    * Delete a session and all its answers
    */
   static async delete(sessionId) {
-    const query = 'DELETE FROM unseen_sessions WHERE id = $1 RETURNING id';
-    const result = await pool.query(query, [sessionId]);
-    return result.rows[0];
+    const existing = db.findById('unseen_sessions', sessionId);
+    if (!existing) return undefined;
+
+    // Delete answers first (cascade delete simulation)
+    db.delete('unseen_answers', { session_id: sessionId });
+
+    // Delete the session
+    db.deleteById('unseen_sessions', sessionId);
+
+    return { id: sessionId };
   }
 
   /**
    * Get user's session statistics
    */
   static async getUserSessionStats(userId) {
-    const query = `
-      SELECT
-        COUNT(*) as total_sessions,
-        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_sessions,
-        COALESCE(AVG(CASE WHEN status = 'completed' THEN score END), 0) as average_score,
-        COALESCE(MAX(score), 0) as highest_score
-      FROM unseen_sessions
-      WHERE user_id = $1
-    `;
+    const sessions = db.find('unseen_sessions', { user_id: userId });
 
-    const result = await pool.query(query, [userId]);
-    return result.rows[0];
+    const stats = {
+      total_sessions: sessions.length,
+      completed_sessions: 0,
+      average_score: 0,
+      highest_score: 0
+    };
+
+    let scoreSum = 0;
+    let scoreCount = 0;
+
+    for (const s of sessions) {
+      if (s.status === 'completed') {
+        stats.completed_sessions++;
+        if (s.score !== null) {
+          scoreSum += s.score;
+          scoreCount++;
+          if (s.score > stats.highest_score) {
+            stats.highest_score = s.score;
+          }
+        }
+      }
+    }
+
+    stats.average_score = scoreCount > 0 ? scoreSum / scoreCount : 0;
+
+    return stats;
   }
 }
 

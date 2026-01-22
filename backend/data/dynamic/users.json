@@ -1,0 +1,40 @@
+[
+  {
+    "name": "testuser",
+    "email": "test@example.com",
+    "password_hash": "$2b$10$U46xmuVdO6u46jZW6w5EJO54940jHNmE2jYuVDn8S1ZZjabpVcTAW",
+    "age": null,
+    "current_level": "beginner",
+    "student_name": "testuser",
+    "created_at": "2026-01-21T19:06:42.284Z",
+    "last_login": "2026-01-22T06:56:40.118Z",
+    "total_time_spent": 0,
+    "current_streak": 0,
+    "total_points": 4,
+    "gamification_level": 1,
+    "last_activity_date": null,
+    "points_today": 0,
+    "points_today_date": null,
+    "id": "14e32d73-f0b2-47c4-a6c6-10114d75b67e",
+    "updated_at": "2026-01-22T06:56:40.120Z"
+  },
+  {
+    "name": "user",
+    "email": null,
+    "password_hash": "$2b$10$kkuSHSVave3q9zrYxaMg8epwWQFZhC5nL2fsKeKJWyS6h9wWkUQ..",
+    "age": 12,
+    "current_level": "beginner",
+    "student_name": "user",
+    "created_at": "2026-01-21T19:32:25.798Z",
+    "last_login": "2026-01-22T06:33:43.795Z",
+    "total_time_spent": 0,
+    "current_streak": 0,
+    "total_points": 0,
+    "gamification_level": 1,
+    "last_activity_date": null,
+    "points_today": 0,
+    "points_today_date": null,
+    "id": "0f983814-72fe-4c13-917d-b3bf1280c4ee",
+    "updated_at": "2026-01-22T06:58:50.787Z"
+  }
+]

@@ -1,0 +1,617 @@
+[
+  {
+    "id": "91d891bd-ab93-4b17-92df-36a8afd94af6",
+    "title_en": "My Favorite Sport",
+    "title_he": "הספורט האהוב עלי",
+    "content": "I love playing basketball. It is my favorite sport because it is fun and exciting. I play with my friends after school every Tuesday and Thursday.\n\nBasketball helps me stay healthy and strong. When I play, I run a lot and jump high. It makes me feel energetic and happy. My team practices together, and we support each other.\n\nLast month, our school team won a championship game. Everyone was so excited! We worked hard as a team and never gave up. Playing basketball taught me that teamwork and practice are very important.",
+    "complexity_level": 1,
+    "topic": "Sports",
+    "hard_words": [
+      {
+        "word": "championship",
+        "translation": "אליפות"
+      },
+      {
+        "word": "energetic",
+        "translation": "אנרגטי, מלא אנרגיה"
+      },
+      {
+        "word": "exciting",
+        "translation": "מרגש, מלהיב"
+      },
+      {
+        "word": "practices",
+        "translation": "מתאמן, מתרגל"
+      },
+      {
+        "word": "support",
+        "translation": "תומך, מעודד"
+      },
+      {
+        "word": "teamwork",
+        "translation": "עבודת צוות"
+      },
+      {
+        "word": "important",
+        "translation": "חשוב"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.977Z"
+  },
+  {
+    "id": "c1948465-af51-469e-a79e-c2c0b199696d",
+    "title_en": "A Day at the Zoo",
+    "title_he": "יום בגן החיות",
+    "content": "Last Sunday, my family and I visited the city zoo. We saw many different animals from around the world. The weather was sunny and perfect for walking.\n\nMy favorite animals were the elephants. They were huge and very intelligent. One elephant used its trunk to spray water on itself. The zookeeper told us that elephants live in a special habitat with trees and a pond.\n\nWe also saw some endangered species, like the white tigers. There are very few white tigers left in the world. It made me think about how we need to protect animals and their homes.",
+    "complexity_level": 1,
+    "topic": "Nature",
+    "hard_words": [
+      {
+        "word": "habitat",
+        "translation": "בית גידול, סביבת מחיה"
+      },
+      {
+        "word": "endangered",
+        "translation": "בסכנת הכחדה"
+      },
+      {
+        "word": "intelligent",
+        "translation": "חכם, אינטליגנטי"
+      },
+      {
+        "word": "trunk",
+        "translation": "חדק (של פיל)"
+      },
+      {
+        "word": "zookeeper",
+        "translation": "שומר גן חיות"
+      },
+      {
+        "word": "species",
+        "translation": "מינים"
+      },
+      {
+        "word": "protect",
+        "translation": "להגן, לשמור"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "c440a4ff-1ac0-4348-bc35-c2a5b37e256d",
+    "title_en": "The School Library",
+    "title_he": "ספריית בית הספר",
+    "content": "Our school library is my favorite place to spend time during lunch break. It is quiet and peaceful, perfect for reading or studying. The library has thousands of books organized by topic and classification.\n\nMrs. Johnson, our librarian, helps students find books they will enjoy. She knows everything about the library's collection. Last week, she recommended a mystery novel to me, and I couldn't stop reading it!\n\nThe library also has computers where we can do research for our homework. There is a special reference section with encyclopedias and dictionaries. I often use these resources when I write essays for my English class.",
+    "complexity_level": 2,
+    "topic": "Education",
+    "hard_words": [
+      {
+        "word": "classification",
+        "translation": "סיווג, מיון"
+      },
+      {
+        "word": "reference",
+        "translation": "עיון, התייחסות"
+      },
+      {
+        "word": "librarian",
+        "translation": "ספרן, ספרנית"
+      },
+      {
+        "word": "collection",
+        "translation": "אוסף"
+      },
+      {
+        "word": "recommended",
+        "translation": "המליץ"
+      },
+      {
+        "word": "encyclopedias",
+        "translation": "אנציקלופדיות"
+      },
+      {
+        "word": "resources",
+        "translation": "משאבים, מקורות"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "91dc8f91-8745-4a9e-aeaa-22a5d0c6d116",
+    "title_en": "Making New Friends",
+    "title_he": "יצירת חברויות חדשות",
+    "content": "Starting at a new school can feel awkward at first. When I moved to this city last year, I didn't know anyone. I was nervous about making friends and fitting in with my classmates.\n\nOn my first day, a girl named Sarah introduced herself during lunch. She invited me to sit with her group, and we talked about our favorite music and hobbies. That simple act of kindness made me feel welcome.\n\nNow Sarah is my best friend, and I have many other acquaintances too. I learned that being friendly and open to new experiences helps you make connections. Sometimes, one person's kindness can change everything.",
+    "complexity_level": 2,
+    "topic": "Social Life",
+    "hard_words": [
+      {
+        "word": "awkward",
+        "translation": "מביך, לא נוח"
+      },
+      {
+        "word": "acquaintance",
+        "translation": "מכר, היכרות"
+      },
+      {
+        "word": "nervous",
+        "translation": "עצבני, מודאג"
+      },
+      {
+        "word": "introduced",
+        "translation": "הציג, הכיר"
+      },
+      {
+        "word": "invited",
+        "translation": "הזמין"
+      },
+      {
+        "word": "hobbies",
+        "translation": "תחביבים"
+      },
+      {
+        "word": "connections",
+        "translation": "קשרים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "47ffac3e-e07f-40b0-8dd3-f450f404d2e1",
+    "title_en": "Understanding Climate Change",
+    "title_he": "הבנת שינויי האקלים",
+    "content": "Climate change is one of the most serious challenges facing our planet today. The Earth's atmosphere is getting warmer because of human activities. When we burn fossil fuels like coal and oil, we release gases that trap heat in the atmosphere.\n\nThe consequences of climate change are already visible around the world. Ice caps are melting, sea levels are rising, and weather patterns are becoming more extreme. Some areas experience severe droughts, while others face dangerous flooding.\n\nScientists agree that we must take action now to reduce carbon emissions. We can help by using less energy, recycling, and choosing sustainable transportation like bikes or public buses. Every small action counts when millions of people work together.",
+    "complexity_level": 3,
+    "topic": "Environment",
+    "hard_words": [
+      {
+        "word": "atmosphere",
+        "translation": "אטמוספירה, אווירה"
+      },
+      {
+        "word": "consequences",
+        "translation": "השלכות, תוצאות"
+      },
+      {
+        "word": "fossil fuels",
+        "translation": "דלקים פוסיליים"
+      },
+      {
+        "word": "emissions",
+        "translation": "פליטות"
+      },
+      {
+        "word": "droughts",
+        "translation": "בצורות"
+      },
+      {
+        "word": "flooding",
+        "translation": "הצפות"
+      },
+      {
+        "word": "sustainable",
+        "translation": "בר-קיימא, קיים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "99627c56-f4d4-4b28-a0f4-09eaefabc41f",
+    "title_en": "The Amazing Human Brain",
+    "title_he": "המוח האנושי המדהים",
+    "content": "The human brain is the most complex organ in our body. It contains billions of neurons that work together to control everything we do. These neurons send electrical signals to each other, allowing us to think, feel, and move.\n\nDifferent parts of the brain have different jobs. The frontal lobe helps us make decisions and solve problems. The cerebellum controls our balance and coordination. The hippocampus is responsible for forming new memories and learning new information.\n\nScientists continue to study the brain to understand its cognitive abilities better. Research shows that our brains can change and adapt throughout our lives. This ability, called neuroplasticity, means we can always learn new skills and improve ourselves.",
+    "complexity_level": 3,
+    "topic": "Science",
+    "hard_words": [
+      {
+        "word": "neurons",
+        "translation": "נוירונים, תאי עצב"
+      },
+      {
+        "word": "cognitive",
+        "translation": "קוגניטיבי, הכרתי"
+      },
+      {
+        "word": "frontal lobe",
+        "translation": "אונה קדמית (במוח)"
+      },
+      {
+        "word": "cerebellum",
+        "translation": "המוח הקטן"
+      },
+      {
+        "word": "hippocampus",
+        "translation": "היפוקמפוס (אזור במוח)"
+      },
+      {
+        "word": "coordination",
+        "translation": "תיאום"
+      },
+      {
+        "word": "neuroplasticity",
+        "translation": "נוירופלסטיות"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "b74527a7-a745-4811-a591-72988a67fa12",
+    "title_en": "Social Media and Our Lives",
+    "title_he": "מדיה חברתית וחיינו",
+    "content": "Social media has become a major part of modern life, especially for teenagers. Platforms like Instagram, TikTok, and Snapchat allow us to share photos, videos, and messages with friends instantly. These apps use complex algorithms to show us content we might like.\n\nWhile social media can be fun and helpful for staying connected, it also has drawbacks. Some people spend too much time scrolling through feeds, which can affect their sleep and homework. The constant comparison with others' perfect posts can sometimes make people feel inadequate or sad.\n\nSocial media also has the power to influence opinions and spread information quickly. This can be positive when used to raise awareness about important issues. However, we must be careful to think critically about what we see online and not believe everything without checking if it's true.",
+    "complexity_level": 3,
+    "topic": "Technology",
+    "hard_words": [
+      {
+        "word": "algorithms",
+        "translation": "אלגוריתמים"
+      },
+      {
+        "word": "influence",
+        "translation": "השפעה, להשפיע"
+      },
+      {
+        "word": "platforms",
+        "translation": "פלטפורמות"
+      },
+      {
+        "word": "comparison",
+        "translation": "השוואה"
+      },
+      {
+        "word": "inadequate",
+        "translation": "לא מספיק טוב"
+      },
+      {
+        "word": "awareness",
+        "translation": "מודעות"
+      },
+      {
+        "word": "critically",
+        "translation": "באופן ביקורתי"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "54d5f7ea-b2f4-4ddf-9722-10ffbdd2e294",
+    "title_en": "Journey to the Stars",
+    "title_he": "מסע אל הכוכבים",
+    "content": "Space exploration has captivated humanity's imagination for decades. Since the first astronaut, Yuri Gagarin, orbited Earth in 1961, we have made incredible progress in understanding our universe. Today, astronauts live and work on the International Space Station, conducting experiments that benefit life on Earth.\n\nThe challenges of space travel are immense. Astronauts must train for years to prepare for the physical and mental demands of living in zero gravity. They face extreme temperatures, dangerous radiation, and the psychological stress of being far from home. Yet, despite these obstacles, humans continue to push the boundaries of exploration.\n\nLooking forward, space agencies are planning missions to Mars and beyond. These missions will require new technologies and international cooperation. Scientists believe that one day, humans might establish colonies on other planets. However, we must also consider the ethical implications of colonizing space and ensure we don't repeat the mistakes we've made on Earth.",
+    "complexity_level": 4,
+    "topic": "Space",
+    "hard_words": [
+      {
+        "word": "astronaut",
+        "translation": "אסטרונאוט, טייס חלל"
+      },
+      {
+        "word": "gravitational",
+        "translation": "כבידתי, הקשור לכוח המשיכה"
+      },
+      {
+        "word": "radiation",
+        "translation": "קרינה"
+      },
+      {
+        "word": "psychological",
+        "translation": "פסיכולוגי, נפשי"
+      },
+      {
+        "word": "cooperation",
+        "translation": "שיתוף פעולה"
+      },
+      {
+        "word": "colonies",
+        "translation": "מושבות"
+      },
+      {
+        "word": "ethical implications",
+        "translation": "השלכות מוסריות"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "dd63b569-bfb1-4624-9855-c3e03081fd25",
+    "title_en": "Mysteries of Ancient Egypt",
+    "title_he": "תעלומות מצרים העתיקה",
+    "content": "Ancient Egypt was one of the most advanced civilizations in history. For over 3,000 years, powerful pharaohs ruled from magnificent palaces along the Nile River. The Egyptians built impressive pyramids that still stand today, showcasing their incredible engineering skills.\n\nThe ancient Egyptians developed a complex writing system called hieroglyphics. These symbols represented words and sounds, allowing them to record their history, religious beliefs, and daily activities. Archaeologists have spent decades deciphering these ancient texts, unlocking secrets about Egyptian society.\n\nLife in ancient Egypt was centered around the Nile River, which provided water, food, and transportation. Egyptian farmers grew wheat and barley in the fertile soil left by annual floods. The society was highly organized, with different social classes including scribes, craftsmen, and slaves. Despite being thousands of years old, Egyptian innovations in medicine, mathematics, and architecture continue to influence our world today.",
+    "complexity_level": 4,
+    "topic": "History",
+    "hard_words": [
+      {
+        "word": "pharaoh",
+        "translation": "פרעה"
+      },
+      {
+        "word": "hieroglyphics",
+        "translation": "כתב חרטומים, היירוגליפים"
+      },
+      {
+        "word": "pyramids",
+        "translation": "פירמידות"
+      },
+      {
+        "word": "archaeologists",
+        "translation": "ארכיאולוגים"
+      },
+      {
+        "word": "deciphering",
+        "translation": "פיענוח"
+      },
+      {
+        "word": "fertile",
+        "translation": "פורה"
+      },
+      {
+        "word": "innovations",
+        "translation": "חידושים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "d0194cd8-a588-401e-bc31-52163e13dcc6",
+    "title_en": "Eating Healthy and Feeling Great",
+    "title_he": "אכילה בריאה והרגשה מצוינת",
+    "content": "Eating healthy food is one of the best things we can do for our bodies. When we choose nutritious meals, we give our bodies the nutrients they need to grow strong and stay energized. Fruits, vegetables, whole grains, and proteins are all important parts of a balanced diet.\n\nMany teenagers love fast food because it tastes good and is convenient. However, eating too much fast food can be harmful. These foods often contain high amounts of sugar, salt, and unhealthy fats. Over time, poor eating habits can lead to health problems like obesity and low energy.\n\nThe good news is that healthy eating doesn't have to be boring! There are many delicious ways to prepare nutritious meals. Try adding colorful vegetables to your meals, snacking on fruits instead of chips, and drinking water instead of sugary sodas. Your body's digestion system will thank you, and you'll feel more alert and happy throughout the day.",
+    "complexity_level": 2,
+    "topic": "Health",
+    "hard_words": [
+      {
+        "word": "nutrients",
+        "translation": "חומרים מזינים"
+      },
+      {
+        "word": "digestion",
+        "translation": "עיכול"
+      },
+      {
+        "word": "convenient",
+        "translation": "נוח"
+      },
+      {
+        "word": "obesity",
+        "translation": "השמנת יתר"
+      },
+      {
+        "word": "nutritious",
+        "translation": "מזין"
+      },
+      {
+        "word": "alert",
+        "translation": "ערני, קשוב"
+      },
+      {
+        "word": "balanced diet",
+        "translation": "תזונה מאוזנת"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "1677035e-96b9-47ee-9419-0dcab3b385ff",
+    "title_en": "The World of Video Games",
+    "title_he": "עולם משחקי המחשב",
+    "content": "Video games have become one of the most popular forms of entertainment worldwide. Modern games feature incredible graphics, exciting stories, and the ability to play with friends online. Many games create virtual worlds where players can explore, compete, and solve puzzles.\n\nGaming can actually have some positive effects. Strategy games help improve problem-solving skills and quick thinking. Multiplayer games teach teamwork and communication. Some games even encourage creativity, allowing players to build and design their own virtual environments.\n\nHowever, it's important to balance gaming with other activities. Spending too much time playing games can affect schoolwork, physical health, and real-world social interactions. Setting time limits and taking breaks are essential. Remember, games should be a fun hobby, not something that takes over your entire life.",
+    "complexity_level": 2,
+    "topic": "Entertainment",
+    "hard_words": [
+      {
+        "word": "virtual",
+        "translation": "וירטואלי, מדומה"
+      },
+      {
+        "word": "competitive",
+        "translation": "תחרותי"
+      },
+      {
+        "word": "strategy",
+        "translation": "אסטרטגיה"
+      },
+      {
+        "word": "multiplayer",
+        "translation": "רב-משתתפים"
+      },
+      {
+        "word": "creativity",
+        "translation": "יצירתיות"
+      },
+      {
+        "word": "essential",
+        "translation": "חיוני, הכרחי"
+      },
+      {
+        "word": "interactions",
+        "translation": "אינטראקציות, יחסי גומלין"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "99df2d7f-f23e-40cc-9518-1505b865e292",
+    "title_en": "Exploring Ocean Life",
+    "title_he": "חקר חיי הים",
+    "content": "The ocean covers more than 70% of Earth's surface and is home to incredible biodiversity. From tiny plankton to massive blue whales, millions of species live in marine ecosystems. Coral reefs alone support about 25% of all ocean species, despite covering less than 1% of the ocean floor.\n\nOcean life exists at all depths, from the sunny surface waters to the dark deep sea. Each zone has unique conditions and creatures adapted to survive there. Some deep-sea fish produce their own light through bioluminescence, allowing them to see and communicate in complete darkness.\n\nUnfortunately, human activities are threatening ocean ecosystems. Overfishing, pollution, and climate change are damaging marine habitats and causing species to decline. Protecting our oceans is crucial not just for sea creatures, but for humans too. Oceans produce much of the oxygen we breathe and absorb carbon dioxide from the atmosphere.",
+    "complexity_level": 3,
+    "topic": "Nature",
+    "hard_words": [
+      {
+        "word": "ecosystem",
+        "translation": "מערכת אקולוגית"
+      },
+      {
+        "word": "biodiversity",
+        "translation": "מגוון ביולוגי"
+      },
+      {
+        "word": "plankton",
+        "translation": "פלנקטון"
+      },
+      {
+        "word": "bioluminescence",
+        "translation": "ביולומינסנציה (הארה עצמית)"
+      },
+      {
+        "word": "overfishing",
+        "translation": "דיג יתר"
+      },
+      {
+        "word": "marine habitats",
+        "translation": "בתי גידול ימיים"
+      },
+      {
+        "word": "crucial",
+        "translation": "קריטי, חיוני"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "c7d8e025-bd3c-4830-80d4-c610c67d8c9a",
+    "title_en": "Robots and Artificial Intelligence",
+    "title_he": "רובוטים ובינה מלאכותית",
+    "content": "Artificial intelligence and robotics are transforming the way we live and work. AI systems can now recognize faces, understand speech, and even create art. Robots are being used in factories for automation, in hospitals to assist with surgeries, and in homes to help with daily tasks like cleaning.\n\nThe development of AI raises important questions about the future of work. As machines become more capable of performing tasks traditionally done by humans, some jobs may become obsolete. However, new opportunities are also emerging in fields like AI programming, robot maintenance, and human-AI collaboration.\n\nWhile AI offers many benefits, we must also consider the ethical challenges it presents. Issues like privacy, bias in algorithms, and the potential misuse of technology need careful attention. As students preparing for the future, understanding both the possibilities and limitations of AI will be essential. The key is to develop these technologies responsibly, ensuring they benefit all of humanity.",
+    "complexity_level": 4,
+    "topic": "Technology",
+    "hard_words": [
+      {
+        "word": "artificial",
+        "translation": "מלאכותי"
+      },
+      {
+        "word": "automation",
+        "translation": "אוטומציה, תהליך אוטומטי"
+      },
+      {
+        "word": "capable",
+        "translation": "מסוגל"
+      },
+      {
+        "word": "obsolete",
+        "translation": "מיושן, לא רלוונטי"
+      },
+      {
+        "word": "collaboration",
+        "translation": "שיתוף פעולה"
+      },
+      {
+        "word": "ethical",
+        "translation": "מוסרי"
+      },
+      {
+        "word": "responsibly",
+        "translation": "באחריות"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "f8e6446a-03c6-4905-844f-cde410d8c2e3",
+    "title_en": "The Olympic Games",
+    "title_he": "המשחקים האולימפיים",
+    "content": "The Olympic Games are the world's premier international sporting event, bringing together athletes from nearly every country. The modern Olympics began in 1896 in Athens, Greece, reviving an ancient Greek tradition. Today, both Summer and Winter Olympics are held every four years, featuring hundreds of events across dozens of sports.\n\nThe Olympics represent more than just athletic competition. They embody values like sportsmanship, dedication, and respect. Athletes train for years, often sacrificing social activities and facing countless challenges to represent their countries. The Olympic motto, \"Faster, Higher, Stronger,\" inspires competitors to push beyond their limits.\n\nThe Games also promote international cooperation and peace. For a few weeks, nations that might have political differences come together in friendly competition. Many Olympic moments have become legendary, like Jesse Owens' victories in 1936 or the \"Miracle on Ice\" in 1980. These stories remind us that sports have the power to unite people and inspire generations.",
+    "complexity_level": 3,
+    "topic": "Sports",
+    "hard_words": [
+      {
+        "word": "sportsmanship",
+        "translation": "רוח ספורטיבית"
+      },
+      {
+        "word": "dedication",
+        "translation": "מסירות, התמדה"
+      },
+      {
+        "word": "premier",
+        "translation": "מוביל, ראשון במעלה"
+      },
+      {
+        "word": "embody",
+        "translation": "מגלם"
+      },
+      {
+        "word": "sacrificing",
+        "translation": "מקריב"
+      },
+      {
+        "word": "legendary",
+        "translation": "אגדי"
+      },
+      {
+        "word": "unite",
+        "translation": "לאחד"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "32f75397-a2c3-444d-9d90-8bc2ac8b858c",
+    "title_en": "The Mystery of Time Travel",
+    "title_he": "תעלומת המסע בזמן",
+    "content": "Time travel has fascinated scientists and storytellers for over a century. While it remains purely theoretical, physicists have explored various scenarios where time travel might be possible. Einstein's theory of relativity suggests that time moves differently depending on speed and gravity. Theoretically, if you could travel near the speed of light, time would pass more slowly for you than for people on Earth.\n\nOne famous thought experiment is the \"grandfather paradox.\" This hypothesis asks: What if you traveled back in time and prevented your grandfather from meeting your grandmother? You would never be born, so how could you travel back in time in the first place? This logical contradiction has led scientists to propose many theories, including parallel universes and predetermined timelines.\n\nDespite these fascinating ideas, most scientists believe practical time travel is impossible due to enormous energy requirements and fundamental laws of physics. However, thinking about time travel helps us understand the nature of the universe better. It challenges our assumptions about causality, free will, and the structure of reality itself. Whether or not we ever build a time machine, the concept continues to inspire both scientific inquiry and creative imagination.",
+    "complexity_level": 5,
+    "topic": "Science Fiction",
+    "hard_words": [
+      {
+        "word": "paradox",
+        "translation": "פרדוקס, סתירה"
+      },
+      {
+        "word": "hypothesis",
+        "translation": "השערה, הנחה"
+      },
+      {
+        "word": "relativity",
+        "translation": "יחסות (תורת)"
+      },
+      {
+        "word": "predetermined",
+        "translation": "נקבע מראש"
+      },
+      {
+        "word": "causality",
+        "translation": "סיבתיות"
+      },
+      {
+        "word": "fundamental",
+        "translation": "בסיסי, יסודי"
+      },
+      {
+        "word": "inquiry",
+        "translation": "חקירה, מחקר"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-01-22T06:54:27.978Z"
+  }
+]
