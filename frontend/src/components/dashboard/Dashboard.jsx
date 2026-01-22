@@ -106,31 +106,53 @@ const Dashboard = () => {
           {nextLesson ? (
             (() => {
               const lastActivity = recentActivity?.[0];
-              const hasIncompleteExercise = lastActivity && lastActivity.score < 70;
-
-              // Difficulty labels in Hebrew
+              const difficultyOrder = ['easy', 'medium', 'hard'];
               const difficultyLabels = {
                 easy: 'קל',
                 medium: 'בינוני',
                 hard: 'מתקדם'
               };
 
-              const targetTitle = hasIncompleteExercise ? lastActivity.title_he : nextLesson.title_he;
-              const targetDifficulty = hasIncompleteExercise
-                ? (lastActivity.difficulty || 'easy')
-                : null;
+              // Determine target calculation
+              let targetLessonId, targetDifficulty, targetTitle, isNextLesson = false;
+              let shouldNavigateToExercise = false;
+
+              // If no activity, just go to next lesson
+              if (!lastActivity) {
+                isNextLesson = true;
+                targetLessonId = nextLesson.id;
+                targetTitle = nextLesson.title_he;
+              } else {
+                // Check next difficulty regardless of score
+                const currentDifficulty = lastActivity.difficulty || 'easy';
+                const currentIndex = difficultyOrder.indexOf(currentDifficulty);
+
+                if (currentIndex >= 0 && currentIndex < difficultyOrder.length - 1) {
+                  // Go to next difficulty (Easy -> Medium -> Hard)
+                  shouldNavigateToExercise = true;
+                  targetLessonId = lastActivity.lesson_id; // Stay on same lesson
+                  targetDifficulty = difficultyOrder[currentIndex + 1];
+                  targetTitle = lastActivity.title_he;
+                } else {
+                  // Finished hard (or unknown) -> Go to next lesson
+                  isNextLesson = true;
+                  targetLessonId = nextLesson.id;
+                  targetTitle = nextLesson.title_he;
+                }
+              }
+
               const difficultyLabel = targetDifficulty
-                ? difficultyLabels[targetDifficulty] || targetDifficulty
+                ? difficultyLabels[targetDifficulty]
                 : null;
 
               return (
                 <button
                   className="continue-training-btn"
                   onClick={() => {
-                    if (hasIncompleteExercise) {
-                      navigate(`/exercise/${lastActivity.lesson_id}?difficulty=${targetDifficulty}`);
+                    if (shouldNavigateToExercise) {
+                      navigate(`/exercise/${targetLessonId}?difficulty=${targetDifficulty}`);
                     } else {
-                      navigate(`/learn/${nextLesson.id}`);
+                      navigate(`/learn/${targetLessonId}`);
                     }
                   }}
                 >
@@ -139,10 +161,12 @@ const Dashboard = () => {
                     <div className="continue-training-label">המשך אימון</div>
                     <div className="continue-training-lesson">{targetTitle}</div>
                     <div className="continue-training-detail">
-                      {hasIncompleteExercise ? (
+                      {shouldNavigateToExercise ? (
                         <>
                           תרגול רמה: <span className="difficulty-badge">{difficultyLabel}</span>
-                          {' • '}ציון אחרון: {lastActivity.score}%
+                          {(lastActivity && !isNextLesson && lastActivity.lesson_id === targetLessonId && difficultyOrder.indexOf(lastActivity.difficulty || 'easy') === difficultyOrder.indexOf(targetDifficulty)) ? (
+                            <> {' • '}ציון אחרון: {lastActivity.score}%</>
+                          ) : null}
                         </>
                       ) : (
                         <>שיעור חדש</>
