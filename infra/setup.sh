@@ -11,8 +11,7 @@
 set -euo pipefail
 
 PROJECT_ID="${1:?usage: setup.sh <PROJECT_ID> [REGION]}"
-REGION="${2:-me-west1}"
-FALLBACK_REGION="europe-west1"
+REGION="${2:-europe-west1}"
 
 GITHUB_REPO="YossiZini/english-trainer"
 SERVICE="english-trainer-api"
@@ -27,6 +26,22 @@ BUDGET_USD="5"
 
 log()  { printf '\n\033[1;34m==> %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33mWARN: %s\033[0m\n' "$*"; }
+
+# A freshly created service account takes a few seconds to propagate through
+# IAM; bindings made too early fail with "does not exist". Retry them.
+retry() {
+  local attempt
+  for attempt in 1 2 3 4 5 6; do
+    if "$@"; then return 0; fi
+    echo "  (attempt $attempt failed, retrying in 10s)"
+    sleep 10
+  done
+  "$@"
+}
+bind_project_role() {  # member role
+  retry gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+    --member="$1" --role="$2" --condition=None --quiet >/dev/null
+}
 
 gcloud config set project "$PROJECT_ID" >/dev/null
 PROJECT_NUMBER="$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')"
@@ -62,16 +77,14 @@ gcloud services enable \
   monitoring.googleapis.com \
   billingbudgets.googleapis.com
 
-# ---------------------------------------------------------------- region checks
-log "Checking region availability for $REGION"
-if ! gcloud run regions list --format='value(name)' | grep -qx "$REGION"; then
-  warn "Cloud Run is not available in $REGION; using $FALLBACK_REGION"
-  REGION="$FALLBACK_REGION"
-fi
+# ---------------------------------------------------------------- region
+# The region is taken as given. Firestore's location cannot be changed after
+# creation, so if a database already exists its location wins.
 FIRESTORE_REGION="$REGION"
-if ! gcloud firestore locations list --format='value(name)' 2>/dev/null | grep -qx "$FIRESTORE_REGION"; then
-  warn "Firestore is not available in $FIRESTORE_REGION; using $FALLBACK_REGION for Firestore"
-  FIRESTORE_REGION="$FALLBACK_REGION"
+EXISTING_FS_LOCATION="$(gcloud firestore databases describe --database='(default)' --format='value(locationId)' 2>/dev/null || true)"
+if [[ -n "$EXISTING_FS_LOCATION" && "$EXISTING_FS_LOCATION" != "$REGION" ]]; then
+  warn "Firestore already exists in $EXISTING_FS_LOCATION (requested $REGION); keeping it"
+  FIRESTORE_REGION="$EXISTING_FS_LOCATION"
 fi
 echo "Cloud Run / bucket region: $REGION"
 echo "Firestore region:          $FIRESTORE_REGION"
@@ -120,8 +133,7 @@ else
     --display-name="English Trainer API (Cloud Run runtime)"
 fi
 for role in roles/datastore.user roles/secretmanager.secretAccessor; do
-  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:$RUNTIME_SA" --role="$role" --condition=None >/dev/null
+  bind_project_role "serviceAccount:$RUNTIME_SA" "$role"
 done
 
 # ---------------------------------------------------------------- JWT secret
@@ -149,14 +161,13 @@ for role in \
   roles/firebaserules.admin \
   roles/datastore.indexAdmin \
   roles/serviceusage.serviceUsageConsumer; do
-  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:$DEPLOYER_SA" --role="$role" --condition=None >/dev/null
+  bind_project_role "serviceAccount:$DEPLOYER_SA" "$role"
 done
 # Deploying a Cloud Run revision that runs as the runtime SA requires actAs on it.
-gcloud iam service-accounts add-iam-policy-binding "$RUNTIME_SA" \
-  --member="serviceAccount:$DEPLOYER_SA" --role=roles/iam.serviceAccountUser >/dev/null
+retry gcloud iam service-accounts add-iam-policy-binding "$RUNTIME_SA" \
+  --member="serviceAccount:$DEPLOYER_SA" --role=roles/iam.serviceAccountUser --quiet >/dev/null
 # Uploading videos.
-gcloud storage buckets add-iam-policy-binding "gs://$BUCKET" \
+retry gcloud storage buckets add-iam-policy-binding "gs://$BUCKET" \
   --member="serviceAccount:$DEPLOYER_SA" --role=roles/storage.objectAdmin >/dev/null
 
 log "Workload Identity Federation for $GITHUB_REPO"
@@ -178,7 +189,7 @@ else
     --attribute-condition="assertion.repository == '${GITHUB_REPO}'"
 fi
 WIF_PROVIDER="projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${POOL}/providers/${PROVIDER}"
-gcloud iam service-accounts add-iam-policy-binding "$DEPLOYER_SA" \
+retry gcloud iam service-accounts add-iam-policy-binding "$DEPLOYER_SA" --quiet \
   --role=roles/iam.workloadIdentityUser \
   --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${POOL}/attribute.repository/${GITHUB_REPO}" >/dev/null
 

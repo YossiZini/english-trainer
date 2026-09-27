@@ -1,10 +1,10 @@
 # Cloud Run service definition for the English Trainer API.
 #
 # CI substitutes the image tag and applies it with:
-#   gcloud run services replace infra/cloudrun-service.yaml --region me-west1
+#   gcloud run services replace infra/cloudrun-service.yaml --region europe-west1
 # Public access is granted once by:
 #   gcloud run services add-iam-policy-binding english-trainer-api \
-#     --region me-west1 --member=allUsers --role=roles/run.invoker
+#     --region europe-west1 --member=allUsers --role=roles/run.invoker
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
@@ -23,7 +23,7 @@ spec:
       containerConcurrency: 80
       timeoutSeconds: 60
       containers:
-        - image: me-west1-docker.pkg.dev/teacher-509909/english-trainer/api:latest
+        - image: europe-west1-docker.pkg.dev/teacher-509909/english-trainer/api:latest
           ports:
             - name: http1
               containerPort: 8080

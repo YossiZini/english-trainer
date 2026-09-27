@@ -45,7 +45,7 @@ many, and each instance would hold its own copy of the data.
 | Videos | Public Cloud Storage bucket; removed from the git repo |
 | Secrets | Secret Manager (`jwt-secret`), bound into Cloud Run as an env var |
 | CI/CD | GitHub Actions with Workload Identity Federation (keyless) |
-| Region | `me-west1` (Tel Aviv) when available, otherwise `europe-west1` |
+| Region | `europe-west1` (Belgium); Cloud Run, Firestore and the bucket all live there |
 
 ## 5. Target architecture
 
