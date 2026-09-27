@@ -5,6 +5,7 @@ import exerciseService from '../../services/exerciseService';
 import MultipleChoice from './MultipleChoice';
 import FillInBlank from './FillInBlank';
 import ExerciseActionBar from './ExerciseActionBar';
+import ExerciseFeedback from './ExerciseFeedback';
 import useScrollToQuestion from './useScrollToQuestion';
 import './ExercisePage.css';
 
@@ -351,27 +352,7 @@ const CrossTestPage = () => {
               />
             )}
 
-            {/* Feedback Display */}
-            {currentFeedback && (
-              <div className={`feedback ${currentFeedback.isCorrect ? 'correct' : 'incorrect'}`}>
-                <div className="feedback-icon">
-                  {currentFeedback.isCorrect ? '✅' : '❌'}
-                </div>
-                <div className="feedback-content">
-                  {currentFeedback.isCorrect ? (
-                    <p className="feedback-message">כל הכבוד! התשובה נכונה!</p>
-                  ) : (
-                    <>
-                      <p className="feedback-message">התשובה שגויה</p>
-                      <p className="feedback-correct">התשובה הנכונה: {currentFeedback.correctAnswer}</p>
-                    </>
-                  )}
-                  {currentFeedback.explanationHe && (
-                    <p className="feedback-explanation">{currentFeedback.explanationHe}</p>
-                  )}
-                </div>
-              </div>
-            )}
+            <ExerciseFeedback feedback={currentFeedback} feedbackKey={currentExercise.id} />
           </div>
 
         </div>

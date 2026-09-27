@@ -23,7 +23,9 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 
-const APP_URL = process.env.APP_URL || 'http://127.0.0.1:3000';
+// localhost (not 127.0.0.1): the API's default CORS allow-list is http://localhost:3000,
+// which matters for the SERVE_BUILD=0 dev-server path where the browser calls the API directly.
+const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 const API_URL = process.env.API_URL || 'http://127.0.0.1:5000/api';
 const QUESTIONS = Number(process.env.QUESTIONS || 6);
 const SHOTS_DIR = process.env.SHOTS_DIR || '';
@@ -31,6 +33,7 @@ const SERVE_BUILD = process.env.SERVE_BUILD !== '0';
 const SIZES = [
   { name: 'laptop', width: 1366, height: 768 },
   { name: 'phone', width: 390, height: 844, mobile: true },
+  { name: 'narrow-phone', width: 360, height: 740, mobile: true },
 ];
 
 /** Serve frontend/build and forward /api/* to the API, like the Hosting rewrite. */
@@ -54,18 +57,27 @@ function serveBuild(port) {
       req.pipe(proxy);
       return;
     }
-    let file = path.join(build, decodeURIComponent(req.url.split('?')[0]));
-    if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(build, 'index.html');
+    // Stay inside build/ and survive malformed percent-encoding
+    let pathname = '/';
+    try { pathname = decodeURIComponent(req.url.split('?')[0]); } catch (e) { pathname = '/'; }
+    let file = path.resolve(build, '.' + pathname);
+    if (!file.startsWith(build + path.sep) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+      file = path.join(build, 'index.html');
+    }
     res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream' });
     fs.createReadStream(file).pipe(res);
   });
-  return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
+  return new Promise((resolve) => server.listen(port, () => resolve(server)));
 }
 
 async function api(route, opts = {}) {
   const res = await fetch(API_URL + route, { ...opts, headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) } });
-  const body = await res.json();
-  if (!res.ok || body.success === false) throw new Error(`${route}: ${body.message || res.status}`);
+  const text = await res.text();
+  const isJson = (res.headers.get('content-type') || '').includes('application/json');
+  const body = isJson ? JSON.parse(text) : null;
+  if (!res.ok || !body || body.success === false) {
+    throw new Error(`${route}: HTTP ${res.status}${body && body.message ? ' - ' + body.message : ''}${!isJson ? ' - ' + text.slice(0, 120) : ''}`);
+  }
   return body;
 }
 
@@ -99,6 +111,8 @@ async function api(route, opts = {}) {
         questionTop: document.querySelector('.question-container').getBoundingClientRect().top,
         navbarBottom: navbar ? navbar.getBoundingClientRect().bottom : 0,
         type: document.querySelector('.option') ? 'mc' : 'fill',
+        // labels must stay inside their buttons (narrow phones)
+        buttonsFit: [...document.querySelectorAll('.exercise-navigation button')].every(b => b.scrollWidth <= b.clientWidth + 1),
       };
     });
 
@@ -111,8 +125,8 @@ async function api(route, opts = {}) {
       const m = await metric();
       const overflow = Math.round(m.contentBottom - m.barTop);
       worst = Math.max(worst, overflow);
-      const fits = overflow <= 1 && m.barVisible;
-      console.log(`${size.name} q${q + 1} (${m.type}): overflow=${overflow}px fits=${fits}`);
+      const fits = overflow <= 1 && m.barVisible && m.buttonsFit;
+      console.log(`${size.name} q${q + 1} (${m.type}): overflow=${overflow}px fits=${fits}${m.buttonsFit ? '' : ' (button label overflows)'}`);
       if (!fits) failures++;
       if (SHOTS_DIR && (q === 0 || !fits)) await page.screenshot({ path: path.join(SHOTS_DIR, `${size.name}-q${q + 1}${fits ? '' : '-overflow'}.png`) });
 

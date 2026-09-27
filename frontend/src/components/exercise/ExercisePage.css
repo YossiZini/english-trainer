@@ -9,10 +9,13 @@
    page exactly one viewport tall when the content fits, so nothing scrolls. */
 .exercise-page--pinned {
   box-sizing: border-box;
-  /* the sticky navbar (~4.25rem) sits above the page; without subtracting it
-     the document is always one navbar taller than the viewport */
-  min-height: calc(100vh - 4.25rem);
-  padding-bottom: 6rem;
+  /* the sticky navbar sits above the page; without subtracting it the
+     document is always one navbar taller than the viewport. dvh follows the
+     mobile browser chrome; vh is the fallback. */
+  min-height: calc(100vh - var(--navbar-height, 4.25rem));
+  min-height: calc(100dvh - var(--navbar-height, 4.25rem));
+  /* room for the fixed action bar, which grows by the safe-area inset */
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 .exercise-container {
@@ -159,7 +162,7 @@
 .question-container {
   margin-bottom: 0;
   /* keep the question below the sticky navbar when scrolled into view */
-  scroll-margin-top: 4.5rem;
+  scroll-margin-top: calc(var(--navbar-height, 4.25rem) + 0.25rem);
 }
 
 .question-number {
@@ -625,7 +628,7 @@
   }
 
   .exercise-page--pinned {
-    padding-bottom: 6rem;
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
   }
 
   .exercise-header {
@@ -644,11 +647,7 @@
     font-size: 1.05rem;
   }
 
-  .question-container {
-    scroll-margin-top: 3.75rem;
-  }
-
-  /* Long explanations fold to three lines behind a tap */
+  /* Long explanations fold to two lines behind a tap */
   .exercise-page .feedback-explanation.clamped {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -672,8 +671,10 @@
   .exercise-page .check-button,
   .exercise-page .submit-button {
     flex: 1;
-    padding: 0.6rem 0.5rem;
+    padding: 0.5rem 0.4rem;
     font-size: 0.9rem;
+    line-height: 1.2;
+    white-space: normal; /* narrow phones (360px): let labels wrap instead of overflowing */
   }
 
   /* Recap page responsive styles */

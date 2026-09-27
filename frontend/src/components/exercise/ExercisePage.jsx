@@ -7,6 +7,7 @@ import MultipleChoice from './MultipleChoice';
 import FillInBlank from './FillInBlank';
 import PreviousAttemptModal from './PreviousAttemptModal';
 import ExerciseActionBar from './ExerciseActionBar';
+import ExerciseFeedback from './ExerciseFeedback';
 import useScrollToQuestion from './useScrollToQuestion';
 import './ExercisePage.css';
 
@@ -32,18 +33,12 @@ const ExercisePage = () => {
   const [error, setError] = useState('');
   const [showPreviousAttemptModal, setShowPreviousAttemptModal] = useState(false);
   const [lessonProgress, setLessonProgress] = useState(null);
-  const [explanationExpanded, setExplanationExpanded] = useState(false);
   const questionRef = useScrollToQuestion(currentIndex);
 
   useEffect(() => {
     loadExercises();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId, isRetryMode]);
-
-  // A new question starts with its explanation folded (phones)
-  useEffect(() => {
-    setExplanationExpanded(false);
-  }, [currentIndex]);
 
   // Handle Enter key press to submit answer or navigate
   useEffect(() => {
@@ -331,38 +326,7 @@ const ExercisePage = () => {
               />
             )}
 
-            {/* Feedback Display */}
-            {currentFeedback && (
-              <div className={`feedback ${currentFeedback.isCorrect ? 'correct' : 'incorrect'}`}>
-                <div className="feedback-icon">
-                  {currentFeedback.isCorrect ? '✅' : '❌'}
-                </div>
-                <div className="feedback-content">
-                  {currentFeedback.isCorrect ? (
-                    <p className="feedback-message">כל הכבוד! התשובה נכונה!</p>
-                  ) : (
-                    <>
-                      <p className="feedback-message">התשובה שגויה</p>
-                      <p className="feedback-correct">התשובה הנכונה: {currentFeedback.correctAnswer}</p>
-                    </>
-                  )}
-                  {currentFeedback.explanationHe && (
-                    <>
-                      <p className={`feedback-explanation ${explanationExpanded ? '' : 'clamped'}`}>
-                        {currentFeedback.explanationHe}
-                      </p>
-                      <button
-                        type="button"
-                        className="feedback-toggle"
-                        onClick={() => setExplanationExpanded(!explanationExpanded)}
-                      >
-                        {explanationExpanded ? 'הצג פחות' : 'הצג עוד'}
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
+            <ExerciseFeedback feedback={currentFeedback} feedbackKey={currentExercise.id} />
           </div>
 
         </div>

@@ -79,8 +79,10 @@ cd frontend && npm run build && npm run check:viewport
 ```
 
 Set `SHOTS_DIR=shots` to save screenshots, `QUESTIONS=10` to walk more
-questions, or `SERVE_BUILD=0 APP_URL=http://127.0.0.1:3000` to check a running
-`npm start` dev server instead of the build.
+questions, or `SERVE_BUILD=0` to check a running `npm start` dev server on
+`http://localhost:3000` instead of the build (the dev bundle calls the API
+directly, so keep `localhost`, which the API's default CORS list allows). The
+check covers 1366×768, 390×844 and 360×740.
 
 ## Project structure
 
