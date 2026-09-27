@@ -27,6 +27,11 @@ describe('splitFractions', () => {
     expect(splitFractions('1/2, 3/4').filter(p => p.raw).map(p => p.raw)).toEqual(['1/2', '3/4']);
     expect(splitFractions('')).toEqual([]);
   });
+
+  test('an unknown numerator or denominator is a fraction too', () => {
+    expect(splitFractions('3/4 = ?/12').filter(p => p.raw).map(p => p.raw)).toEqual(['3/4', '?/12']);
+    expect(splitFractions('9/? = 3/4').filter(p => p.raw).map(p => p.raw)).toEqual(['9/?', '3/4']);
+  });
 });
 
 test('MathText renders numerator over denominator', () => {
