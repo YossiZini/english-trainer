@@ -124,9 +124,9 @@ class Lesson {
   /**
    * Get next lesson by order
    */
-  static async getNextLesson(currentOrderIndex) {
+  static async getNextLesson(currentOrderIndex, subject = 'english') {
     const lessons = await db.find('lessons',
-      { order_index: { $gt: currentOrderIndex } },
+      { subject, order_index: { $gt: currentOrderIndex } },
       { sort: { order_index: 'asc' }, limit: 1 }
     );
 
@@ -147,9 +147,9 @@ class Lesson {
   /**
    * Get previous lesson by order
    */
-  static async getPreviousLesson(currentOrderIndex) {
+  static async getPreviousLesson(currentOrderIndex, subject = 'english') {
     const lessons = await db.find('lessons',
-      { order_index: { $lt: currentOrderIndex } },
+      { subject, order_index: { $lt: currentOrderIndex } },
       { sort: { order_index: 'desc' }, limit: 1 }
     );
 

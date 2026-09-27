@@ -101,11 +101,11 @@ const LearningPage = () => {
   return (
     <div className="learning-container">
       <nav className="learning-nav">
-        <Link to="/topics" className="btn-nav-back">
-          ← חזור לנושאים
+        <Link to={lesson.subject === 'math' ? '/math' : '/topics'} className="btn-nav-back">
+          ← {lesson.subject === 'math' ? 'חזור למתמטיקה' : 'חזור לנושאים'}
         </Link>
         <div className="lesson-breadcrumb">
-          <span>נושא {lesson.topicNumber}</span>
+          <span>נושא {lesson.topicNumber > 100 ? lesson.topicNumber - 100 : lesson.topicNumber}</span>
           <span className="separator">›</span>
           <div className="subtopic-dropdown-wrapper" ref={dropdownRef}>
             <button
@@ -120,7 +120,7 @@ const LearningPage = () => {
             {showSubtopicsDropdown && (
               <div className="subtopics-dropdown">
                 <div className="dropdown-header">
-                  תתי נושאים בנושא {lesson.topicNumber}
+                  תתי נושאים בנושא {lesson.topicNumber > 100 ? lesson.topicNumber - 100 : lesson.topicNumber}
                 </div>
                 <div className="dropdown-list">
                   {topicLessons.length > 0 ? (

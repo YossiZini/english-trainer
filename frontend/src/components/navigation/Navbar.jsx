@@ -34,6 +34,20 @@ const Navbar = () => {
 
         <div className="navbar-center">
           <h1 className="navbar-title">English Tutorial</h1>
+          <div className="navbar-links" role="navigation" aria-label="נושאי לימוד">
+            <button
+              className={`navbar-link ${location.pathname === '/topics' ? 'active' : ''}`}
+              onClick={() => navigate('/topics')}
+            >
+              אנגלית
+            </button>
+            <button
+              className={`navbar-link ${location.pathname === '/math' ? 'active' : ''}`}
+              onClick={() => navigate('/math')}
+            >
+              מתמטיקה
+            </button>
+          </div>
         </div>
 
         <div className="navbar-right">

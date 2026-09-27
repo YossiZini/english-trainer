@@ -275,7 +275,16 @@ const Dashboard = () => {
             >
               <div className="action-icon">📋</div>
               <div className="action-title">כל הנושאים</div>
-              <div className="action-subtitle">בחר שיעור</div>
+              <div className="action-subtitle">אנגלית — בחר שיעור</div>
+            </button>
+
+            <button
+              className="action-card secondary"
+              onClick={() => navigate('/math')}
+            >
+              <div className="action-icon">🔢</div>
+              <div className="action-title">מתמטיקה</div>
+              <div className="action-subtitle">שברים, סדר פעולות, ממוצע, אחוזים</div>
             </button>
 
             <button

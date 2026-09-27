@@ -9,6 +9,7 @@ const lessonService = {
       const params = new URLSearchParams();
       if (filters.level) params.append('level', filters.level);
       if (filters.topicNumber) params.append('topicNumber', filters.topicNumber);
+      if (filters.subject) params.append('subject', filters.subject);
 
       const response = await api.get(`/lessons?${params.toString()}`);
       return response.data;

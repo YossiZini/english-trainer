@@ -91,11 +91,12 @@ class LessonService {
     };
 
     // Get next and previous lessons
-    const nextLesson = await Lesson.getNextLesson(lesson.order_index);
-    const previousLesson = await Lesson.getPreviousLesson(lesson.order_index);
+    const nextLesson = await Lesson.getNextLesson(lesson.order_index, lesson.subject || 'english');
+    const previousLesson = await Lesson.getPreviousLesson(lesson.order_index, lesson.subject || 'english');
 
     return {
       id: lesson.id,
+      subject: lesson.subject || 'english',
       topicNumber: lesson.topic_number,
       subtopicNumber: lesson.subtopic_number,
       titleEn: lesson.title_en,
@@ -210,7 +211,7 @@ class LessonService {
     }
 
     // Check if previous lesson is completed with passing score
-    const previousLesson = await Lesson.getPreviousLesson(lesson.order_index);
+    const previousLesson = await Lesson.getPreviousLesson(lesson.order_index, lesson.subject || 'english');
 
     if (!previousLesson) {
       return true; // No previous lesson, allow access
