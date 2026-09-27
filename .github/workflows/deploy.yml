@@ -96,4 +96,14 @@ jobs:
         env:
           CI: "false"
       - name: Deploy Hosting and Firestore rules
-        run: npx --yes firebase-tools@14 deploy --only hosting,firestore --project "$PROJECT_ID" --non-interactive
+        # The Hosting release API occasionally answers HTTP 500 after the
+        # upload succeeded; the deploy is idempotent, so retry a few times.
+        run: |
+          for attempt in 1 2 3; do
+            if npx --yes firebase-tools@14 deploy --only hosting,firestore --project "$PROJECT_ID" --non-interactive; then
+              exit 0
+            fi
+            echo "firebase deploy failed (attempt $attempt); retrying in 30s"
+            sleep 30
+          done
+          exit 1
