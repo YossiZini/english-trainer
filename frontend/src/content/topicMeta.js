@@ -282,7 +282,6 @@ const mathTopicVideos = {};
 const topicMeta = {
   english: {
     title: 'נושאי לימוד',
-    subtitle: 'אנגלית',
     route: '/topics',
     nameKey: 'en',
     numberOffset: 0,
@@ -293,7 +292,6 @@ const topicMeta = {
   },
   math: {
     title: 'מתמטיקה',
-    subtitle: 'כיתות ז׳–ח׳',
     route: '/math',
     nameKey: 'he',
     numberOffset: 100,

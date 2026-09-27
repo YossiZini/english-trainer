@@ -53,7 +53,7 @@ const Navbar = () => {
         <div className="navbar-right">
           {user && (
             <>
-              <span className="navbar-user">שלום, {user.username}</span>
+              <span className="navbar-user">שלום, {user.name || user.username}</span>
               <button className="navbar-logout" onClick={handleLogout}>
                 יציאה
               </button>
