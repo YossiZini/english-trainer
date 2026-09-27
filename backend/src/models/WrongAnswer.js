@@ -11,7 +11,7 @@ class WrongAnswer {
       criteria.is_corrected = false;
     }
 
-    const wrongAnswers = db.find('wrong_answers', criteria);
+    const wrongAnswers = await db.find('wrong_answers', criteria);
 
     // Get exercises for joining
     const exercises = db.getCollection('exercises', true);
@@ -57,7 +57,7 @@ class WrongAnswer {
       criteria.is_corrected = false;
     }
 
-    const wrongAnswers = db.find('wrong_answers', criteria);
+    const wrongAnswers = await db.find('wrong_answers', criteria);
 
     // Get exercises and lessons for joining
     const exercises = db.getCollection('exercises', true);
@@ -107,7 +107,7 @@ class WrongAnswer {
    * Mark mistakes as reviewed
    */
   static async markAsReviewed(userId, lessonId) {
-    const wrongAnswers = db.find('wrong_answers', {
+    const wrongAnswers = await db.find('wrong_answers', {
       user_id: userId,
       lesson_id: lessonId,
       is_reviewed: false
@@ -115,7 +115,7 @@ class WrongAnswer {
 
     let count = 0;
     for (const wa of wrongAnswers) {
-      db.updateById('wrong_answers', wa.id, { is_reviewed: true });
+      await db.updateById('wrong_answers', wa.id, { is_reviewed: true });
       count++;
     }
 
@@ -126,7 +126,7 @@ class WrongAnswer {
    * Mark a single mistake as corrected
    */
   static async markAsCorrected(exerciseId, userId) {
-    const wrongAnswers = db.find('wrong_answers', {
+    const wrongAnswers = await db.find('wrong_answers', {
       exercise_id: exerciseId,
       user_id: userId,
       is_corrected: false
@@ -138,7 +138,7 @@ class WrongAnswer {
 
     const timestamp = new Date().toISOString();
     for (const wa of wrongAnswers) {
-      db.updateById('wrong_answers', wa.id, {
+      await db.updateById('wrong_answers', wa.id, {
         is_corrected: true,
         corrected_at: timestamp
       });
@@ -151,7 +151,7 @@ class WrongAnswer {
    * Get mistake statistics for a user
    */
   static async getStatistics(userId) {
-    const wrongAnswers = db.find('wrong_answers', { user_id: userId });
+    const wrongAnswers = await db.find('wrong_answers', { user_id: userId });
 
     const stats = {
       total_mistakes: wrongAnswers.length,
@@ -178,7 +178,7 @@ class WrongAnswer {
    * Get mistakes grouped by lesson for a user
    */
   static async getMistakesByLesson(userId) {
-    const wrongAnswers = db.find('wrong_answers', { user_id: userId });
+    const wrongAnswers = await db.find('wrong_answers', { user_id: userId });
 
     const lessons = db.getCollection('lessons', true);
     const lessonMap = new Map(lessons.map(l => [l.id, l]));
@@ -225,7 +225,7 @@ class WrongAnswer {
    * (Used when user wants to reset their mistakes)
    */
   static async deleteByExerciseAndUser(exerciseId, userId) {
-    const result = db.delete('wrong_answers', {
+    const result = await db.delete('wrong_answers', {
       exercise_id: exerciseId,
       user_id: userId
     });
@@ -237,7 +237,7 @@ class WrongAnswer {
    * Check if a user has any uncorrected mistakes for a lesson
    */
   static async hasUncorrectedMistakes(userId, lessonId) {
-    const wrongAnswers = db.find('wrong_answers', {
+    const wrongAnswers = await db.find('wrong_answers', {
       user_id: userId,
       lesson_id: lessonId,
       is_corrected: false
@@ -250,7 +250,7 @@ class WrongAnswer {
    * Create a new wrong answer record
    */
   static async create(data) {
-    const wrongAnswer = db.insert('wrong_answers', {
+    const wrongAnswer = await db.insert('wrong_answers', {
       user_id: data.userId,
       lesson_id: data.lessonId,
       exercise_id: data.exerciseId,

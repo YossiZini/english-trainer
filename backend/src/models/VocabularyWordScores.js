@@ -47,7 +47,7 @@ class VocabularyWordScores {
 
     if (existing) {
       // Update existing record
-      db.updateById('vocabulary_word_scores', existing.id, {
+      await db.updateById('vocabulary_word_scores', existing.id, {
         success_count: successCount,
         fail_count: failCount,
         attempt_history: attemptHistory,
@@ -56,11 +56,11 @@ class VocabularyWordScores {
         updated_at: timestamp
       });
 
-      return db.findById('vocabulary_word_scores', existing.id);
+      return await db.findById('vocabulary_word_scores', existing.id);
     }
 
     // Create new record
-    const record = db.insert('vocabulary_word_scores', {
+    const record = await db.insert('vocabulary_word_scores', {
       user_id: userId,
       word_id: wordId,
       success_count: successCount,
@@ -114,7 +114,7 @@ class VocabularyWordScores {
    * @returns {object|null} Word score record
    */
   static async getWordScore(userId, wordId) {
-    const record = db.findOne('vocabulary_word_scores', {
+    const record = await db.findOne('vocabulary_word_scores', {
       user_id: userId,
       word_id: wordId
     });
@@ -128,7 +128,7 @@ class VocabularyWordScores {
    * @returns {Array} All word scores with word details
    */
   static async getAllWordScores(userId) {
-    const scores = db.find('vocabulary_word_scores', { user_id: userId });
+    const scores = await db.find('vocabulary_word_scores', { user_id: userId });
 
     // Get vocabulary words for joining
     const words = db.getCollection('vocabulary_words', true);
@@ -157,7 +157,7 @@ class VocabularyWordScores {
    * @returns {Array} Words at the specified mastery level
    */
   static async getWordsByMastery(userId, masteryLevel) {
-    const scores = db.find('vocabulary_word_scores', {
+    const scores = await db.find('vocabulary_word_scores', {
       user_id: userId,
       mastery_level: masteryLevel
     });
@@ -201,7 +201,7 @@ class VocabularyWordScores {
    * @returns {Array} Failed words sorted by priority
    */
   static async getPrioritizedFailedWords(userId, limit) {
-    const scores = db.find('vocabulary_word_scores', {
+    const scores = await db.find('vocabulary_word_scores', {
       user_id: userId,
       mastery_level: 'struggling'
     });
@@ -233,7 +233,7 @@ class VocabularyWordScores {
    * @returns {Array} Array of word IDs
    */
   static async getAllAttemptedWordIds(userId) {
-    const scores = db.find('vocabulary_word_scores', { user_id: userId });
+    const scores = await db.find('vocabulary_word_scores', { user_id: userId });
     return scores.map(s => s.word_id);
   }
 
@@ -243,7 +243,7 @@ class VocabularyWordScores {
    * @returns {object} Statistics summary
    */
   static async getStatsSummary(userId) {
-    const scores = db.find('vocabulary_word_scores', { user_id: userId });
+    const scores = await db.find('vocabulary_word_scores', { user_id: userId });
 
     const stats = {
       totalWordsAttempted: 0,
@@ -297,7 +297,7 @@ class VocabularyWordScores {
    * @returns {Array} Top struggling words
    */
   static async getTopStrugglingWords(userId, limit = 10) {
-    const scores = db.find('vocabulary_word_scores', {
+    const scores = await db.find('vocabulary_word_scores', {
       user_id: userId,
       mastery_level: 'struggling'
     });
@@ -334,7 +334,7 @@ class VocabularyWordScores {
    * @returns {Array} Recently mastered words
    */
   static async getRecentlyMastered(userId, limit = 5) {
-    const scores = db.find('vocabulary_word_scores', {
+    const scores = await db.find('vocabulary_word_scores', {
       user_id: userId,
       mastery_level: 'mastered'
     });
@@ -366,7 +366,7 @@ class VocabularyWordScores {
    * @returns {object|null} Word score with full history
    */
   static async getWordHistory(userId, wordId) {
-    const score = db.findOne('vocabulary_word_scores', {
+    const score = await db.findOne('vocabulary_word_scores', {
       user_id: userId,
       word_id: wordId
     });
@@ -396,7 +396,7 @@ class VocabularyWordScores {
    * @returns {Array} Words with past errors
    */
   static async getWordsWithPastErrors(userId, minFailures = 1, limit = null) {
-    const scores = db.find('vocabulary_word_scores', { user_id: userId });
+    const scores = await db.find('vocabulary_word_scores', { user_id: userId });
 
     // Filter by minimum failures
     const filtered = scores.filter(s => (s.fail_count || 0) >= minFailures);

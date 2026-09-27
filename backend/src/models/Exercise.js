@@ -5,7 +5,7 @@ class Exercise {
    * Get all exercises for a lesson
    */
   static async findByLessonId(lessonId) {
-    const exercises = db.findByIndex('exercises', 'lesson_id', lessonId);
+    const exercises = await db.findByIndex('exercises', 'lesson_id', lessonId);
 
     // Sort by question_number
     exercises.sort((a, b) => a.question_number - b.question_number);
@@ -36,7 +36,7 @@ class Exercise {
    * Get single exercise by ID
    */
   static async findById(id) {
-    const exercise = db.findById('exercises', id);
+    const exercise = await db.findById('exercises', id);
     return exercise || null;
   }
 
@@ -57,7 +57,7 @@ class Exercise {
       difficulty
     } = exerciseData;
 
-    const exercise = db.insert('exercises', {
+    const exercise = await db.insert('exercises', {
       lesson_id: lessonId,
       question_number: questionNumber,
       type,

@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log*
+coverage
+.env
+.env.*
+data/dynamic
+src/database
+*.md
+temp-unseen-data.js

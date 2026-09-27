@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch",
+    "test": "firebase emulators:exec --only firestore --project demo-english-trainer --config ../firebase.json \"jest\"",
+    "test:jest": "jest",
     "generate-data": "node src/data/generateJsonData.js",
     "reset-password": "node src/database/reset-user-password.js"
   },
@@ -20,6 +20,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/firestore": "^7.11.6",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -29,6 +30,7 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
+    "firebase-tools": "^14.27.0",
     "jest": "^30.2.0",
     "nodemon": "^3.1.11",
     "supertest": "^7.2.2"

@@ -12,7 +12,7 @@ class LessonService {
     const lessons = await Lesson.findAllWithProgress(userId, filters);
 
     // Get difficulty scores for all lessons
-    const exerciseResults = db.find('exercise_results', { user_id: userId });
+    const exerciseResults = await db.find('exercise_results', { user_id: userId });
 
     // Build a map of lesson_id -> difficulty -> {score, attempts}
     const difficultyScoresMap = {};

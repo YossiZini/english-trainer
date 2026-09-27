@@ -7,7 +7,7 @@ class UnseenSession {
   static async create(userId, paragraphId) {
     const timestamp = new Date().toISOString();
 
-    const session = db.insert('unseen_sessions', {
+    const session = await db.insert('unseen_sessions', {
       user_id: userId,
       paragraph_id: paragraphId,
       total_questions: 5,
@@ -32,7 +32,7 @@ class UnseenSession {
    * Find a session by ID
    */
   static async findById(sessionId) {
-    const session = db.findById('unseen_sessions', sessionId);
+    const session = await db.findById('unseen_sessions', sessionId);
     if (!session) return undefined;
 
     return {
@@ -52,7 +52,7 @@ class UnseenSession {
    * Get session with paragraph and questions details
    */
   static async getSessionWithDetails(sessionId) {
-    const session = db.findById('unseen_sessions', sessionId);
+    const session = await db.findById('unseen_sessions', sessionId);
     if (!session) return undefined;
 
     // Get paragraph details
@@ -85,7 +85,7 @@ class UnseenSession {
   static async recordAnswer(sessionId, questionId, userAnswer, isCorrect) {
     const timestamp = new Date().toISOString();
 
-    const answer = db.insert('unseen_answers', {
+    const answer = await db.insert('unseen_answers', {
       session_id: sessionId,
       question_id: questionId,
       user_answer: userAnswer,
@@ -105,7 +105,7 @@ class UnseenSession {
    * Get all answers for a session
    */
   static async getSessionAnswers(sessionId) {
-    const answers = db.find('unseen_answers', { session_id: sessionId });
+    const answers = await db.find('unseen_answers', { session_id: sessionId });
 
     // Get questions for joining
     const questions = db.getCollection('unseen_questions', true);
@@ -140,21 +140,21 @@ class UnseenSession {
    */
   static async complete(sessionId) {
     // Count correct answers
-    const answers = db.find('unseen_answers', { session_id: sessionId });
+    const answers = await db.find('unseen_answers', { session_id: sessionId });
     const correctCount = answers.filter(a => a.is_correct === true).length;
 
     // Calculate score percentage (out of 5 questions)
     const score = Math.round((correctCount / 5) * 100);
     const timestamp = new Date().toISOString();
 
-    db.updateById('unseen_sessions', sessionId, {
+    await db.updateById('unseen_sessions', sessionId, {
       correct_answers: correctCount,
       score: score,
       completed_at: timestamp,
       status: 'completed'
     });
 
-    const session = db.findById('unseen_sessions', sessionId);
+    const session = await db.findById('unseen_sessions', sessionId);
     return {
       id: session.id,
       user_id: session.user_id,
@@ -170,7 +170,7 @@ class UnseenSession {
    * Get all sessions for a user
    */
   static async getByUser(userId, limit = 50) {
-    const sessions = db.find('unseen_sessions', { user_id: userId });
+    const sessions = await db.find('unseen_sessions', { user_id: userId });
 
     // Get paragraphs for joining
     const paragraphs = db.getCollection('unseen_paragraphs', true);
@@ -203,7 +203,7 @@ class UnseenSession {
    * Get sessions for a specific paragraph by a user
    */
   static async getByUserAndParagraph(userId, paragraphId, limit = 10) {
-    const sessions = db.find('unseen_sessions', {
+    const sessions = await db.find('unseen_sessions', {
       user_id: userId,
       paragraph_id: paragraphId
     });
@@ -230,7 +230,7 @@ class UnseenSession {
    * Mark session as abandoned
    */
   static async abandon(sessionId) {
-    const result = db.updateById('unseen_sessions', sessionId, {
+    const result = await db.updateById('unseen_sessions', sessionId, {
       status: 'abandoned'
     });
 
@@ -243,14 +243,14 @@ class UnseenSession {
    * Delete a session and all its answers
    */
   static async delete(sessionId) {
-    const existing = db.findById('unseen_sessions', sessionId);
+    const existing = await db.findById('unseen_sessions', sessionId);
     if (!existing) return undefined;
 
     // Delete answers first (cascade delete simulation)
-    db.delete('unseen_answers', { session_id: sessionId });
+    await db.delete('unseen_answers', { session_id: sessionId });
 
     // Delete the session
-    db.deleteById('unseen_sessions', sessionId);
+    await db.deleteById('unseen_sessions', sessionId);
 
     return { id: sessionId };
   }
@@ -259,7 +259,7 @@ class UnseenSession {
    * Get user's session statistics
    */
   static async getUserSessionStats(userId) {
-    const sessions = db.find('unseen_sessions', { user_id: userId });
+    const sessions = await db.find('unseen_sessions', { user_id: userId });
 
     const stats = {
       total_sessions: sessions.length,

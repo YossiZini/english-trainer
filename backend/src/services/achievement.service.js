@@ -11,7 +11,7 @@ class AchievementService {
    */
   static async getUserAchievements(userId) {
     const achievements = db.getCollection('achievements', true);
-    const userAchievements = db.find('user_achievements', { user_id: userId });
+    const userAchievements = await db.find('user_achievements', { user_id: userId });
     const uaMap = new Map(userAchievements.map(ua => [ua.achievement_id, ua]));
 
     const result = achievements.map(a => {
@@ -49,7 +49,7 @@ class AchievementService {
 
     for (const achievement of achievements) {
       // Check if already unlocked
-      const existing = db.findOne('user_achievements', {
+      const existing = await db.findOne('user_achievements', {
         user_id: userId,
         achievement_id: achievement.id
       });
@@ -106,9 +106,9 @@ class AchievementService {
 
       // Update or create user achievement record with progress
       if (existing) {
-        db.updateById('user_achievements', existing.id, { progress });
+        await db.updateById('user_achievements', existing.id, { progress });
       } else {
-        db.insert('user_achievements', {
+        await db.insert('user_achievements', {
           user_id: userId,
           achievement_id: achievement.id,
           progress,
@@ -132,14 +132,14 @@ class AchievementService {
   static async unlockAchievement(userId, achievementId) {
     return withTransaction(async () => {
       // Find user achievement record
-      const ua = db.findOne('user_achievements', {
+      const ua = await db.findOne('user_achievements', {
         user_id: userId,
         achievement_id: achievementId
       });
 
       if (!ua) {
         // Create and unlock
-        db.insert('user_achievements', {
+        await db.insert('user_achievements', {
           user_id: userId,
           achievement_id: achievementId,
           progress: 0,
@@ -147,13 +147,13 @@ class AchievementService {
         });
       } else if (!ua.unlocked_at) {
         // Mark as unlocked
-        db.updateById('user_achievements', ua.id, {
+        await db.updateById('user_achievements', ua.id, {
           unlocked_at: new Date().toISOString()
         });
       }
 
       // Get achievement details
-      const achievement = db.findById('achievements', achievementId);
+      const achievement = await db.findById('achievements', achievementId);
 
       // Award bonus points
       if (achievement && achievement.points_reward > 0) {
@@ -169,27 +169,27 @@ class AchievementService {
    */
   static async getUserStats(userId) {
     // Lessons completed
-    const userProgress = db.find('user_progress', { user_id: userId, status: 'completed' });
+    const userProgress = await db.find('user_progress', { user_id: userId, status: 'completed' });
     const lessonsCompleted = new Set(userProgress.map(up => up.lesson_id)).size;
 
     // Perfect scores (100%)
-    const exerciseResults = db.find('exercise_results', { user_id: userId });
+    const exerciseResults = await db.find('exercise_results', { user_id: userId });
     const perfectScores = exerciseResults.filter(er => er.score === 100).length;
 
     // Current streak
-    const user = db.findById('users', userId);
+    const user = await db.findById('users', userId);
     const currentStreak = user?.current_streak || 0;
 
     // Mistakes corrected (reviewed)
-    const wrongAnswers = db.find('wrong_answers', { user_id: userId, is_reviewed: true });
+    const wrongAnswers = await db.find('wrong_answers', { user_id: userId, is_reviewed: true });
     const mistakesCorrected = wrongAnswers.length;
 
     // Words learned
-    const wordScores = db.find('vocabulary_word_scores', { user_id: userId, mastery_level: 'mastered' });
+    const wordScores = await db.find('vocabulary_word_scores', { user_id: userId, mastery_level: 'mastered' });
     const wordsLearned = wordScores.length;
 
     // Quizzes completed
-    const quizSessions = db.find('vocabulary_quiz_sessions', { user_id: userId, status: 'completed' });
+    const quizSessions = await db.find('vocabulary_quiz_sessions', { user_id: userId, status: 'completed' });
     const quizzesCompleted = quizSessions.length;
 
     // Total time spent
@@ -210,7 +210,7 @@ class AchievementService {
    * Get recently unlocked achievements
    */
   static async getRecentlyUnlocked(userId, limit = 5) {
-    const userAchievements = db.find('user_achievements', { user_id: userId });
+    const userAchievements = await db.find('user_achievements', { user_id: userId });
     const achievements = db.getCollection('achievements', true);
     const achievementMap = new Map(achievements.map(a => [a.id, a]));
 
@@ -233,7 +233,7 @@ class AchievementService {
    */
   static async getAchievementStats(userId) {
     const achievements = db.getCollection('achievements', true);
-    const userAchievements = db.find('user_achievements', { user_id: userId });
+    const userAchievements = await db.find('user_achievements', { user_id: userId });
 
     const unlockedCount = userAchievements.filter(ua => ua.unlocked_at).length;
     const total = achievements.length;

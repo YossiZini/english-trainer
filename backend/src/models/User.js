@@ -1,4 +1,4 @@
-const { db, indexManager } = require('../config/database');
+const { db } = require('../config/database');
 const bcrypt = require('bcryptjs');
 
 class User {
@@ -10,21 +10,15 @@ class User {
 
     // Check if email already exists
     if (email) {
-      const existingUser = db.findOne('users', { email });
+      const existingUser = await db.findOne('users', { email });
       if (existingUser) {
         throw new Error('Email already registered');
       }
     }
 
-    // Check unique constraint
-    const uniqueCheck = indexManager.checkUniqueConstraint('users', { email });
-    if (uniqueCheck.violated) {
-      throw new Error('Email already registered');
-    }
-
     const timestamp = new Date().toISOString();
 
-    const user = db.insert('users', {
+    const user = await db.insert('users', {
       name,
       email: email || null,
       password_hash: hashedPassword,
@@ -51,7 +45,7 @@ class User {
    * Find user by email
    */
   static async findByEmail(email) {
-    const users = db.findByIndex('users', 'email', email);
+    const users = await db.findByIndex('users', 'email', email);
     return users[0] || null;
   }
 
@@ -59,7 +53,7 @@ class User {
    * Find user by ID
    */
   static async findById(id) {
-    const user = db.findById('users', id);
+    const user = await db.findById('users', id);
     if (!user) return null;
 
     // Return without exposing password hash in standard findById
@@ -71,7 +65,7 @@ class User {
    * Find user by name (for login without email)
    */
   static async findByName(name) {
-    const users = db.findByIndex('users', 'name', name);
+    const users = await db.findByIndex('users', 'name', name);
     return users[0] || null;
   }
 
@@ -87,7 +81,7 @@ class User {
    */
   static async updateLastLogin(userId) {
     const timestamp = new Date().toISOString();
-    const result = db.updateById('users', userId, { last_login: timestamp });
+    const result = await db.updateById('users', userId, { last_login: timestamp });
 
     if (result.modified === 0) {
       throw new Error('User not found');
@@ -100,7 +94,7 @@ class User {
    * Update user streak
    */
   static async updateStreak(userId, streak) {
-    const result = db.updateById('users', userId, { current_streak: streak });
+    const result = await db.updateById('users', userId, { current_streak: streak });
 
     if (result.modified === 0) {
       throw new Error('User not found');
@@ -113,22 +107,21 @@ class User {
    * Update total time spent
    */
   static async addTimeSpent(userId, minutes) {
-    const user = db.findById('users', userId);
-    if (!user) {
+    const updated = await db.transactUpdate('users', userId, user => ({
+      total_time_spent: (user.total_time_spent || 0) + minutes
+    }));
+    if (!updated) {
       throw new Error('User not found');
     }
 
-    const newTotalTime = (user.total_time_spent || 0) + minutes;
-    db.updateById('users', userId, { total_time_spent: newTotalTime });
-
-    return { total_time_spent: newTotalTime };
+    return { total_time_spent: updated.total_time_spent };
   }
 
   /**
    * Update user level
    */
   static async updateLevel(userId, level) {
-    const result = db.updateById('users', userId, { current_level: level });
+    const result = await db.updateById('users', userId, { current_level: level });
 
     if (result.modified === 0) {
       throw new Error('User not found');
@@ -141,11 +134,11 @@ class User {
    * Get user statistics
    */
   static async getStats(userId) {
-    const user = db.findById('users', userId);
+    const user = await db.findById('users', userId);
     if (!user) return null;
 
     // Get user progress data
-    const userProgress = db.find('user_progress', { user_id: userId });
+    const userProgress = await db.find('user_progress', { user_id: userId });
 
     // Calculate statistics
     const completedProgress = userProgress.filter(p => p.status === 'completed');
@@ -218,23 +211,22 @@ class User {
    * Returns: { total_points, gamification_level, previousLevel }
    */
   static async addPoints(userId, pointsToAdd) {
-    const user = db.findById('users', userId);
-    if (!user) {
+    let previousLevel = 1;
+    const updated = await db.transactUpdate('users', userId, user => {
+      previousLevel = user.gamification_level || 1;
+      const newTotalPoints = Math.max(0, (user.total_points || 0) + pointsToAdd);
+      return {
+        total_points: newTotalPoints,
+        gamification_level: Math.max(1, Math.floor(newTotalPoints / 20) + 1)
+      };
+    });
+    if (!updated) {
       throw new Error('User not found');
     }
 
-    const previousLevel = user.gamification_level || 1;
-    const newTotalPoints = Math.max(0, (user.total_points || 0) + pointsToAdd);
-    const newLevel = Math.max(1, Math.floor(newTotalPoints / 20) + 1);
-
-    db.updateById('users', userId, {
-      total_points: newTotalPoints,
-      gamification_level: newLevel
-    });
-
     return {
-      total_points: newTotalPoints,
-      gamification_level: newLevel,
+      total_points: updated.total_points,
+      gamification_level: updated.gamification_level,
       previousLevel
     };
   }
@@ -244,7 +236,7 @@ class User {
    * Returns: { totalPoints, currentLevel, pointsToNextLevel, arenaName }
    */
   static async getGamificationData(userId) {
-    const user = db.findById('users', userId);
+    const user = await db.findById('users', userId);
     if (!user) {
       return null;
     }
@@ -271,46 +263,43 @@ class User {
    * Returns: { currentStreak, lastActivityDate }
    */
   static async updateActivityAndStreak(userId) {
-    const user = db.findById('users', userId);
-    if (!user) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+
+    const updated = await db.transactUpdate('users', userId, user => {
+      const lastActivity = user.last_activity_date ? new Date(user.last_activity_date) : null;
+      if (lastActivity) {
+        lastActivity.setHours(0, 0, 0, 0);
+      }
+
+      let newStreak = user.current_streak || 0;
+
+      if (!lastActivity) {
+        // First activity
+        newStreak = 1;
+      } else {
+        const daysDiff = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
+
+        if (daysDiff === 0) {
+          // Same day, no change
+        } else if (daysDiff === 1) {
+          // Yesterday, increment streak
+          newStreak = (user.current_streak || 0) + 1;
+        } else {
+          // More than 1 day, reset streak
+          newStreak = 1;
+        }
+      }
+
+      return { current_streak: newStreak, last_activity_date: todayStr };
+    });
+    if (!updated) {
       throw new Error('User not found');
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const lastActivity = user.last_activity_date ? new Date(user.last_activity_date) : null;
-    if (lastActivity) {
-      lastActivity.setHours(0, 0, 0, 0);
-    }
-
-    let newStreak = user.current_streak || 0;
-
-    if (!lastActivity) {
-      // First activity
-      newStreak = 1;
-    } else {
-      const daysDiff = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
-
-      if (daysDiff === 0) {
-        // Same day, no change
-      } else if (daysDiff === 1) {
-        // Yesterday, increment streak
-        newStreak = (user.current_streak || 0) + 1;
-      } else {
-        // More than 1 day, reset streak
-        newStreak = 1;
-      }
-    }
-
-    const todayStr = today.toISOString().split('T')[0];
-    db.updateById('users', userId, {
-      current_streak: newStreak,
-      last_activity_date: todayStr
-    });
-
     return {
-      currentStreak: newStreak,
+      currentStreak: updated.current_streak,
       lastActivityDate: todayStr
     };
   }
@@ -321,30 +310,19 @@ class User {
    * Returns: { pointsToday, pointsTodayDate }
    */
   static async addDailyPoints(userId, points) {
-    const user = db.findById('users', userId);
-    if (!user) {
+    const today = new Date().toISOString().split('T')[0];
+
+    const updated = await db.transactUpdate('users', userId, user => ({
+      // Same day: add to the running total; new day: start over.
+      points_today: user.points_today_date === today ? (user.points_today || 0) + points : points,
+      points_today_date: today
+    }));
+    if (!updated) {
       throw new Error('User not found');
     }
 
-    const today = new Date().toISOString().split('T')[0];
-    const lastPointsDate = user.points_today_date;
-
-    let newPointsToday;
-    if (lastPointsDate === today) {
-      // Same day, add to existing
-      newPointsToday = (user.points_today || 0) + points;
-    } else {
-      // New day, reset counter
-      newPointsToday = points;
-    }
-
-    db.updateById('users', userId, {
-      points_today: newPointsToday,
-      points_today_date: today
-    });
-
     return {
-      pointsToday: newPointsToday,
+      pointsToday: updated.points_today,
       pointsTodayDate: today
     };
   }
@@ -354,7 +332,7 @@ class User {
    * Returns: { currentStreak, pointsToday, lastActivityDate }
    */
   static async getDailyStats(userId) {
-    const user = db.findById('users', userId);
+    const user = await db.findById('users', userId);
     if (!user) {
       return null;
     }

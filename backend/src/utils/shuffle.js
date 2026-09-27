@@ -14,4 +14,15 @@ function shuffleArray(array) {
   return shuffled;
 }
 
-module.exports = { shuffleArray };
+/**
+ * In-place variant, for callers that shuffle an array they already own.
+ */
+function shuffleInPlace(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+module.exports = { shuffleArray, shuffleInPlace };

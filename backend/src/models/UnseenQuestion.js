@@ -5,7 +5,7 @@ class UnseenQuestion {
    * Find all questions for a paragraph
    */
   static async findByParagraphId(paragraphId) {
-    const questions = db.find('unseen_questions', { paragraph_id: paragraphId });
+    const questions = await db.find('unseen_questions', { paragraph_id: paragraphId });
 
     // Sort by question_number ascending
     questions.sort((a, b) => a.question_number - b.question_number);
@@ -27,7 +27,7 @@ class UnseenQuestion {
    * Find a single question by ID
    */
   static async findById(id) {
-    const question = db.findById('unseen_questions', id);
+    const question = await db.findById('unseen_questions', id);
     if (!question) return undefined;
 
     return {
@@ -59,7 +59,7 @@ class UnseenQuestion {
 
     const timestamp = new Date().toISOString();
 
-    const question = db.insert('unseen_questions', {
+    const question = await db.insert('unseen_questions', {
       paragraph_id: paragraphId,
       question_number: questionNumber,
       question_text_en: questionTextEn,
@@ -92,7 +92,7 @@ class UnseenQuestion {
       for (const questionData of questionsArray) {
         const timestamp = new Date().toISOString();
 
-        const question = db.insert('unseen_questions', {
+        const question = await db.insert('unseen_questions', {
           paragraph_id: paragraphId,
           question_number: questionData.questionNumber,
           question_text_en: questionData.questionTextEn,
@@ -125,7 +125,7 @@ class UnseenQuestion {
       explanationHe
     } = questionData;
 
-    const existing = db.findById('unseen_questions', id);
+    const existing = await db.findById('unseen_questions', id);
     if (!existing) return undefined;
 
     const updateData = {};
@@ -136,9 +136,9 @@ class UnseenQuestion {
     if (correctAnswer !== undefined) updateData.correct_answer = correctAnswer;
     if (explanationHe !== undefined) updateData.explanation_he = explanationHe;
 
-    db.updateById('unseen_questions', id, updateData);
+    await db.updateById('unseen_questions', id, updateData);
 
-    const updated = db.findById('unseen_questions', id);
+    const updated = await db.findById('unseen_questions', id);
     return {
       id: updated.id,
       paragraph_id: updated.paragraph_id,
@@ -150,10 +150,10 @@ class UnseenQuestion {
    * Delete a question
    */
   static async delete(id) {
-    const existing = db.findById('unseen_questions', id);
+    const existing = await db.findById('unseen_questions', id);
     if (!existing) return undefined;
 
-    db.deleteById('unseen_questions', id);
+    await db.deleteById('unseen_questions', id);
     return { id };
   }
 
@@ -161,11 +161,11 @@ class UnseenQuestion {
    * Delete all questions for a paragraph
    */
   static async deleteByParagraphId(paragraphId) {
-    const questions = db.find('unseen_questions', { paragraph_id: paragraphId });
+    const questions = await db.find('unseen_questions', { paragraph_id: paragraphId });
 
     const deleted = [];
     for (const q of questions) {
-      db.deleteById('unseen_questions', q.id);
+      await db.deleteById('unseen_questions', q.id);
       deleted.push({ id: q.id });
     }
 
@@ -176,7 +176,7 @@ class UnseenQuestion {
    * Get count of questions for a paragraph
    */
   static async getCountByParagraphId(paragraphId) {
-    const questions = db.find('unseen_questions', { paragraph_id: paragraphId });
+    const questions = await db.find('unseen_questions', { paragraph_id: paragraphId });
     return questions.length;
   }
 }

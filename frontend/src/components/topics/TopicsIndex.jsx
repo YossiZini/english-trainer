@@ -559,7 +559,7 @@ const TopicsIndex = () => {
                 className="modal-video"
               >
                 <source
-                  src={`/videos/${videoModal.video.filename}`}
+                  src={`${process.env.REACT_APP_VIDEO_BASE_URL || '/videos'}/${encodeURIComponent(videoModal.video.filename)}`}
                   type="video/mp4"
                 />
                 הדפדפן שלך לא תומך בנגן וידאו.

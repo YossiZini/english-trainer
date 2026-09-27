@@ -77,7 +77,7 @@ class ExerciseService {
       const attemptNumber = progress.attempts + 1;
 
       // Save exercise result
-      const resultRecord = db.insert('exercise_results', {
+      const resultRecord = await db.insert('exercise_results', {
         user_id: userId,
         lesson_id: lessonId,
         attempt_number: attemptNumber,
@@ -195,7 +195,7 @@ class ExerciseService {
    * Get results for a specific attempt
    */
   static async getResultById(resultId, userId) {
-    const result = db.findOne('exercise_results', { id: resultId, user_id: userId });
+    const result = await db.findOne('exercise_results', { id: resultId, user_id: userId });
 
     if (!result) {
       return null;

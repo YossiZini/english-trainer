@@ -1,4 +1,4 @@
-const { db, indexManager } = require('../config/database');
+const { db } = require('../config/database');
 
 class Lesson {
   /**
@@ -15,7 +15,7 @@ class Lesson {
       criteria.topic_number = parseInt(topicNumber);
     }
 
-    const lessons = db.find('lessons', criteria, { sort: { order_index: 'asc' } });
+    const lessons = await db.find('lessons', criteria, { sort: { order_index: 'asc' } });
 
     // Return only the fields needed (without theory content)
     return lessons.map(l => ({
@@ -34,7 +34,7 @@ class Lesson {
    * Get lesson by ID with full content
    */
   static async findById(id) {
-    const lesson = db.findById('lessons', id);
+    const lesson = await db.findById('lessons', id);
     return lesson || null;
   }
 
@@ -52,10 +52,10 @@ class Lesson {
       criteria.topic_number = parseInt(topicNumber);
     }
 
-    const lessons = db.find('lessons', criteria, { sort: { order_index: 'asc' } });
+    const lessons = await db.find('lessons', criteria, { sort: { order_index: 'asc' } });
 
     // Get user progress for all lessons
-    const userProgress = db.find('user_progress', { user_id: userId });
+    const userProgress = await db.find('user_progress', { user_id: userId });
     const progressMap = new Map(userProgress.map(up => [up.lesson_id, up]));
 
     return lessons.map(l => {
@@ -92,7 +92,7 @@ class Lesson {
       theoryContentEn
     } = lessonData;
 
-    const lesson = db.insert('lessons', {
+    const lesson = await db.insert('lessons', {
       topic_number: topicNumber,
       subtopic_number: subtopicNumber,
       title_en: titleEn,
@@ -119,7 +119,7 @@ class Lesson {
    * Get next lesson by order
    */
   static async getNextLesson(currentOrderIndex) {
-    const lessons = db.find('lessons',
+    const lessons = await db.find('lessons',
       { order_index: { $gt: currentOrderIndex } },
       { sort: { order_index: 'asc' }, limit: 1 }
     );
@@ -142,7 +142,7 @@ class Lesson {
    * Get previous lesson by order
    */
   static async getPreviousLesson(currentOrderIndex) {
-    const lessons = db.find('lessons',
+    const lessons = await db.find('lessons',
       { order_index: { $lt: currentOrderIndex } },
       { sort: { order_index: 'desc' }, limit: 1 }
     );

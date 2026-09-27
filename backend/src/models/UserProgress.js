@@ -1,4 +1,4 @@
-const { db, indexManager } = require('../config/database');
+const { db } = require('../config/database');
 
 class UserProgress {
   /**
@@ -6,14 +6,14 @@ class UserProgress {
    */
   static async findOrCreate(userId, lessonId) {
     // Try to find using composite index
-    const existing = indexManager.findByCompositeIndex('user_progress_user_id_lesson_id', [userId, lessonId]);
+    const existing = await db.find('user_progress', { user_id: userId, lesson_id: lessonId });
 
     if (existing.length > 0) {
       return existing[0];
     }
 
     // Create new progress record
-    const progress = db.insert('user_progress', {
+    const progress = await db.insert('user_progress', {
       user_id: userId,
       lesson_id: lessonId,
       status: 'not_started',
@@ -41,7 +41,7 @@ class UserProgress {
     const firstCompletedAt = progress.first_completed_at || (score >= 70 ? new Date().toISOString() : null);
     const lastAttemptedAt = new Date().toISOString();
 
-    db.updateById('user_progress', progress.id, {
+    await db.updateById('user_progress', progress.id, {
       status: newStatus,
       best_score: newBestScore,
       attempts: newAttempts,
@@ -67,7 +67,7 @@ class UserProgress {
    * Get progress for a specific lesson
    */
   static async getProgress(userId, lessonId) {
-    const results = indexManager.findByCompositeIndex('user_progress_user_id_lesson_id', [userId, lessonId]);
+    const results = await db.find('user_progress', { user_id: userId, lesson_id: lessonId });
     return results[0] || null;
   }
 
@@ -75,7 +75,7 @@ class UserProgress {
    * Get all progress for a user
    */
   static async getAllProgress(userId) {
-    const progress = db.findByIndex('user_progress', 'user_id', userId);
+    const progress = await db.findByIndex('user_progress', 'user_id', userId);
 
     // Get lessons for joining
     const lessons = db.getCollection('lessons', true);
@@ -115,7 +115,7 @@ class UserProgress {
    * Get overall statistics for a user
    */
   static async getOverallStats(userId) {
-    const progress = db.findByIndex('user_progress', 'user_id', userId);
+    const progress = await db.findByIndex('user_progress', 'user_id', userId);
 
     const stats = {
       total_lessons_attempted: progress.length,
@@ -160,7 +160,7 @@ class UserProgress {
    */
   static async getProgressByTopic(userId) {
     const lessons = db.getCollection('lessons', true);
-    const progress = db.findByIndex('user_progress', 'user_id', userId);
+    const progress = await db.findByIndex('user_progress', 'user_id', userId);
     const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
     // Group by topic
@@ -217,7 +217,7 @@ class UserProgress {
    * Get recent activity (last N attempts)
    */
   static async getRecentActivity(userId, limit = 10) {
-    const results = db.find('exercise_results', { user_id: userId });
+    const results = await db.find('exercise_results', { user_id: userId });
 
     // Get lessons for joining
     const lessons = db.getCollection('lessons', true);
@@ -258,7 +258,7 @@ class UserProgress {
    */
   static async getNextLesson(userId) {
     const lessons = db.getCollection('lessons', true);
-    const progress = db.findByIndex('user_progress', 'user_id', userId);
+    const progress = await db.findByIndex('user_progress', 'user_id', userId);
     const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
     // Sort lessons by order_index
@@ -287,7 +287,7 @@ class UserProgress {
    */
   static async getCompletionPercentage(userId) {
     const lessons = db.getCollection('lessons', true);
-    const progress = db.findByIndex('user_progress', 'user_id', userId);
+    const progress = await db.findByIndex('user_progress', 'user_id', userId);
 
     const completedLessons = progress.filter(p => p.status === 'completed').length;
     const totalLessons = lessons.length;

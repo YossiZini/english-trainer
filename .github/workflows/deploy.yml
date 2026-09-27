@@ -1,0 +1,99 @@
+# Build, test and deploy English Trainer to Google Cloud.
+#
+# Authentication is keyless: GitHub's OIDC token is exchanged for the deployer
+# service account through Workload Identity Federation (created by
+# infra/setup.sh). Repository variables required:
+#   GCP_PROJECT_ID, GCP_REGION, WIF_PROVIDER, DEPLOYER_SA
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.GCP_REGION }}
+  SERVICE: english-trainer-api
+  IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/english-trainer/api
+
+jobs:
+  test:
+    name: Backend tests (Firestore emulator)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+        working-directory: backend
+      - run: npm test
+        working-directory: backend
+
+  deploy-backend:
+    name: Deploy API to Cloud Run
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+      - name: Build and push image
+        run: |
+          docker build -t "$IMAGE:$GITHUB_SHA" -t "$IMAGE:latest" backend
+          docker push "$IMAGE:$GITHUB_SHA"
+          docker push "$IMAGE:latest"
+      - name: Deploy revision
+        run: |
+          sed "s#image: .*#image: $IMAGE:$GITHUB_SHA#" infra/cloudrun-service.yaml > /tmp/service.yaml
+          gcloud run services replace /tmp/service.yaml --region "$REGION" --project "$PROJECT_ID"
+          gcloud run services add-iam-policy-binding "$SERVICE" --region "$REGION" --project "$PROJECT_ID" \
+            --member=allUsers --role=roles/run.invoker --quiet
+      - name: Smoke check
+        run: |
+          URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --project "$PROJECT_ID" --format='value(status.url)')
+          echo "Service URL: $URL"
+          curl --fail --silent --show-error "$URL/health"
+
+  deploy-frontend:
+    name: Deploy site to Firebase Hosting
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.DEPLOYER_SA }}
+      - name: Build React app
+        run: |
+          npm ci
+          npm run build
+        working-directory: frontend
+        env:
+          CI: "false"
+      - name: Deploy Hosting and Firestore rules
+        run: npx --yes firebase-tools@14 deploy --only hosting,firestore --project "$PROJECT_ID" --non-interactive

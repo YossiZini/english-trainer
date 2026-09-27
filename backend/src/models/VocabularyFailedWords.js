@@ -6,7 +6,7 @@ class VocabularyFailedWords {
    */
   static async addOrIncrementFail(userId, wordId) {
     // Check if record already exists
-    const existing = db.findOne('vocabulary_failed_words', {
+    const existing = await db.findOne('vocabulary_failed_words', {
       user_id: userId,
       word_id: wordId
     });
@@ -14,7 +14,7 @@ class VocabularyFailedWords {
     if (existing) {
       // Update existing record
       const timestamp = new Date().toISOString();
-      db.updateById('vocabulary_failed_words', existing.id, {
+      await db.updateById('vocabulary_failed_words', existing.id, {
         fail_count: existing.fail_count + 1,
         last_failed_at: timestamp,
         is_pending_review: true
@@ -30,7 +30,7 @@ class VocabularyFailedWords {
     }
 
     // Create new record
-    const record = db.insert('vocabulary_failed_words', {
+    const record = await db.insert('vocabulary_failed_words', {
       user_id: userId,
       word_id: wordId,
       fail_count: 1,
@@ -52,7 +52,7 @@ class VocabularyFailedWords {
    * Get all pending review words for a user
    */
   static async getPendingReviewWords(userId, limit = null) {
-    const failedWords = db.find('vocabulary_failed_words', {
+    const failedWords = await db.find('vocabulary_failed_words', {
       user_id: userId,
       is_pending_review: true
     });
@@ -90,7 +90,7 @@ class VocabularyFailedWords {
    * Get count of pending review words
    */
   static async getPendingReviewCount(userId) {
-    const failedWords = db.find('vocabulary_failed_words', {
+    const failedWords = await db.find('vocabulary_failed_words', {
       user_id: userId,
       is_pending_review: true
     });
@@ -107,12 +107,12 @@ class VocabularyFailedWords {
     }
 
     const wordIdSet = new Set(wordIds);
-    const failedWords = db.find('vocabulary_failed_words', { user_id: userId });
+    const failedWords = await db.find('vocabulary_failed_words', { user_id: userId });
 
     const updated = [];
     for (const fw of failedWords) {
       if (wordIdSet.has(fw.word_id)) {
-        db.updateById('vocabulary_failed_words', fw.id, {
+        await db.updateById('vocabulary_failed_words', fw.id, {
           reviewed_in_session_id: sessionId
         });
         updated.push({
@@ -130,7 +130,7 @@ class VocabularyFailedWords {
    * Reset word status after successful review (remove from pending)
    */
   static async resetWordStatus(userId, wordId) {
-    const existing = db.findOne('vocabulary_failed_words', {
+    const existing = await db.findOne('vocabulary_failed_words', {
       user_id: userId,
       word_id: wordId
     });
@@ -139,7 +139,7 @@ class VocabularyFailedWords {
       return undefined;
     }
 
-    db.updateById('vocabulary_failed_words', existing.id, {
+    await db.updateById('vocabulary_failed_words', existing.id, {
       is_pending_review: false
     });
 
@@ -154,7 +154,7 @@ class VocabularyFailedWords {
    * Remove a word from failed words (if user mastered it)
    */
   static async removeWord(userId, wordId) {
-    const existing = db.findOne('vocabulary_failed_words', {
+    const existing = await db.findOne('vocabulary_failed_words', {
       user_id: userId,
       word_id: wordId
     });
@@ -163,7 +163,7 @@ class VocabularyFailedWords {
       return undefined;
     }
 
-    db.deleteById('vocabulary_failed_words', existing.id);
+    await db.deleteById('vocabulary_failed_words', existing.id);
 
     return { id: existing.id };
   }
@@ -172,7 +172,7 @@ class VocabularyFailedWords {
    * Get word IDs that are pending review for a user
    */
   static async getPendingReviewWordIds(userId) {
-    const failedWords = db.find('vocabulary_failed_words', {
+    const failedWords = await db.find('vocabulary_failed_words', {
       user_id: userId,
       is_pending_review: true
     });
@@ -184,7 +184,7 @@ class VocabularyFailedWords {
    * Get user's failed words statistics
    */
   static async getUserFailedStats(userId) {
-    const failedWords = db.find('vocabulary_failed_words', { user_id: userId });
+    const failedWords = await db.find('vocabulary_failed_words', { user_id: userId });
 
     let pendingReviewWords = 0;
     let reviewedWords = 0;
@@ -211,7 +211,7 @@ class VocabularyFailedWords {
    * Get most failed words for a user (top mistakes)
    */
   static async getTopFailedWords(userId, limit = 10) {
-    const failedWords = db.find('vocabulary_failed_words', { user_id: userId });
+    const failedWords = await db.find('vocabulary_failed_words', { user_id: userId });
 
     // Get vocabulary words for joining
     const words = db.getCollection('vocabulary_words', true);
@@ -250,7 +250,7 @@ class VocabularyFailedWords {
     }
 
     const wordIdSet = new Set(wordIds);
-    const failedWords = db.find('vocabulary_failed_words', {
+    const failedWords = await db.find('vocabulary_failed_words', {
       user_id: userId,
       is_pending_review: true
     });
@@ -258,7 +258,7 @@ class VocabularyFailedWords {
     let count = 0;
     for (const fw of failedWords) {
       if (wordIdSet.has(fw.word_id)) {
-        db.updateById('vocabulary_failed_words', fw.id, {
+        await db.updateById('vocabulary_failed_words', fw.id, {
           is_pending_review: false
         });
         count++;
@@ -272,7 +272,7 @@ class VocabularyFailedWords {
    * Check if a word is in the user's failed words list
    */
   static async isWordFailed(userId, wordId) {
-    const existing = db.findOne('vocabulary_failed_words', {
+    const existing = await db.findOne('vocabulary_failed_words', {
       user_id: userId,
       word_id: wordId
     });
