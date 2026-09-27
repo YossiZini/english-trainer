@@ -69,19 +69,22 @@ module.exports = topic{N}Data;
 
 **File:** `/backend/src/data/generateJsonData.js`
 
-Add the seed file name to the `topicFiles` list in
-`generateLessonsAndExercises()`:
+Add the seed file name to the subject's list in `subjectFiles`:
 
 ```javascript
-const topicFiles = [
-  // ... existing topics
-  'topic{N}-{name}.js'
-];
+const subjectFiles = {
+  english: [/* ... */, 'topic{N}-{name}.js'],
+  math: [/* ... */, 'topic{N}-{name}.js']   // Math seeds are plain modules (see math-helpers.js)
+};
 ```
+
+English seeds are parsed from their text (they are legacy scripts); seeds of
+any other subject are `require`d and must export `{ lessonsData }`.
 
 ### Step 4: Update Frontend Component
 
-**File:** `/frontend/src/components/topics/TopicsIndex.jsx`
+**File:** `/frontend/src/content/topicMeta.js` (per subject: `topicNames`,
+`tocExamples`, `topicDescriptions`, and `mathTopicNames`… for Math)
 
 Update three mappings:
 
@@ -109,9 +112,13 @@ Rebuild the bundled JSON from the seed files:
 
 ```bash
 cd backend
-npm run generate-data
+npm run generate-data          # rebuilds the Math lessons (default)
+npm run generate-data english  # rebuilds the English lessons from their seeds
 ```
 
+Only the named subject is rebuilt; ids and timestamps of existing lessons and
+exercises are preserved. English is never rebuilt implicitly: its seed files
+hold fewer exercises than the bundled JSON, so rebuild it only on purpose.
 Commit the updated `backend/data/static/*.json`. Content ships with the next
 push to `main` (see `/docs/deployment.md`); no database step is needed.
 
@@ -132,8 +139,8 @@ For each topic, these assets must exist:
 |-------|----------|-------------|
 | Documentation | `/docs/topics.md` | Full topic content with subtopics |
 | Seed File | `/backend/src/database/seeds/topic{N}-*.js` | Lessons and exercises data |
-| Seed Registration | `/backend/src/data/generateJsonData.js` | File name in the `topicFiles` list |
-| Frontend Mapping | `/frontend/src/components/topics/TopicsIndex.jsx` | topicNames, tocExamples, topicDescriptions |
+| Seed Registration | `/backend/src/data/generateJsonData.js` | File name in the `subjectFiles` list of its subject |
+| Frontend Mapping | `/frontend/src/content/topicMeta.js` | topicNames, tocExamples, topicDescriptions per subject |
 | Content Generated | `/backend/data/static/*.json` | Run `npm run generate-data` from backend and commit the result |
 | Exercises | Seed file exercises array | Easy/medium/hard difficulty levels |
 

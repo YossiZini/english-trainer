@@ -3,6 +3,7 @@ const Exercise = require('../models/Exercise');
 const Lesson = require('../models/Lesson');
 const { db, withTransaction } = require('../config/database');
 const { shuffleArray } = require('../utils/shuffle');
+const { answersMatch } = require('../utils/answers');
 
 class MistakesService {
   /**
@@ -52,9 +53,7 @@ class MistakesService {
           continue; // Skip if not found
         }
 
-        const normalizedUserAnswer = answer.userAnswer.trim().toLowerCase();
-        const normalizedCorrectAnswer = mistake.correct_answer.trim().toLowerCase();
-        const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+        const isCorrect = answersMatch(answer.userAnswer, mistake.correct_answer);
 
         results.push({
           exerciseId: answer.exerciseId,

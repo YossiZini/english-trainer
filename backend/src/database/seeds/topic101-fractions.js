@@ -2,7 +2,7 @@
 // Plain module: read by backend/src/data/generateJsonData.js (npm run generate-data).
 const { ltr, expr, mc, fib } = require('./math-helpers');
 
-const FRACTION_HINT = 'כתבו שבר מצומצם בצורה a/b, למשל 3/4';
+const FRACTION_HINT = 'כתבו שבר, למשל 3/4 (אפשר גם מספר עשרוני כמו 0.75)';
 
 const lessonsData = [
   {

@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Lesson = require('../models/Lesson');
 const WrongAnswer = require('../models/WrongAnswer');
 const { db, withTransaction } = require('../config/database');
+const { answersMatch } = require('../utils/answers');
 const AchievementService = require('./achievement.service');
 const DailyChallengeService = require('./dailyChallenge.service');
 
@@ -47,9 +48,7 @@ class ExerciseService {
           continue; // Skip if exercise not found
         }
 
-        const normalizedUserAnswer = answer.userAnswer.trim().toLowerCase();
-        const normalizedCorrectAnswer = exercise.correct_answer.trim().toLowerCase();
-        const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+        const isCorrect = answersMatch(answer.userAnswer, exercise.correct_answer);
 
         results.push({
           exerciseId: answer.exerciseId,
