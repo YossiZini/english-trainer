@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import lessonService from '../../services/lessonService';
 import topicMeta, { getSubtopicExamples } from '../../content/topicMeta';
 import './TopicsIndex.css';
@@ -8,7 +7,6 @@ import './TopicsIndex.css';
 // One page for every subject: the lessons come from the API filtered by
 // subject, the display text from content/topicMeta.js.
 const TopicsIndex = ({ subject = 'english' }) => {
-  const { user, logout } = useAuth();
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -101,10 +99,6 @@ const TopicsIndex = ({ subject = 'english' }) => {
         <div className="header-content">
           <div className="header-title">
             <h1>{meta.title}</h1>
-          </div>
-          <div className="header-user">
-            <span>שלום, {user?.name}!</span>
-            <button onClick={logout} className="btn-logout">יציאה</button>
           </div>
         </div>
       </header>
