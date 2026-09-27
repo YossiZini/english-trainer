@@ -7,7 +7,7 @@ class UnseenParagraph {
   static async findAll(filters = {}) {
     const { complexity, topic, isCustom, limit = 100, offset = 0 } = filters;
 
-    let paragraphs = db.find('unseen_paragraphs', {});
+    let paragraphs = await db.find('unseen_paragraphs', {});
 
     // Apply filters
     if (complexity !== undefined) {
@@ -51,7 +51,7 @@ class UnseenParagraph {
    * Find a single paragraph by ID
    */
   static async findById(id) {
-    const paragraph = db.findById('unseen_paragraphs', id);
+    const paragraph = await db.findById('unseen_paragraphs', id);
     if (!paragraph) return undefined;
 
     return {
@@ -86,7 +86,7 @@ class UnseenParagraph {
 
     const timestamp = new Date().toISOString();
 
-    const paragraph = db.insert('unseen_paragraphs', {
+    const paragraph = await db.insert('unseen_paragraphs', {
       title_en: titleEn,
       title_he: titleHe,
       content: content,
@@ -121,7 +121,7 @@ class UnseenParagraph {
       hardWords
     } = paragraphData;
 
-    const existing = db.findById('unseen_paragraphs', id);
+    const existing = await db.findById('unseen_paragraphs', id);
     if (!existing) return undefined;
 
     const updateData = {};
@@ -133,9 +133,9 @@ class UnseenParagraph {
     if (topic !== undefined) updateData.topic = topic;
     if (hardWords !== undefined) updateData.hard_words = hardWords;
 
-    db.updateById('unseen_paragraphs', id, updateData);
+    await db.updateById('unseen_paragraphs', id, updateData);
 
-    const updated = db.findById('unseen_paragraphs', id);
+    const updated = await db.findById('unseen_paragraphs', id);
     return {
       id: updated.id,
       title_en: updated.title_en,
@@ -149,10 +149,10 @@ class UnseenParagraph {
    * Delete a paragraph
    */
   static async delete(id) {
-    const existing = db.findById('unseen_paragraphs', id);
+    const existing = await db.findById('unseen_paragraphs', id);
     if (!existing) return undefined;
 
-    db.deleteById('unseen_paragraphs', id);
+    await db.deleteById('unseen_paragraphs', id);
     return { id };
   }
 
@@ -160,7 +160,7 @@ class UnseenParagraph {
    * Get count of paragraphs by complexity level
    */
   static async getCountByComplexity() {
-    const paragraphs = db.find('unseen_paragraphs', {});
+    const paragraphs = await db.find('unseen_paragraphs', {});
 
     // Group by complexity level
     const counts = new Map();
@@ -183,7 +183,7 @@ class UnseenParagraph {
    * Get all unique topics
    */
   static async getAllTopics() {
-    const paragraphs = db.find('unseen_paragraphs', {});
+    const paragraphs = await db.find('unseen_paragraphs', {});
 
     // Get unique topics
     const topicSet = new Set();
@@ -204,7 +204,7 @@ class UnseenParagraph {
    * Get total paragraph count
    */
   static async getTotalCount() {
-    return db.count('unseen_paragraphs');
+    return await db.count('unseen_paragraphs');
   }
 }
 

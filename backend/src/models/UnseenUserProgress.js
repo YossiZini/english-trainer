@@ -5,7 +5,7 @@ class UnseenUserProgress {
    * Get user's progress for a specific paragraph
    */
   static async getByUserAndParagraph(userId, paragraphId) {
-    const progress = db.findOne('unseen_user_progress', {
+    const progress = await db.findOne('unseen_user_progress', {
       user_id: userId,
       paragraph_id: paragraphId
     });
@@ -29,7 +29,7 @@ class UnseenUserProgress {
    * Get all progress for a user
    */
   static async getAllByUser(userId) {
-    const progress = db.find('unseen_user_progress', { user_id: userId });
+    const progress = await db.find('unseen_user_progress', { user_id: userId });
 
     // Get paragraphs for joining
     const paragraphs = db.getCollection('unseen_paragraphs', true);
@@ -62,7 +62,7 @@ class UnseenUserProgress {
    * Create or update progress after completing a session
    */
   static async upsertProgress(userId, paragraphId, sessionScore) {
-    const existing = db.findOne('unseen_user_progress', {
+    const existing = await db.findOne('unseen_user_progress', {
       user_id: userId,
       paragraph_id: paragraphId
     });
@@ -74,7 +74,7 @@ class UnseenUserProgress {
       const newBestScore = Math.max(existing.best_score || 0, sessionScore);
       const newAttempts = (existing.attempts || 0) + 1;
 
-      db.updateById('unseen_user_progress', existing.id, {
+      await db.updateById('unseen_user_progress', existing.id, {
         best_score: newBestScore,
         attempts: newAttempts,
         last_attempted_at: timestamp,
@@ -91,7 +91,7 @@ class UnseenUserProgress {
     }
 
     // Create new record
-    const progress = db.insert('unseen_user_progress', {
+    const progress = await db.insert('unseen_user_progress', {
       user_id: userId,
       paragraph_id: paragraphId,
       best_score: sessionScore,
@@ -115,7 +115,7 @@ class UnseenUserProgress {
    * Get user's overall statistics
    */
   static async getUserStats(userId) {
-    const progress = db.find('unseen_user_progress', { user_id: userId });
+    const progress = await db.find('unseen_user_progress', { user_id: userId });
 
     const stats = {
       total_attempted: progress.length,
@@ -150,7 +150,7 @@ class UnseenUserProgress {
    * Get progress with paragraph details for a user
    */
   static async getProgressWithDetails(userId) {
-    const progress = db.find('unseen_user_progress', { user_id: userId });
+    const progress = await db.find('unseen_user_progress', { user_id: userId });
 
     // Get paragraphs for joining
     const paragraphs = db.getCollection('unseen_paragraphs', true);
@@ -180,7 +180,7 @@ class UnseenUserProgress {
    * Get paragraphs not yet attempted by user
    */
   static async getUnattemptedParagraphs(userId) {
-    const progress = db.find('unseen_user_progress', { user_id: userId });
+    const progress = await db.find('unseen_user_progress', { user_id: userId });
     const attemptedIds = new Set(progress.map(p => p.paragraph_id));
 
     const paragraphs = db.getCollection('unseen_paragraphs', true);
@@ -209,7 +209,7 @@ class UnseenUserProgress {
    * Get count of paragraphs by complexity level that user has attempted
    */
   static async getProgressByComplexity(userId) {
-    const progress = db.find('unseen_user_progress', { user_id: userId });
+    const progress = await db.find('unseen_user_progress', { user_id: userId });
 
     // Get paragraphs for joining
     const paragraphs = db.getCollection('unseen_paragraphs', true);
@@ -259,14 +259,14 @@ class UnseenUserProgress {
    * Delete progress for a user and paragraph
    */
   static async delete(userId, paragraphId) {
-    const existing = db.findOne('unseen_user_progress', {
+    const existing = await db.findOne('unseen_user_progress', {
       user_id: userId,
       paragraph_id: paragraphId
     });
 
     if (!existing) return undefined;
 
-    db.deleteById('unseen_user_progress', existing.id);
+    await db.deleteById('unseen_user_progress', existing.id);
 
     return { id: existing.id };
   }

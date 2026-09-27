@@ -10,7 +10,7 @@ class VocabularyKanbanTask {
    * @returns {Array} All Kanban tasks
    */
   static async findAll() {
-    const tasks = db.find('vocabulary_kanban_tasks', {});
+    const tasks = await db.find('vocabulary_kanban_tasks', {});
 
     // Sort by priority ascending, then by created_at ascending
     tasks.sort((a, b) => {
@@ -29,7 +29,7 @@ class VocabularyKanbanTask {
    * @returns {Array} Tasks with the specified status
    */
   static async findByStatus(status) {
-    const tasks = db.find('vocabulary_kanban_tasks', { status });
+    const tasks = await db.find('vocabulary_kanban_tasks', { status });
 
     // Sort by priority ascending, then by created_at ascending
     tasks.sort((a, b) => {
@@ -62,7 +62,7 @@ class VocabularyKanbanTask {
    * @returns {Array} Tasks in the specified category
    */
   static async findByCategory(category) {
-    const tasks = db.find('vocabulary_kanban_tasks', { category });
+    const tasks = await db.find('vocabulary_kanban_tasks', { category });
 
     // Sort by status ascending, then by priority ascending
     const statusOrder = { backlog: 0, in_progress: 1, done: 2 };
@@ -81,7 +81,7 @@ class VocabularyKanbanTask {
    * @returns {object|null} Task
    */
   static async findById(id) {
-    const task = db.findById('vocabulary_kanban_tasks', id);
+    const task = await db.findById('vocabulary_kanban_tasks', id);
     return task || null;
   }
 
@@ -103,7 +103,7 @@ class VocabularyKanbanTask {
 
     const timestamp = new Date().toISOString();
 
-    const task = db.insert('vocabulary_kanban_tasks', {
+    const task = await db.insert('vocabulary_kanban_tasks', {
       title,
       description,
       status,
@@ -130,7 +130,7 @@ class VocabularyKanbanTask {
     const timestamp = new Date().toISOString();
     const completedAt = newStatus === 'done' ? timestamp : null;
 
-    const result = db.updateById('vocabulary_kanban_tasks', id, {
+    const result = await db.updateById('vocabulary_kanban_tasks', id, {
       status: newStatus,
       completed_at: completedAt,
       updated_at: timestamp
@@ -138,7 +138,7 @@ class VocabularyKanbanTask {
 
     if (result.modified === 0) return undefined;
 
-    return db.findById('vocabulary_kanban_tasks', id);
+    return await db.findById('vocabulary_kanban_tasks', id);
   }
 
   /**
@@ -180,11 +180,11 @@ class VocabularyKanbanTask {
       updateData.completed_at = null;
     }
 
-    const result = db.updateById('vocabulary_kanban_tasks', id, updateData);
+    const result = await db.updateById('vocabulary_kanban_tasks', id, updateData);
 
     if (result.modified === 0) return undefined;
 
-    return db.findById('vocabulary_kanban_tasks', id);
+    return await db.findById('vocabulary_kanban_tasks', id);
   }
 
   /**
@@ -193,7 +193,7 @@ class VocabularyKanbanTask {
    * @returns {boolean} Success status
    */
   static async delete(id) {
-    const result = db.deleteById('vocabulary_kanban_tasks', id);
+    const result = await db.deleteById('vocabulary_kanban_tasks', id);
     return result.deleted > 0;
   }
 
@@ -202,7 +202,7 @@ class VocabularyKanbanTask {
    * @returns {object} Statistics about tasks
    */
   static async getStats() {
-    const tasks = db.find('vocabulary_kanban_tasks', {});
+    const tasks = await db.find('vocabulary_kanban_tasks', {});
 
     const stats = {
       totalTasks: tasks.length,

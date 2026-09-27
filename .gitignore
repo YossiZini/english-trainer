@@ -34,3 +34,7 @@ coverage/
 # Temporary files
 *.tmp
 .cache/
+
+# Firebase emulator logs
+*-debug.log
+.firebase/

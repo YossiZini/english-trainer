@@ -88,7 +88,7 @@ class ProgressService {
     }
 
     // Get attempt history for this lesson
-    const results = db.find('exercise_results', { user_id: userId, lesson_id: lessonId });
+    const results = await db.find('exercise_results', { user_id: userId, lesson_id: lessonId });
 
     // Sort by attempt_number descending
     results.sort((a, b) => (b.attempt_number || 0) - (a.attempt_number || 0));
@@ -115,7 +115,7 @@ class ProgressService {
    */
   static async getChartStats(userId) {
     // Score progression over time
-    const exerciseResults = db.find('exercise_results', { user_id: userId });
+    const exerciseResults = await db.find('exercise_results', { user_id: userId });
 
     // Group by date and calculate averages
     const dateStats = new Map();
@@ -140,7 +140,7 @@ class ProgressService {
 
     // Lessons completed per topic
     const lessons = db.getCollection('lessons', true);
-    const userProgress = db.find('user_progress', { user_id: userId });
+    const userProgress = await db.find('user_progress', { user_id: userId });
     const progressMap = new Map(userProgress.map(p => [p.lesson_id, p]));
 
     // Group by topic

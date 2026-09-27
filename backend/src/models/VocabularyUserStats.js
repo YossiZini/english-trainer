@@ -6,7 +6,7 @@ class VocabularyUserStats {
    */
   static async findOrCreate(userId) {
     // Try to find existing record
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
 
     if (existing) {
       return existing;
@@ -14,7 +14,7 @@ class VocabularyUserStats {
 
     // Create new record
     const timestamp = new Date().toISOString();
-    const stats = db.insert('vocabulary_user_stats', {
+    const stats = await db.insert('vocabulary_user_stats', {
       user_id: userId,
       accumulated_fails: 0,
       total_words_learned: 0,
@@ -31,7 +31,7 @@ class VocabularyUserStats {
    * Get user stats
    */
   static async getStats(userId) {
-    const stats = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const stats = await db.findOne('vocabulary_user_stats', { user_id: userId });
     return stats || undefined;
   }
 
@@ -39,12 +39,12 @@ class VocabularyUserStats {
    * Increment accumulated fails
    */
   static async incrementFails(userId, count = 1) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
     const timestamp = new Date().toISOString();
 
     if (existing) {
       const newFails = existing.accumulated_fails + count;
-      db.updateById('vocabulary_user_stats', existing.id, {
+      await db.updateById('vocabulary_user_stats', existing.id, {
         accumulated_fails: newFails,
         updated_at: timestamp
       });
@@ -52,7 +52,7 @@ class VocabularyUserStats {
     }
 
     // Create new record
-    const stats = db.insert('vocabulary_user_stats', {
+    const stats = await db.insert('vocabulary_user_stats', {
       user_id: userId,
       accumulated_fails: count,
       total_words_learned: 0,
@@ -69,7 +69,7 @@ class VocabularyUserStats {
    * Decrement accumulated fails (after review correct answers)
    */
   static async decrementFails(userId, count) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
 
     if (!existing) {
       return 0;
@@ -77,7 +77,7 @@ class VocabularyUserStats {
 
     const timestamp = new Date().toISOString();
     const newFails = Math.max(0, existing.accumulated_fails - count);
-    db.updateById('vocabulary_user_stats', existing.id, {
+    await db.updateById('vocabulary_user_stats', existing.id, {
       accumulated_fails: newFails,
       updated_at: timestamp
     });
@@ -89,14 +89,14 @@ class VocabularyUserStats {
    * Reset accumulated fails to zero
    */
   static async resetFails(userId) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
 
     if (!existing) {
       return undefined;
     }
 
     const timestamp = new Date().toISOString();
-    db.updateById('vocabulary_user_stats', existing.id, {
+    await db.updateById('vocabulary_user_stats', existing.id, {
       accumulated_fails: 0,
       updated_at: timestamp
     });
@@ -108,11 +108,11 @@ class VocabularyUserStats {
    * Set accumulated fails to a specific value
    */
   static async setFails(userId, count) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
     const timestamp = new Date().toISOString();
 
     if (existing) {
-      db.updateById('vocabulary_user_stats', existing.id, {
+      await db.updateById('vocabulary_user_stats', existing.id, {
         accumulated_fails: count,
         updated_at: timestamp
       });
@@ -120,7 +120,7 @@ class VocabularyUserStats {
     }
 
     // Create new record
-    const stats = db.insert('vocabulary_user_stats', {
+    const stats = await db.insert('vocabulary_user_stats', {
       user_id: userId,
       accumulated_fails: count,
       total_words_learned: 0,
@@ -137,12 +137,12 @@ class VocabularyUserStats {
    * Increment total words learned
    */
   static async incrementWordsLearned(userId, count = 1) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
     const timestamp = new Date().toISOString();
 
     if (existing) {
       const newCount = (existing.total_words_learned || 0) + count;
-      db.updateById('vocabulary_user_stats', existing.id, {
+      await db.updateById('vocabulary_user_stats', existing.id, {
         total_words_learned: newCount,
         updated_at: timestamp
       });
@@ -150,7 +150,7 @@ class VocabularyUserStats {
     }
 
     // Create new record
-    const stats = db.insert('vocabulary_user_stats', {
+    const stats = await db.insert('vocabulary_user_stats', {
       user_id: userId,
       accumulated_fails: 0,
       total_words_learned: count,
@@ -167,11 +167,11 @@ class VocabularyUserStats {
    * Update total words learned to a specific count
    */
   static async updateWordsLearned(userId, count) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
     const timestamp = new Date().toISOString();
 
     if (existing) {
-      db.updateById('vocabulary_user_stats', existing.id, {
+      await db.updateById('vocabulary_user_stats', existing.id, {
         total_words_learned: count,
         updated_at: timestamp
       });
@@ -179,7 +179,7 @@ class VocabularyUserStats {
     }
 
     // Create new record
-    const stats = db.insert('vocabulary_user_stats', {
+    const stats = await db.insert('vocabulary_user_stats', {
       user_id: userId,
       accumulated_fails: 0,
       total_words_learned: count,
@@ -196,12 +196,12 @@ class VocabularyUserStats {
    * Increment total quizzes completed
    */
   static async incrementQuizzesCompleted(userId) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
     const timestamp = new Date().toISOString();
 
     if (existing) {
       const newCount = (existing.total_quizzes_completed || 0) + 1;
-      db.updateById('vocabulary_user_stats', existing.id, {
+      await db.updateById('vocabulary_user_stats', existing.id, {
         total_quizzes_completed: newCount,
         updated_at: timestamp
       });
@@ -209,7 +209,7 @@ class VocabularyUserStats {
     }
 
     // Create new record
-    const stats = db.insert('vocabulary_user_stats', {
+    const stats = await db.insert('vocabulary_user_stats', {
       user_id: userId,
       accumulated_fails: 0,
       total_words_learned: 0,
@@ -226,12 +226,12 @@ class VocabularyUserStats {
    * Increment total review sessions
    */
   static async incrementReviewSessions(userId) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
     const timestamp = new Date().toISOString();
 
     if (existing) {
       const newCount = (existing.total_review_sessions || 0) + 1;
-      db.updateById('vocabulary_user_stats', existing.id, {
+      await db.updateById('vocabulary_user_stats', existing.id, {
         total_review_sessions: newCount,
         updated_at: timestamp
       });
@@ -239,7 +239,7 @@ class VocabularyUserStats {
     }
 
     // Create new record
-    const stats = db.insert('vocabulary_user_stats', {
+    const stats = await db.insert('vocabulary_user_stats', {
       user_id: userId,
       accumulated_fails: 0,
       total_words_learned: 0,
@@ -256,7 +256,7 @@ class VocabularyUserStats {
    * Get accumulated fails count
    */
   static async getAccumulatedFails(userId) {
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
     return existing ? (existing.accumulated_fails || 0) : 0;
   }
 
@@ -279,7 +279,7 @@ class VocabularyUserStats {
       total_review_sessions
     } = updates;
 
-    const existing = db.findOne('vocabulary_user_stats', { user_id: userId });
+    const existing = await db.findOne('vocabulary_user_stats', { user_id: userId });
 
     if (!existing) {
       return this.getStats(userId);
@@ -300,16 +300,16 @@ class VocabularyUserStats {
       updateData.total_review_sessions = total_review_sessions;
     }
 
-    db.updateById('vocabulary_user_stats', existing.id, updateData);
+    await db.updateById('vocabulary_user_stats', existing.id, updateData);
 
-    return db.findById('vocabulary_user_stats', existing.id);
+    return await db.findById('vocabulary_user_stats', existing.id);
   }
 
   /**
    * Delete user stats (for cleanup)
    */
   static async delete(userId) {
-    db.delete('vocabulary_user_stats', { user_id: userId });
+    await db.delete('vocabulary_user_stats', { user_id: userId });
   }
 }
 

@@ -7,7 +7,7 @@ class VocabularyUserHistory {
   static async recordAnswer(userId, wordId, sessionId, isCorrect) {
     const timestamp = new Date().toISOString();
 
-    const record = db.insert('vocabulary_user_history', {
+    const record = await db.insert('vocabulary_user_history', {
       user_id: userId,
       word_id: wordId,
       quiz_session_id: sessionId,
@@ -29,7 +29,7 @@ class VocabularyUserHistory {
    * Used to avoid repeating words
    */
   static async getCorrectlyAnsweredWordIds(userId) {
-    const history = db.find('vocabulary_user_history', {
+    const history = await db.find('vocabulary_user_history', {
       user_id: userId,
       is_correct: true
     });
@@ -43,7 +43,7 @@ class VocabularyUserHistory {
    * Get user's overall word performance statistics
    */
   static async getUserWordStats(userId) {
-    const history = db.find('vocabulary_user_history', { user_id: userId });
+    const history = await db.find('vocabulary_user_history', { user_id: userId });
 
     const wordIds = new Set();
     const correctWordIds = new Set();
@@ -73,7 +73,7 @@ class VocabularyUserHistory {
    * Get all answers for a specific session
    */
   static async getSessionHistory(sessionId) {
-    const history = db.find('vocabulary_user_history', { quiz_session_id: sessionId });
+    const history = await db.find('vocabulary_user_history', { quiz_session_id: sessionId });
 
     // Get vocabulary words for joining
     const words = db.getCollection('vocabulary_words', true);
@@ -102,14 +102,14 @@ class VocabularyUserHistory {
    * Get user's recent activity
    */
   static async getRecentActivity(userId, limit = 10) {
-    const history = db.find('vocabulary_user_history', { user_id: userId });
+    const history = await db.find('vocabulary_user_history', { user_id: userId });
 
     // Get vocabulary words for joining
     const words = db.getCollection('vocabulary_words', true);
     const wordMap = new Map(words.map(w => [w.id, w]));
 
     // Get quiz sessions for joining
-    const sessions = db.getCollection('vocabulary_quiz_sessions', true);
+    const sessions = await db.find('vocabulary_quiz_sessions', { user_id: userId });
     const sessionMap = new Map(sessions.map(s => [s.id, s]));
 
     const result = history.map(h => {
@@ -137,7 +137,7 @@ class VocabularyUserHistory {
    * Get word accuracy for a user (how many times correct vs incorrect)
    */
   static async getWordAccuracy(userId, wordId) {
-    const history = db.find('vocabulary_user_history', {
+    const history = await db.find('vocabulary_user_history', {
       user_id: userId,
       word_id: wordId
     });
@@ -164,7 +164,7 @@ class VocabularyUserHistory {
    * Check if user has ever answered a word correctly
    */
   static async hasAnsweredCorrectly(userId, wordId) {
-    const history = db.find('vocabulary_user_history', {
+    const history = await db.find('vocabulary_user_history', {
       user_id: userId,
       word_id: wordId,
       is_correct: true
@@ -178,7 +178,7 @@ class VocabularyUserHistory {
    */
   static async getProgressByDifficulty(userId) {
     const words = db.getCollection('vocabulary_words', true);
-    const history = db.find('vocabulary_user_history', { user_id: userId });
+    const history = await db.find('vocabulary_user_history', { user_id: userId });
 
     // Build a set of word IDs that user has answered correctly
     const correctWordIds = new Set();
@@ -219,7 +219,7 @@ class VocabularyUserHistory {
    * Delete history for a specific session (if needed for cleanup)
    */
   static async deleteSessionHistory(sessionId) {
-    db.delete('vocabulary_user_history', { quiz_session_id: sessionId });
+    await db.delete('vocabulary_user_history', { quiz_session_id: sessionId });
   }
 
   /**
@@ -241,7 +241,7 @@ class VocabularyUserHistory {
     const offset = (page - 1) * limit;
 
     // Get all history for user
-    let history = db.find('vocabulary_user_history', { user_id: userId });
+    let history = await db.find('vocabulary_user_history', { user_id: userId });
 
     // Apply filters
     if (filter === 'success') {
@@ -274,7 +274,7 @@ class VocabularyUserHistory {
     const words = db.getCollection('vocabulary_words', true);
     const wordMap = new Map(words.map(w => [w.id, w]));
 
-    const sessions = db.getCollection('vocabulary_quiz_sessions', true);
+    const sessions = await db.find('vocabulary_quiz_sessions', { user_id: userId });
     const sessionMap = new Map(sessions.map(s => [s.id, s]));
 
     const records = paginated.map(h => {
@@ -321,7 +321,7 @@ class VocabularyUserHistory {
    * @returns {object} Statistics summary
    */
   static async getHistoryStats(userId) {
-    const history = db.find('vocabulary_user_history', { user_id: userId });
+    const history = await db.find('vocabulary_user_history', { user_id: userId });
 
     const stats = {
       totalAttempts: 0,
@@ -400,13 +400,13 @@ class VocabularyUserHistory {
 
     const offset = (page - 1) * limit;
 
-    const history = db.find('vocabulary_user_history', { user_id: userId });
+    const history = await db.find('vocabulary_user_history', { user_id: userId });
 
     // Get vocabulary words and sessions for joining
     const words = db.getCollection('vocabulary_words', true);
     const wordMap = new Map(words.map(w => [w.id, w]));
 
-    const sessions = db.getCollection('vocabulary_quiz_sessions', true);
+    const sessions = await db.find('vocabulary_quiz_sessions', { user_id: userId });
     const sessionMap = new Map(sessions.map(s => [s.id, s]));
 
     // Group by word_id

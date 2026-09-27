@@ -1,132 +1,56 @@
 const path = require('path');
-const JsonDatabase = require('../data/JsonDatabase');
-const IndexManager = require('../data/IndexManager');
+const { StaticStore } = require('../data/StaticStore');
+const FirestoreDatabase = require('../data/FirestoreDatabase');
+const { getFirestore } = require('./firestore');
 
-// Initialize JSON Database
-const dataDir = path.join(__dirname, '../../data');
-const db = new JsonDatabase(dataDir);
-const indexManager = new IndexManager(db);
+// Curriculum content bundled with the image; student data in Firestore.
+const staticStore = new StaticStore(path.join(__dirname, '../../data/static'));
+const db = new FirestoreDatabase({ firestore: getFirestore(), staticStore });
 
-// Flag to track initialization
+// The dynamic (student-produced) collections. Kept here as the single list
+// for tests and maintenance scripts.
+const DYNAMIC_COLLECTIONS = [
+  'users', 'user_progress', 'exercise_results', 'wrong_answers',
+  'user_achievements', 'vocabulary_quiz_sessions', 'vocabulary_word_scores',
+  'vocabulary_user_stats', 'vocabulary_user_history', 'vocabulary_failed_words',
+  'unseen_sessions', 'unseen_answers', 'unseen_user_progress',
+  'daily_challenges', 'user_daily_challenges', 'vocabulary_kanban_tasks'
+];
+
 let initialized = false;
 
 /**
- * Initialize the database
- * Call this during server startup
+ * Load the static content into memory. Call during server startup.
  */
 async function initializeDatabase() {
-  if (initialized) return;
-
-  console.log('🔄 Initializing JSON Database...');
-
-  await db.initialize();
-  indexManager.initializeCommonIndexes();
-
+  if (initialized) return db;
+  console.log('🔄 Loading curriculum content...');
+  staticStore.load();
   initialized = true;
-  console.log('✅ JSON Database initialized successfully');
-
-  return { db, indexManager };
-}
-
-/**
- * Shutdown the database
- * Call this during server shutdown
- */
-async function shutdownDatabase() {
-  console.log('🔄 Shutting down JSON Database...');
-  await db.shutdown();
-  console.log('✅ JSON Database shut down successfully');
-}
-
-/**
- * Get the database instance
- */
-function getDatabase() {
+  console.log('✅ Content loaded; student data in Firestore');
   return db;
 }
 
 /**
- * Get the index manager instance
+ * Nothing to flush: every write is persisted in Firestore immediately.
  */
-function getIndexManager() {
-  return indexManager;
+async function shutdownDatabase() {
+  await db.firestore.terminate();
 }
 
-/**
- * Transaction helper - wraps operations in a transaction
- * Returns a client-like object for compatibility
- */
-function getClient() {
-  const transactionId = db.beginTransaction();
-
-  return {
-    transactionId,
-    query: async (sql, params) => {
-      // This is for backwards compatibility during migration
-      // Models should be updated to use db methods directly
-      console.warn('Warning: Direct SQL query detected. Please migrate to JSON methods.');
-      return { rows: [] };
-    },
-    release: () => {
-      // No-op for JSON database
-    }
-  };
+function getDatabase() {
+  return db;
 }
 
-/**
- * Begin a transaction
- */
-function beginTransaction() {
-  return db.beginTransaction();
-}
-
-/**
- * Commit a transaction
- */
-function commitTransaction(transactionId) {
-  return db.commitTransaction(transactionId);
-}
-
-/**
- * Rollback a transaction
- */
-function rollbackTransaction(transactionId) {
-  return db.rollbackTransaction(transactionId);
-}
-
-/**
- * Execute within a transaction
- */
 async function withTransaction(callback) {
   return db.withTransaction(callback);
 }
 
-// Legacy pool-like interface for gradual migration
-const pool = {
-  query: async (text, params) => {
-    console.warn('Warning: pool.query() called. Please migrate to JSON methods.');
-    return { rows: [] };
-  },
-  connect: async () => {
-    return getClient();
-  }
-};
-
 module.exports = {
-  // New JSON Database API
   db,
-  indexManager,
+  DYNAMIC_COLLECTIONS,
   initializeDatabase,
   shutdownDatabase,
   getDatabase,
-  getIndexManager,
-  beginTransaction,
-  commitTransaction,
-  rollbackTransaction,
-  withTransaction,
-
-  // Legacy API for backwards compatibility during migration
-  pool,
-  getClient,
-  query: pool.query
+  withTransaction
 };

@@ -320,7 +320,7 @@ class MistakesService {
       }));
 
     // Get unique topics with mistakes and their theory content
-    const wrongAnswers = db.find('wrong_answers', { user_id: userId });
+    const wrongAnswers = await db.find('wrong_answers', { user_id: userId });
     const lessonMistakeCounts = new Map();
 
     for (const wa of wrongAnswers) {

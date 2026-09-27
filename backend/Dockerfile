@@ -17,8 +17,6 @@ COPY src ./src
 # Read-only content (lessons, exercises, vocabulary, reading passages) ships
 # with the image. Student data lives in Firestore, not in the container.
 COPY data/static ./data/static
-# Until P2 lands, JsonDatabase still creates data/dynamic at startup.
-RUN mkdir -p data/dynamic && chown -R node:node /app/data
 USER node
 EXPOSE 8080
 CMD ["node", "src/server.js"]

@@ -1,12 +1,12 @@
 const { db, withTransaction } = require('../config/database');
-const { shuffleArray } = require('../data/loadStaticData');
+const { shuffleInPlace: shuffleArray } = require('../utils/shuffle');
 
 class VocabularyWord {
   /**
    * Find all words
    */
   static async findAll(limit = 100, offset = 0) {
-    const words = db.find('vocabulary_words', {}, {
+    const words = await db.find('vocabulary_words', {}, {
       sort: { difficulty_level: 'asc', english_word: 'asc' },
       offset,
       limit
@@ -58,7 +58,7 @@ class VocabularyWord {
    * Find a single word by ID
    */
   static async findById(id) {
-    const word = db.findById('vocabulary_words', id);
+    const word = await db.findById('vocabulary_words', id);
     if (!word) return null;
 
     return {
@@ -81,7 +81,7 @@ class VocabularyWord {
     const maxDifficulty = Math.min(10, correctDifficulty + 2);
 
     // Get the correct word's translation to exclude it
-    const correctWord = db.findById('vocabulary_words', correctWordId);
+    const correctWord = await db.findById('vocabulary_words', correctWordId);
     const correctTranslation = correctWord?.hebrew_translation;
 
     let allWords = db.getCollection('vocabulary_words', true);
@@ -151,13 +151,13 @@ class VocabularyWord {
     } = wordData;
 
     // Check if word already exists (upsert)
-    const existing = db.findOne('vocabulary_words', {
+    const existing = await db.findOne('vocabulary_words', {
       english_word: englishWord,
       source
     });
 
     if (existing) {
-      db.updateById('vocabulary_words', existing.id, {
+      await db.updateById('vocabulary_words', existing.id, {
         hebrew_translation: hebrewTranslation,
         difficulty_level: difficultyLevel,
         sentence_en: sentenceEn,
@@ -171,7 +171,7 @@ class VocabularyWord {
       };
     }
 
-    const word = db.insert('vocabulary_words', {
+    const word = await db.insert('vocabulary_words', {
       english_word: englishWord,
       hebrew_translation: hebrewTranslation,
       difficulty_level: difficultyLevel,
@@ -238,7 +238,7 @@ class VocabularyWord {
    * Get total word count
    */
   static async getTotalCount() {
-    return db.count('vocabulary_words');
+    return await db.count('vocabulary_words');
   }
 }
 

@@ -13,7 +13,7 @@ class DailyChallengeService {
     const today = new Date().toISOString().split('T')[0];
 
     // Check if challenge exists for today
-    let challenge = db.findOne('daily_challenges', { challenge_date: today });
+    let challenge = await db.findOne('daily_challenges', { challenge_date: today });
 
     if (!challenge) {
       // Generate new challenge
@@ -33,7 +33,7 @@ class DailyChallengeService {
     const challenge = await this.getTodayChallenge();
 
     // Get user progress
-    const userProgress = db.findOne('user_daily_challenges', {
+    const userProgress = await db.findOne('user_daily_challenges', {
       user_id: userId,
       challenge_id: challenge.id
     });
@@ -46,7 +46,7 @@ class DailyChallengeService {
     }
 
     // Create initial progress record
-    db.insert('user_daily_challenges', {
+    await db.insert('user_daily_challenges', {
       user_id: userId,
       challenge_id: challenge.id,
       progress: 0,
@@ -70,14 +70,14 @@ class DailyChallengeService {
     const challenge = await this.getTodayChallenge();
 
     // Get current progress
-    let currentProgress = db.findOne('user_daily_challenges', {
+    let currentProgress = await db.findOne('user_daily_challenges', {
       user_id: userId,
       challenge_id: challenge.id
     });
 
     if (!currentProgress) {
       // Create progress record
-      currentProgress = db.insert('user_daily_challenges', {
+      currentProgress = await db.insert('user_daily_challenges', {
         user_id: userId,
         challenge_id: challenge.id,
         progress: progressIncrement,
@@ -97,7 +97,7 @@ class DailyChallengeService {
       const newProgress = currentProgress.progress + progressIncrement;
       const isCompleted = newProgress >= challenge.challenge_target;
 
-      db.updateById('user_daily_challenges', currentProgress.id, {
+      await db.updateById('user_daily_challenges', currentProgress.id, {
         progress: newProgress,
         completed: isCompleted,
         completed_at: isCompleted ? new Date().toISOString() : null
@@ -179,7 +179,7 @@ class DailyChallengeService {
     const desc_en = challenge.descTemplate.en.replace('{target}', target);
     const desc_he = challenge.descTemplate.he.replace('{target}', target);
 
-    const newChallenge = db.insert('daily_challenges', {
+    const newChallenge = await db.insert('daily_challenges', {
       challenge_date: date,
       challenge_type: challenge.type,
       challenge_target: target,
@@ -225,7 +225,7 @@ class DailyChallengeService {
     const today = new Date().toISOString().split('T')[0];
 
     // Get all challenges up to today
-    const challenges = db.find('daily_challenges', {
+    const challenges = await db.find('daily_challenges', {
       challenge_date: { $lte: today }
     }, {
       sort: { challenge_date: 'desc' },
@@ -233,7 +233,7 @@ class DailyChallengeService {
     });
 
     // Get user progress for these challenges
-    const userProgress = db.find('user_daily_challenges', { user_id: userId });
+    const userProgress = await db.find('user_daily_challenges', { user_id: userId });
     const progressMap = new Map(userProgress.map(up => [up.challenge_id, up]));
 
     return challenges.map(dc => {
@@ -254,12 +254,12 @@ class DailyChallengeService {
     const today = new Date().toISOString().split('T')[0];
 
     // Get all challenges up to today
-    const challenges = db.find('daily_challenges', {
+    const challenges = await db.find('daily_challenges', {
       challenge_date: { $lte: today }
     });
 
     // Get user's completed challenges
-    const userProgress = db.find('user_daily_challenges', {
+    const userProgress = await db.find('user_daily_challenges', {
       user_id: userId,
       completed: true
     });

@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// Student data is accessed only by the API (Cloud Run, Admin SDK), which
+// bypasses these rules. No browser or mobile client talks to Firestore
+// directly, so every client request is denied.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
