@@ -14,7 +14,8 @@ import './MathText.css';
 // a standalone number (not the tail of a longer one).
 // Not part of a decimal (7,5 / 7.5), a longer number or a path (1/2/3);
 // a comma that separates list items is fine.
-const FRACTION = /(?<![\d./]|\d[.,])(?:(\d+) )?(\d+)\/(\d+)(?![\d./]|[.,]\d)/g;
+// A '?' may stand for an unknown numerator or denominator (3/4 = ?/12).
+const FRACTION = /(?<![\d./?]|\d[.,])(?:(\d+) )?(\d+|\?)\/(\d+|\?)(?![\d./?]|[.,]\d)/g;
 
 export function splitFractions(text) {
   const parts = [];
