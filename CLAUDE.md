@@ -12,6 +12,9 @@ Reference: `/docs/topics-status.md` contains:
 - Current status of all topics
 - Recent activity history
 
+**Math content** (teaching documents, exercises, explanations, pictures,
+verification): follow `/docs/math-content-guide.md`.
+
 ---
 
 ## Deployment
