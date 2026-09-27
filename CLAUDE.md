@@ -28,6 +28,18 @@ after the backend tests pass on the Firestore emulator (`cd backend && npm test`
 
 ---
 
+## Sprint Workflow and Retrospectives
+
+Work is organised in sprints driven by the `/sprint` command
+(`.claude/skills/sprint/SKILL.md`): `start` → `plan` → `next` → `review` →
+`retro` → `close`. The sprint board is a Claude artifact; closed sprints are
+archived under `docs/backlog/`.
+
+**`/docs/retro.md` is binding**: read its "Lessons → rules" before starting
+work, and add to it through `/sprint retro`.
+
+---
+
 ## Server Ports
 
 **Do not change these ports. They are fixed for this project.**
