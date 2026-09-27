@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './FillInBlank.css';
+import MathText from '../common/MathText';
 
 // subject: 'english' questions are English sentences (LTR) whose base verb in
 // parentheses pre-fills the input; other subjects are Hebrew (RTL) with no prefill.
@@ -51,7 +52,7 @@ const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback, subject }
 
   return (
     <div className="fill-in-blank">
-      <div className="question-text" dir={textDir}>{question.question_text_he}</div>
+      <MathText as="div" className="question-text" dir={textDir} text={question.question_text_he} />
 
       <div className="answer-container">
         <input
@@ -74,7 +75,7 @@ const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback, subject }
 
       {question.hint_he && !feedback && (
         <div className="hint">
-          <span className="hint-label">רמז:</span> {question.hint_he}
+          <span className="hint-label">רמז:</span> <MathText text={question.hint_he} />
         </div>
       )}
     </div>

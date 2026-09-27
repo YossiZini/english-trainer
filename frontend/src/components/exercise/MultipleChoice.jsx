@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './MultipleChoice.css';
+import MathText from '../common/MathText';
 
 // subject: 'english' questions are English sentences (LTR); other subjects are
 // written in Hebrew (RTL).
@@ -54,7 +55,7 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, su
 
   return (
     <div className="multiple-choice">
-      <div className="question-text" dir={textDir}>{question.question_text_he}</div>
+      <MathText as="div" className="question-text" dir={textDir} text={question.question_text_he} />
 
       <div className="options-container">
         {options.map((option, index) => {
@@ -87,7 +88,7 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, su
                   isSelected ? '●' : '○'
                 )}
               </div>
-              <div className="option-text">{option}</div>
+              <MathText as="div" className="option-text" text={option} />
             </div>
           );
         })}

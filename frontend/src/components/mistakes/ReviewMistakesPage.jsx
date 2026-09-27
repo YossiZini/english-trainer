@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import mistakesService from '../../services/mistakesService';
 import lessonService from '../../services/lessonService';
 import './ReviewMistakesPage.css';
+import MathText from '../common/MathText';
 
 const ReviewMistakesPage = () => {
   const { lessonId } = useParams();
@@ -155,7 +156,7 @@ const ReviewMistakesPage = () => {
               </div>
 
               <div className="mistake-content">
-                <div className="question-text" dir="ltr">{mistake.question_text_he}</div>
+                <MathText as="div" className="question-text" dir="ltr" text={mistake.question_text_he} />
 
                 {mistake.type === 'multiple_choice' && mistake.options && (
                   <div className="options-display">
@@ -180,7 +181,7 @@ const ReviewMistakesPage = () => {
                           }`}
                           dir="ltr"
                         >
-                          {option}
+                          <MathText text={option} />
                         </div>
                       )) : null;
                     })()}
@@ -195,14 +196,14 @@ const ReviewMistakesPage = () => {
 
                   <div className="answer-row correct-answer">
                     <span className="answer-label">התשובה הנכונה:</span>
-                    <span className="answer-value" dir="ltr">{mistake.correct_answer}</span>
+                    <MathText className="answer-value" dir="ltr" text={mistake.correct_answer} />
                   </div>
                 </div>
 
                 {mistake.explanation_he && (
                   <div className="explanation">
                     <div className="explanation-header">💡 הסבר:</div>
-                    <div className="explanation-text">{mistake.explanation_he}</div>
+                    <MathText as="div" className="explanation-text" text={mistake.explanation_he} />
                   </div>
                 )}
               </div>

@@ -22,4 +22,21 @@ function fib(questionNumber, difficulty, questionTextHe, correctAnswer, explanat
   return { questionNumber, type: 'fill_in_blank', questionTextHe, correctAnswer, explanationHe, hintHe, difficulty };
 }
 
-module.exports = { ltr, expr, mc, fib };
+// Textbook notation for theory HTML: every a/b or mixed "1 a/b" in the text
+// becomes a stacked fraction (numerator over denominator). Same pattern as
+// the frontend's MathText, which does this for plain-text question fields.
+const FRACTION = /(?<![\d./]|\d[.,])(?:(\d+) )?(\d+)\/(\d+)(?![\d./]|[.,]\d)/g;
+const fracHtml = (whole, num, den) =>
+  `<span class="frac">${whole ? `<span class="frac-whole">${whole}</span>` : ''}` +
+  `<span class="frac-stack"><span class="frac-num">${num}</span><span class="frac-den">${den}</span></span></span>`;
+// Text inside <svg> (number-line labels) is left alone.
+const stackFractions = (html) => html
+  .split(/(<svg[\s\S]*?<\/svg>)/)
+  .map((part, i) => (i % 2 ? part : part.replace(FRACTION, (m, whole, num, den) => fracHtml(whole, num, den))))
+  .join('');
+
+// Apply the notation to every lesson's theory of a seed file.
+const withStackedFractions = (lessons) =>
+  lessons.map((l) => ({ ...l, theoryContentHe: stackFractions(l.theoryContentHe) }));
+
+module.exports = { ltr, expr, mc, fib, stackFractions, withStackedFractions };

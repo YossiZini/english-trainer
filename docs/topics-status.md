@@ -172,7 +172,12 @@ For each topic, these assets must exist:
 ### Math Topics (Hebrew, grades 7–8)
 
 Math lessons live in the same content files with `subject: "math"` and are
-numbered 101+ (shown as 1+ on the `/math` page). Seeds are plain modules
+numbered 101+ (shown as 1+ on the `/math` page). A topic with several
+subtopics keeps them in a folder (`seeds/fractions/`) and composes them in
+`topic1NN-*.js`; write fractions as `a/b` in text and theory, the app shows
+them stacked (`MathText` for exercise text, `stackFractions` for theory HTML).
+Pictures for theory come from `seeds/math-svg.js` (`circle`, `bar`,
+`numberLine`, `grid`, `figure`). Seeds are plain modules
 (`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
 topic has one teaching document and 10 exercises per level (easy/medium/hard),
 because an exercise session is 10 questions. Regenerate with
@@ -181,7 +186,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 
 | # | Topic Name (EN) | Topic Name (HE) | Seed File | Registered | Frontend | Status |
 |---|-----------------|-----------------|-----------|------------|----------|--------|
-| 101 | Fractions | שברים | topic101-fractions.js | Yes | Yes | Complete |
+| 101 | Fractions (6 subtopics 101.1–101.6) | שברים | topic101-fractions.js + fractions/*.js | Yes | Yes | Complete |
 | 102 | Order of Operations | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
 | 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
 | 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
@@ -207,6 +212,12 @@ Track changes per topic with dates and descriptions.
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
   (10 per level), answers verified by an exact-fraction check script. Sprint 2.
+- 2026-09-27: Split into six subtopics (what a fraction is; equivalent and
+  reducing; comparing; adding and subtracting; multiplying and dividing; mixed
+  numbers), each with pictures (inline SVG from `seeds/math-svg.js`) and 30
+  exercises whose answers are computed by `seeds/fractions/rat.js` and checked
+  by an independent evaluator. Fractions render stacked (numerator over
+  denominator) everywhere. Topics 102–104 moved to order 1021/1031/1041. Sprint 3.
 
 ### Topic 102: Order of Operations (Math)
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,

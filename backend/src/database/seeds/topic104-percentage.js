@@ -1,6 +1,6 @@
 // Topic 104: Percentage (אחוזים) — Math, grades 7–8.
 // Plain module: read by backend/src/data/generateJsonData.js (npm run generate-data).
-const { ltr, mc, fib } = require('./math-helpers');
+const { ltr, mc, fib, withStackedFractions } = require('./math-helpers');
 
 const NUM_HINT = 'כתבו מספר בלבד, בלי סימן % או ₪; שבר עשרוני עם נקודה';
 
@@ -11,7 +11,7 @@ const lessonsData = [
     titleEn: 'Percentage',
     titleHe: 'אחוזים',
     level: 'intermediate',
-    orderIndex: 1004,
+    orderIndex: 1041,
     theoryContentHe: `
 <h2>אחוזים</h2>
 
@@ -146,4 +146,4 @@ const lessonsData = [
   }
 ];
 
-module.exports = { lessonsData };
+module.exports = { lessonsData: withStackedFractions(lessonsData) };
