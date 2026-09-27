@@ -29,7 +29,11 @@ const FRACTION = /(?<![\d.,/])(?:(\d+) )?(\d+)\/(\d+)(?![\d.,/])/g;
 const fracHtml = (whole, num, den) =>
   `<span class="frac">${whole ? `<span class="frac-whole">${whole}</span>` : ''}` +
   `<span class="frac-stack"><span class="frac-num">${num}</span><span class="frac-den">${den}</span></span></span>`;
-const stackFractions = (html) => html.replace(FRACTION, (m, whole, num, den) => fracHtml(whole, num, den));
+// Text inside <svg> (number-line labels) is left alone.
+const stackFractions = (html) => html
+  .split(/(<svg[\s\S]*?<\/svg>)/)
+  .map((part, i) => (i % 2 ? part : part.replace(FRACTION, (m, whole, num, den) => fracHtml(whole, num, den))))
+  .join('');
 
 // Apply the notation to every lesson's theory of a seed file.
 const withStackedFractions = (lessons) =>

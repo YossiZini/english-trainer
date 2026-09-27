@@ -765,3 +765,37 @@
 }
 .theory-html .frac-num, .theory-html .frac-den { padding: 0 0.2em; }
 .theory-html .frac-den { border-top: 0.09em solid currentColor; }
+
+/* Pictures in the Math theory (inline SVG from the seeds) */
+.theory-html .math-figures {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1rem 1.5rem;
+  margin: 1rem 0;
+}
+.theory-html .math-figure {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.75rem auto;
+  max-width: 100%;
+  text-align: center;
+}
+.theory-html .math-figure figcaption {
+  font-size: 0.95rem;
+  color: #555;
+}
+.theory-html .math-pic {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.theory-html .math-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
