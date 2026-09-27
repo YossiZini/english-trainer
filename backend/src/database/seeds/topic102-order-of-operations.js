@@ -1,6 +1,6 @@
 // Topic 102: Order of operations (סדר פעולות חשבון) — Math, grades 7–8.
 // Plain module: read by backend/src/data/generateJsonData.js (npm run generate-data).
-const { ltr, expr, mc, fib, withStackedFractions } = require('./math-helpers');
+const { ltr, expr, mc, fib, finishMath } = require('./math-helpers');
 
 const INT_HINT = 'כתבו מספר שלם';
 
@@ -150,4 +150,4 @@ const lessonsData = [
   }
 ];
 
-module.exports = { lessonsData: withStackedFractions(lessonsData) };
+module.exports = { lessonsData: finishMath(lessonsData) };
