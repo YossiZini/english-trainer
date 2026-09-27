@@ -170,7 +170,9 @@ async function generateLessonsAndExercises(subjects = ['math']) {
 
       console.log(`  Processed ${file}: ${lessons.length} lessons`);
     } catch (error) {
-      console.error(`  Error processing ${file}:`, error.message);
+      // A seed that fails to load must not silently drop its subject's
+      // lessons (which would mint new ids on the next run and orphan progress).
+      throw new Error(`Seed ${file} failed to load: ${error.message}`);
     }
   }
 

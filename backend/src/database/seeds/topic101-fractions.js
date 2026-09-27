@@ -1,6 +1,6 @@
 // Topic 101: Fractions (שברים) — Math, grades 7–8.
 // Plain module: read by backend/src/data/generateJsonData.js (npm run generate-data).
-const { ltr, expr, mc, fib } = require('./math-helpers');
+const { ltr, expr, mc, fib, withStackedFractions } = require('./math-helpers');
 
 const FRACTION_HINT = 'כתבו שבר, למשל 3/4 (אפשר גם מספר עשרוני כמו 0.75)';
 
@@ -165,4 +165,4 @@ const lessonsData = [
   }
 ];
 
-module.exports = { lessonsData };
+module.exports = { lessonsData: withStackedFractions(lessonsData) };

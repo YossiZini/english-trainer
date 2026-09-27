@@ -744,3 +744,24 @@
 .example-pair .he-example {
   margin-top: 0.5rem;
 }
+
+/* Stacked (textbook) fractions in theory HTML, emitted by the Math seeds */
+.theory-html .frac {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  gap: 0.15em;
+  margin: 0 0.12em;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
+.theory-html .frac-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+  font-size: 0.88em;
+}
+.theory-html .frac-num, .theory-html .frac-den { padding: 0 0.2em; }
+.theory-html .frac-den { border-top: 0.09em solid currentColor; }
