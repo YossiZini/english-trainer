@@ -25,7 +25,7 @@ function fib(questionNumber, difficulty, questionTextHe, correctAnswer, explanat
 // Textbook notation for theory HTML: every a/b or mixed "1 a/b" in the text
 // becomes a stacked fraction (numerator over denominator). Same pattern as
 // the frontend's MathText, which does this for plain-text question fields.
-const FRACTION = /(?<![\d.,/])(?:(\d+) )?(\d+)\/(\d+)(?![\d.,/])/g;
+const FRACTION = /(?<![\d./]|\d[.,])(?:(\d+) )?(\d+)\/(\d+)(?![\d./]|[.,]\d)/g;
 const fracHtml = (whole, num, den) =>
   `<span class="frac">${whole ? `<span class="frac-whole">${whole}</span>` : ''}` +
   `<span class="frac-stack"><span class="frac-num">${num}</span><span class="frac-den">${den}</span></span></span>`;

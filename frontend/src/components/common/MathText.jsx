@@ -12,7 +12,9 @@ import './MathText.css';
 
 // A mixed number "1 1/2" or a simple fraction "3/4". The whole part must be
 // a standalone number (not the tail of a longer one).
-const FRACTION = /(?<![\d.,/])(?:(\d+) )?(\d+)\/(\d+)(?![\d.,/])/g;
+// Not part of a decimal (7,5 / 7.5), a longer number or a path (1/2/3);
+// a comma that separates list items is fine.
+const FRACTION = /(?<![\d./]|\d[.,])(?:(\d+) )?(\d+)\/(\d+)(?![\d./]|[.,]\d)/g;
 
 export function splitFractions(text) {
   const parts = [];
