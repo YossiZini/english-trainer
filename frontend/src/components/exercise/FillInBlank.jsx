@@ -3,9 +3,11 @@ import './FillInBlank.css';
 
 // subject: 'english' questions are English sentences (LTR) whose base verb in
 // parentheses pre-fills the input; other subjects are Hebrew (RTL) with no prefill.
-const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback, subject = 'english' }) => {
-  const textDir = subject === 'english' ? 'ltr' : 'rtl';
-  const prefillBaseForm = subject === 'english';
+const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback, subject }) => {
+  // The page passes the lesson's subject; cross-test questions carry their own.
+  const questionSubject = subject || question.subject || 'english';
+  const textDir = questionSubject === 'english' ? 'ltr' : 'rtl';
+  const prefillBaseForm = questionSubject === 'english';
   const inputRef = useRef(null);
   const [baseFormInitialized, setBaseFormInitialized] = useState(false);
 

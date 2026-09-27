@@ -113,6 +113,14 @@ describe('API', () => {
       const mistakes = await request(app).get('/api/mistakes').set(auth());
       expect(mistakes.status).toBe(200);
       expect(JSON.stringify(mistakes.body)).toContain(second.id);
+
+      // The cross-test is padded only from the subjects the student made
+      // mistakes in (English here), and every question carries its subject.
+      const cross = await request(app).get('/api/mistakes/cross-test').set(auth());
+      expect(cross.status).toBe(200);
+      const crossExercises = cross.body.data.exercises;
+      expect(crossExercises.length).toBeGreaterThan(1);
+      expect(crossExercises.every(e => e.subject === 'english')).toBe(true);
     }
 
     const me = await request(app).get('/api/auth/me').set(auth());

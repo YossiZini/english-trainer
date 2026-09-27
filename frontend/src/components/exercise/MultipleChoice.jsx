@@ -3,8 +3,10 @@ import './MultipleChoice.css';
 
 // subject: 'english' questions are English sentences (LTR); other subjects are
 // written in Hebrew (RTL).
-const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, subject = 'english' }) => {
-  const textDir = subject === 'english' ? 'ltr' : 'rtl';
+const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, subject }) => {
+  // The page passes the lesson's subject; cross-test questions carry their own.
+  const questionSubject = subject || question.subject || 'english';
+  const textDir = questionSubject === 'english' ? 'ltr' : 'rtl';
   const options = question.options || [];
   const [hoveredOption, setHoveredOption] = useState(null);
 
