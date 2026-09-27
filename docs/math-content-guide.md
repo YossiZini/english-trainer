@@ -61,8 +61,15 @@ creates a new lesson and orphans progress.
   then show the computation with `ltr()`:
   `מכנה משותף 12: ${ltr('9/12 − 2/12 = 7/12')}.`
 - For a wrong-option trap, say what the trap was in one clause.
-- (Planned) pictures in explanations, reusing `math-svg.js`, once the
-  exercise payload carries an `explanation_svg` field.
+- **Picture under the explanation** (`explanationPicture`, HTML with inline
+  SVG, shown in the feedback box). Fractions questions get one automatically
+  from their shape (`seeds/fractions/common.js` → `autoPicture`): a bare
+  computation (`expr`), "צמצמו", "a/b מ-N", "גדול/קטן יותר: a או b", mixed
+  conversions, "חולק ל-N חלקים … K מהם". For a word problem pass one
+  explicitly as the last argument of `mcq`/`fibR`/`fib`, built with
+  `seeds/fractions/pictures.js` (`ofQuantity`, `compare`, `mixed`, `addSub`,
+  `mul`, `div`) or `math-svg.js` directly. Keep it to one row of figures: on
+  phones they are laid side by side and must fit above the action bar.
 
 ## Verification (before every commit)
 

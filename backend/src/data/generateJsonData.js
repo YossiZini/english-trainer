@@ -159,6 +159,7 @@ async function generateLessonsAndExercises(subjects = ['math']) {
               explanation_he: exerciseData.explanationHe || null,
               explanation_en: exerciseData.explanationEn || null,
               hint_he: exerciseData.hintHe || null,
+              explanation_picture: exerciseData.explanationPicture || null,
               difficulty,
               created_at: previousExercise ? previousExercise.created_at : timestamp
             };

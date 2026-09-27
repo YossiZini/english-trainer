@@ -1,0 +1,65 @@
+/* Picture under a solution explanation (inline SVG from the Math seeds).
+   Scoped under .feedback-picture; mirrors the theory figure styles. */
+.feedback-picture {
+  margin-top: 0.6rem;
+  overflow-x: auto;
+}
+.feedback-picture .math-figures {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.5rem 1rem;
+}
+.feedback-picture .math-figure {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0.25rem auto;
+  max-width: 100%;
+  text-align: center;
+}
+.feedback-picture .math-figure figcaption {
+  font-size: 0.85rem;
+  color: #555;
+}
+.feedback-picture .math-pic {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.feedback-picture .math-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.feedback-picture .frac {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  gap: 0.15em;
+  margin: 0 0.12em;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.feedback-picture .frac-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+  font-size: 0.88em;
+}
+.feedback-picture .frac-num, .feedback-picture .frac-den { padding: 0 0.2em; }
+.feedback-picture .frac-den { border-top: 0.09em solid currentColor; }
+
+/* Phones: figures side by side, scaled to the width, so the feedback still
+   fits above the pinned action bar */
+@media (max-width: 480px) {
+  .feedback-picture .math-figures { flex-wrap: nowrap; gap: 0.3rem; align-items: flex-start; }
+  .feedback-picture .math-figures .math-figure { flex: 1 1 0; min-width: 0; margin: 0; }
+  .feedback-picture .math-pic { width: 100%; height: auto; max-height: 72px; }
+  .feedback-picture .math-figure figcaption { font-size: 0.75rem; }
+  .feedback-picture .math-row .math-pic { width: auto; max-height: 40px; }
+}
