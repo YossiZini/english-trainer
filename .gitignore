@@ -10,6 +10,8 @@ yarn-error.log*
 .env.development
 .env.test
 .env.production
+# The frontend's production env holds only public build settings
+!frontend/.env.production
 
 # IDE
 .vscode/
