@@ -269,8 +269,11 @@ const ExercisePage = () => {
         {/* Header */}
         <div className="exercise-header">
           <div className="breadcrumb">
-            <span onClick={() => navigate('/topics')} className="breadcrumb-link">
-              נושאים
+            <span
+              onClick={() => navigate(lesson?.subject === 'math' ? '/math' : '/topics')}
+              className="breadcrumb-link"
+            >
+              {lesson?.subject === 'math' ? 'מתמטיקה' : 'נושאים'}
             </span>
             <span className="breadcrumb-separator"> &gt; </span>
             <span className="breadcrumb-current">{lesson?.title_he}</span>
@@ -313,6 +316,7 @@ const ExercisePage = () => {
             {currentExercise.type === 'multiple_choice' ? (
               <MultipleChoice
                 question={currentExercise}
+                subject={lesson?.subject}
                 selectedAnswer={currentAnswer}
                 onAnswerChange={(answer) => handleAnswerChange(currentExercise.id, answer)}
                 feedback={currentFeedback}
@@ -320,6 +324,7 @@ const ExercisePage = () => {
             ) : (
               <FillInBlank
                 question={currentExercise}
+                subject={lesson?.subject}
                 userAnswer={currentAnswer || ''}
                 onAnswerChange={(answer) => handleAnswerChange(currentExercise.id, answer)}
                 feedback={currentFeedback}

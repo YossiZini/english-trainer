@@ -41,7 +41,7 @@ class Lesson {
   /**
    * Get lessons with user progress
    */
-  static async findAllWithProgress(userId, { level, topicNumber } = {}) {
+  static async findAllWithProgress(userId, { level, topicNumber, subject } = {}) {
     let criteria = {};
 
     if (level) {
@@ -50,6 +50,11 @@ class Lesson {
 
     if (topicNumber) {
       criteria.topic_number = parseInt(topicNumber);
+    }
+
+    // 'english' | 'math'; no filter returns every subject
+    if (subject) {
+      criteria.subject = subject;
     }
 
     const lessons = await db.find('lessons', criteria, { sort: { order_index: 'asc' } });
@@ -62,6 +67,7 @@ class Lesson {
       const progress = progressMap.get(l.id);
       return {
         id: l.id,
+        subject: l.subject || 'english',
         topic_number: l.topic_number,
         subtopic_number: l.subtopic_number,
         title_en: l.title_en,
@@ -118,9 +124,9 @@ class Lesson {
   /**
    * Get next lesson by order
    */
-  static async getNextLesson(currentOrderIndex) {
+  static async getNextLesson(currentOrderIndex, subject = 'english') {
     const lessons = await db.find('lessons',
-      { order_index: { $gt: currentOrderIndex } },
+      { subject, order_index: { $gt: currentOrderIndex } },
       { sort: { order_index: 'asc' }, limit: 1 }
     );
 
@@ -141,9 +147,9 @@ class Lesson {
   /**
    * Get previous lesson by order
    */
-  static async getPreviousLesson(currentOrderIndex) {
+  static async getPreviousLesson(currentOrderIndex, subject = 'english') {
     const lessons = await db.find('lessons',
-      { order_index: { $lt: currentOrderIndex } },
+      { subject, order_index: { $lt: currentOrderIndex } },
       { sort: { order_index: 'desc' }, limit: 1 }
     );
 

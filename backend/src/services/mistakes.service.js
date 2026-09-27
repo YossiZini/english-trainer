@@ -3,6 +3,7 @@ const Exercise = require('../models/Exercise');
 const Lesson = require('../models/Lesson');
 const { db, withTransaction } = require('../config/database');
 const { shuffleArray } = require('../utils/shuffle');
+const { answersMatch } = require('../utils/answers');
 
 class MistakesService {
   /**
@@ -52,9 +53,7 @@ class MistakesService {
           continue; // Skip if not found
         }
 
-        const normalizedUserAnswer = answer.userAnswer.trim().toLowerCase();
-        const normalizedCorrectAnswer = mistake.correct_answer.trim().toLowerCase();
-        const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+        const isCorrect = answersMatch(answer.userAnswer, mistake.correct_answer);
 
         results.push({
           exerciseId: answer.exerciseId,
@@ -274,18 +273,24 @@ class MistakesService {
       }
     }
 
-    // If still not enough questions, get some random exercises from all lessons
+    const lessons = db.getCollection('lessons', true);
+    const lessonMap = new Map(lessons.map(l => [l.id, l]));
+    const subjectOf = (lessonId) => lessonMap.get(lessonId)?.subject || 'english';
+
+    // If still not enough questions, pad with random exercises from the
+    // subjects the student made mistakes in (English when there are none), so
+    // an English test is not sprinkled with Math questions or vice versa.
     if (selectedQuestions.length < questionCount) {
       const existingExerciseIds = new Set(selectedQuestions.map(q => q.exercise_id));
+      const subjects = new Set(selectedQuestions.map(q => subjectOf(q.lesson_id)));
+      if (subjects.size === 0) subjects.add('english');
 
       // Get all exercises from static collection
       const allExercises = db.getCollection('exercises', true);
-      const lessons = db.getCollection('lessons', true);
-      const lessonMap = new Map(lessons.map(l => [l.id, l]));
 
       // Filter out already selected exercises and shuffle
       const availableExercises = allExercises
-        .filter(e => !existingExerciseIds.has(e.id))
+        .filter(e => !existingExerciseIds.has(e.id) && subjects.has(subjectOf(e.lesson_id)))
         .map(e => ({
           exercise_id: e.id,
           question_number: e.question_number,
@@ -316,6 +321,7 @@ class MistakesService {
         options: question.type === 'multiple_choice' && question.options ? shuffleArray(question.options) : question.options,
         difficulty: question.difficulty || 'medium',
         lesson_title: question.lesson_title_he || question.lesson_title,
+        subject: subjectOf(question.lesson_id),
         is_from_mistakes: !!question.user_answer
       }));
 
@@ -332,9 +338,6 @@ class MistakesService {
         lessonMistakeCounts.get(wa.lesson_id).uncorrected++;
       }
     }
-
-    const lessons = db.getCollection('lessons', true);
-    const lessonMap = new Map(lessons.map(l => [l.id, l]));
 
     const topicSummaries = Array.from(lessonMistakeCounts.entries())
       .map(([lessonId, counts]) => {

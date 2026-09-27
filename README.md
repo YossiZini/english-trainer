@@ -12,7 +12,8 @@ and a points/achievements system.
 | Area | For the student |
 |---|---|
 | Grammar lessons | 15 topics, 97 lessons with Hebrew theory; videos for some topics |
-| Exercises | Multiple choice and fill-in-the-blank at easy / medium / hard; progress per difficulty |
+| Math (מתמטיקה) | Grades 7–8, in Hebrew: fractions, order of operations, average, percentage; teaching document + 30 exercises per topic |
+| Exercises | Multiple choice and fill-in-the-blank at easy / medium / hard; progress per difficulty; numeric answers accepted as fraction, decimal or percent |
 | Cross-test | Mixed questions across topics |
 | Mistakes | Every wrong answer is kept for focused retry |
 | Vocabulary | 3,287 words, per-word mastery tracking, smart quizzes, review mode |

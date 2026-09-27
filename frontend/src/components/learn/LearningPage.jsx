@@ -13,6 +13,10 @@ const LearningPage = () => {
   const [topicLessons, setTopicLessons] = useState([]);
   const dropdownRef = useRef(null);
 
+  // Math topics are numbered 101+ internally and shown as 1+ (101.1 -> 1.1)
+  const displayTopic = (n) => (n > 100 ? n - 100 : n);
+  const displaySubtopic = (s) => String(s).replace(/^\d+/, n => displayTopic(Number(n)));
+
   useEffect(() => {
     loadLesson();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -101,11 +105,11 @@ const LearningPage = () => {
   return (
     <div className="learning-container">
       <nav className="learning-nav">
-        <Link to="/topics" className="btn-nav-back">
-          ← חזור לנושאים
+        <Link to={lesson.subject === 'math' ? '/math' : '/topics'} className="btn-nav-back">
+          ← {lesson.subject === 'math' ? 'חזור למתמטיקה' : 'חזור לנושאים'}
         </Link>
         <div className="lesson-breadcrumb">
-          <span>נושא {lesson.topicNumber}</span>
+          <span>נושא {displayTopic(lesson.topicNumber)}</span>
           <span className="separator">›</span>
           <div className="subtopic-dropdown-wrapper" ref={dropdownRef}>
             <button
@@ -113,14 +117,14 @@ const LearningPage = () => {
               onClick={loadTopicLessons}
               title="לחץ לראות את כל תתי הנושאים"
             >
-              {lesson.subtopicNumber}
+              {displaySubtopic(lesson.subtopicNumber)}
               <span className="dropdown-arrow">{showSubtopicsDropdown ? '▲' : '▼'}</span>
             </button>
 
             {showSubtopicsDropdown && (
               <div className="subtopics-dropdown">
                 <div className="dropdown-header">
-                  תתי נושאים בנושא {lesson.topicNumber}
+                  תתי נושאים בנושא {displayTopic(lesson.topicNumber)}
                 </div>
                 <div className="dropdown-list">
                   {topicLessons.length > 0 ? (
@@ -131,7 +135,7 @@ const LearningPage = () => {
                         className={`dropdown-item ${topicLesson.id === lesson.id ? 'active' : ''}`}
                         onClick={() => setShowSubtopicsDropdown(false)}
                       >
-                        <span className="item-number">{topicLesson.subtopicNumber}</span>
+                        <span className="item-number">{displaySubtopic(topicLesson.subtopicNumber)}</span>
                         <span className="item-title">{topicLesson.titleHe}</span>
                         {topicLesson.progress?.status === 'completed' && (
                           <span className="item-badge">✅</span>
@@ -152,7 +156,7 @@ const LearningPage = () => {
 
       <div className="learning-content">
         <header className="lesson-header">
-          <div className="lesson-number">{lesson.subtopicNumber}</div>
+          <div className="lesson-number">{displaySubtopic(lesson.subtopicNumber)}</div>
           <div className="lesson-titles">
             <h1>{lesson.titleHe}</h1>
             <p className="lesson-title-en">{lesson.titleEn}</p>

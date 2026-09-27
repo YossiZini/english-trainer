@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './MultipleChoice.css';
 
-const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback }) => {
+// subject: 'english' questions are English sentences (LTR); other subjects are
+// written in Hebrew (RTL).
+const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, subject }) => {
+  // The page passes the lesson's subject; cross-test questions carry their own.
+  const questionSubject = subject || question.subject || 'english';
+  const textDir = questionSubject === 'english' ? 'ltr' : 'rtl';
   const options = question.options || [];
   const [hoveredOption, setHoveredOption] = useState(null);
 
@@ -49,7 +54,7 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback }) 
 
   return (
     <div className="multiple-choice">
-      <div className="question-text" dir="ltr">{question.question_text_he}</div>
+      <div className="question-text" dir={textDir}>{question.question_text_he}</div>
 
       <div className="options-container">
         {options.map((option, index) => {

@@ -69,19 +69,22 @@ module.exports = topic{N}Data;
 
 **File:** `/backend/src/data/generateJsonData.js`
 
-Add the seed file name to the `topicFiles` list in
-`generateLessonsAndExercises()`:
+Add the seed file name to the subject's list in `subjectFiles`:
 
 ```javascript
-const topicFiles = [
-  // ... existing topics
-  'topic{N}-{name}.js'
-];
+const subjectFiles = {
+  english: [/* ... */, 'topic{N}-{name}.js'],
+  math: [/* ... */, 'topic{N}-{name}.js']   // Math seeds are plain modules (see math-helpers.js)
+};
 ```
+
+English seeds are parsed from their text (they are legacy scripts); seeds of
+any other subject are `require`d and must export `{ lessonsData }`.
 
 ### Step 4: Update Frontend Component
 
-**File:** `/frontend/src/components/topics/TopicsIndex.jsx`
+**File:** `/frontend/src/content/topicMeta.js` (per subject: `topicNames`,
+`tocExamples`, `topicDescriptions`, and `mathTopicNames`… for Math)
 
 Update three mappings:
 
@@ -109,9 +112,13 @@ Rebuild the bundled JSON from the seed files:
 
 ```bash
 cd backend
-npm run generate-data
+npm run generate-data          # rebuilds the Math lessons (default)
+npm run generate-data english  # rebuilds the English lessons from their seeds
 ```
 
+Only the named subject is rebuilt; ids and timestamps of existing lessons and
+exercises are preserved. English is never rebuilt implicitly: its seed files
+hold fewer exercises than the bundled JSON, so rebuild it only on purpose.
 Commit the updated `backend/data/static/*.json`. Content ships with the next
 push to `main` (see `/docs/deployment.md`); no database step is needed.
 
@@ -132,8 +139,8 @@ For each topic, these assets must exist:
 |-------|----------|-------------|
 | Documentation | `/docs/topics.md` | Full topic content with subtopics |
 | Seed File | `/backend/src/database/seeds/topic{N}-*.js` | Lessons and exercises data |
-| Seed Registration | `/backend/src/data/generateJsonData.js` | File name in the `topicFiles` list |
-| Frontend Mapping | `/frontend/src/components/topics/TopicsIndex.jsx` | topicNames, tocExamples, topicDescriptions |
+| Seed Registration | `/backend/src/data/generateJsonData.js` | File name in the `subjectFiles` list of its subject |
+| Frontend Mapping | `/frontend/src/content/topicMeta.js` | topicNames, tocExamples, topicDescriptions per subject |
 | Content Generated | `/backend/data/static/*.json` | Run `npm run generate-data` from backend and commit the result |
 | Exercises | Seed file exercises array | Easy/medium/hard difficulty levels |
 
@@ -162,6 +169,23 @@ For each topic, these assets must exist:
 | 17 | Future Simple - will | עתיד פשוט | Missing | No | Yes | Planned |
 | 18 | Comparatives & Superlatives | דרגות השוואה | Missing | No | Yes | Planned |
 
+### Math Topics (Hebrew, grades 7–8)
+
+Math lessons live in the same content files with `subject: "math"` and are
+numbered 101+ (shown as 1+ on the `/math` page). Seeds are plain modules
+(`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
+topic has one teaching document and 10 exercises per level (easy/medium/hard),
+because an exercise session is 10 questions. Regenerate with
+`cd backend && npm run generate-data math` (English content is never rebuilt
+implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
+
+| # | Topic Name (EN) | Topic Name (HE) | Seed File | Registered | Frontend | Status |
+|---|-----------------|-----------------|-----------|------------|----------|--------|
+| 101 | Fractions | שברים | topic101-fractions.js | Yes | Yes | Complete |
+| 102 | Order of Operations | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
+| 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
+| 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
+
 ### Status Legend
 
 - **Complete**: All assets exist and are registered
@@ -179,6 +203,24 @@ For each topic, these assets must exist:
 ## Recent Activity Log
 
 Track changes per topic with dates and descriptions.
+
+### Topic 101: Fractions (Math)
+- 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
+  (10 per level), answers verified by an exact-fraction check script. Sprint 2.
+
+### Topic 102: Order of Operations (Math)
+- 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
+  nested parentheses, negative results, exponents note) and 30 exercises; every
+  expression evaluated by a script. Sprint 2.
+
+### Topic 103: Average (Math)
+- 2026-09-27: Teaching document (sum ÷ count, sum from average, missing value,
+  adding a value, word problems) and 30 exercises, answers verified by script. Sprint 2.
+
+### Topic 104: Percentage (Math)
+- 2026-09-27: Teaching document (percent ↔ fraction ↔ decimal, percent of a
+  number, what percent, finding the whole, discount and VAT) and 30 exercises,
+  answers verified by script. Sprint 2.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

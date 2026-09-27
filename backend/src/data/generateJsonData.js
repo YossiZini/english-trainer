@@ -28,33 +28,85 @@ function getCurrentTimestamp() {
 }
 
 /**
+ * Index the currently generated lessons and exercises by their natural keys
+ * so a regeneration keeps existing ids (student data references them).
+ */
+function loadExistingContent() {
+  const readJson = name => {
+    const file = path.join(staticDir, name);
+    return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : [];
+  };
+  const allLessons = readJson('lessons.json');
+  const allExercises = readJson('exercises.json');
+  const lessons = new Map();
+  for (const l of allLessons) {
+    lessons.set(`${l.topic_number}/${l.subtopic_number}`, l);
+  }
+  const exercises = new Map();
+  for (const e of allExercises) {
+    exercises.set(`${e.lesson_id}/${e.question_number}/${e.difficulty}`, e);
+  }
+  return { lessons, exercises, allLessons, allExercises };
+}
+
+/**
  * Generate lessons and exercises JSON from topic seed files
  */
-async function generateLessonsAndExercises() {
-  console.log('Generating lessons and exercises...');
+async function generateLessonsAndExercises(subjects = ['math']) {
+  console.log(`Generating lessons and exercises for: ${subjects.join(', ')}...`);
 
-  const topicFiles = [
-    'topic1-grammar-basics.js',
-    'topic2-to-be.js',
-    'topic3-personal-pronouns.js',
-    'topic4-nouns.js',
-    'topic5-articles.js',
-    'topic6-demonstratives.js',
-    'topic7-there-is-are.js',
-    'topic8-adjectives.js',
-    'topic9-present-simple.js',
-    'topic10-question-words.js',
-    'topic11-present-progressive.js',
-    'topic12-can-could.js',
-    'topic13-prepositions-place.js',
-    'topic14-prepositions-time.js',
-    'topic15-past-simple.js'
-  ];
+  // Seed files per subject. The subject is decided here, not inside the seed
+  // files, so the seed shape stays the same for every subject.
+  const subjectFiles = {
+    english: [
+      'topic1-grammar-basics.js',
+      'topic2-to-be.js',
+      'topic3-personal-pronouns.js',
+      'topic4-nouns.js',
+      'topic5-articles.js',
+      'topic6-demonstratives.js',
+      'topic7-there-is-are.js',
+      'topic8-adjectives.js',
+      'topic9-present-simple.js',
+      'topic10-question-words.js',
+      'topic11-present-progressive.js',
+      'topic12-can-could.js',
+      'topic13-prepositions-place.js',
+      'topic14-prepositions-time.js',
+      'topic15-past-simple.js'
+    ],
+    math: [
+      'topic101-fractions.js',
+      'topic102-order-of-operations.js',
+      'topic103-average.js',
+      'topic104-percentage.js'
+    ]
+  };
+
+  // The generated JSON is the canonical store. The English seed files are
+  // incomplete (about 1,200 exercises were added by scripts that no longer
+  // exist and live only in exercises.json), so only the subjects asked for are
+  // rebuilt from seeds; everything else is carried over untouched.
+  //
+  // Student progress, results and mistakes in Firestore reference lessons and
+  // exercises by id, so a rebuilt subject keeps the ids (and created_at) of
+  // everything that already exists. Natural keys: lesson = topic + subtopic,
+  // exercise = lesson + question number + difficulty.
+  const existing = loadExistingContent();
+  const subjectOf = lesson => lesson.subject || 'english';
+  const keptLessons = existing.allLessons.filter(l => !subjects.includes(subjectOf(l)))
+    .map(l => ({ ...l, subject: subjectOf(l) }));
+  const keptLessonIds = new Set(keptLessons.map(l => l.id));
+  const keptExercises = existing.allExercises.filter(e => keptLessonIds.has(e.lesson_id));
 
   const allLessons = [];
   const allExercises = [];
 
-  for (const file of topicFiles) {
+  const topicFiles = Object.entries(subjectFiles)
+    .filter(([subject]) => subjects.includes(subject))
+    .flatMap(([subject, files]) => files.map(file => ({ subject, file })));
+
+  for (const { subject, file } of topicFiles) {
     const filePath = path.join(seedsDir, file);
     if (!fs.existsSync(filePath)) {
       console.log(`  Skipping ${file} (not found)`);
@@ -62,26 +114,21 @@ async function generateLessonsAndExercises() {
     }
 
     try {
-      // Read the file content and extract lessonsData
-      const fileContent = fs.readFileSync(filePath, 'utf8');
-
-      // Extract lessonsData array from file content
-      const lessonsDataMatch = fileContent.match(/const lessonsData = \[([\s\S]*?)\n\];/);
-      if (!lessonsDataMatch) {
+      const lessons = loadSeedLessons(subject, filePath);
+      if (!lessons) {
         console.log(`  Skipping ${file} (no lessonsData found)`);
         continue;
       }
 
-      // Use a different approach - require the file and look for exported data
-      // Actually, let's parse the data more reliably
-      const lessons = extractLessonsFromFile(fileContent);
-
       lessons.forEach(lessonData => {
-        const lessonId = generateId();
-        const timestamp = getCurrentTimestamp();
+        const lessonKey = `${lessonData.topicNumber}/${lessonData.subtopicNumber}`;
+        const previousLesson = existing.lessons.get(lessonKey);
+        const lessonId = previousLesson ? previousLesson.id : generateId();
+        const timestamp = previousLesson ? previousLesson.created_at : getCurrentTimestamp();
 
         const lesson = {
           id: lessonId,
+          subject,
           topic_number: lessonData.topicNumber,
           subtopic_number: lessonData.subtopicNumber,
           title_en: lessonData.titleEn,
@@ -98,8 +145,10 @@ async function generateLessonsAndExercises() {
         // Generate exercises for this lesson
         if (lessonData.exercises && Array.isArray(lessonData.exercises)) {
           lessonData.exercises.forEach(exerciseData => {
+            const difficulty = exerciseData.difficulty || 'medium';
+            const previousExercise = existing.exercises.get(`${lessonId}/${exerciseData.questionNumber}/${difficulty}`);
             const exercise = {
-              id: generateId(),
+              id: previousExercise ? previousExercise.id : generateId(),
               lesson_id: lessonId,
               question_number: exerciseData.questionNumber,
               type: exerciseData.type,
@@ -109,8 +158,9 @@ async function generateLessonsAndExercises() {
               correct_answer: exerciseData.correctAnswer,
               explanation_he: exerciseData.explanationHe || null,
               explanation_en: exerciseData.explanationEn || null,
-              difficulty: exerciseData.difficulty || 'medium',
-              created_at: timestamp
+              hint_he: exerciseData.hintHe || null,
+              difficulty,
+              created_at: previousExercise ? previousExercise.created_at : timestamp
             };
 
             allExercises.push(exercise);
@@ -124,21 +174,65 @@ async function generateLessonsAndExercises() {
     }
   }
 
-  // Sort lessons by order_index
+  // Merge: carried-over subjects first (in their existing order), then the
+  // rebuilt ones sorted by order_index.
   allLessons.sort((a, b) => a.order_index - b.order_index);
+  const mergedLessons = [...keptLessons, ...allLessons];
+  const mergedExercises = [...keptExercises, ...allExercises];
 
-  // Write to JSON files
   fs.writeFileSync(
     path.join(staticDir, 'lessons.json'),
-    JSON.stringify(allLessons, null, 2)
+    JSON.stringify(mergedLessons, null, 2)
   );
   fs.writeFileSync(
     path.join(staticDir, 'exercises.json'),
-    JSON.stringify(allExercises, null, 2)
+    JSON.stringify(mergedExercises, null, 2)
   );
 
-  console.log(`Generated: ${allLessons.length} lessons, ${allExercises.length} exercises`);
-  return { lessons: allLessons, exercises: allExercises };
+  console.log(`Rebuilt ${subjects.join(', ')}: ${allLessons.length} lessons, ${allExercises.length} exercises`);
+  console.log(`Total: ${mergedLessons.length} lessons, ${mergedExercises.length} exercises`);
+  return { lessons: mergedLessons, exercises: mergedExercises };
+}
+
+/**
+ * Load the lessons of one seed file. English seeds are legacy scripts that
+ * open a database connection when required, so their lessonsData literal is
+ * parsed from the file text. Every other subject's seed is a plain module
+ * exporting `lessonsData`.
+ */
+function loadSeedLessons(subject, filePath) {
+  if (subject !== 'english') {
+    const { lessonsData } = require(filePath);
+    return Array.isArray(lessonsData) ? lessonsData : null;
+  }
+  const fileContent = fs.readFileSync(filePath, 'utf8');
+  if (!fileContent.includes('const lessonsData = [')) return null;
+  return extractLessonsFromFile(fileContent);
+}
+
+/**
+ * Evaluate the seed's `const lessonsData = [...]` literal. Returns the array,
+ * or null when the seed has no such literal or it fails to evaluate.
+ */
+function evaluateLessonsData(content) {
+  const marker = content.indexOf('const lessonsData = [');
+  if (marker === -1) return null;
+  const start = content.indexOf('[', marker);
+  let depth = 0;
+  let end = -1;
+  for (let i = start; i < content.length; i++) {
+    if (content[i] === '[') depth++;
+    if (content[i] === ']' && --depth === 0) { end = i + 1; break; }
+  }
+  if (end === -1) return null;
+  try {
+    // eslint-disable-next-line no-eval
+    const data = eval(content.slice(start, end));
+    return Array.isArray(data) ? data : null;
+  } catch (e) {
+    console.log(`  Could not evaluate lessonsData (${e.message}), using regex extraction`);
+    return null;
+  }
 }
 
 /**
@@ -146,6 +240,12 @@ async function generateLessonsAndExercises() {
  */
 function extractLessonsFromFile(content) {
   const lessons = [];
+
+  // Preferred path: evaluate the seed's lessonsData array as JavaScript. The
+  // regex fallback below cannot handle quotes inside strings and does not
+  // know optional fields such as hintHe.
+  const evaluated = evaluateLessonsData(content);
+  if (evaluated) return evaluated;
 
   // Match each lesson object in lessonsData
   const lessonRegex = /\{\s*topicNumber:\s*(\d+),\s*subtopicNumber:\s*['"]([^'"]+)['"],\s*titleEn:\s*['"]([^'"]+)['"],\s*titleHe:\s*['"]([^'"]+)['"],\s*level:\s*['"]([^'"]+)['"],\s*orderIndex:\s*(\d+),\s*theoryContentHe:\s*`([\s\S]*?)`,\s*exercises:\s*\[([\s\S]*?)\]\s*\}/g;
@@ -164,40 +264,6 @@ function extractLessonsFromFile(content) {
       theoryContentHe: match[7].trim(),
       exercises
     });
-  }
-
-  // If regex didn't work, try a simpler approach
-  if (lessons.length === 0) {
-    // Look for lessonsData and try to evaluate it safely
-    const lessonsDataStart = content.indexOf('const lessonsData = [');
-    if (lessonsDataStart !== -1) {
-      // Find matching bracket
-      let depth = 0;
-      let start = content.indexOf('[', lessonsDataStart);
-      let end = start;
-      for (let i = start; i < content.length; i++) {
-        if (content[i] === '[') depth++;
-        if (content[i] === ']') {
-          depth--;
-          if (depth === 0) {
-            end = i + 1;
-            break;
-          }
-        }
-      }
-
-      if (end > start) {
-        try {
-          // Use Function constructor to safely evaluate
-          const arrayStr = content.slice(start, end);
-          // This is a simplified parser - in production you'd want something more robust
-          const lessonsData = eval(arrayStr);
-          return lessonsData;
-        } catch (e) {
-          console.log('  Could not parse lessonsData, using manual extraction');
-        }
-      }
-    }
   }
 
   return lessons;
@@ -599,27 +665,42 @@ async function initializeDynamicFiles() {
 /**
  * Main function to generate all JSON data
  */
-async function main() {
+/**
+ * Usage:
+ *   npm run generate-data                 rebuild the math lessons (default)
+ *   npm run generate-data -- english      rebuild the English lessons from seeds
+ *                                         (WARNING: the seeds hold only ~950 of
+ *                                         the 2,156 English exercises)
+ *   npm run generate-data -- --all        also regenerate vocabulary, reading
+ *                                         passages and achievements (mints new
+ *                                         ids: student word scores would be lost)
+ */
+async function main(argv = process.argv.slice(2)) {
   console.log('='.repeat(50));
   console.log('JSON Data Generator');
   console.log('='.repeat(50));
   console.log();
 
+  const all = argv.includes('--all');
+  const subjects = argv.filter(a => !a.startsWith('--'));
+
   try {
-    await generateLessonsAndExercises();
+    await generateLessonsAndExercises(subjects.length ? subjects : ['math']);
     console.log();
 
-    await generateVocabularyWords();
-    console.log();
+    if (all) {
+      await generateVocabularyWords();
+      console.log();
 
-    await generateUnseenData();
-    console.log();
+      await generateUnseenData();
+      console.log();
 
-    await generateAchievements();
-    console.log();
+      await generateAchievements();
+      console.log();
 
-    await initializeDynamicFiles();
-    console.log();
+      await initializeDynamicFiles();
+      console.log();
+    }
 
     console.log('='.repeat(50));
     console.log('JSON data generation complete!');

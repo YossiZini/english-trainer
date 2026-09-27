@@ -1,4 +1,5 @@
 const { db, withTransaction } = require('../config/database');
+const { answersMatch } = require('../utils/answers');
 
 class Exercise {
   /**
@@ -103,11 +104,7 @@ class Exercise {
       throw new Error('Exercise not found');
     }
 
-    // Normalize answers for comparison (trim, lowercase)
-    const normalizedUserAnswer = userAnswer.trim().toLowerCase();
-    const normalizedCorrectAnswer = exercise.correct_answer.trim().toLowerCase();
-
-    const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer;
+    const isCorrect = answersMatch(userAnswer, exercise.correct_answer);
 
     return {
       isCorrect,

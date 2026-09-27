@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './FillInBlank.css';
 
-const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback }) => {
+// subject: 'english' questions are English sentences (LTR) whose base verb in
+// parentheses pre-fills the input; other subjects are Hebrew (RTL) with no prefill.
+const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback, subject }) => {
+  // The page passes the lesson's subject; cross-test questions carry their own.
+  const questionSubject = subject || question.subject || 'english';
+  const textDir = questionSubject === 'english' ? 'ltr' : 'rtl';
+  const prefillBaseForm = questionSubject === 'english';
   const inputRef = useRef(null);
   const [baseFormInitialized, setBaseFormInitialized] = useState(false);
 
@@ -14,13 +20,13 @@ const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback }) => {
   // Initialize input with base form when question changes
   useEffect(() => {
     if (!feedback && !baseFormInitialized) {
-      const baseForm = extractBaseForm(question.question_text_he || '');
+      const baseForm = prefillBaseForm ? extractBaseForm(question.question_text_he || '') : '';
       if (baseForm && !userAnswer) {
         onAnswerChange(baseForm);
       }
       setBaseFormInitialized(true);
     }
-  }, [question.id, feedback, baseFormInitialized, userAnswer, onAnswerChange, question.question_text_he]);
+  }, [question.id, feedback, baseFormInitialized, userAnswer, onAnswerChange, question.question_text_he, prefillBaseForm]);
 
   // Reset initialization flag when question changes
   useEffect(() => {
@@ -45,7 +51,7 @@ const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback }) => {
 
   return (
     <div className="fill-in-blank">
-      <div className="question-text" dir="ltr">{question.question_text_he}</div>
+      <div className="question-text" dir={textDir}>{question.question_text_he}</div>
 
       <div className="answer-container">
         <input
