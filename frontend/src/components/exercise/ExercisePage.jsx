@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
 import exerciseService from '../../services/exerciseService';
@@ -6,6 +6,8 @@ import mistakesService from '../../services/mistakesService';
 import MultipleChoice from './MultipleChoice';
 import FillInBlank from './FillInBlank';
 import PreviousAttemptModal from './PreviousAttemptModal';
+import ExerciseActionBar from './ExerciseActionBar';
+import useScrollToQuestion from './useScrollToQuestion';
 import './ExercisePage.css';
 
 const ExercisePage = () => {
@@ -31,25 +33,16 @@ const ExercisePage = () => {
   const [showPreviousAttemptModal, setShowPreviousAttemptModal] = useState(false);
   const [lessonProgress, setLessonProgress] = useState(null);
   const [explanationExpanded, setExplanationExpanded] = useState(false);
-  const questionRef = useRef(null);
-  const isFirstQuestionRender = useRef(true);
+  const questionRef = useScrollToQuestion(currentIndex);
 
   useEffect(() => {
     loadExercises();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId, isRetryMode]);
 
-  // Bring each new question to the top of the screen (buttons, dots or Enter key)
+  // A new question starts with its explanation folded (phones)
   useEffect(() => {
     setExplanationExpanded(false);
-    if (isFirstQuestionRender.current) {
-      isFirstQuestionRender.current = false;
-      return;
-    }
-    if (questionRef.current) {
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      questionRef.current.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
-    }
   }, [currentIndex]);
 
   // Handle Enter key press to submit answer or navigate
@@ -374,64 +367,21 @@ const ExercisePage = () => {
 
         </div>
 
-        {/* Action bar: pinned to the bottom of the viewport so the student never scrolls to continue */}
-        <div className="exercise-actionbar">
-          <div className="exercise-actionbar-inner">
-          {/* Navigation Buttons */}
-          <div className="exercise-navigation">
-            <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="nav-button prev-button"
-            >
-              ← שאלה קודמת
-            </button>
-
-            {!currentFeedback && (
-              <button
-                onClick={handleCheckAnswer}
-                className="check-button"
-                disabled={!currentAnswer}
-              >
-                בדוק תשובה
-              </button>
-            )}
-
-            {currentIndex < exercises.length - 1 ? (
-              <button
-                onClick={handleNext}
-                className="nav-button next-button"
-              >
-                שאלה הבאה →
-              </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'שולח...' : 'סיים ושלח'}
-              </button>
-            )}
-          </div>
-
-          {/* Question Dots Indicator */}
-          <div className="question-dots">
-            {exercises.map((ex, idx) => (
-              <div
-                key={ex.id}
-                className={`question-dot ${idx === currentIndex ? 'active' : ''} ${
-                  userAnswers[ex.id] ? 'answered' : ''
-                } ${feedback[ex.id]?.isCorrect ? 'correct' : ''} ${
-                  feedback[ex.id] && !feedback[ex.id].isCorrect ? 'incorrect' : ''
-                }`}
-                onClick={() => setCurrentIndex(idx)}
-                title={`שאלה ${idx + 1}`}
-              ></div>
-            ))}
-          </div>
-          </div>
-        </div>
+        {/* Pinned to the bottom of the viewport so the student never scrolls to continue */}
+        <ExerciseActionBar
+          exercises={exercises}
+          currentIndex={currentIndex}
+          userAnswers={userAnswers}
+          feedback={feedback}
+          currentAnswer={currentAnswer}
+          currentFeedback={currentFeedback}
+          isSubmitting={isSubmitting}
+          onPrevious={handlePrevious}
+          onCheck={handleCheckAnswer}
+          onNext={handleNext}
+          onSubmit={handleSubmit}
+          onSelect={setCurrentIndex}
+        />
       </div>
     </div>
   );

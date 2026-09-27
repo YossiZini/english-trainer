@@ -4,6 +4,8 @@ import mistakesService from '../../services/mistakesService';
 import exerciseService from '../../services/exerciseService';
 import MultipleChoice from './MultipleChoice';
 import FillInBlank from './FillInBlank';
+import ExerciseActionBar from './ExerciseActionBar';
+import useScrollToQuestion from './useScrollToQuestion';
 import './ExercisePage.css';
 
 const CrossTestPage = () => {
@@ -12,6 +14,7 @@ const CrossTestPage = () => {
   const [exercises, setExercises] = useState([]);
   const [testInfo, setTestInfo] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const questionRef = useScrollToQuestion(currentIndex);
   const [userAnswers, setUserAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [startTime] = useState(Date.now());
@@ -288,7 +291,7 @@ const CrossTestPage = () => {
   const progress = ((currentIndex + 1) / exercises.length) * 100;
 
   return (
-    <div className="exercise-page">
+    <div className="exercise-page exercise-page--pinned">
       <div className="exercise-container">
         {/* Header */}
         <div className="exercise-header">
@@ -322,7 +325,7 @@ const CrossTestPage = () => {
 
         {/* Question */}
         <div className="exercise-content">
-          <div className="question-container">
+          <div className="question-container" ref={questionRef}>
             <div className="question-header">
               <div className="question-number">שאלה {currentExercise.question_number}</div>
               {currentExercise.lesson_title && (
@@ -371,60 +374,24 @@ const CrossTestPage = () => {
             )}
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="exercise-navigation">
-            <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="nav-button prev-button"
-            >
-              ← שאלה קודמת
-            </button>
-
-            {!currentFeedback && (
-              <button
-                onClick={handleCheckAnswer}
-                className="check-button"
-                disabled={!currentAnswer}
-              >
-                בדוק תשובה
-              </button>
-            )}
-
-            {currentIndex < exercises.length - 1 ? (
-              <button
-                onClick={handleNext}
-                className="nav-button next-button"
-              >
-                שאלה הבאה →
-              </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'שולח...' : 'סיים ושלח'}
-              </button>
-            )}
-          </div>
-
-          {/* Question Dots Indicator */}
-          <div className="question-dots">
-            {exercises.map((ex, idx) => (
-              <div
-                key={ex.id}
-                className={`question-dot ${idx === currentIndex ? 'active' : ''} ${
-                  userAnswers[ex.id] ? 'answered' : ''
-                } ${feedback[ex.id]?.isCorrect ? 'correct' : ''} ${
-                  feedback[ex.id] && !feedback[ex.id].isCorrect ? 'incorrect' : ''
-                }`}
-                onClick={() => setCurrentIndex(idx)}
-                title={`שאלה ${idx + 1}${ex.lesson_title ? ' - ' + ex.lesson_title : ''}`}
-              ></div>
-            ))}
-          </div>
         </div>
+
+        {/* Pinned to the bottom of the viewport so the student never scrolls to continue */}
+        <ExerciseActionBar
+          exercises={exercises}
+          currentIndex={currentIndex}
+          userAnswers={userAnswers}
+          feedback={feedback}
+          currentAnswer={currentAnswer}
+          currentFeedback={currentFeedback}
+          isSubmitting={isSubmitting}
+          onPrevious={handlePrevious}
+          onCheck={handleCheckAnswer}
+          onNext={handleNext}
+          onSubmit={handleSubmit}
+          onSelect={setCurrentIndex}
+          dotTitle={(ex, idx) => `שאלה ${idx + 1}${ex.lesson_title ? ' - ' + ex.lesson_title : ''}`}
+        />
       </div>
     </div>
   );

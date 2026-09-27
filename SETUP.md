@@ -58,6 +58,30 @@ busy: `lsof -i :3000 -t | xargs kill -9`.
 Emulator data is discarded when the emulator stops; production data lives in
 Firestore and is never touched by local runs.
 
+## Viewport check (exercise page)
+
+The exercise page is designed to work without scrolling on a laptop
+(1366×768) and a phone (390×844). `frontend/scripts/viewport-check.js` walks
+through several questions at both sizes with Playwright and fails if the
+content ever ends below the pinned action bar or a "Next" does not bring the
+new question to the top.
+
+```bash
+# one-time: the browser Playwright drives
+(cd frontend && npx playwright install chromium)
+
+# terminal 1: Firestore emulator + API on :5000
+cd backend && npx firebase emulators:exec --only firestore --project demo-english-trainer --config ../firebase.json \
+  "JWT_SECRET=dev PORT=5000 GCP_PROJECT_ID=demo-english-trainer node src/server.js"
+
+# terminal 2: build and check (serves frontend/build on :3000, proxies /api to :5000)
+cd frontend && npm run build && npm run check:viewport
+```
+
+Set `SHOTS_DIR=shots` to save screenshots, `QUESTIONS=10` to walk more
+questions, or `SERVE_BUILD=0 APP_URL=http://127.0.0.1:3000` to check a running
+`npm start` dev server instead of the build.
+
 ## Project structure
 
 ```
