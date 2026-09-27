@@ -91,8 +91,8 @@ class LessonService {
     };
 
     // Get next and previous lessons
-    const nextLesson = await Lesson.getNextLesson(lesson.order_index, lesson.subject || 'english');
-    const previousLesson = await Lesson.getPreviousLesson(lesson.order_index, lesson.subject || 'english');
+    const nextLesson = await Lesson.getNextLesson(lesson);
+    const previousLesson = await Lesson.getPreviousLesson(lesson);
 
     return {
       id: lesson.id,
@@ -211,7 +211,7 @@ class LessonService {
     }
 
     // Check if previous lesson is completed with passing score
-    const previousLesson = await Lesson.getPreviousLesson(lesson.order_index, lesson.subject || 'english');
+    const previousLesson = await Lesson.getPreviousLesson(lesson);
 
     if (!previousLesson) {
       return true; // No previous lesson, allow access

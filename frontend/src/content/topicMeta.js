@@ -302,5 +302,12 @@ const topicMeta = {
   }
 };
 
-export { getSubtopicExamples };
+// Math topics are numbered 101+ internally and shown as 1+ (101.1 -> 1.1).
+// The subject is inferred from the number so pages that only have a lesson
+// can use it too.
+const subjectOfTopic = (topicNumber) => (topicNumber > 100 ? 'math' : 'english');
+const displayTopic = (topicNumber) => topicNumber - topicMeta[subjectOfTopic(topicNumber)].numberOffset;
+const displaySubtopic = (subtopicNumber) => String(subtopicNumber).replace(/^\d+/, (n) => displayTopic(Number(n)));
+
+export { getSubtopicExamples, displayTopic, displaySubtopic };
 export default topicMeta;

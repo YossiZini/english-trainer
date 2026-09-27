@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
+import { displayTopic, displaySubtopic } from '../../content/topicMeta';
 import './LearningPage.css';
 
 const LearningPage = () => {
@@ -12,10 +13,6 @@ const LearningPage = () => {
   const [showSubtopicsDropdown, setShowSubtopicsDropdown] = useState(false);
   const [topicLessons, setTopicLessons] = useState([]);
   const dropdownRef = useRef(null);
-
-  // Math topics are numbered 101+ internally and shown as 1+ (101.1 -> 1.1)
-  const displayTopic = (n) => (n > 100 ? n - 100 : n);
-  const displaySubtopic = (s) => String(s).replace(/^\d+/, n => displayTopic(Number(n)));
 
   useEffect(() => {
     loadLesson();

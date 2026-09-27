@@ -127,6 +127,29 @@ describe('API', () => {
     expect(me.status).toBe(200);
   });
 
+  test('next and previous lesson after a Math exercise stay in Math', async () => {
+    const math = await request(app).get('/api/lessons?subject=math').set(auth());
+    // The second Math lesson has a Math neighbour on each side.
+    const mathLesson = math.body.data[1].lessons[0];
+    const ex = await request(app).get(`/api/lessons/${mathLesson.id}/exercises?difficulty=easy`).set(auth());
+    const exercises = ex.body.data.exercises || ex.body.data;
+    // Correct answers are not sent to the client; take them from the bundled content.
+    const bundled = new Map(require('../data/static/exercises.json').map(e => [e.id, e.correct_answer]));
+    const answers = exercises.map(e => ({ exerciseId: e.id, userAnswer: bundled.get(e.id) }));
+
+    const submit = await request(app).post('/api/exercises/submit').set(auth())
+      .send({ lessonId: mathLesson.id, answers, timeSpent: 60, difficulty: 'easy' });
+    expect(submit.status).toBe(200);
+    const isMath = (l) => l && l.topic_number >= 101;
+    expect(isMath(submit.body.data.nextLesson)).toBe(true);
+    expect(isMath(submit.body.data.previousLesson)).toBe(true);
+
+    const result = await request(app).get(`/api/exercises/results/${submit.body.data.resultId}`).set(auth());
+    expect(result.status).toBe(200);
+    expect(isMath(result.body.data.nextLesson)).toBe(true);
+    expect(isMath(result.body.data.previousLesson)).toBe(true);
+  });
+
   test('vocabulary quiz round-trip', async () => {
     const start = await request(app).post('/api/vocabulary/quiz/start').set(auth())
       .send({ quizSize: 5 });
