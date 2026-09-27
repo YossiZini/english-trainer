@@ -126,3 +126,79 @@ work in this repository (referenced from CLAUDE.md).
   emulator in the job).
 - Screenshot-verify the cross-test page (needs seeded mistakes) and fix the
   two pre-existing `react-hooks/exhaustive-deps` warnings.
+
+## Sprint 2 — Math tab: fractions, order of operations, average, percentage (2026-09-27)
+
+### What went well
+- **Every answer verified by code before commit.** Each topic had a small
+  check script (exact-fraction arithmetic, an expression evaluator, average
+  and percentage arithmetic) run against the seed; the review found no
+  content errors in 120 exercises.
+- **English content untouched.** The generator rebuilds one subject at a time
+  and merges by natural key, so `exercises.json` stayed byte-identical while
+  Math was added; ids and timestamps survived every regeneration.
+- **Seeds as plain modules with tiny helpers.** `math-helpers.js` (`ltr`,
+  `expr`, `mc`, `fib`) kept four topics consistent and made the check scripts
+  trivial; bidi isolates (U+2066/U+2069) solved Hebrew text with LTR math in
+  plain question strings.
+- **Screenshots before the PR caught three visible problems** (reversed
+  examples on the index, `101.1` labels, sessions padded to 10 questions)
+  that no test would have.
+- **Review earned its keep**: three real defects (Math results navigating to
+  English, subject switch keeping stale state, duplicated number logic) fixed
+  and merged within the sprint.
+- **`/defect` added and used the same day**; two phone-reported defects were
+  fixed in one PR with the log updated.
+
+### What hurt
+- **Planned 8 exercises per level; the engine serves 10.** Sessions were
+  padded with questions from other levels until a screenshot showed
+  "שאלה 1 מתוך 10". Cause: the plan sized content without reading
+  `lesson.service.getExercises`.
+- **Stale content in the running API.** After regenerating JSON the
+  screenshots still showed old questions (and a hard question under "easy")
+  because `StaticStore` loads once at startup. One round of confusion.
+- **Escape layers.** Writing `⁦` through a bash heredoc produced the
+  literal characters, so two later text replacements silently matched
+  nothing and `expr` was "not defined" twice.
+- **`npm test` collided with the background emulator** on port 8089, twice.
+- **A default parameter hid four wrong callers.** `getNextLesson(orderIndex,
+  subject = 'english')` compiled fine while `exercise.service` never passed
+  the subject; only the review noticed.
+- **Navbar switch bug invisible to direct-load screenshots.** `/topics` and
+  `/math` share one component instance; every check loaded a URL directly,
+  so the stale expanded-topic state was never exercised.
+- **Work queued behind open PRs again** (defect fixes waited for PR #9, the
+  retro for PR #12) because the session has one designated branch.
+- **Deployed fix not visible on the phone**: Hosting caches rewritten routes
+  for an hour (`no-cache` is set only on `/index.html`).
+- **Board typo**: `startedAt` was written as 2026-09-28 and the archive
+  printed the period backwards until corrected by hand.
+
+### Lessons → rules
+- Before sizing content, read the code that consumes it (session size,
+  padding, shuffling) and write the acceptance criteria from that code.
+- Restart the API after `npm run generate-data` and before any screenshot or
+  manual check; bundled content is loaded once at startup.
+- When a lookup gains a discriminating argument (subject, level), take the
+  whole object instead of adding a defaulted parameter, and update every
+  caller in the same commit (`grep` the function name).
+- UI checks must include the in-app navigation between pages that share a
+  component (navbar switches, back links), not only direct URL loads.
+- Write files containing escapes or non-ASCII with the Write tool; never via
+  a bash heredoc plus a later text replacement.
+- Stop the background emulator and API before `npm test`; the test script
+  starts its own emulator on the same port.
+- Dates written to the board come from `date -I`, not from memory.
+
+### Follow-ups
+- Hosting: serve every non-`/static/**` path with `Cache-Control: no-cache`
+  so a merge is visible on the next reload (log as a defect).
+- Convert the English seeds to plain modules and delete the `eval`-based
+  parser (`evaluateLessonsData`, `extractLessonsFromFile`, `parseExercises`).
+- Give `Lesson` a `byId()` map helper; services and models read
+  `db.getCollection('lessons')` directly in seven places.
+- Move subject-specific routes and back-link labels into `topicMeta`
+  (`ExercisePage`, `LearningPage` still branch on `subject === 'math'`).
+- Allow a second work branch per session (or merge small PRs promptly) so
+  defect fixes and sprint close-out do not wait on each other.
