@@ -1,219 +1,105 @@
-# Project Setup Guide - eng-tu
+# Setup Guide
+
+English Trainer is deployed on Google Cloud and served at
+**https://teacher-509909.web.app**. Day-to-day, nothing needs to run on your
+machine: pushing to `main` deploys. See `docs/deployment.md` for operations.
+
+This page covers working on the code.
 
 ## Prerequisites
 
-Install the following before starting:
+- **Node.js 22** and npm
+- **Java 21+** (only for the Firestore emulator used by the backend tests)
+- **Git**
+- **gcloud CLI** (only for the one-time provisioning and admin scripts)
 
-- **Node.js** (v18 or later recommended) - [Download](https://nodejs.org/)
-- **npm** (comes with Node.js)
-- **Git** (for cloning the repository)
-
-Verify installation:
-```bash
-node --version   # Should show v18.x or higher
-npm --version    # Should show 9.x or higher
-git --version
-```
-
----
-
-## Quick Start (5 steps)
+## Clone and install
 
 ```bash
-# 1. Clone the repository
-git clone <repository-url>
-cd eng-tu
-
-# 2. Setup backend
-cd backend
-npm install
-cp .env.example .env
-
-# 3. Setup frontend (new terminal)
-cd ../frontend
-npm install
-cp .env.example .env
-
-# 4. Start backend (in backend folder)
-npm run dev
-
-# 5. Start frontend (in frontend folder)
-npm start
+git clone https://github.com/YossiZini/english-trainer.git
+cd english-trainer
+(cd backend && npm ci)
+(cd frontend && npm ci)
 ```
 
-Access the app at: **http://localhost:3000**
-
----
-
-## Detailed Setup Instructions
-
-### Step 1: Clone the Repository
-
-```bash
-git clone <repository-url>
-cd eng-tu
-```
-
-### Step 2: Backend Setup
+## Backend tests
 
 ```bash
 cd backend
-npm install
+npm test
 ```
 
-Create environment file:
-```bash
-cp .env.example .env
-```
+`npm test` starts the Firestore emulator, runs the Jest suites
+(`backend/tests/`) and stops it. The suites cover the storage adapter and the
+main student flows through the HTTP API. CI runs the same command before every
+deploy.
 
-Edit `.env` and set a secure JWT secret:
-```
-JWT_SECRET=your_unique_secret_key_here_make_it_long_and_random
-```
+## Running the app locally (optional)
 
-The default `.env` values work for local development:
-```
-NODE_ENV=development
-PORT=5000
-JWT_EXPIRATION=7d
-CORS_ORIGIN=http://localhost:3000
-```
+The backend can run against the emulator on the fixed port **5000**:
 
-### Step 3: Frontend Setup
-
-```bash
-cd ../frontend
-npm install
-cp .env.example .env
-```
-
-Default `.env` values (usually no changes needed):
-```
-REACT_APP_API_URL=http://localhost:5000/api
-REACT_APP_ENV=development
-```
-
-### Step 4: Start the Servers
-
-**Terminal 1 - Backend:**
 ```bash
 cd backend
-npm run dev
+npx firebase emulators:exec --only firestore --project demo-english-trainer --config ../firebase.json \
+  "JWT_SECRET=dev PORT=5000 node src/server.js"
 ```
-Backend runs at: http://localhost:5000
 
-**Terminal 2 - Frontend:**
+Then in another terminal, the frontend on the fixed port **3000**:
+
 ```bash
 cd frontend
+cp .env.example .env     # REACT_APP_API_URL=http://localhost:5000/api
 npm start
 ```
-Frontend runs at: http://localhost:3000
 
----
+Do not change the ports; both sides assume 3000/5000 locally. If a port is
+busy: `lsof -i :3000 -t | xargs kill -9`.
 
-## Project Structure Overview
+Emulator data is discarded when the emulator stops; production data lives in
+Firestore and is never touched by local runs.
+
+## Project structure
 
 ```
-eng-tu/
+english-trainer/
 ├── backend/
-│   ├── data/
-│   │   ├── static/      # Lessons, exercises, vocabulary (read-only)
-│   │   └── dynamic/     # User data, progress (read-write)
+│   ├── Dockerfile               # Cloud Run image
+│   ├── data/static/             # Curriculum content (generated from seeds, read-only)
 │   ├── src/
-│   │   ├── server.js    # Entry point
-│   │   ├── controllers/ # Route handlers
-│   │   ├── services/    # Business logic
-│   │   └── routes/      # API endpoints
-│   └── package.json
-├── frontend/
-│   ├── src/
-│   │   ├── App.js       # Main app with routes
-│   │   ├── components/  # React components
-│   │   └── services/    # API services
-│   └── package.json
-└── docs/                # Documentation
+│   │   ├── server.js, app.js    # Express entry point
+│   │   ├── config/              # database.js (storage), firestore.js, jwt.js
+│   │   ├── data/                # FirestoreDatabase, StaticStore, query helpers, generateJsonData
+│   │   ├── database/seeds/      # Topic, vocabulary and reading-passage seed files
+│   │   ├── models/ services/ controllers/ routes/ middleware/
+│   └── tests/                   # Jest suites (run on the Firestore emulator)
+├── frontend/                    # React app (Create React App)
+├── infra/                       # setup.sh, hardening.sh, upload-videos.sh, cloudrun-service.yaml
+├── firebase.json                # Hosting rewrites + emulator config
+├── firestore.rules / .indexes.json
+├── .github/workflows/deploy.yml # CI/CD
+├── change-requests/             # PRDs and workplans per change
+└── docs/                        # Curriculum docs, topics-status.md, deployment.md
 ```
 
----
-
-## Database Information
-
-This project uses **JSON file-based storage** (no PostgreSQL required).
-
-- **Static data** (`backend/data/static/`): Pre-populated lessons, exercises, vocabulary
-- **Dynamic data** (`backend/data/dynamic/`): User accounts, progress, quiz sessions
-
-Data files are included in the repository - no database setup needed.
-
----
-
-## Useful Commands
-
-### Backend
-```bash
-npm run dev           # Start with hot reload (development)
-npm start            # Start without hot reload (production)
-npm test             # Run tests
-npm run generate-data # Regenerate static data from seeds
-npm run reset-password <username> <password>  # Reset user password
-```
-
-### Frontend
-```bash
-npm start   # Start development server
-npm build   # Create production build
-npm test    # Run tests
-```
-
----
-
-## Troubleshooting
-
-### Port Already in Use
-
-If port 3000 or 5000 is busy:
+## Useful commands
 
 ```bash
-# Find what's using the port
-lsof -i :3000
-lsof -i :5000
+# backend
+npm test                                  # emulator + Jest
+npm run generate-data                     # rebuild data/static from the seed files
+npm run reset-password -- <user> <pass>   # production password reset (needs gcloud ADC)
 
-# Kill the process
-lsof -i :3000 -t | xargs kill -9
-lsof -i :5000 -t | xargs kill -9
+# frontend
+npm start                                 # dev server on :3000
+npm run build                             # production build (uses .env.production)
 ```
 
-**Important:** Do NOT change the ports. The app is configured to use 3000/5000.
-
-### CORS Errors
-
-Ensure both servers are running and `.env` files have correct URLs:
-- Backend `CORS_ORIGIN=http://localhost:3000`
-- Frontend `REACT_APP_API_URL=http://localhost:5000/api`
-
-### Missing Data
-
-If lessons/exercises don't load, regenerate data:
-```bash
-cd backend
-npm run generate-data
-```
-
----
-
-## Technology Stack
+## Technology
 
 | Component | Technology |
-|-----------|------------|
-| Frontend | React 19, React Router 7, Axios |
-| Backend | Node.js, Express 5 |
-| Database | JSON file storage |
-| Auth | JWT (jsonwebtoken), bcryptjs |
-
----
-
-## Fixed Configuration (Do Not Change)
-
-- Frontend port: **3000**
-- Backend port: **5000**
-- API base URL: **http://localhost:5000/api**
+|---|---|
+| Frontend | React 19, React Router 7, Axios, Firebase Hosting |
+| Backend | Node.js 22, Express 5, Cloud Run |
+| Database | Firestore (student data); bundled JSON (curriculum) |
+| Auth | JWT (jsonwebtoken), bcryptjs; secret in Secret Manager |
+| CI/CD | GitHub Actions with Workload Identity Federation |
