@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../results/ResultsPage.css';
+import MathText from '../common/MathText';
 
 const CrossTestResultsPage = () => {
   const navigate = useNavigate();
@@ -148,20 +149,20 @@ const CrossTestResultsPage = () => {
                       <span className="mistake-topic">📚 {result.exercise.lesson_title}</span>
                       <span className="mistake-icon">❌</span>
                     </div>
-                    <div className="mistake-question" dir="ltr">{result.exercise.question_text_he}</div>
+                    <MathText as="div" className="mistake-question" dir="ltr" text={result.exercise.question_text_he} />
                     <div className="mistake-answers">
                       <div className="mistake-answer wrong">
                         <span className="answer-label">תשובתך:</span>
-                        <span className="answer-value" dir="ltr">{result.userAnswer || '(לא נענתה)'}</span>
+                        <MathText className="answer-value" dir="ltr" text={result.userAnswer || '(לא נענתה)'} />
                       </div>
                       <div className="mistake-answer correct">
                         <span className="answer-label">תשובה נכונה:</span>
-                        <span className="answer-value" dir="ltr">{result.feedback?.correctAnswer}</span>
+                        <MathText className="answer-value" dir="ltr" text={result.feedback?.correctAnswer} />
                       </div>
                     </div>
                     {result.feedback?.explanationHe && (
                       <div className="mistake-explanation">
-                        <strong>הסבר:</strong> {result.feedback.explanationHe}
+                        <strong>הסבר:</strong> <MathText text={result.feedback.explanationHe} />
                       </div>
                     )}
                   </div>

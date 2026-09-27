@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import MathText from '../common/MathText';
 
 /**
  * Result of a checked answer: icon, message, correct answer and explanation.
@@ -41,7 +42,7 @@ const ExerciseFeedback = ({ feedback, feedbackKey }) => {
         ) : (
           <>
             <p className="feedback-message">התשובה שגויה</p>
-            <p className="feedback-correct">התשובה הנכונה: {feedback.correctAnswer}</p>
+            <p className="feedback-correct">התשובה הנכונה: <MathText text={feedback.correctAnswer} /></p>
           </>
         )}
         {feedback.explanationHe && (
@@ -50,7 +51,7 @@ const ExerciseFeedback = ({ feedback, feedbackKey }) => {
               ref={explanationRef}
               className={`feedback-explanation ${expanded ? '' : 'clamped'}`}
             >
-              {feedback.explanationHe}
+              <MathText text={feedback.explanationHe} />
             </p>
             {(isClamped || expanded) && (
               <button

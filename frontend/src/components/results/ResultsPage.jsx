@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import exerciseService from '../../services/exerciseService';
 import LevelUpModal from '../gamification/LevelUpModal';
 import './ResultsPage.css';
+import MathText from '../common/MathText';
 
 const ResultsPage = () => {
   const { resultId } = useParams();
@@ -227,7 +228,7 @@ const ResultsPage = () => {
                     {!item.isCorrect && (
                       <div className="result-row">
                         <span className="result-label">התשובה הנכונה:</span>
-                        <span className="correct-answer">{item.correctAnswer}</span>
+                        <MathText className="correct-answer" text={item.correctAnswer} />
                       </div>
                     )}
                   </div>
