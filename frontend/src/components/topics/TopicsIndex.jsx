@@ -101,7 +101,6 @@ const TopicsIndex = ({ subject = 'english' }) => {
         <div className="header-content">
           <div className="header-title">
             <h1>{meta.title}</h1>
-            <p className="header-subtitle">{meta.subtitle}</p>
           </div>
           <div className="header-user">
             <span>שלום, {user?.name}!</span>
