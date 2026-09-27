@@ -139,13 +139,13 @@ class ExerciseService {
       // Get next lesson if passed
       let nextLesson = null;
       if (score >= 70 && currentLesson) {
-        nextLesson = await Lesson.getNextLesson(currentLesson.order_index);
+        nextLesson = await Lesson.getNextLesson(currentLesson);
       }
 
       // Get previous lesson
       let previousLesson = null;
       if (currentLesson) {
-        previousLesson = await Lesson.getPreviousLesson(currentLesson.order_index);
+        previousLesson = await Lesson.getPreviousLesson(currentLesson);
       }
 
       return {
@@ -208,8 +208,8 @@ class ExerciseService {
     let previousLesson = null;
 
     if (lesson) {
-      nextLesson = await Lesson.getNextLesson(lesson.order_index);
-      previousLesson = await Lesson.getPreviousLesson(lesson.order_index);
+      nextLesson = await Lesson.getNextLesson(lesson);
+      previousLesson = await Lesson.getPreviousLesson(lesson);
     }
 
     return {
