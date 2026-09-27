@@ -6,6 +6,9 @@ import mistakesService from '../../services/mistakesService';
 import MultipleChoice from './MultipleChoice';
 import FillInBlank from './FillInBlank';
 import PreviousAttemptModal from './PreviousAttemptModal';
+import ExerciseActionBar from './ExerciseActionBar';
+import ExerciseFeedback from './ExerciseFeedback';
+import useScrollToQuestion from './useScrollToQuestion';
 import './ExercisePage.css';
 
 const ExercisePage = () => {
@@ -30,6 +33,7 @@ const ExercisePage = () => {
   const [error, setError] = useState('');
   const [showPreviousAttemptModal, setShowPreviousAttemptModal] = useState(false);
   const [lessonProgress, setLessonProgress] = useState(null);
+  const questionRef = useScrollToQuestion(currentIndex);
 
   useEffect(() => {
     loadExercises();
@@ -252,7 +256,7 @@ const ExercisePage = () => {
   const progress = ((currentIndex + 1) / exercises.length) * 100;
 
   return (
-    <div className="exercise-page">
+    <div className="exercise-page exercise-page--pinned">
       {/* Previous Attempt Modal */}
       <PreviousAttemptModal
         isOpen={showPreviousAttemptModal}
@@ -272,21 +276,23 @@ const ExercisePage = () => {
             <span className="breadcrumb-current">{lesson?.title_he}</span>
           </div>
 
-          <h1 className="exercise-title">
-            {isRetryMode ? 'תיקון טעויות: ' : 'תרגול: '}
-            {lesson?.title_he}
-          </h1>
-          {isRetryMode ? (
-            <div className="retry-badge">
-              🔄 מצב תיקון טעויות
-            </div>
-          ) : (
-            <div className={`difficulty-badge difficulty-${currentDifficulty}`}>
-              {currentDifficulty === 'easy' && '🌱 רמת מתחיל'}
-              {currentDifficulty === 'medium' && '⚡ רמת ביניים'}
-              {currentDifficulty === 'hard' && '🔥 רמה מתקדמת'}
-            </div>
-          )}
+          <div className="exercise-title-row">
+            <h1 className="exercise-title">
+              {isRetryMode ? 'תיקון טעויות: ' : 'תרגול: '}
+              {lesson?.title_he}
+            </h1>
+            {isRetryMode ? (
+              <div className="retry-badge">
+                🔄 מצב תיקון טעויות
+              </div>
+            ) : (
+              <div className={`difficulty-badge difficulty-${currentDifficulty}`}>
+                {currentDifficulty === 'easy' && '🌱 רמת מתחיל'}
+                {currentDifficulty === 'medium' && '⚡ רמת ביניים'}
+                {currentDifficulty === 'hard' && '🔥 רמה מתקדמת'}
+              </div>
+            )}
+          </div>
 
           {/* Progress Bar */}
           <div className="progress-container">
@@ -301,7 +307,7 @@ const ExercisePage = () => {
 
         {/* Question */}
         <div className="exercise-content">
-          <div className="question-container">
+          <div className="question-container" ref={questionRef}>
             <div className="question-number">שאלה {currentExercise.question_number}</div>
 
             {currentExercise.type === 'multiple_choice' ? (
@@ -320,83 +326,26 @@ const ExercisePage = () => {
               />
             )}
 
-            {/* Feedback Display */}
-            {currentFeedback && (
-              <div className={`feedback ${currentFeedback.isCorrect ? 'correct' : 'incorrect'}`}>
-                <div className="feedback-icon">
-                  {currentFeedback.isCorrect ? '✅' : '❌'}
-                </div>
-                <div className="feedback-content">
-                  {currentFeedback.isCorrect ? (
-                    <p className="feedback-message">כל הכבוד! התשובה נכונה!</p>
-                  ) : (
-                    <>
-                      <p className="feedback-message">התשובה שגויה</p>
-                      <p className="feedback-correct">התשובה הנכונה: {currentFeedback.correctAnswer}</p>
-                    </>
-                  )}
-                  {currentFeedback.explanationHe && (
-                    <p className="feedback-explanation">{currentFeedback.explanationHe}</p>
-                  )}
-                </div>
-              </div>
-            )}
+            <ExerciseFeedback feedback={currentFeedback} feedbackKey={currentExercise.id} />
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="exercise-navigation">
-            <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className="nav-button prev-button"
-            >
-              ← שאלה קודמת
-            </button>
-
-            {!currentFeedback && (
-              <button
-                onClick={handleCheckAnswer}
-                className="check-button"
-                disabled={!currentAnswer}
-              >
-                בדוק תשובה
-              </button>
-            )}
-
-            {currentIndex < exercises.length - 1 ? (
-              <button
-                onClick={handleNext}
-                className="nav-button next-button"
-              >
-                שאלה הבאה →
-              </button>
-            ) : (
-              <button
-                onClick={handleSubmit}
-                className="submit-button"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'שולח...' : 'סיים ושלח'}
-              </button>
-            )}
-          </div>
-
-          {/* Question Dots Indicator */}
-          <div className="question-dots">
-            {exercises.map((ex, idx) => (
-              <div
-                key={ex.id}
-                className={`question-dot ${idx === currentIndex ? 'active' : ''} ${
-                  userAnswers[ex.id] ? 'answered' : ''
-                } ${feedback[ex.id]?.isCorrect ? 'correct' : ''} ${
-                  feedback[ex.id] && !feedback[ex.id].isCorrect ? 'incorrect' : ''
-                }`}
-                onClick={() => setCurrentIndex(idx)}
-                title={`שאלה ${idx + 1}`}
-              ></div>
-            ))}
-          </div>
         </div>
+
+        {/* Pinned to the bottom of the viewport so the student never scrolls to continue */}
+        <ExerciseActionBar
+          exercises={exercises}
+          currentIndex={currentIndex}
+          userAnswers={userAnswers}
+          feedback={feedback}
+          currentAnswer={currentAnswer}
+          currentFeedback={currentFeedback}
+          isSubmitting={isSubmitting}
+          onPrevious={handlePrevious}
+          onCheck={handleCheckAnswer}
+          onNext={handleNext}
+          onSubmit={handleSubmit}
+          onSelect={setCurrentIndex}
+        />
       </div>
     </div>
   );

@@ -2,29 +2,33 @@
   width: 100%;
 }
 
-.question-text {
-  font-size: 1.3rem;
+.fill-in-blank .question-text {
+  /* explicit resets: ReviewMistakesPage.css styles this class name globally */
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  font-size: 1.2rem;
   color: #333;
-  margin-bottom: 2rem;
-  line-height: 1.8;
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
   font-weight: 500;
   text-align: left;
   font-family: 'Courier New', monospace;
 }
 
-.answer-container {
+.fill-in-blank .answer-container {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
-  margin-top: 2rem;
+  margin-top: 0.75rem;
 }
 
-.answer-input {
+.fill-in-blank .answer-input {
   flex: 1;
   max-width: 500px;
-  padding: 1rem 1.5rem;
-  font-size: 1.2rem;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.1rem;
   border: 2px solid #e0e0e0;
   border-radius: 15px;
   outline: none;
@@ -34,27 +38,27 @@
   background: white;
 }
 
-.answer-input:focus {
+.fill-in-blank .answer-input:focus {
   border-color: #667eea;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
-.answer-input.correct {
+.fill-in-blank .answer-input.correct {
   border-color: #28a745;
   background: #d4edda;
 }
 
-.answer-input.wrong {
+.fill-in-blank .answer-input.wrong {
   border-color: #dc3545;
   background: #f8d7da;
 }
 
-.answer-input:disabled {
+.fill-in-blank .answer-input:disabled {
   cursor: not-allowed;
   opacity: 0.9;
 }
 
-.input-indicator {
+.fill-in-blank .input-indicator {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -66,21 +70,21 @@
   flex-shrink: 0;
 }
 
-.answer-input.correct + .input-indicator {
+.fill-in-blank .answer-input.correct + .input-indicator {
   color: #28a745;
   background: white;
   border: 3px solid #28a745;
 }
 
-.answer-input.wrong + .input-indicator {
+.fill-in-blank .answer-input.wrong + .input-indicator {
   color: #dc3545;
   background: white;
   border: 3px solid #dc3545;
 }
 
-.hint {
-  margin-top: 1.5rem;
-  padding: 1rem 1.5rem;
+.fill-in-blank .hint {
+  margin-top: 0.75rem;
+  padding: 0.6rem 1rem;
   background: #fff9e6;
   border: 2px solid #ffc107;
   border-radius: 15px;
@@ -89,27 +93,27 @@
   font-size: 1rem;
 }
 
-.hint-label {
+.fill-in-blank .hint-label {
   font-weight: 600;
   color: #ff9800;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .question-text {
+  .fill-in-blank .question-text {
     font-size: 1.1rem;
   }
 
-  .answer-input {
+  .fill-in-blank .answer-input {
     font-size: 1rem;
     padding: 0.8rem 1rem;
   }
 
-  .answer-container {
+  .fill-in-blank .answer-container {
     flex-direction: column;
   }
 
-  .answer-input {
+  .fill-in-blank .answer-input {
     max-width: 100%;
   }
 }

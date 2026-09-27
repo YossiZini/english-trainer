@@ -1,3 +1,15 @@
+/* The navbar's height, for pages that lay out against it (sticky offset,
+   scroll targets). Keep in sync with the paddings below. */
+:root {
+  --navbar-height: 4.25rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 3.75rem;
+  }
+}
+
 .navbar {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -10,6 +22,8 @@
 .navbar-container {
   max-width: 1400px;
   margin: 0 auto;
+  box-sizing: border-box;
+  min-height: var(--navbar-height);
   padding: 0.75rem 2rem;
   display: flex;
   align-items: center;
