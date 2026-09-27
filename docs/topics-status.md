@@ -162,6 +162,23 @@ For each topic, these assets must exist:
 | 17 | Future Simple - will | עתיד פשוט | Missing | No | Yes | Planned |
 | 18 | Comparatives & Superlatives | דרגות השוואה | Missing | No | Yes | Planned |
 
+### Math Topics (Hebrew, grades 7–8)
+
+Math lessons live in the same content files with `subject: "math"` and are
+numbered 101+ (shown as 1+ on the `/math` page). Seeds are plain modules
+(`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
+topic has one teaching document and 10 exercises per level (easy/medium/hard),
+because an exercise session is 10 questions. Regenerate with
+`cd backend && npm run generate-data math` (English content is never rebuilt
+implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
+
+| # | Topic Name (EN) | Topic Name (HE) | Seed File | Registered | Frontend | Status |
+|---|-----------------|-----------------|-----------|------------|----------|--------|
+| 101 | Fractions | שברים | topic101-fractions.js | Yes | Yes | Complete |
+| 102 | Order of Operations | סדר פעולות חשבון | Missing | Yes | Yes | Planned |
+| 103 | Average | ממוצע | Missing | Yes | Yes | Planned |
+| 104 | Percentage | אחוזים | Missing | Yes | Yes | Planned |
+
 ### Status Legend
 
 - **Complete**: All assets exist and are registered
@@ -179,6 +196,10 @@ For each topic, these assets must exist:
 ## Recent Activity Log
 
 Track changes per topic with dates and descriptions.
+
+### Topic 101: Fractions (Math)
+- 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
+  (10 per level), answers verified by an exact-fraction check script. Sprint 2.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

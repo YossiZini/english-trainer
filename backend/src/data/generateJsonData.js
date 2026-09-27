@@ -114,19 +114,11 @@ async function generateLessonsAndExercises(subjects = ['math']) {
     }
 
     try {
-      // Read the file content and extract lessonsData
-      const fileContent = fs.readFileSync(filePath, 'utf8');
-
-      // Extract lessonsData array from file content
-      const lessonsDataMatch = fileContent.match(/const lessonsData = \[([\s\S]*?)\n\];/);
-      if (!lessonsDataMatch) {
+      const lessons = loadSeedLessons(subject, filePath);
+      if (!lessons) {
         console.log(`  Skipping ${file} (no lessonsData found)`);
         continue;
       }
-
-      // Use a different approach - require the file and look for exported data
-      // Actually, let's parse the data more reliably
-      const lessons = extractLessonsFromFile(fileContent);
 
       lessons.forEach(lessonData => {
         const lessonKey = `${lessonData.topicNumber}/${lessonData.subtopicNumber}`;
@@ -203,10 +195,57 @@ async function generateLessonsAndExercises(subjects = ['math']) {
 }
 
 /**
+ * Load the lessons of one seed file. English seeds are legacy scripts that
+ * open a database connection when required, so their lessonsData literal is
+ * parsed from the file text. Every other subject's seed is a plain module
+ * exporting `lessonsData`.
+ */
+function loadSeedLessons(subject, filePath) {
+  if (subject !== 'english') {
+    const { lessonsData } = require(filePath);
+    return Array.isArray(lessonsData) ? lessonsData : null;
+  }
+  const fileContent = fs.readFileSync(filePath, 'utf8');
+  if (!fileContent.includes('const lessonsData = [')) return null;
+  return extractLessonsFromFile(fileContent);
+}
+
+/**
+ * Evaluate the seed's `const lessonsData = [...]` literal. Returns the array,
+ * or null when the seed has no such literal or it fails to evaluate.
+ */
+function evaluateLessonsData(content) {
+  const marker = content.indexOf('const lessonsData = [');
+  if (marker === -1) return null;
+  const start = content.indexOf('[', marker);
+  let depth = 0;
+  let end = -1;
+  for (let i = start; i < content.length; i++) {
+    if (content[i] === '[') depth++;
+    if (content[i] === ']' && --depth === 0) { end = i + 1; break; }
+  }
+  if (end === -1) return null;
+  try {
+    // eslint-disable-next-line no-eval
+    const data = eval(content.slice(start, end));
+    return Array.isArray(data) ? data : null;
+  } catch (e) {
+    console.log(`  Could not evaluate lessonsData (${e.message}), using regex extraction`);
+    return null;
+  }
+}
+
+/**
  * Parse lesson data from seed file content
  */
 function extractLessonsFromFile(content) {
   const lessons = [];
+
+  // Preferred path: evaluate the seed's lessonsData array as JavaScript. The
+  // regex fallback below cannot handle quotes inside strings and does not
+  // know optional fields such as hintHe.
+  const evaluated = evaluateLessonsData(content);
+  if (evaluated) return evaluated;
 
   // Match each lesson object in lessonsData
   const lessonRegex = /\{\s*topicNumber:\s*(\d+),\s*subtopicNumber:\s*['"]([^'"]+)['"],\s*titleEn:\s*['"]([^'"]+)['"],\s*titleHe:\s*['"]([^'"]+)['"],\s*level:\s*['"]([^'"]+)['"],\s*orderIndex:\s*(\d+),\s*theoryContentHe:\s*`([\s\S]*?)`,\s*exercises:\s*\[([\s\S]*?)\]\s*\}/g;
@@ -225,40 +264,6 @@ function extractLessonsFromFile(content) {
       theoryContentHe: match[7].trim(),
       exercises
     });
-  }
-
-  // If regex didn't work, try a simpler approach
-  if (lessons.length === 0) {
-    // Look for lessonsData and try to evaluate it safely
-    const lessonsDataStart = content.indexOf('const lessonsData = [');
-    if (lessonsDataStart !== -1) {
-      // Find matching bracket
-      let depth = 0;
-      let start = content.indexOf('[', lessonsDataStart);
-      let end = start;
-      for (let i = start; i < content.length; i++) {
-        if (content[i] === '[') depth++;
-        if (content[i] === ']') {
-          depth--;
-          if (depth === 0) {
-            end = i + 1;
-            break;
-          }
-        }
-      }
-
-      if (end > start) {
-        try {
-          // Use Function constructor to safely evaluate
-          const arrayStr = content.slice(start, end);
-          // This is a simplified parser - in production you'd want something more robust
-          const lessonsData = eval(arrayStr);
-          return lessonsData;
-        } catch (e) {
-          console.log('  Could not parse lessonsData, using manual extraction');
-        }
-      }
-    }
   }
 
   return lessons;

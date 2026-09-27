@@ -164,3 +164,8 @@
     font-size: 1rem;
   }
 }
+
+/* Hebrew (Math) questions read right-to-left */
+.multiple-choice .question-text[dir="rtl"] {
+  text-align: right;
+}

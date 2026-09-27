@@ -316,6 +316,7 @@ const ExercisePage = () => {
             {currentExercise.type === 'multiple_choice' ? (
               <MultipleChoice
                 question={currentExercise}
+                subject={lesson?.subject}
                 selectedAnswer={currentAnswer}
                 onAnswerChange={(answer) => handleAnswerChange(currentExercise.id, answer)}
                 feedback={currentFeedback}
@@ -323,6 +324,7 @@ const ExercisePage = () => {
             ) : (
               <FillInBlank
                 question={currentExercise}
+                subject={lesson?.subject}
                 userAnswer={currentAnswer || ''}
                 onAnswerChange={(answer) => handleAnswerChange(currentExercise.id, answer)}
                 feedback={currentFeedback}

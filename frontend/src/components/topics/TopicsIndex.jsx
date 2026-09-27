@@ -19,6 +19,8 @@ const TopicsIndex = ({ subject = 'english' }) => {
   const meta = topicMeta[subject] || topicMeta.english;
   const { topicNames, tocExamples, topicDescriptions, topicVideos } = meta;
   const displayNumber = (topicNumber) => topicNumber - meta.numberOffset;
+  // '101.1' is shown as '1.1' on the Math page
+  const displaySubtopic = (subtopicNumber) => String(subtopicNumber).replace(/^\d+/, n => displayNumber(Number(n)));
   const openVideoModal = (video) => {
     setVideoModal({ isOpen: true, video });
   };
@@ -99,7 +101,7 @@ const TopicsIndex = ({ subject = 'english' }) => {
         <div className="header-content">
           <div className="header-title">
             <h1>{meta.title}</h1>
-            <p className="header-subtitle">Learning Topics</p>
+            <p className="header-subtitle">{meta.subtitle}</p>
           </div>
           <div className="header-user">
             <span>שלום, {user?.name}!</span>
@@ -235,7 +237,7 @@ const TopicsIndex = ({ subject = 'english' }) => {
                         >
                           <div className="subtopic-header-section">
                             <div className="subtopic-title-row">
-                              <h3>{lesson.subtopicNumber}. {lesson.titleHe}</h3>
+                              <h3>{displaySubtopic(lesson.subtopicNumber)}. {lesson.titleHe}</h3>
                               <p className="subtopic-title-en">{lesson.titleEn}</p>
 
                               {/* Progress Summary Badge */}

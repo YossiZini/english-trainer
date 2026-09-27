@@ -57,10 +57,11 @@ describe('API', () => {
   test('lessons and exercises are served from bundled content', async () => {
     const res = await request(app).get('/api/lessons').set(auth());
     expect(res.status).toBe(200);
-    // Lessons come grouped by topic (15 topics); flatten to individual lessons.
+    // Lessons come grouped by topic: 15 English topics plus the Math ones.
     const topics = res.body.data;
     expect(Array.isArray(topics)).toBe(true);
-    expect(topics.length).toBe(15);
+    expect(topics.filter(t => t.subject === 'english').length).toBe(15);
+    expect(topics.length).toBeGreaterThan(15);
     const lessons = topics.flatMap(t => t.lessons || []);
     expect(lessons.length).toBeGreaterThan(50);
     lesson = lessons[0];

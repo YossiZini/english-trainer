@@ -117,3 +117,8 @@
     max-width: 100%;
   }
 }
+
+/* Hebrew (Math) questions read right-to-left */
+.fill-in-blank .question-text[dir="rtl"] {
+  text-align: right;
+}
