@@ -35,6 +35,10 @@ Work is organised in sprints driven by the `/sprint` command
 `retro` → `close`. The sprint board is a Claude artifact; closed sprints are
 archived under `docs/backlog/`.
 
+Defects (bugs in what is already on `main`) are tracked with the `/defect`
+command (`.claude/skills/defect/SKILL.md`): `add <description>` logs one in the
+defect-log artifact, `fix` fixes every open defect in one PR.
+
 **`/docs/retro.md` is binding**: read its "Lessons → rules" before starting
 work, and add to it through `/sprint retro`.
 
