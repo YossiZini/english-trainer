@@ -10,16 +10,17 @@ const ltr = (s) => `⁦${s}⁩`;
 const expr = (e) => ltr(`${e} = ?`);
 
 // Multiple-choice exercise. The correct answer must be one of the options.
-function mc(questionNumber, difficulty, questionTextHe, options, correctAnswer, explanationHe) {
+function mc(questionNumber, difficulty, questionTextHe, options, correctAnswer, explanationHe, explanationPicture = null) {
   if (!options.includes(correctAnswer)) {
     throw new Error(`Question ${questionNumber}: correct answer "${correctAnswer}" is not an option`);
   }
-  return { questionNumber, type: 'multiple_choice', questionTextHe, options, correctAnswer, explanationHe, difficulty };
+  return { questionNumber, type: 'multiple_choice', questionTextHe, options, correctAnswer, explanationHe, explanationPicture, difficulty };
 }
 
 // Fill-in-the-blank exercise; hintHe tells the student the expected format.
-function fib(questionNumber, difficulty, questionTextHe, correctAnswer, explanationHe, hintHe) {
-  return { questionNumber, type: 'fill_in_blank', questionTextHe, correctAnswer, explanationHe, hintHe, difficulty };
+// explanationPicture: optional HTML (inline SVG) shown under the explanation.
+function fib(questionNumber, difficulty, questionTextHe, correctAnswer, explanationHe, hintHe, explanationPicture = null) {
+  return { questionNumber, type: 'fill_in_blank', questionTextHe, correctAnswer, explanationHe, hintHe, explanationPicture, difficulty };
 }
 
 // Textbook notation for theory HTML: every a/b or mixed "1 a/b" in the text
@@ -37,6 +38,11 @@ const stackFractions = (html) => html
 
 // Apply the notation to every lesson's theory of a seed file.
 const withStackedFractions = (lessons) =>
-  lessons.map((l) => ({ ...l, theoryContentHe: stackFractions(l.theoryContentHe) }));
+  lessons.map((l) => ({
+    ...l,
+    theoryContentHe: stackFractions(l.theoryContentHe),
+    exercises: (l.exercises || []).map((e) =>
+      e.explanationPicture ? { ...e, explanationPicture: stackFractions(e.explanationPicture) } : e)
+  }));
 
 module.exports = { ltr, expr, mc, fib, stackFractions, withStackedFractions };

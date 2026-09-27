@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import MathText from '../common/MathText';
+import './ExerciseFeedback.css';
 
 /**
  * Result of a checked answer: icon, message, correct answer and explanation.
@@ -63,6 +64,13 @@ const ExerciseFeedback = ({ feedback, feedbackKey }) => {
               </button>
             )}
           </>
+        )}
+        {feedback.explanationPicture && (
+          /* Bundled, author-written SVG from the seeds (not user content) */
+          <div
+            className="feedback-picture"
+            dangerouslySetInnerHTML={{ __html: feedback.explanationPicture }}
+          />
         )}
       </div>
     </div>

@@ -110,7 +110,8 @@ class Exercise {
       isCorrect,
       correctAnswer: exercise.correct_answer,
       explanationHe: exercise.explanation_he,
-      explanationEn: exercise.explanation_en
+      explanationEn: exercise.explanation_en,
+      explanationPicture: exercise.explanation_picture || null
     };
   }
 }
