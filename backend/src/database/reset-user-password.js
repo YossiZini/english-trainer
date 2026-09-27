@@ -1,42 +1,37 @@
+/**
+ * Reset a student's password in Firestore.
+ *
+ * Runs against the production database with your own credentials:
+ *   gcloud auth application-default login
+ *   GCP_PROJECT_ID=teacher-509909 npm run reset-password -- <username> <new-password>
+ */
 const bcrypt = require('bcryptjs');
-const { pool } = require('../config/database');
+const { db } = require('../config/database');
 
 async function resetPassword(username, newPassword) {
   if (!username || !newPassword) {
-    console.error('❌ Usage: node reset-user-password.js <username> <new-password>');
+    console.error('Usage: npm run reset-password -- <username> <new-password>');
     process.exit(1);
   }
-
   if (newPassword.length < 6) {
-    console.error('❌ Password must be at least 6 characters long');
+    console.error('Password must be at least 6 characters long');
     process.exit(1);
   }
 
-  console.log(`🔄 Resetting password for user: ${username}...`);
-
-  try {
-    // Hash the new password
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-
-    // Update the user's password
-    const result = await pool.query(
-      'UPDATE users SET password_hash = $1 WHERE name = $2',
-      [passwordHash, username]
-    );
-
-    if (result.rowCount === 0) {
-      console.error(`❌ User "${username}" not found`);
-      process.exit(1);
-    }
-
-    console.log(`✅ Password successfully reset for user: ${username}`);
-    process.exit(0);
-  } catch (error) {
-    console.error('❌ Failed to reset password:', error.message);
+  const user = await db.findOne('users', { name: username });
+  if (!user) {
+    console.error(`User "${username}" not found`);
     process.exit(1);
   }
+
+  const password_hash = await bcrypt.hash(newPassword, 10);
+  await db.updateById('users', user.id, { password_hash });
+  console.log(`Password reset for "${username}"`);
 }
 
-// Get command line arguments
-const [,, username, newPassword] = process.argv;
-resetPassword(username, newPassword);
+resetPassword(process.argv[2], process.argv[3])
+  .then(() => process.exit(0))
+  .catch(error => {
+    console.error('Failed:', error.message);
+    process.exit(1);
+  });

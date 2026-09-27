@@ -65,20 +65,17 @@ const topic{N}Data = [
 module.exports = topic{N}Data;
 ```
 
-### Step 3: Register in Master Seed
+### Step 3: Register in the Data Generator
 
-**File:** `/backend/src/database/seed-all-lessons.js`
+**File:** `/backend/src/data/generateJsonData.js`
 
-1. Add the import at the top:
+Add the seed file name to the `topicFiles` list in
+`generateLessonsAndExercises()`:
+
 ```javascript
-const topic{N}Data = require('./seeds/topic{N}-{name}');
-```
-
-2. Add to the lessonData array:
-```javascript
-const lessonData = [
+const topicFiles = [
   // ... existing topics
-  ...topic{N}Data,
+  'topic{N}-{name}.js'
 ];
 ```
 
@@ -106,14 +103,17 @@ Update three mappings:
 },
 ```
 
-### Step 5: Run Database Seed
+### Step 5: Regenerate the Content Data
 
-From the backend directory:
+Rebuild the bundled JSON from the seed files:
 
 ```bash
 cd backend
-npm run seed
+npm run generate-data
 ```
+
+Commit the updated `backend/data/static/*.json`. Content ships with the next
+push to `main` (see `/docs/deployment.md`); no database step is needed.
 
 ### Step 6: Verify & Test
 
@@ -132,9 +132,9 @@ For each topic, these assets must exist:
 |-------|----------|-------------|
 | Documentation | `/docs/topics.md` | Full topic content with subtopics |
 | Seed File | `/backend/src/database/seeds/topic{N}-*.js` | Lessons and exercises data |
-| Seed Registration | `/backend/src/database/seed-all-lessons.js` | Import and include in lessonData |
+| Seed Registration | `/backend/src/data/generateJsonData.js` | File name in the `topicFiles` list |
 | Frontend Mapping | `/frontend/src/components/topics/TopicsIndex.jsx` | topicNames, tocExamples, topicDescriptions |
-| Database Seeded | PostgreSQL database | Run `npm run seed` from backend |
+| Content Generated | `/backend/data/static/*.json` | Run `npm run generate-data` from backend and commit the result |
 | Exercises | Seed file exercises array | Easy/medium/hard difficulty levels |
 
 ---
