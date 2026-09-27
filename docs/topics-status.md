@@ -175,9 +175,9 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | # | Topic Name (EN) | Topic Name (HE) | Seed File | Registered | Frontend | Status |
 |---|-----------------|-----------------|-----------|------------|----------|--------|
 | 101 | Fractions | שברים | topic101-fractions.js | Yes | Yes | Complete |
-| 102 | Order of Operations | סדר פעולות חשבון | Missing | Yes | Yes | Planned |
-| 103 | Average | ממוצע | Missing | Yes | Yes | Planned |
-| 104 | Percentage | אחוזים | Missing | Yes | Yes | Planned |
+| 102 | Order of Operations | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
+| 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
+| 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
 
 ### Status Legend
 
@@ -200,6 +200,20 @@ Track changes per topic with dates and descriptions.
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
   (10 per level), answers verified by an exact-fraction check script. Sprint 2.
+
+### Topic 102: Order of Operations (Math)
+- 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
+  nested parentheses, negative results, exponents note) and 30 exercises; every
+  expression evaluated by a script. Sprint 2.
+
+### Topic 103: Average (Math)
+- 2026-09-27: Teaching document (sum ÷ count, sum from average, missing value,
+  adding a value, word problems) and 30 exercises, answers verified by script. Sprint 2.
+
+### Topic 104: Percentage (Math)
+- 2026-09-27: Teaching document (percent ↔ fraction ↔ decimal, percent of a
+  number, what percent, finding the whole, discount and VAT) and 30 exercises,
+  answers verified by script. Sprint 2.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created
