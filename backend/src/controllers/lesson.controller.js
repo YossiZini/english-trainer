@@ -7,12 +7,13 @@ class LessonController {
    */
   static async getAllLessons(req, res) {
     try {
-      const { level, topicNumber } = req.query;
+      const { level, topicNumber, subject } = req.query;
       const userId = req.userId;
 
       const filters = {};
       if (level) filters.level = level;
       if (topicNumber) filters.topicNumber = parseInt(topicNumber);
+      if (subject === 'english' || subject === 'math') filters.subject = subject;
 
       const lessons = await LessonService.getAllLessons(userId, filters);
 

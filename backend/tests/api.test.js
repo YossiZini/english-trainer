@@ -69,6 +69,23 @@ describe('API', () => {
     expect(ex.status).toBe(200);
   });
 
+  test('lessons can be filtered by subject', async () => {
+    const english = await request(app).get('/api/lessons?subject=english').set(auth());
+    expect(english.status).toBe(200);
+    expect(english.body.data.length).toBe(15);
+    expect(english.body.data.every(t => t.subject === 'english')).toBe(true);
+
+    const math = await request(app).get('/api/lessons?subject=math').set(auth());
+    expect(math.status).toBe(200);
+    expect(math.body.data.every(t => t.subject === 'math')).toBe(true);
+    expect(math.body.data.every(t => t.topicNumber >= 101)).toBe(true);
+
+    // An unknown subject is ignored, not an error
+    const all = await request(app).get('/api/lessons?subject=music').set(auth());
+    expect(all.status).toBe(200);
+    expect(all.body.data.length).toBeGreaterThanOrEqual(15);
+  });
+
   test('submitting an exercise records results, progress, mistakes and points', async () => {
     const ex = await request(app).get(`/api/lessons/${lesson.id}/exercises`).set(auth());
     expect(ex.status).toBe(200);

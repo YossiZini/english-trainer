@@ -28,33 +28,85 @@ function getCurrentTimestamp() {
 }
 
 /**
+ * Index the currently generated lessons and exercises by their natural keys
+ * so a regeneration keeps existing ids (student data references them).
+ */
+function loadExistingContent() {
+  const readJson = name => {
+    const file = path.join(staticDir, name);
+    return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : [];
+  };
+  const allLessons = readJson('lessons.json');
+  const allExercises = readJson('exercises.json');
+  const lessons = new Map();
+  for (const l of allLessons) {
+    lessons.set(`${l.topic_number}/${l.subtopic_number}`, l);
+  }
+  const exercises = new Map();
+  for (const e of allExercises) {
+    exercises.set(`${e.lesson_id}/${e.question_number}/${e.difficulty}`, e);
+  }
+  return { lessons, exercises, allLessons, allExercises };
+}
+
+/**
  * Generate lessons and exercises JSON from topic seed files
  */
-async function generateLessonsAndExercises() {
-  console.log('Generating lessons and exercises...');
+async function generateLessonsAndExercises(subjects = ['math']) {
+  console.log(`Generating lessons and exercises for: ${subjects.join(', ')}...`);
 
-  const topicFiles = [
-    'topic1-grammar-basics.js',
-    'topic2-to-be.js',
-    'topic3-personal-pronouns.js',
-    'topic4-nouns.js',
-    'topic5-articles.js',
-    'topic6-demonstratives.js',
-    'topic7-there-is-are.js',
-    'topic8-adjectives.js',
-    'topic9-present-simple.js',
-    'topic10-question-words.js',
-    'topic11-present-progressive.js',
-    'topic12-can-could.js',
-    'topic13-prepositions-place.js',
-    'topic14-prepositions-time.js',
-    'topic15-past-simple.js'
-  ];
+  // Seed files per subject. The subject is decided here, not inside the seed
+  // files, so the seed shape stays the same for every subject.
+  const subjectFiles = {
+    english: [
+      'topic1-grammar-basics.js',
+      'topic2-to-be.js',
+      'topic3-personal-pronouns.js',
+      'topic4-nouns.js',
+      'topic5-articles.js',
+      'topic6-demonstratives.js',
+      'topic7-there-is-are.js',
+      'topic8-adjectives.js',
+      'topic9-present-simple.js',
+      'topic10-question-words.js',
+      'topic11-present-progressive.js',
+      'topic12-can-could.js',
+      'topic13-prepositions-place.js',
+      'topic14-prepositions-time.js',
+      'topic15-past-simple.js'
+    ],
+    math: [
+      'topic101-fractions.js',
+      'topic102-order-of-operations.js',
+      'topic103-average.js',
+      'topic104-percentage.js'
+    ]
+  };
+
+  // The generated JSON is the canonical store. The English seed files are
+  // incomplete (about 1,200 exercises were added by scripts that no longer
+  // exist and live only in exercises.json), so only the subjects asked for are
+  // rebuilt from seeds; everything else is carried over untouched.
+  //
+  // Student progress, results and mistakes in Firestore reference lessons and
+  // exercises by id, so a rebuilt subject keeps the ids (and created_at) of
+  // everything that already exists. Natural keys: lesson = topic + subtopic,
+  // exercise = lesson + question number + difficulty.
+  const existing = loadExistingContent();
+  const subjectOf = lesson => lesson.subject || 'english';
+  const keptLessons = existing.allLessons.filter(l => !subjects.includes(subjectOf(l)))
+    .map(l => ({ ...l, subject: subjectOf(l) }));
+  const keptLessonIds = new Set(keptLessons.map(l => l.id));
+  const keptExercises = existing.allExercises.filter(e => keptLessonIds.has(e.lesson_id));
 
   const allLessons = [];
   const allExercises = [];
 
-  for (const file of topicFiles) {
+  const topicFiles = Object.entries(subjectFiles)
+    .filter(([subject]) => subjects.includes(subject))
+    .flatMap(([subject, files]) => files.map(file => ({ subject, file })));
+
+  for (const { subject, file } of topicFiles) {
     const filePath = path.join(seedsDir, file);
     if (!fs.existsSync(filePath)) {
       console.log(`  Skipping ${file} (not found)`);
@@ -77,11 +129,14 @@ async function generateLessonsAndExercises() {
       const lessons = extractLessonsFromFile(fileContent);
 
       lessons.forEach(lessonData => {
-        const lessonId = generateId();
-        const timestamp = getCurrentTimestamp();
+        const lessonKey = `${lessonData.topicNumber}/${lessonData.subtopicNumber}`;
+        const previousLesson = existing.lessons.get(lessonKey);
+        const lessonId = previousLesson ? previousLesson.id : generateId();
+        const timestamp = previousLesson ? previousLesson.created_at : getCurrentTimestamp();
 
         const lesson = {
           id: lessonId,
+          subject,
           topic_number: lessonData.topicNumber,
           subtopic_number: lessonData.subtopicNumber,
           title_en: lessonData.titleEn,
@@ -98,8 +153,10 @@ async function generateLessonsAndExercises() {
         // Generate exercises for this lesson
         if (lessonData.exercises && Array.isArray(lessonData.exercises)) {
           lessonData.exercises.forEach(exerciseData => {
+            const difficulty = exerciseData.difficulty || 'medium';
+            const previousExercise = existing.exercises.get(`${lessonId}/${exerciseData.questionNumber}/${difficulty}`);
             const exercise = {
-              id: generateId(),
+              id: previousExercise ? previousExercise.id : generateId(),
               lesson_id: lessonId,
               question_number: exerciseData.questionNumber,
               type: exerciseData.type,
@@ -109,8 +166,9 @@ async function generateLessonsAndExercises() {
               correct_answer: exerciseData.correctAnswer,
               explanation_he: exerciseData.explanationHe || null,
               explanation_en: exerciseData.explanationEn || null,
-              difficulty: exerciseData.difficulty || 'medium',
-              created_at: timestamp
+              hint_he: exerciseData.hintHe || null,
+              difficulty,
+              created_at: previousExercise ? previousExercise.created_at : timestamp
             };
 
             allExercises.push(exercise);
@@ -124,21 +182,24 @@ async function generateLessonsAndExercises() {
     }
   }
 
-  // Sort lessons by order_index
+  // Merge: carried-over subjects first (in their existing order), then the
+  // rebuilt ones sorted by order_index.
   allLessons.sort((a, b) => a.order_index - b.order_index);
+  const mergedLessons = [...keptLessons, ...allLessons];
+  const mergedExercises = [...keptExercises, ...allExercises];
 
-  // Write to JSON files
   fs.writeFileSync(
     path.join(staticDir, 'lessons.json'),
-    JSON.stringify(allLessons, null, 2)
+    JSON.stringify(mergedLessons, null, 2)
   );
   fs.writeFileSync(
     path.join(staticDir, 'exercises.json'),
-    JSON.stringify(allExercises, null, 2)
+    JSON.stringify(mergedExercises, null, 2)
   );
 
-  console.log(`Generated: ${allLessons.length} lessons, ${allExercises.length} exercises`);
-  return { lessons: allLessons, exercises: allExercises };
+  console.log(`Rebuilt ${subjects.join(', ')}: ${allLessons.length} lessons, ${allExercises.length} exercises`);
+  console.log(`Total: ${mergedLessons.length} lessons, ${mergedExercises.length} exercises`);
+  return { lessons: mergedLessons, exercises: mergedExercises };
 }
 
 /**
@@ -599,27 +660,42 @@ async function initializeDynamicFiles() {
 /**
  * Main function to generate all JSON data
  */
-async function main() {
+/**
+ * Usage:
+ *   npm run generate-data                 rebuild the math lessons (default)
+ *   npm run generate-data -- english      rebuild the English lessons from seeds
+ *                                         (WARNING: the seeds hold only ~950 of
+ *                                         the 2,156 English exercises)
+ *   npm run generate-data -- --all        also regenerate vocabulary, reading
+ *                                         passages and achievements (mints new
+ *                                         ids: student word scores would be lost)
+ */
+async function main(argv = process.argv.slice(2)) {
   console.log('='.repeat(50));
   console.log('JSON Data Generator');
   console.log('='.repeat(50));
   console.log();
 
+  const all = argv.includes('--all');
+  const subjects = argv.filter(a => !a.startsWith('--'));
+
   try {
-    await generateLessonsAndExercises();
+    await generateLessonsAndExercises(subjects.length ? subjects : ['math']);
     console.log();
 
-    await generateVocabularyWords();
-    console.log();
+    if (all) {
+      await generateVocabularyWords();
+      console.log();
 
-    await generateUnseenData();
-    console.log();
+      await generateUnseenData();
+      console.log();
 
-    await generateAchievements();
-    console.log();
+      await generateAchievements();
+      console.log();
 
-    await initializeDynamicFiles();
-    console.log();
+      await initializeDynamicFiles();
+      console.log();
+    }
 
     console.log('='.repeat(50));
     console.log('JSON data generation complete!');

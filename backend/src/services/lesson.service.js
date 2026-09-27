@@ -36,6 +36,7 @@ class LessonService {
       if (!acc[topicKey]) {
         acc[topicKey] = {
           topicNumber: lesson.topic_number,
+          subject: lesson.subject || 'english',
           level: lesson.level,
           lessons: []
         };
