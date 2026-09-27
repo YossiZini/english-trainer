@@ -5,10 +5,29 @@ require('dotenv').config();
 
 const app = express();
 
+// Behind Firebase Hosting / Cloud Run the client IP and protocol arrive in
+// X-Forwarded-* headers.
+app.set('trust proxy', 1);
+
+// Allowed browser origins: comma-separated CORS_ORIGINS (CORS_ORIGIN kept for
+// backwards compatibility). Requests without an Origin header (curl, health
+// probes, same-origin Hosting rewrites) are always allowed.
+const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || 'http://localhost:3000')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    const error = new Error(`Origin ${origin} not allowed by CORS`);
+    error.status = 403;
+    return callback(error);
+  },
   credentials: true
 }));
 app.use(express.json());
