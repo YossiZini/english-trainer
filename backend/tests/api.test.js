@@ -127,6 +127,19 @@ describe('API', () => {
     expect(me.status).toBe(200);
   });
 
+  test('Math lessons are ordered by subtopic and navigate across topics', async () => {
+    const math = await request(app).get('/api/lessons?subject=math').set(auth());
+    const numbers = math.body.data.flatMap(t => t.lessons.map(l => l.subtopicNumber));
+    expect(numbers.slice(0, 7)).toEqual(['101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
+
+    const last = math.body.data[0].lessons[5];
+    const detail = await request(app).get(`/api/lessons/${last.id}`).set(auth());
+    expect(detail.status).toBe(200);
+    const first102 = math.body.data[1].lessons[0];
+    expect(detail.body.data.navigation.next.id).toBe(first102.id);
+    expect(detail.body.data.navigation.previous.id).toBe(math.body.data[0].lessons[4].id);
+  });
+
   test('next and previous lesson after a Math exercise stay in Math', async () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
     // The second Math lesson has a Math neighbour on each side.

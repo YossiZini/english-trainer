@@ -11,7 +11,7 @@ const lessonsData = [
     titleEn: 'Average',
     titleHe: 'ממוצע',
     level: 'intermediate',
-    orderIndex: 1003,
+    orderIndex: 1031,
     theoryContentHe: `
 <h2>ממוצע</h2>
 

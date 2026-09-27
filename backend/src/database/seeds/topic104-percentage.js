@@ -11,7 +11,7 @@ const lessonsData = [
     titleEn: 'Percentage',
     titleHe: 'אחוזים',
     level: 'intermediate',
-    orderIndex: 1004,
+    orderIndex: 1041,
     theoryContentHe: `
 <h2>אחוזים</h2>
 

@@ -128,7 +128,9 @@ const topicDescriptions = {
 
 // Subtopic examples - 2 examples per subtopic
 const getSubtopicExamples = (topicNumber, subtopicNumber) => {
-  const key = `${topicNumber}.${subtopicNumber}`;
+  // Lessons carry the full number ('7.1'); accept a bare '1' as well.
+  const sub = String(subtopicNumber);
+  const key = sub.startsWith(`${topicNumber}.`) ? sub : `${topicNumber}.${sub}`;
   const subtopicExamples = {
     // Topic 1: Grammar Basics
     '1.1': ['Noun: book, teacher', 'Adjective: beautiful, big'],
@@ -214,7 +216,15 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
 
     // Topic 18: Comparatives & Superlatives
     '18.1': ['tall → taller → tallest', 'fast → faster → fastest'],
-    '18.2': ['beautiful → more beautiful → most beautiful', 'good → better → best']
+    '18.2': ['beautiful → more beautiful → most beautiful', 'good → better → best'],
+
+    // Topic 101: Fractions (Math)
+    '101.1': ['מונה ומכנה', 'שבר מתוך כמות: 1/4 מ-20'],
+    '101.2': ['6/8 = 3/4', '2/3 = 8/12'],
+    '101.3': ['2/3 > 3/5', 'השוואה לחצי'],
+    '101.4': ['1/2 + 1/3 = 5/6', '1 − 3/4 = 1/4'],
+    '101.5': ['2/3 × 3/4 = 1/2', '3/4 ÷ 1/2 = 3/2'],
+    '101.6': ['2 1/3 = 7/3', '1 1/2 + 2 3/4 = 4 1/4']
   };
 
   return subtopicExamples[key] || [];
@@ -248,7 +258,7 @@ const mathTopicNames = {
 };
 
 const mathTocExamples = {
-  101: '(צמצום, מכנה משותף, חיבור וכפל)',
+  101: '(שישה שיעורים: ממה זה שבר ועד מספרים מעורבים)',
   102: '(סוגריים, כפל וחילוק, חיבור וחיסור)',
   103: '(סכום חלקי מספר האיברים)',
   104: '(אחוז ממספר, הנחה, מע"מ)'

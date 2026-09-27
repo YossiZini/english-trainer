@@ -11,7 +11,7 @@ const lessonsData = [
     titleEn: 'Order of Operations',
     titleHe: 'סדר פעולות חשבון',
     level: 'intermediate',
-    orderIndex: 1002,
+    orderIndex: 1021,
     theoryContentHe: `
 <h2>סדר פעולות חשבון</h2>
 
