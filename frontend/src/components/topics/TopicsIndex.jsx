@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
-import topicMeta, { getSubtopicExamples } from '../../content/topicMeta';
+import topicMeta, { getSubtopicExamples, displayTopic, displaySubtopic } from '../../content/topicMeta';
 import './TopicsIndex.css';
 
 // One page for every subject: the lessons come from the API filtered by
@@ -16,9 +16,6 @@ const TopicsIndex = ({ subject = 'english' }) => {
   // Display text per subject (names, examples, descriptions, videos)
   const meta = topicMeta[subject] || topicMeta.english;
   const { topicNames, tocExamples, topicDescriptions, topicVideos } = meta;
-  const displayNumber = (topicNumber) => topicNumber - meta.numberOffset;
-  // '101.1' is shown as '1.1' on the Math page
-  const displaySubtopic = (subtopicNumber) => String(subtopicNumber).replace(/^\d+/, n => displayNumber(Number(n)));
   const openVideoModal = (video) => {
     setVideoModal({ isOpen: true, video });
   };
@@ -120,7 +117,7 @@ const TopicsIndex = ({ subject = 'english' }) => {
                 }
               }}
             >
-              <span className="toc-number">{displayNumber(Number(topicNum))}</span>
+              <span className="toc-number">{displayTopic(Number(topicNum))}</span>
               <span className="toc-content">
                 <span className="toc-name">{topicNames[topicNum][meta.nameKey]}</span>
                 <span className="toc-example">{tocExamples[topicNum]}</span>
@@ -144,7 +141,7 @@ const TopicsIndex = ({ subject = 'english' }) => {
                   onClick={() => toggleTopic(topic.topicNumber)}
                 >
                   <div className="topic-title">
-                    <h2>נושא {displayNumber(topic.topicNumber)}: {topicNames[topic.topicNumber]?.[meta.nameKey] || `Topic ${topic.topicNumber}`}</h2>
+                    <h2>נושא {displayTopic(topic.topicNumber)}: {topicNames[topic.topicNumber]?.[meta.nameKey] || `Topic ${topic.topicNumber}`}</h2>
                     <span className="topic-level">כל הרמות - מתחיל עד מתקדם</span>
                   </div>
                   <div className="topic-progress">

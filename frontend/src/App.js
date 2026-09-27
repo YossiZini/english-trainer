@@ -51,7 +51,7 @@ function App() {
               path="/topics"
               element={
                 <PrivateRoute>
-                  <TopicsIndex subject="english" />
+                  <TopicsIndex key="english" subject="english" />
                 </PrivateRoute>
               }
             />
@@ -59,7 +59,7 @@ function App() {
               path="/math"
               element={
                 <PrivateRoute>
-                  <TopicsIndex subject="math" />
+                  <TopicsIndex key="math" subject="math" />
                 </PrivateRoute>
               }
             />
