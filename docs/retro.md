@@ -57,3 +57,72 @@ work in this repository (referenced from CLAUDE.md).
   Firestore transactions.
 - Artifact Registry keeps every image; add a cleanup policy if storage grows
   past the free 0.5 GB.
+
+## Sprint 1 — Exercise page without scrolling (2026-09-27)
+
+### What went well
+- Three clarifying questions at `/sprint start` turned "the onlive view" into
+  a precise scope (Exercise page, pinned bottom bar, scroll to question) before
+  any code was written; nothing had to be re-planned.
+- Measurement drove the layout: a Playwright check reported exact overflow in
+  pixels per question and viewport, so each CSS change was judged by numbers
+  and screenshots, not by eye. It became `npm run check:viewport`.
+- `/sprint review` caught six real defects before merge (StrictMode scroll on
+  load, the cross test missing the phone clamp, notch/`100vh` sizing, hardcoded
+  navbar height, 360px label overflow, an unsafe static server in the check).
+- Review follow-ups reduced coupling: `ExerciseActionBar`,
+  `ExerciseFeedback` and `useScrollToQuestion` are shared by both pages
+  instead of copied.
+
+### What hurt
+- **Global CSS collisions.** The first layout pass still overflowed and
+  multiple-choice text rendered in monospace. Cause: all 36 component
+  stylesheets are global, and vocabulary, unseen, mistakes and results pages
+  define `.option`, `.question-text`, `.feedback-*`, `.nav-button` and
+  `.question-dots`, so import order decided the styling. Took several rounds
+  to find.
+- **Built on a merge that had not happened.** On "merged PR #4" the session
+  pushed the sprint commit onto the work branch without checking; PR #4 was
+  still open, so its branch was overwritten and had to be restored. Cause: the
+  user's statement was taken as fact instead of verifying `origin/main` or the
+  PR state first.
+- **Sprint work queued behind an open PR.** A single work branch meant the
+  sprint could not be pushed while PR #4 was open; the work waited on local
+  branches and was cherry-picked twice.
+- **Check-script rework.** The first automated runs failed for setup reasons:
+  the app needs both `token` and `user` in localStorage, and the proxied API
+  rejected the browser's Origin under CORS. Cause: the auth and routing
+  contract was assumed rather than read.
+- **Wrong metric first.** `scrollHeight <= innerHeight` cannot express "fits
+  above a pinned bar", and the sticky navbar adds its own height. Two runs
+  were spent on a metric that could not pass.
+- **Random question order.** A one-question check passed or failed depending
+  on whether a fill-in or a multiple-choice question came up first.
+
+### Lessons → rules
+- Verify a claimed merge or deploy from the source (`git fetch` +
+  `origin/main`, or the PR's state) before building on it; never push new
+  work onto the branch of a PR that is still open.
+- Style every component under its own root class (or a CSS Module); never add
+  or change rules on generic class names like `.option` or `.feedback-message`
+  at the global level.
+- UI acceptance checks walk enough samples to cover every variant the page can
+  render (question types, lengths, sizes incl. 360px); one render proves
+  nothing.
+- Before automating a UI flow, read how the app establishes its session
+  (`AuthContext`, localStorage keys) and route API calls the way production
+  does (Hosting rewrite: same origin).
+- Define layout metrics from the design being tested (content bottom vs. the
+  pinned bar's top), not from generic page scroll.
+- Read shared dimensions (like the navbar height) from one CSS variable;
+  never hardcode another component's size.
+
+### Follow-ups
+- Migrate component styles to CSS Modules, starting with the pages that
+  collide today (vocabulary, unseen, mistakes, results).
+- Extract a `useExerciseSession` hook: ExercisePage and CrossTestPage still
+  share ~136 identical lines of answer/check/next/submit and keyboard logic.
+- Run `npm run check:viewport` in CI (needs Chromium and the Firestore
+  emulator in the job).
+- Screenshot-verify the cross-test page (needs seeded mistakes) and fix the
+  two pre-existing `react-hooks/exhaustive-deps` warnings.
