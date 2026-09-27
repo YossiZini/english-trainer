@@ -2,7 +2,7 @@
 // Plain module: read by backend/src/data/generateJsonData.js (npm run generate-data).
 // Each subtopic lives in ./fractions/ (theory with pictures + 30 exercises);
 // answers are computed with ./fractions/rat.js, not typed by hand.
-const { withStackedFractions } = require('./math-helpers');
+const { finishMath } = require('./math-helpers');
 
 const lessonsData = [
   require('./fractions/101-1-what-is-a-fraction'),
@@ -13,4 +13,4 @@ const lessonsData = [
   require('./fractions/101-6-mixed-numbers'),
 ];
 
-module.exports = { lessonsData: withStackedFractions(lessonsData) };
+module.exports = { lessonsData: finishMath(lessonsData) };

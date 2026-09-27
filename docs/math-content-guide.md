@@ -42,6 +42,14 @@ creates a new lesson and orphans progress.
 - Ladder: easy = one step, direct use of a rule; medium = two steps or a
   conversion; hard = word problems, several steps, reverse questions
   ("find the whole"), or common-mistake traps.
+- **Every Math question is multiple choice** (4 options; 3 on a yes/no
+  style question). Write a computed answer with `fibR`/`fib` and the seed
+  export turns it into multiple choice with three wrong options derived from
+  the answer's form (`math-helpers.js` → `finishMath`: n±1, ×2 for integers;
+  numerator or denominator off by one, the reciprocal for fractions; whole
+  part off by one for mixed numbers). Prefer `mcq` with hand-picked wrong
+  options when the common mistake is known (adding denominators, forgetting
+  to reduce). A wrong option must never equal the answer by value.
 - Question text is plain Hebrew. A bare computation uses `expr('3/4 + 1/6')`
   (renders as `… = ?`); an expression inside a sentence uses `ltr('3/4')`.
   Fractions in any text field render stacked by the app.
@@ -50,8 +58,9 @@ creates a new lesson and orphans progress.
   `mcq` places the answer at a varying position and rejects duplicate options.
   Wrong options come from the common mistakes (adding denominators, forgetting
   to reduce, wrong order of operations).
-- Fill-ins need a hint (`FRACTION_HINT`, `MIXED_HINT`, `INT_HINT`). Students
-  may answer `3/4`, `0.75`, `6/8` or `1 1/2`; the server compares by value.
+- Hints on `fibR`/`fib` are dropped by the conversion; keep them only as
+  author notes. Answers are compared by value on the server, so `3/4` and
+  `6/8` are the same answer.
 - Numbers in questions: keep denominators ≤ 12 on easy/medium; results reduce
   to something a student can check by hand.
 
