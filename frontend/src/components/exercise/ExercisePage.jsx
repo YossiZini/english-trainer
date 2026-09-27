@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
 import exerciseService from '../../services/exerciseService';
@@ -30,11 +30,27 @@ const ExercisePage = () => {
   const [error, setError] = useState('');
   const [showPreviousAttemptModal, setShowPreviousAttemptModal] = useState(false);
   const [lessonProgress, setLessonProgress] = useState(null);
+  const [explanationExpanded, setExplanationExpanded] = useState(false);
+  const questionRef = useRef(null);
+  const isFirstQuestionRender = useRef(true);
 
   useEffect(() => {
     loadExercises();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonId, isRetryMode]);
+
+  // Bring each new question to the top of the screen (buttons, dots or Enter key)
+  useEffect(() => {
+    setExplanationExpanded(false);
+    if (isFirstQuestionRender.current) {
+      isFirstQuestionRender.current = false;
+      return;
+    }
+    if (questionRef.current) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      questionRef.current.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+    }
+  }, [currentIndex]);
 
   // Handle Enter key press to submit answer or navigate
   useEffect(() => {
@@ -252,7 +268,7 @@ const ExercisePage = () => {
   const progress = ((currentIndex + 1) / exercises.length) * 100;
 
   return (
-    <div className="exercise-page">
+    <div className="exercise-page exercise-page--pinned">
       {/* Previous Attempt Modal */}
       <PreviousAttemptModal
         isOpen={showPreviousAttemptModal}
@@ -272,21 +288,23 @@ const ExercisePage = () => {
             <span className="breadcrumb-current">{lesson?.title_he}</span>
           </div>
 
-          <h1 className="exercise-title">
-            {isRetryMode ? 'תיקון טעויות: ' : 'תרגול: '}
-            {lesson?.title_he}
-          </h1>
-          {isRetryMode ? (
-            <div className="retry-badge">
-              🔄 מצב תיקון טעויות
-            </div>
-          ) : (
-            <div className={`difficulty-badge difficulty-${currentDifficulty}`}>
-              {currentDifficulty === 'easy' && '🌱 רמת מתחיל'}
-              {currentDifficulty === 'medium' && '⚡ רמת ביניים'}
-              {currentDifficulty === 'hard' && '🔥 רמה מתקדמת'}
-            </div>
-          )}
+          <div className="exercise-title-row">
+            <h1 className="exercise-title">
+              {isRetryMode ? 'תיקון טעויות: ' : 'תרגול: '}
+              {lesson?.title_he}
+            </h1>
+            {isRetryMode ? (
+              <div className="retry-badge">
+                🔄 מצב תיקון טעויות
+              </div>
+            ) : (
+              <div className={`difficulty-badge difficulty-${currentDifficulty}`}>
+                {currentDifficulty === 'easy' && '🌱 רמת מתחיל'}
+                {currentDifficulty === 'medium' && '⚡ רמת ביניים'}
+                {currentDifficulty === 'hard' && '🔥 רמה מתקדמת'}
+              </div>
+            )}
+          </div>
 
           {/* Progress Bar */}
           <div className="progress-container">
@@ -301,7 +319,7 @@ const ExercisePage = () => {
 
         {/* Question */}
         <div className="exercise-content">
-          <div className="question-container">
+          <div className="question-container" ref={questionRef}>
             <div className="question-number">שאלה {currentExercise.question_number}</div>
 
             {currentExercise.type === 'multiple_choice' ? (
@@ -336,13 +354,29 @@ const ExercisePage = () => {
                     </>
                   )}
                   {currentFeedback.explanationHe && (
-                    <p className="feedback-explanation">{currentFeedback.explanationHe}</p>
+                    <>
+                      <p className={`feedback-explanation ${explanationExpanded ? '' : 'clamped'}`}>
+                        {currentFeedback.explanationHe}
+                      </p>
+                      <button
+                        type="button"
+                        className="feedback-toggle"
+                        onClick={() => setExplanationExpanded(!explanationExpanded)}
+                      >
+                        {explanationExpanded ? 'הצג פחות' : 'הצג עוד'}
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
             )}
           </div>
 
+        </div>
+
+        {/* Action bar: pinned to the bottom of the viewport so the student never scrolls to continue */}
+        <div className="exercise-actionbar">
+          <div className="exercise-actionbar-inner">
           {/* Navigation Buttons */}
           <div className="exercise-navigation">
             <button
@@ -395,6 +429,7 @@ const ExercisePage = () => {
                 title={`שאלה ${idx + 1}`}
               ></div>
             ))}
+          </div>
           </div>
         </div>
       </div>

@@ -1,8 +1,18 @@
 .exercise-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem;
+  padding: 0.75rem 1rem 1rem;
   direction: rtl;
+}
+
+/* Room for the pinned action bar (ExercisePage only). border-box keeps the
+   page exactly one viewport tall when the content fits, so nothing scrolls. */
+.exercise-page--pinned {
+  box-sizing: border-box;
+  /* the sticky navbar (~4.25rem) sits above the page; without subtracting it
+     the document is always one navbar taller than the viewport */
+  min-height: calc(100vh - 4.25rem);
+  padding-bottom: 6rem;
 }
 
 .exercise-container {
@@ -10,19 +20,26 @@
   margin: 0 auto;
 }
 
-/* Header */
+/* Header — one compact card: breadcrumb, title + badge on a row, slim progress row */
 .exercise-header {
   background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .breadcrumb {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #666;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.exercise-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .breadcrumb-link {
@@ -46,22 +63,23 @@
 }
 
 .exercise-title {
-  font-size: 2rem;
+  font-size: 1.25rem;
   color: #333;
-  margin-bottom: 0.5rem;
-  text-align: center;
+  margin: 0;
+  line-height: 1.3;
 }
 
 .retry-badge {
   display: inline-block;
   background: linear-gradient(135deg, #17a2b8, #138496);
   color: white;
-  padding: 0.5rem 1.5rem;
+  padding: 0.25rem 0.9rem;
   border-radius: 20px;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin: 0;
   text-align: center;
+  white-space: nowrap;
 }
 
 .cross-test-badge {
@@ -79,12 +97,13 @@
 .difficulty-badge {
   display: inline-block;
   color: white;
-  padding: 0.5rem 1.5rem;
+  padding: 0.25rem 0.9rem;
   border-radius: 20px;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 1rem;
+  margin: 0;
   text-align: center;
+  white-space: nowrap;
 }
 
 .difficulty-easy {
@@ -99,18 +118,21 @@
   background: linear-gradient(135deg, #f87171, #ef4444);
 }
 
-/* Progress Bar */
+/* Progress Bar — bar and counter on one row */
 .progress-container {
-  margin-top: 1.5rem;
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .progress-bar {
-  width: 100%;
-  height: 10px;
+  flex: 1;
+  height: 6px;
   background: #e0e0e0;
-  border-radius: 10px;
+  border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin: 0;
 }
 
 .progress-fill {
@@ -120,34 +142,35 @@
 }
 
 .progress-text {
-  text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: #666;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 /* Content */
 .exercise-content {
   background: white;
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .question-container {
-  min-height: 350px;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
+  /* keep the question below the sticky navbar when scrolled into view */
+  scroll-margin-top: 4.5rem;
 }
 
 .question-number {
   display: inline-block;
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
-  padding: 0.5rem 1.5rem;
+  padding: 0.25rem 0.9rem;
   border-radius: 20px;
   font-weight: 600;
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
 }
 
 .question-header {
@@ -169,13 +192,14 @@
   font-size: 0.9rem;
 }
 
-/* Feedback */
-.feedback {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  border-radius: 15px;
+/* Feedback — compact, icon inline with the message */
+.exercise-page .feedback {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
   display: flex;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 0.6rem;
   animation: slideIn 0.3s ease;
 }
 
@@ -190,151 +214,210 @@
   }
 }
 
-.feedback.correct {
+.exercise-page .feedback.correct {
   background: #d4edda;
   border: 2px solid #28a745;
 }
 
-.feedback.incorrect {
+.exercise-page .feedback.incorrect {
   background: #f8d7da;
   border: 2px solid #dc3545;
 }
 
-.feedback-icon {
-  font-size: 2rem;
+.exercise-page .feedback-icon {
+  font-size: 1.3rem;
+  line-height: 1.4;
   flex-shrink: 0;
 }
 
-.feedback-content {
+.exercise-page .feedback-content {
   flex: 1;
+  min-width: 0;
 }
 
-.feedback-message {
+.exercise-page .feedback-message {
+  /* explicit resets: VocabularyQuestion.css styles the same class name globally */
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  animation: none;
   font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  margin: 0 0 0.2rem;
   color: #333;
 }
 
-.feedback-correct {
+.exercise-page .feedback-correct {
   font-weight: 500;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.2rem;
   color: #333;
 }
 
-.feedback-explanation {
+.exercise-page .feedback-explanation {
+  /* explicit resets: UnseenQuestion.css styles the same class name globally */
+  padding: 0;
+  background: none;
+  line-height: 1.5;
   color: #555;
   font-style: italic;
-  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  margin: 0.2rem 0 0;
+}
+
+/* The explanation clamps on phones only; the toggle appears there */
+.exercise-page .feedback-toggle {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-top: 0.2rem;
+  color: #667eea;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Action bar: pinned to the bottom of the viewport (ExercisePage) */
+.exercise-actionbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.12);
+  padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  direction: rtl;
+}
+
+.exercise-actionbar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column-reverse; /* dots above the buttons */
+  gap: 0.4rem;
 }
 
 /* Navigation */
-.exercise-navigation {
+.exercise-page .exercise-navigation {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
   align-items: center;
-  margin-bottom: 2rem;
+  margin: 0;
 }
 
-.nav-button,
-.check-button,
-.submit-button {
-  padding: 0.8rem 2rem;
+.exercise-page .nav-button,
+.exercise-page .check-button,
+.exercise-page .submit-button {
+  /* explicit resets: ResultsPage.css styles .nav-button globally */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: none;
+  padding: 0.6rem 1.5rem;
+  min-height: 44px;
   border: none;
   border-radius: 25px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   font-family: inherit;
+  white-space: nowrap;
 }
 
-.nav-button {
+.exercise-page .nav-button {
   background: #f0f0f0;
   color: #333;
 }
 
-.nav-button:hover:not(:disabled) {
+.exercise-page .nav-button:hover:not(:disabled) {
   background: #e0e0e0;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.nav-button:disabled {
+.exercise-page .nav-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-.check-button {
+.exercise-page .check-button {
   background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
-  padding: 0.8rem 3rem;
+  padding: 0.6rem 2.2rem;
 }
 
-.check-button:hover:not(:disabled) {
+.exercise-page .check-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
 }
 
-.check-button:disabled {
+.exercise-page .check-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.submit-button {
+.exercise-page .submit-button {
   background: linear-gradient(135deg, #28a745, #20c997);
   color: white;
-  padding: 0.8rem 3rem;
+  padding: 0.6rem 2.2rem;
 }
 
-.submit-button:hover:not(:disabled) {
+.exercise-page .submit-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(40, 167, 69, 0.4);
 }
 
-.submit-button:disabled {
+.exercise-page .submit-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 /* Question Dots */
-.question-dots {
+.exercise-page .question-dots {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
   flex-wrap: wrap;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
+  margin: 0; /* UnseenReadingPage.css adds a margin, padding and rule to this class name */
+  padding: 0;
+  border: none;
 }
 
-.question-dot {
-  width: 12px;
-  height: 12px;
+.exercise-page .question-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: #d0d0d0;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.question-dot:hover {
+.exercise-page .question-dot:hover {
   transform: scale(1.3);
 }
 
-.question-dot.active {
+.exercise-page .question-dot.active {
   background: #667eea;
   transform: scale(1.4);
 }
 
-.question-dot.answered {
+.exercise-page .question-dot.answered {
   background: #ffc107;
 }
 
-.question-dot.correct {
+.exercise-page .question-dot.correct {
   background: #28a745;
 }
 
-.question-dot.incorrect {
+.exercise-page .question-dot.incorrect {
   background: #dc3545;
 }
 
@@ -538,26 +621,59 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .exercise-page {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
-  .exercise-header,
+  .exercise-page--pinned {
+    padding-bottom: 6rem;
+  }
+
+  .exercise-header {
+    padding: 0.6rem 0.9rem;
+  }
+
   .exercise-content {
-    padding: 1.5rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .breadcrumb {
+    display: none;
   }
 
   .exercise-title {
-    font-size: 1.5rem;
+    font-size: 1.05rem;
   }
 
-  .exercise-navigation {
-    flex-direction: column;
+  .question-container {
+    scroll-margin-top: 3.75rem;
   }
 
-  .nav-button,
-  .check-button,
-  .submit-button {
-    width: 100%;
+  /* Long explanations fold to three lines behind a tap */
+  .exercise-page .feedback-explanation.clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .exercise-page .feedback-toggle {
+    display: inline-block;
+  }
+
+  .exercise-actionbar {
+    padding: 0.4rem 0.6rem calc(0.4rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .exercise-page .exercise-navigation {
+    gap: 0.5rem;
+  }
+
+  .exercise-page .nav-button,
+  .exercise-page .check-button,
+  .exercise-page .submit-button {
+    flex: 1;
+    padding: 0.6rem 0.5rem;
+    font-size: 0.9rem;
   }
 
   /* Recap page responsive styles */
