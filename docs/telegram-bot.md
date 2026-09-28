@@ -7,13 +7,16 @@ round after round, until none are left. "סיים" ends the session.
 
 ## What a session looks like
 
-1. "מילים" → the bot asks which words (1 כל המילים, 2 Band II, 3 Band III)
-   and then which level (1 קל = difficulty 1–5, 2 בינוני = 6–7, 3 קשה =
-   8–10), with buttons. The choice is stored on the API session
-   (`status: setup`), so the bot keeps no state of its own.
+1. "מילים" → the bot asks only the level (1 קל = difficulty 1–5, 2 בינוני =
+   6–7, 3 קשה = 8–10), with buttons. Words always come from the whole
+   vocabulary. The choice is stored on the API session (`status: setup`), so
+   the bot keeps no state of its own.
 2. 20 words, one per message. ✅ נכון! +1 or ❌ with the translation, then
    the next word. Every correct answer is 1 point (`User.addPoints`, the
    same points as the web quiz).
+   An answer that misses the dictionary but is short Hebrew gets one Gemini
+   check in the API (see "Answer judging" below); if Gemini accepts it, it
+   counts as right and the reply shows the dictionary translation too.
 3. After the 20th word the failed words return shuffled, round after round,
    until none fail. The summary shows rounds, right/wrong, points earned
    and the new total. "סיים" ends at any time with the same summary.
@@ -32,15 +35,36 @@ Telegram ──webhook──► Cloud Run: english-trainer-bot (bot/, Python, Go
                        Cloud Run: english-trainer-api  /api/bot/*  (backend/)
                           │  chat → student through telegram_links (one-time code from the web app)
                           │  word selection, answer matching, rounds, counters, rate limits
+                          │  a dictionary miss: one yes/no from Gemini (Vertex AI)
                           ▼
                        Firestore: bot_sessions, telegram_links, bot_usage (+ vocabulary_word_scores)
 ```
 
-The model never chooses words, judges answers or reports progress: every
-reply text is built from the API's answer (`bot/app/replies.py`). The agent
-only decides which tool a free-form message needs and relays the tool's
-reply. Inside an active session, answers do not touch the model at all
-(`FAST_PATH_ANSWERS`), so the bill does not grow with the number of words.
+The bot never chooses words, keeps score or reports progress: every reply
+text is built from the API's answer (`bot/app/replies.py`). Gemini has two
+narrow jobs. In the bot, the ADK agent decides which tool a free-form
+message needs. In the API, the answer judge gives a yes/no on a Hebrew
+answer that missed the dictionary. Answers that match the dictionary never
+touch the model.
+
+### Answer judging (in the API)
+
+`backend/src/services/bot/answerJudge.js`, called by `bot.service.js`:
+
+1. The answer is compared with the dictionary as before.
+2. On a miss, the answer is judged only if it is short Hebrew (Hebrew
+   letters only, at most 40 characters) and the student has checks left
+   today (`bot_usage.judges`, 100 per day, in a Firestore transaction).
+3. One Gemini call: temperature 0, JSON `{"acceptable": bool}`, the answer
+   fenced as data, no thinking, at most 30 output tokens, 8 second timeout.
+4. Accepted counts as right (+1 point) and the reply also shows the
+   dictionary translation; everything else counts as wrong.
+
+Any failure (error, timeout, unparsable output, the daily cap) counts as
+wrong, so the judge can only turn a wrong answer into a right one. Every
+verdict is logged by the API (`answer judge english=… given=… acceptable=…`)
+in the API service's Cloud Run logs. The API calls Vertex AI as its runtime
+service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 
 | Piece | Where |
 |---|---|
@@ -77,6 +101,8 @@ reply. Inside an active session, answers do not touch the model at all
 | Turns per chat per day (bot, in memory) | 400 | `MAX_TURNS_PER_CHAT_PER_DAY`, `infra/cloudrun-bot.yaml` |
 | Model calls per turn | 4 | `MAX_LLM_CALLS_PER_TURN` |
 | Output tokens per model reply | 200 | `MAX_OUTPUT_TOKENS` |
+| Answer checks per student per day (API, durable) | 100 | `BOT_DAILY_JUDGE_CAP`, `infra/cloudrun-service.yaml` (`JUDGE_ANSWERS=false` turns checking off) |
+| Output tokens and time per answer check | 30 tokens, 8 s | `JUDGE_MAX_OUTPUT_TOKENS`, `JUDGE_TIMEOUT_MS` |
 | Conversation history kept for the model | 12 events | `HISTORY_EVENTS` |
 | Bot instances × concurrency | 2 × 10, 30 s per request | `infra/cloudrun-bot.yaml` |
 | API instances × concurrency | 3 × 80 | `infra/cloudrun-service.yaml` |

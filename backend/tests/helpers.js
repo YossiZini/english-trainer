@@ -8,6 +8,8 @@ if (!process.env.FIRESTORE_EMULATOR_HOST) {
 process.env.NODE_ENV = 'test';
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
 process.env.GCP_PROJECT_ID = process.env.GCP_PROJECT_ID || 'demo-english-trainer';
+// No model calls from tests: suites that test the answer check inject a fake client.
+process.env.JUDGE_ANSWERS = 'false';
 
 const { db, DYNAMIC_COLLECTIONS, initializeDatabase, shutdownDatabase } = require('../src/config/database');
 

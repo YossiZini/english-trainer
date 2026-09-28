@@ -44,4 +44,15 @@ function hebrewAnswerMatches(userText, translation) {
   return alternatives(translation).includes(given);
 }
 
-module.exports = { normalize, alternatives, hebrewAnswerMatches };
+/**
+ * Whether a non-matching answer may be sent to a model for a second opinion:
+ * short, and Hebrew letters (plus spaces and punctuation) only, so a message
+ * can never carry instructions in another language to the judge.
+ */
+function judgeable(userText, maxChars = 40) {
+  const t = String(userText || '').trim();
+  return t.length > 0 && t.length <= maxChars && /[\u05D0-\u05EA]/.test(t)
+    && /^[\u0590-\u05FF\s.,'"׳״\-()/]+$/.test(t);
+}
+
+module.exports = { normalize, alternatives, hebrewAnswerMatches, judgeable };

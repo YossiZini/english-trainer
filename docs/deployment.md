@@ -99,7 +99,7 @@ Everything runs inside free tiers for a handful of students: Cloud Run
 (scale-to-zero), Firestore (1 GiB, 50k reads/day), Hosting (10 GB, 360 MB/day),
 Artifact Registry (0.5 GB), Secret Manager. Expected bill: $0–2 per month.
 The Telegram bot adds Vertex AI (Gemini Flash) usage, bounded by the caps in
-`docs/telegram-bot.md`; answers inside a session never call the model.
+`docs/telegram-bot.md`; only an answer that misses the dictionary calls the model, once.
 Old container images accumulate in Artifact Registry; delete them occasionally
 or add a cleanup policy if storage grows past the free 0.5 GB.
 

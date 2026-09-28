@@ -32,6 +32,23 @@ after the backend tests pass on the Firestore emulator (`cd backend && npm test`
 
 ---
 
+## System Map
+
+The high-level architecture page (services, what each owns, tech stack, main
+flows as diagrams) is the artifact https://claude.ai/artifact/UUd5q8QHxH4CZcn4i1vpDU.
+Its source is `/docs/architecture/system-map.html`.
+
+**Keep it current.** Update the source and republish it to the same URL
+(Artifact tool with `url` set to the link above):
+- in the same PR as any design change: a new or removed service, endpoint
+  group, data store or external dependency; a changed flow between
+  services; a moved responsibility; a new security or cost limit;
+- at the end of every sprint (`/sprint close` checks it).
+
+Keep it high level: no endpoint lists or field names.
+
+---
+
 ## Sprint Workflow and Retrospectives
 
 Work is organised in sprints driven by the `/sprint` command

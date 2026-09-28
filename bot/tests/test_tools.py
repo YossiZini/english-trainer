@@ -18,11 +18,11 @@ def api():
 @respx.mock
 async def test_start_sends_key_and_chat_and_formats_first_word():
     route = respx.post("http://api.test/api/bot/session/start").mock(return_value=httpx.Response(200, json={
-        "success": True, "data": {"sessionId": "s1", "setup": "type",
-                                  "options": [{"key": 1, "label": "כל המילים"}, {"key": 2, "label": "Band II"}, {"key": 3, "label": "Band III"}]}}))
+        "success": True, "data": {"sessionId": "s1", "setup": "level",
+                                  "options": [{"key": 1, "label": "קל"}, {"key": 2, "label": "בינוני"}, {"key": 3, "label": "קשה"}]}}))
     tools.set_api(api())
     result = await tools.start_session(Ctx())
-    assert result["reply"] == "מתחילים תרגול של 20 מילים.\nאיזה מילים נתרגל?\n1. כל המילים\n2. Band II\n3. Band III"
+    assert result["reply"] == "מתחילים תרגול של 20 מילים.\nאיזו רמה?\n1. קל\n2. בינוני\n3. קשה"
     request = route.calls.last.request
     assert request.headers["X-Bot-Key"] == "test-key"
     assert b'"chatId": "42"' in request.content or b'"chatId":"42"' in request.content

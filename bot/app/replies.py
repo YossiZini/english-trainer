@@ -22,7 +22,7 @@ RATE_LIMITED = "הגעת למכסת ההודעות להיום. נמשיך מחר
 UNREACHABLE = "משהו השתבש אצלנו. נסו שוב בעוד רגע."
 BAD_CODE = "הקוד לא נכון או שפג תוקפו. קבלו קוד חדש באתר ושלחו אותו שוב."
 LINKED = "מעולה, החשבון מחובר! כתבו \"מילים\" כדי להתחיל תרגול של 20 מילים."
-SETUP_QUESTIONS = {"type": "איזה מילים נתרגל?", "level": "איזו רמה?"}
+SETUP_QUESTIONS = {"level": "איזו רמה?"}
 INVALID_CHOICE = "בחרו מספר מהאפשרויות:"
 NOT_ENOUGH_FOR_CHOICE = "אין מספיק מילים ברמה הזו בקבוצה שבחרתם. בחרו רמה אחרת:"
 NOT_ENOUGH_WORDS = "אין מספיק מילים ברמה שלכם כרגע."
@@ -73,7 +73,7 @@ def start_reply(result: dict) -> Reply:
 
 
 def started_reply(data: dict) -> Reply:
-    return Reply(f"{data['wordSet']}, רמה {data['level']}. תרגמו לעברית:\n" + _word_line(data["word"], data["progress"]))
+    return Reply(f"רמה {data['level']}. תרגמו לעברית:\n" + _word_line(data["word"], data["progress"]))
 
 
 def answer_reply(result: dict) -> Reply:
@@ -87,6 +87,8 @@ def answer_reply(result: dict) -> Reply:
         return started_reply(data)
     if data["correct"]:
         verdict = "✅ נכון!" + (f" +{data['points']}" if data.get("points") else "")
+        if data.get("judged") and data.get("expected"):
+            verdict += f"\nבמילון: {data['expected']}"
     else:
         verdict = f"❌ לא בדיוק. התרגום: {data['expected']}"
     if data.get("done"):
