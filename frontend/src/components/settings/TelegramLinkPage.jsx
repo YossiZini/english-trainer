@@ -68,7 +68,11 @@ const TelegramLinkPage = () => {
         <ol className="telegram-steps">
           <li>פתחו בטלגרם את <a href={`https://t.me/${BOT_NAME}`} target="_blank" rel="noreferrer" dir="ltr">@{BOT_NAME}</a> ולחצו Start.</li>
           <li>שלחו לבוט את הקוד בן 6 הספרות.</li>
-          <li>כתבו <strong>מילים</strong> כדי להתחיל תרגול, ו<strong>סיים</strong> כדי לעצור.</li>
+          <li>
+            הפקודות באנגלית: <strong dir="ltr">/words</strong> לאוצר מילים, <strong dir="ltr">/english</strong> או{' '}
+            <strong dir="ltr">/math</strong> לתרגילי השיעור הבא, <strong dir="ltr">/end</strong> כדי לעצור,
+            ו<strong dir="ltr">/help</strong> להסבר מלא.
+          </li>
         </ol>
 
         {link?.linked && (

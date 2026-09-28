@@ -24,9 +24,9 @@ const SUBJECTS = ['english', 'math'];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const EXPLANATION_MAX = 400;
 const PAGE_SIZE = 10;
-const MORE_WORDS = ['עוד', 'הבא', 'more', 'next'];
-const BACK_WORDS = ['הקודם', 'חזרה', 'back', 'prev'];
-const HINT_WORDS = ['?', '？', 'רמז', 'hint'];
+const MORE_WORDS = ['more', '/more', 'next'];
+const BACK_WORDS = ['back', '/back', 'prev'];
+const HINT_WORDS = ['?', '？', 'hint', '/hint'];
 
 const isEnd = (text) => END_WORDS.includes(String(text || '').trim().toLowerCase());
 
@@ -144,7 +144,7 @@ class ExerciseSession {
     return { kind: 'exercise', pick: true, sessionId: session.id, ...(await lessonPage(user, subject, 1)) };
   }
 
-  /** In the lesson list: a number starts that lesson; 'עוד' / 'הקודם' turn the page. */
+  /** In the lesson list: a number starts that lesson; 'more' / 'back' turn the page. */
   static async pick(user, chatId, session, text) {
     const t = String(text || '').trim().toLowerCase();
     let page = session.page || 1;

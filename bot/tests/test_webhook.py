@@ -17,7 +17,7 @@ class FakeCoach:
         return Reply("תשובה", ["1", "2"])
 
 
-def update(text="מילים", chat_id=42):
+def update(text="words", chat_id=42):
     return {"update_id": 1, "message": {"message_id": 5, "chat": {"id": chat_id}, "text": text}}
 
 

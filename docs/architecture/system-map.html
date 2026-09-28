@@ -287,7 +287,7 @@ sequenceDiagram
   participant A as Trainer API
   participant G as Gemini
   participant D as Firestore
-  S->>B: מילים
+  S->>B: /words
   B->>A: Start session
   A-->>B: Which level
   B-->>S: Easy, medium or hard, with buttons
@@ -333,10 +333,10 @@ sequenceDiagram
   participant A as Trainer API
   participant D as Firestore
   alt Next lesson
-    S->>B: תרגיל אנגלית
+    S->>B: /english
     B->>A: Start exercise (subject)
   else Pick from the list
-    S->>B: שיעורים חשבון
+    S->>B: /lessons_math
     B->>A: Lesson list (subject)
     A-->>B: Numbered page, passed and next marked
     B-->>S: List with more / back buttons

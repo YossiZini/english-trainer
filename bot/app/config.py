@@ -34,18 +34,12 @@ API_TIMEOUT_SECONDS = _int("API_TIMEOUT_SECONDS", 10)
 # call: the verdict comes from the API anyway, and it keeps the bill flat.
 FAST_PATH_ANSWERS = os.environ.get("FAST_PATH_ANSWERS", "true").lower() != "false"
 
-END_WORDS = {"end", "stop", "quit", "סיים", "סיום", "סיימתי", "די", "עצור"}
-START_WORDS = {"words", "word", "start", "מילים", "מילה", "התחל", "תרגול"}
-# Start the next lesson's exercises of a subject. Two words each on purpose:
-# a single word like "חשבון" is also a vocabulary answer ("account").
-EXERCISE_WORDS = {
-    "תרגיל אנגלית": "english", "תרגול אנגלית": "english", "תרגילים אנגלית": "english",
-    "תרגיל חשבון": "math", "תרגול חשבון": "math", "תרגילים חשבון": "math", "תרגיל מתמטיקה": "math",
-}
-# Open the numbered lesson list of a subject; the student answers with a number.
-LESSONS_WORDS = {
-    "שיעורים אנגלית": "english", "רשימת שיעורים אנגלית": "english",
-    "שיעורים חשבון": "math", "שיעורים מתמטיקה": "math", "רשימת שיעורים חשבון": "math",
-}
-# Optional last word of an exercise command: "תרגיל אנגלית קשה", "תרגיל חשבון 3 קל".
-DIFFICULTY_WORDS = {"קל": "easy", "בינוני": "medium", "קשה": "hard", "easy": "easy", "medium": "medium", "hard": "hard"}
+# Commands are English words; a leading "/" is optional, so Telegram's command
+# menu and typed words both work. No Hebrew command words: a Hebrew word
+# ("די", "מילה") is also a translation and would steal a vocabulary answer.
+HELP_WORDS = {"help", "start"}
+START_WORDS = {"words"}
+END_WORDS = {"end", "stop", "quit"}
+SUBJECTS = {"english", "math"}
+LESSONS_WORD = "lessons"
+DIFFICULTIES = {"easy", "medium", "hard"}

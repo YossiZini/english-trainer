@@ -123,7 +123,7 @@ describe('Bot lesson exercises', () => {
     // '?' is not an answer: the hint (none in the content yet) and the same question.
     const hint = (await bot('/api/bot/session/answer', { text: '?' })).body.data;
     expect(hint).toMatchObject({ hintAsked: true, hint: null, question: { number: 2 } });
-    const ended = (await bot('/api/bot/session/answer', { text: 'סיים' })).body.data;
+    const ended = (await bot('/api/bot/session/answer', { text: 'end' })).body.data;
     expect(ended).toMatchObject({ kind: 'exercise', ended: true, answered: 1, correct: 1, total: 10 });
     expect((await db.find('exercise_results', { user_id: userId })).length).toBe(before);
     expect((await bot('/api/bot/session/answer', { text: '1' })).status).toBe(404);
@@ -157,10 +157,10 @@ describe('Bot lesson exercises', () => {
     expect(list.items.slice(0, 3).map(i => i.status)).toEqual(['done', 'next', 'open']);
     expect((await status()).body.data).toMatchObject({ active: true, kind: 'exercise', pick: true, page: 1 });
 
-    const more = (await bot('/api/bot/session/answer', { text: 'עוד' })).body.data;
+    const more = (await bot('/api/bot/session/answer', { text: 'more' })).body.data;
     expect(more).toMatchObject({ pick: true, page: 2 });
     expect(more.items[0]).toMatchObject({ n: 11, id: english[10].id });
-    expect((await bot('/api/bot/session/answer', { text: 'הקודם' })).body.data.page).toBe(1);
+    expect((await bot('/api/bot/session/answer', { text: 'back' })).body.data.page).toBe(1);
 
     for (const text of ['0', String(english.length + 1), 'lesson']) {
       const bad = (await bot('/api/bot/session/answer', { text })).body.data;
@@ -172,9 +172,9 @@ describe('Bot lesson exercises', () => {
     expect(picked.question.number).toBe(1);
     expect((await status()).body.data).toMatchObject({ kind: 'exercise', lesson: { id: english[11].id } });
 
-    // 'סיים' closes a list without starting anything.
+    // 'end' closes a list without starting anything.
     await bot('/api/bot/exercise/lessons', { subject: 'math' });
-    const closed = (await bot('/api/bot/session/answer', { text: 'סיים' })).body.data;
+    const closed = (await bot('/api/bot/session/answer', { text: 'end' })).body.data;
     expect(closed).toMatchObject({ ended: true, pickClosed: true });
     expect((await status()).body.data.active).toBe(false);
   });

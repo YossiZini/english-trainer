@@ -6,17 +6,17 @@ numbered across pages; the student sends a lesson's number. The verdict, the
 right option and the score always come from the API."""
 from .replies import Reply
 
-SUBJECT_COMMAND = {"english": "תרגיל אנגלית", "math": "תרגיל חשבון"}
+SUBJECT_COMMAND = {"english": "/english", "math": "/math"}
 SUBJECT_NAME = {"english": "אנגלית", "math": "חשבון"}
 LEVEL_NAME = {"easy": "קל", "medium": "בינוני", "hard": "קשה"}
 MARKS = {"done": "✅ ", "next": "▶️ ", "open": ""}
-MORE, BACK = "עוד", "הקודם"
+MORE, BACK = "more", "back"
 PICK_INVALID = "שלחו מספר של שיעור מהרשימה:"
 PICK_CLOSED = "סגרנו את רשימת השיעורים."
 NO_HINT = "אין רמז לשאלה הזו."
-START_INTRO = "מתחילים! ענו במספר התשובה, או כתבו \"סיים\" כדי לעצור."
+START_INTRO = "מתחילים! ענו במספר התשובה (? לרמז), או /end כדי לעצור."
 
-ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה."
+ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה: /lessons_english או /lessons_math."
 LESSON_NOT_FOUND = "לא מצאתי את השיעור הזה."
 NO_EXERCISES = "לשיעור הזה אין עדיין תרגילים."
 EXERCISE_ERRORS = {
@@ -38,7 +38,7 @@ def question_reply(data: dict, intro: str = "") -> Reply:
     if q.get("options"):
         lines += [f"{i}) {option}" for i, option in enumerate(q["options"], start=1)]
         return Reply("\n".join(lines), [str(i) for i in range(1, len(q["options"]) + 1)])
-    lines.append("כתבו את התשובה (\"?\" לרמז):")
+    lines.append("כתבו את התשובה (? לרמז):")
     return Reply("\n".join(lines))
 
 
@@ -62,14 +62,14 @@ def result_text(data: dict) -> str:
     lines.append("עברתם את השיעור! ✨" if r["passed"] else "כדי לעבור צריך ציון 70. אפשר לנסות שוב.")
     points = r.get("pointsEarned") or 0
     lines.append(f"⭐ {points:+d} נקודות (סה\"כ {r['totalPoints']}).")
-    command = SUBJECT_COMMAND.get(lesson.get("subject"), "תרגיל אנגלית")
+    command = SUBJECT_COMMAND.get(lesson.get("subject"), "/english")
     harder = LEVEL_NAME.get(r.get("nextDifficulty"))
     if r["passed"] and harder and lesson.get("number"):
-        lines.append(f"רוצים אתגר? כתבו \"{command} {lesson['number']} {harder}\" לאותו שיעור ברמה {harder}.")
+        lines.append(f"רוצים אתגר? כתבו \"{command} {lesson['number']} {r['nextDifficulty']}\" לאותו שיעור ברמה {harder}.")
     if r.get("nextLesson"):
-        lines.append(f"השיעור הבא: {r['nextLesson']['title']}. כתבו \"{command}\" כדי להמשיך.")
+        lines.append(f"השיעור הבא: {r['nextLesson']['title']}. כתבו {command} כדי להמשיך.")
     else:
-        lines.append(f"כתבו \"{command}\" כדי לתרגל שוב.")
+        lines.append(f"כתבו {command} כדי לתרגל שוב.")
     return "\n".join(lines)
 
 
@@ -78,7 +78,7 @@ def lesson_list_text(data: dict) -> Reply:
     lines = [PICK_INVALID] if data.get("invalid") else []
     lines.append(f"📚 שיעורי {SUBJECT_NAME.get(data['subject'], '')} · עמוד {data['page']}/{data['pages']}")
     lines += [f"{item['n']}. {MARKS.get(item['status'], '')}{item['title']}" for item in data["items"]]
-    lines.append("שלחו את מספר השיעור (✅ עברתם, ▶️ הבא בתור), או \"סיים\" כדי לסגור.")
+    lines.append("שלחו את מספר השיעור (✅ עברתם, ▶️ הבא בתור); more / back מדפדפים, /end סוגר.")
     buttons = ([BACK] if data["page"] > 1 else []) + ([MORE] if data["page"] < data["pages"] else [])
     return Reply("\n".join(lines), buttons)
 
