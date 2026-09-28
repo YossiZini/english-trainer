@@ -261,3 +261,56 @@ work in this repository (referenced from CLAUDE.md).
   three-way ordering) and for topics 102–104.
 - Hosting `no-cache` on rewritten routes (still pending from Sprint 2).
 - Convert the English seeds to plain modules and drop the `eval` parser.
+
+## Sprint 4 — Animated Fractions lessons (2026-09-28)
+
+### What went well
+- **A reference to copy from.** The user's artifact fixed the player's shape
+  (tabs, stage, caption, controls, dots) before any code; the React version
+  matched it on the first render and the two reference scenes ported 1:1.
+- **Scenes as data, player as code.** Six scene files, one registry entry
+  each, zero player changes after the first commit; 30 scenes / 71 steps
+  written in one sitting because every step is `{ caption, draw }`.
+- **The walk script found nothing the tests could not, and proved it**: 142
+  steps at two sizes, every run, before every commit.
+- **Review on my own PR paid off**: five real findings (a drawing that showed
+  3/4 while the caption said 5/4; captions ending "4 1/4." left flat; the
+  walk script un-pausing on phones; space on a button toggling play; a
+  duplicated arrow marker), all fixed in one commit.
+- **Reduced motion and phones** were designed in, not patched on: the player
+  starts paused on narrow screens.
+
+### What hurt
+- **Pushed onto a branch whose PR had already merged.** PR #19 (the archive)
+  merged at 06:08; the animation push went to the same branch at 09:40
+  believing #19 was open (the check had been made before the merge and not
+  repeated), then #19 was retitled. The commits sat in no PR until the
+  review noticed. Cause: acting on a stale merge check; cost: a wrong PR
+  title and a new PR.
+- **A leaked test mock.** Overriding `window.matchMedia` in one test broke
+  the auto-advance test that runs after it; one green commit followed by a
+  red one.
+- **A slide without an offset**: the 1.6 sum step looked plausible in the
+  screenshot review because the parts overlapped exactly; only reading the
+  code against the caption exposed it.
+- **Regex again**: the period exclusion added in Sprint 3 for decimals was
+  broader than needed and hit 32 captions.
+
+### Lessons → rules
+- Re-check a PR's merge state immediately before every push to its branch;
+  a merged PR's branch gets a fresh PR, never a retitle.
+- A test that overrides a global (`matchMedia`, timers, `location`) restores
+  it in `finally`; new tests are run together with the whole file, not alone.
+- For every animation step, compare the caption's numbers with the drawing's
+  numbers (parts, fills, offsets) before screenshots; a picture can look right
+  and be wrong.
+- Character-class exclusions in text patterns are the minimum that the
+  counter-example needs (`[.,]\d`, not `.`), with a test for the sentence end.
+
+### Follow-ups
+- Share the stage geometry and palette between `math-svg.js` (theory
+  pictures) and `primitives.jsx` (animation stage) before a third consumer.
+- Per-scene stage height to remove the empty band on laptops.
+- Animated lessons for topics 2–4 (order of operations, average,
+  percentage) once the Fractions player has been used by a student.
+- The Hosting `no-cache` header for rewritten routes is still pending.
