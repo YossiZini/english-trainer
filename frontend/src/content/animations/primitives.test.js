@@ -39,6 +39,12 @@ describe('BarChart', () => {
     expect(c.querySelector('.la-mean-label').textContent).toBe('90');
   });
 
+  test('a null value leaves an empty slot', () => {
+    const c = inSvg(<BarChart values={[{ value: 70 }, { value: null }]} mean={80} />);
+    expect(c.querySelectorAll('.la-bar')).toHaveLength(1);
+    expect([...c.querySelectorAll('.la-bar-value')].map((t) => t.textContent)).toEqual(['70']);
+  });
+
   test('levelled shows the mean as every value label', () => {
     const c = inSvg(<BarChart values={values} mean={90} levelled />);
     expect([...c.querySelectorAll('.la-bar-value')].map((t) => t.textContent)).toEqual(['90', '90', '90']);

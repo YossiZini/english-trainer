@@ -104,6 +104,10 @@
   .lesson-animation .la-dots { width: 100%; margin-inline-start: 0; justify-content: center; }
   .lesson-animation .la-fr-label { font-size: 26px; }
   .lesson-animation .la-note { font-size: 18px; }
+  .lesson-animation .la-tag-sub { font-size: 16px; }
+  .lesson-animation .la-tag-price { font-size: 25px; }
+  .lesson-animation .la-bar-value, .lesson-animation .la-mean-label { font-size: 19px; }
+  .lesson-animation .la-tick { font-size: 15px; }
 }
 
 /* Sprint 5 primitives: expressions, bar charts, hundred grid, price tags */

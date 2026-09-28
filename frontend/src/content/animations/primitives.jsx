@@ -177,7 +177,7 @@ export const Grid = ({ x, y, size = 200, rows, cols, shadeRows = 0, shadeCols = 
  */
 export const Expr = ({ x = 320, y = 140, tokens, hl = null, size = 30, gap = 14, anim = '' }) => {
   const toks = tokens.map((t) => (typeof t === 'object' && t !== null ? t : { t: String(t) }));
-  const widths = toks.map((k) => Math.max(size * 0.7, String(k.t).length * size * 0.6));
+  const widths = toks.map((k) => (/^[()]$/.test(k.t) ? size * 0.4 : Math.max(size * 0.7, String(k.t).length * size * 0.6)));
   const total = widths.reduce((a, b) => a + b, 0) + gap * (toks.length - 1);
   let cursor = x - total / 2;
   const centres = widths.map((w) => { const c = cursor + w / 2; cursor += w + gap; return c; });
@@ -209,7 +209,8 @@ export const Expr = ({ x = 320, y = 140, tokens, hl = null, size = 30, gap = 14,
 };
 
 /**
- * Bar chart of `values` = [{ label, value, color }] scaled to `max` (default:
+ * Bar chart of `values` = [{ label, value, color }] (value null = an empty
+ * slot, for a missing number) scaled to `max` (default:
  * the largest value or the mean). `mean` draws a dashed line with its value.
  * `levelled` animates every bar to the mean height after mount (the "share
  * equally" picture of an average); the value labels then show the mean.
@@ -239,8 +240,8 @@ export const BarChart = ({ x = 120, y = 40, w = 400, h = 180, values, max, mean 
       <line x1={x} y1={baseline} x2={x + w} y2={baseline} className="la-fr-line" />
       {values.map((v, i) => (
         <g key={i} className={`rise d${Math.min(5, i + 1)}`} style={{ transformOrigin: `${bx(i) + bw / 2}px ${baseline}px` }}>
-          <rect x={bx(i)} y={yOf(v.value)} width={bw} height={baseline - yOf(v.value)} className={`la-part la-bar ${v.color || color}`} data-value={v.value} />
-          <Text x={bx(i) + bw / 2} y={(levelled && mean != null ? yOf(mean) : yOf(v.value)) - 12} cls="la-bar-value">{levelled && mean != null ? mean : v.value}</Text>
+          {v.value != null && <rect x={bx(i)} y={yOf(v.value)} width={bw} height={baseline - yOf(v.value)} className={`la-part la-bar ${v.color || color}`} data-value={v.value} />}
+          {v.value != null && <Text x={bx(i) + bw / 2} y={(levelled && mean != null ? yOf(mean) : yOf(v.value)) - 12} cls="la-bar-value">{levelled && mean != null ? mean : v.value}</Text>}
           {v.label != null && <Text x={bx(i) + bw / 2} y={baseline + 16} cls="la-tick" rtl={/[֐-׿]/.test(String(v.label))}>{v.label}</Text>}
         </g>
       ))}
