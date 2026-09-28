@@ -34,6 +34,14 @@ spec:
               value: https://teacher-509909.web.app,https://teacher-509909.firebaseapp.com
             - name: JWT_EXPIRATION
               value: 7d
+            # Answer checks for the Telegram bot: Gemini on Vertex AI, called
+            # as this service account (roles/aiplatform.user, infra/setup-bot.sh).
+            - name: GOOGLE_CLOUD_PROJECT
+              value: teacher-509909
+            - name: GOOGLE_CLOUD_LOCATION
+              value: europe-west1
+            - name: BOT_DAILY_JUDGE_CAP
+              value: "100"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:

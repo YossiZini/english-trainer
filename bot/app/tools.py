@@ -5,15 +5,13 @@ from google.adk.tools import ToolContext
 
 from . import replies
 from .api_client import TrainerApi
-from .judge import AnswerJudge, answer_with_judge
 
 _api: TrainerApi | None = None
-_judge: AnswerJudge | None = None
 
 
-def set_api(api: TrainerApi, judge: AnswerJudge | None = None) -> None:
-    global _api, _judge
-    _api, _judge = api, judge
+def set_api(api: TrainerApi) -> None:
+    global _api
+    _api = api
 
 
 def _chat(tool_context: ToolContext) -> str:
@@ -33,7 +31,7 @@ async def start_session(tool_context: ToolContext) -> dict:
 
 async def answer_word(text: str, tool_context: ToolContext) -> dict:
     """Submit the student's Hebrew translation of the current word; returns the verdict and the next word."""
-    return {"reply": str(replies.answer_reply(await answer_with_judge(_api, _judge, _chat(tool_context), text)))}
+    return {"reply": str(replies.answer_reply(await _api.answer(_chat(tool_context), text)))}
 
 
 async def end_session(tool_context: ToolContext) -> dict:

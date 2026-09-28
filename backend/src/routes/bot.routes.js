@@ -17,11 +17,7 @@ router.post('/link', [body('code').isString().isLength({ min: 6, max: 6 })], Bot
 router.use(requireLinkedChat);
 router.use(dailyCap);
 router.post('/session/start', BotController.start);
-router.post('/session/answer', [
-  body('text').isString().notEmpty().isLength({ max: 200 }),
-  body('judge').optional().isBoolean({ strict: true }),
-  body('verdict').optional({ values: 'null' }).isIn(['accepted', 'rejected'])
-], BotController.answer);
+router.post('/session/answer', [body('text').isString().notEmpty().isLength({ max: 200 })], BotController.answer);
 router.post('/session/end', BotController.end);
 router.get('/session/status', BotController.status);
 

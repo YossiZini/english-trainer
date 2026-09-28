@@ -7,16 +7,16 @@ const User = require('../models/User');
 const { pickWordsForUser, LEVELS } = require('./bot/wordPicker');
 const { hebrewAnswerMatches, judgeable } = require('../utils/hebrewAnswer');
 const { shuffleArray } = require('../utils/shuffle');
-const { SESSION_SIZE, END_WORDS } = require('../config/bot');
+const BotUsage = require('../models/BotUsage');
+const { SESSION_SIZE, END_WORDS, DAILY_JUDGE_CAP } = require('../config/bot');
+const answerJudge = require('./bot/answerJudge');
 
 /**
  * The chat-bot vocabulary session: start (setup questions), answer, end.
  * Words are always drawn from all words; the student picks only the level.
- * A Hebrew answer that does not match the dictionary can get a second
- * opinion: with `judge`, the API returns `needsJudgement` without recording
- * anything, and the bot answers again with `verdict` ('accepted' or
- * 'rejected') from its model. The caller holds the service key, so the
- * verdict is trusted; the API still records, scores and advances.
+ * A short Hebrew answer that misses the dictionary gets one Gemini check
+ * (bot/answerJudge.js), within the student's daily judge cap; the API
+ * owns the verdict either way.
  * Every reply is plain data; the bot turns it into Hebrew text. The
  * service never talks to a model: words come from the vocabulary store,
  * verdicts from hebrewAnswer, points from User.addPoints.
@@ -94,7 +94,7 @@ class BotService {
   }
 
   /** Check the student's text against the current word and move on. */
-  static async answer(user, chatId, text, { judge = false, verdict = null } = {}) {
+  static async answer(user, chatId, text) {
     const session = await BotSession.findOpenByChat(chatId);
     if (!session) return { error: 'no_session' };
     if (isEndCommand(text)) return this.end(user, chatId);
@@ -102,11 +102,8 @@ class BotService {
 
     const word = await currentWord(session);
     const matched = hebrewAnswerMatches(text, word.hebrew_translation);
-    const canJudge = !matched && judgeable(text);
-    if (canJudge && judge && !verdict) {
-      return { needsJudgement: true, english: word.english_word, expected: word.hebrew_translation, given: String(text).trim() };
-    }
-    const judged = canJudge && verdict === 'accepted';
+    const judged = !matched && judgeable(text) && await BotUsage.reserveJudgement(user.id, DAILY_JUDGE_CAP)
+      && await answerJudge.accepts({ english: word.english_word, expected: word.hebrew_translation, given: String(text).trim() });
     const correct = matched || judged;
     await VocabularyWordScores.recordAttempt(user.id, word.id, correct);
     let totalPoints = null;

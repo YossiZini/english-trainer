@@ -43,8 +43,6 @@ spec:
               value: "4"
             - name: MAX_TURNS_PER_CHAT_PER_DAY
               value: "400"
-            - name: MAX_JUDGES_PER_CHAT_PER_DAY
-              value: "100"
             - name: BOT_API_KEY
               valueFrom:
                 secretKeyRef:

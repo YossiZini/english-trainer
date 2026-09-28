@@ -42,13 +42,8 @@ class TrainerApi:
     async def start(self, chat_id: str) -> dict:
         return await self._call("POST", "/bot/session/start", chat_id)
 
-    async def answer(self, chat_id: str, text: str, judge: bool = False, verdict: str | None = None) -> dict:
-        fields = {"text": text}
-        if judge:
-            fields["judge"] = True
-        if verdict:
-            fields["verdict"] = verdict
-        return await self._call("POST", "/bot/session/answer", chat_id, **fields)
+    async def answer(self, chat_id: str, text: str) -> dict:
+        return await self._call("POST", "/bot/session/answer", chat_id, text=text)
 
     async def end(self, chat_id: str) -> dict:
         return await self._call("POST", "/bot/session/end", chat_id)

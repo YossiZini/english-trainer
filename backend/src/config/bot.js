@@ -25,6 +25,15 @@ module.exports = {
   DAILY_MESSAGE_CAP: toInt(process.env.BOT_DAILY_MESSAGE_CAP, 300),
   /** Minutes a link code stays valid. */
   LINK_CODE_MINUTES: toInt(process.env.BOT_LINK_CODE_MINUTES, 10),
+  /** Gemini second opinion on a Hebrew answer that misses the dictionary. */
+  JUDGE_ANSWERS: (process.env.JUDGE_ANSWERS || 'true').toLowerCase() !== 'false',
+  JUDGE_MODEL: process.env.JUDGE_MODEL || 'gemini-2.5-flash',
+  JUDGE_LOCATION: process.env.GOOGLE_CLOUD_LOCATION || 'europe-west1',
+  JUDGE_PROJECT: process.env.GOOGLE_CLOUD_PROJECT || process.env.GCP_PROJECT_ID || null,
+  JUDGE_MAX_OUTPUT_TOKENS: toInt(process.env.JUDGE_MAX_OUTPUT_TOKENS, 30),
+  JUDGE_TIMEOUT_MS: toInt(process.env.JUDGE_TIMEOUT_MS, 8000),
+  /** Answer checks a student may use per day. */
+  DAILY_JUDGE_CAP: toInt(process.env.BOT_DAILY_JUDGE_CAP, 100),
   /** Words the student can type to end a session. */
   END_WORDS: ['end', 'stop', 'quit', 'סיים', 'סיום', 'סיימתי', 'די', 'עצור']
 };

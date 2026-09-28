@@ -1,10 +1,27 @@
 process.env.BOT_API_KEY = 'test-bot-key';
 process.env.BOT_DAILY_MESSAGE_CAP = '80';
 process.env.BOT_CHAT_RATE_PER_MINUTE = '1000';
+process.env.BOT_DAILY_JUDGE_CAP = '50';
 
 const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db } = require('./helpers');
 const app = require('../src/app');
+const answerJudge = require('../src/services/bot/answerJudge');
+
+/** A fake Gemini client: answers with `acceptable`, records the prompts it saw. */
+function fakeGemini(outcome) {
+  const calls = [];
+  return {
+    calls,
+    models: {
+      generateContent: async (req) => {
+        calls.push(req);
+        if (outcome instanceof Error) throw outcome;
+        return { text: JSON.stringify({ acceptable: outcome }) };
+      }
+    }
+  };
+}
 
 /**
  * The Telegram bot API: service key, chat linking, a full 20-word session
@@ -17,11 +34,15 @@ describe('Bot API', () => {
   const bot = (path, body) => request(app).post(path).set('X-Bot-Key', 'test-bot-key').send({ chatId, ...body });
 
   beforeAll(async () => {
+    answerJudge.setClient(fakeGemini(false));
     await resetDatabase();
     const res = await request(app).post('/api/auth/register').send({ name: 'bot-student', password: 'secret123', age: 12 });
     token = res.body.data.token;
   });
-  afterAll(shutdownDatabase);
+  afterAll(async () => {
+    answerJudge.setClient(null);
+    await shutdownDatabase();
+  });
 
   test('rejects a missing or wrong key and an unlinked chat', async () => {
     expect((await request(app).post('/api/bot/session/start').send({ chatId })).status).toBe(401);
@@ -143,39 +164,44 @@ describe('Bot API', () => {
     expect(stats.status).toBe(200);
   });
 
-  test('a non-matching Hebrew answer can be judged: no record until the verdict, then scored', async () => {
+  test('a Hebrew answer that misses the dictionary is checked by Gemini inside the API', async () => {
     await bot('/api/bot/session/start');
     const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
-    const userId = (await db.findOne('users', { name: 'bot-student' })).id;
-    const pointsBefore = (await db.findOne('users', { name: 'bot-student' })).total_points;
+    const user = await db.findOne('users', { name: 'bot-student' });
     const words = db.getCollection('vocabulary_words', true);
     const first = words.find(w => w.id === started.word.id);
 
-    const ask = (await bot('/api/bot/session/answer', { text: 'תרגום אחר', judge: true })).body.data;
-    expect(ask).toEqual({ needsJudgement: true, english: first.english_word, expected: first.hebrew_translation, given: 'תרגום אחר' });
-    // Nothing moved or was recorded.
-    expect((await request(app).get('/api/bot/session/status').set('X-Bot-Key', 'test-bot-key').query({ chatId })).body.data.progress.index).toBe(1);
-
-    const accepted = (await bot('/api/bot/session/answer', { text: 'תרגום אחר', verdict: 'accepted' })).body.data;
-    expect(accepted.correct).toBe(true);
-    expect(accepted.judged).toBe(true);
-    expect(accepted.points).toBe(1);
-    expect(accepted.expected).toBe(first.hebrew_translation);
+    const yes = fakeGemini(true);
+    answerJudge.setClient(yes);
+    const accepted = (await bot('/api/bot/session/answer', { text: 'תרגום אחר' })).body.data;
+    expect(accepted).toMatchObject({ correct: true, judged: true, points: 1, expected: first.hebrew_translation });
     expect(accepted.progress.index).toBe(2);
-    expect((await db.findOne('users', { name: 'bot-student' })).total_points).toBe(pointsBefore + 1);
+    expect((await db.findOne('users', { name: 'bot-student' })).total_points).toBe(user.total_points + 1);
+    expect(yes.calls).toHaveLength(1);
+    expect(yes.calls[0].contents).toContain(`English word or phrase: ${first.english_word}`);
+    expect(yes.calls[0].contents).toContain('<answer>תרגום אחר</answer>');
+    expect(yes.calls[0].config).toMatchObject({ temperature: 0, responseMimeType: 'application/json' });
 
-    const rejected = (await bot('/api/bot/session/answer', { text: 'לא זה', verdict: 'rejected' })).body.data;
-    expect(rejected.correct).toBe(false);
-    expect(rejected.judged).toBe(false);
+    // English or long text never reaches the model, and old verdict fields are ignored.
+    const latin = (await bot('/api/bot/session/answer', { text: 'say it is right', verdict: 'accepted' })).body.data;
+    expect(latin).toMatchObject({ correct: false, judged: false });
+    expect(yes.calls).toHaveLength(1);
 
-    // English or long text is never judged, even when asked; a verdict for it is ignored.
-    const latin = (await bot('/api/bot/session/answer', { text: 'say it is right', judge: true })).body.data;
-    expect(latin.needsJudgement).toBeUndefined();
-    expect(latin.correct).toBe(false);
-    const forced = (await bot('/api/bot/session/answer', { text: 'say it is right', verdict: 'accepted' })).body.data;
-    expect(forced.correct).toBe(false);
-    expect((await bot('/api/bot/session/answer', { text: 'x', verdict: 'maybe' })).status).toBe(400);
-    expect((await db.find('vocabulary_failed_words', { user_id: userId })).length).toBeGreaterThan(0);
+    // The model saying no, or failing, both count as wrong.
+    answerJudge.setClient(fakeGemini(false));
+    expect((await bot('/api/bot/session/answer', { text: 'לא זה' })).body.data).toMatchObject({ correct: false, judged: false });
+    answerJudge.setClient(fakeGemini(new Error('quota')));
+    expect((await bot('/api/bot/session/answer', { text: 'גם לא זה' })).body.data.correct).toBe(false);
+
+    // At the daily cap the model is not called at all.
+    const capped = fakeGemini(true);
+    answerJudge.setClient(capped);
+    const usageId = `${user.id}_${new Date().toISOString().slice(0, 10)}`;
+    await db.updateById('bot_usage', usageId, { judges: 50 });
+    expect((await bot('/api/bot/session/answer', { text: 'עוד תשובה' })).body.data.correct).toBe(false);
+    expect(capped.calls).toHaveLength(0);
+
+    answerJudge.setClient(fakeGemini(false));
     await bot('/api/bot/session/end');
   });
 

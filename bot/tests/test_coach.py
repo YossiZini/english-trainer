@@ -1,5 +1,4 @@
-"""The coach: caps and the fast path never call the agent; a dictionary miss
-may call the judge, once."""
+"""The coach: caps and the fast path never call the agent."""
 from datetime import date
 
 import httpx
@@ -21,18 +20,8 @@ class NoAgentRunner:
         yield  # pragma: no cover
 
 
-class FakeJudge:
-    def __init__(self, verdict: bool):
-        self.verdict = verdict
-        self.calls = []
-
-    async def accepts(self, chat_id, english, expected, given):
-        self.calls.append((chat_id, english, expected, given))
-        return self.verdict
-
-
-def coach(judge=None):
-    c = Coach(api=TrainerApi(base_url=API, key="k", client=httpx.AsyncClient()), agent=None, judge=judge or FakeJudge(False))
+def coach():
+    c = Coach(api=TrainerApi(base_url=API, key="k", client=httpx.AsyncClient()), agent=None)
     c.runner = NoAgentRunner()
     return c
 
@@ -77,33 +66,14 @@ async def test_code_start_level_answer_and_end_take_the_fast_path():
 
 
 @respx.mock
-async def test_a_dictionary_miss_asks_the_judge_once_and_sends_its_verdict():
+async def test_an_answer_the_api_accepted_through_gemini_shows_the_dictionary_word():
     respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True}))
-    route = respx.post(f"{API}/bot/session/answer").mock(side_effect=[
-        ok({"needsJudgement": True, "english": "cat", "expected": "חתול", "given": "חתלתול"}),
-        ok({"correct": True, "judged": True, "expected": "חתול", "points": 1, "roundStarted": False, "done": False,
-            "word": {"id": "w2", "english": "dog"}, "progress": progress(2)}),
-    ])
-    judge = FakeJudge(True)
-    reply = await coach(judge).handle("7", "חתלתול")
+    route = respx.post(f"{API}/bot/session/answer").mock(return_value=ok({
+        "correct": True, "judged": True, "expected": "חתול", "points": 1, "roundStarted": False, "done": False,
+        "word": {"id": "w2", "english": "dog"}, "progress": progress(2)}))
+    reply = await coach().handle("7", "חתלתול")
     assert reply.text == "✅ נכון! +1\nבמילון: חתול\n(2/20) dog"
-    assert judge.calls == [("7", "cat", "חתול", "חתלתול")]
-    first, second = (__import__("json").loads(c.request.content) for c in route.calls)
-    assert first == {"chatId": "7", "text": "חתלתול", "judge": True}
-    assert second == {"chatId": "7", "text": "חתלתול", "verdict": "accepted"}
-
-
-@respx.mock
-async def test_a_rejected_judgement_is_sent_as_rejected():
-    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True}))
-    route = respx.post(f"{API}/bot/session/answer").mock(side_effect=[
-        ok({"needsJudgement": True, "english": "cat", "expected": "חתול", "given": "כלב"}),
-        ok({"correct": False, "judged": False, "expected": "חתול", "points": 0, "roundStarted": False, "done": False,
-            "word": {"id": "w2", "english": "dog"}, "progress": progress(2)}),
-    ])
-    reply = await coach(FakeJudge(False)).handle("7", "כלב")
-    assert reply.text.startswith("❌ לא בדיוק. התרגום: חתול")
-    assert b'"verdict":"rejected"' in route.calls.last.request.content.replace(b" ", b"")
+    assert __import__("json").loads(route.calls.last.request.content) == {"chatId": "7", "text": "חתלתול"}
 
 
 @respx.mock

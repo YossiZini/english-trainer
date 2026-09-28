@@ -34,11 +34,5 @@ API_TIMEOUT_SECONDS = _int("API_TIMEOUT_SECONDS", 10)
 # call: the verdict comes from the API anyway, and it keeps the bill flat.
 FAST_PATH_ANSWERS = os.environ.get("FAST_PATH_ANSWERS", "true").lower() != "false"
 
-# A Hebrew answer that misses the dictionary gets one short Gemini check.
-JUDGE_ANSWERS = os.environ.get("JUDGE_ANSWERS", "true").lower() != "false"
-JUDGE_MODEL = os.environ.get("JUDGE_MODEL", MODEL)
-MAX_JUDGES_PER_CHAT_PER_DAY = _int("MAX_JUDGES_PER_CHAT_PER_DAY", 100)
-JUDGE_MAX_OUTPUT_TOKENS = _int("JUDGE_MAX_OUTPUT_TOKENS", 30)
-
 END_WORDS = {"end", "stop", "quit", "סיים", "סיום", "סיימתי", "די", "עצור"}
 START_WORDS = {"words", "word", "start", "מילים", "מילה", "התחל", "תרגול"}
