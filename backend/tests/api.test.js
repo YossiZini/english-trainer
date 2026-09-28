@@ -189,6 +189,28 @@ describe('API', () => {
     expect(stats.status).toBe(200);
   });
 
+  test('the dashboard keeps each subject apart: next lesson, completion, last activity', async () => {
+    const res = await request(app).get('/api/progress/dashboard').set(auth());
+    expect(res.status).toBe(200);
+    const { subjects, completion, recentActivity } = res.body.data;
+    const math = await request(app).get('/api/lessons?subject=math').set(auth());
+    const mathLessons = math.body.data.flatMap(t => t.lessons);
+
+    // Totals split the lessons between the subjects.
+    expect(subjects.math.completion.total_lessons).toBe(mathLessons.length);
+    expect(subjects.english.completion.total_lessons + subjects.math.completion.total_lessons)
+      .toBe(completion.total_lessons);
+
+    // Each subject continues in its own lessons, even though Math comes after every English lesson.
+    expect(Number(subjects.english.nextLesson.subtopic_number)).toBeLessThan(101);
+    expect(subjects.math.nextLesson.subtopic_number).toBe('101.1');
+
+    // Last activity per subject: the Math exercise submitted above, and the English one before it.
+    expect(subjects.math.lastActivity).toMatchObject({ subject: 'math', lesson_id: mathLessons[6].id, difficulty: 'easy' });
+    expect(subjects.english.lastActivity.subject).toBe('english');
+    expect(recentActivity.map(a => a.subject).sort()).toEqual(['english', 'math']);
+  });
+
   test('reading passages, achievements, challenges and dashboard respond', async () => {
     for (const path of ['/api/unseen/paragraphs', '/api/achievements', '/api/challenges/today',
       '/api/progress/dashboard', '/api/progress/stats', '/api/kanban/tasks']) {

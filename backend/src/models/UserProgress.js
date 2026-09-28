@@ -1,5 +1,14 @@
 const { db } = require('../config/database');
 
+/** A lesson's subject; content before the Math tab has none and is English. */
+const subjectOf = (lesson) => (lesson && lesson.subject) || 'english';
+
+/** The bundled lessons of one subject, or all lessons without a subject. */
+const lessonsOf = (subject) => {
+  const lessons = db.getCollection('lessons', true);
+  return subject ? lessons.filter(l => subjectOf(l) === subject) : lessons;
+};
+
 class UserProgress {
   /**
    * Get or create progress for a lesson
@@ -216,7 +225,11 @@ class UserProgress {
   /**
    * Get recent activity (last N attempts)
    */
-  static async getRecentActivity(userId, limit = 10) {
+  /**
+   * Latest exercise results with their lesson, newest first. `subject`
+   * ('english' | 'math') keeps one subject; no subject keeps all.
+   */
+  static async getRecentActivity(userId, limit = 10, { subject } = {}) {
     const results = await db.find('exercise_results', { user_id: userId });
 
     // Get lessons for joining
@@ -239,9 +252,10 @@ class UserProgress {
         difficulty: er.difficulty,
         title_he: lesson?.title_he,
         title_en: lesson?.title_en,
-        subtopic_number: lesson?.subtopic_number
+        subtopic_number: lesson?.subtopic_number,
+        subject: subjectOf(lesson)
       };
-    });
+    }).filter(a => !subject || a.subject === subject);
 
     // Sort by completed_at descending
     activity.sort((a, b) => {
@@ -256,8 +270,8 @@ class UserProgress {
   /**
    * Get next lesson to study (first incomplete or not started)
    */
-  static async getNextLesson(userId) {
-    const lessons = db.getCollection('lessons', true);
+  static async getNextLesson(userId, { subject } = {}) {
+    const lessons = lessonsOf(subject);
     const progress = await db.findByIndex('user_progress', 'user_id', userId);
     const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
@@ -285,11 +299,12 @@ class UserProgress {
   /**
    * Get lesson completion percentage
    */
-  static async getCompletionPercentage(userId) {
-    const lessons = db.getCollection('lessons', true);
+  static async getCompletionPercentage(userId, { subject } = {}) {
+    const lessons = lessonsOf(subject);
+    const ids = new Set(lessons.map(l => l.id));
     const progress = await db.findByIndex('user_progress', 'user_id', userId);
 
-    const completedLessons = progress.filter(p => p.status === 'completed').length;
+    const completedLessons = progress.filter(p => p.status === 'completed' && ids.has(p.lesson_id)).length;
     const totalLessons = lessons.length;
 
     const percentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
