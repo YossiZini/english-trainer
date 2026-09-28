@@ -25,6 +25,7 @@ Cloud Storage. **Every push to `main` deploys** via `.github/workflows/deploy.ym
 after the backend tests pass on the Firestore emulator (`cd backend && npm test`).
 
 - Operations reference: `/docs/deployment.md`
+- Telegram bot (ADK agent, bot API, caps): `/docs/telegram-bot.md`
 - Curriculum content is generated from seed files (`npm run generate-data`) and
   bundled read-only; student data is never stored in the repository.
 - Never commit service-account keys or secrets; the JWT secret lives in Secret Manager.

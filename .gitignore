@@ -40,3 +40,8 @@ coverage/
 # Firebase emulator logs
 *-debug.log
 .firebase/
+
+# Python (bot service)
+bot/.venv/
+__pycache__/
+.pytest_cache/
