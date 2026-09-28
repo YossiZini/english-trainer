@@ -57,6 +57,9 @@ when the subcommand does not apply.
 ### `start <scope in the user's words>`
 
 Allowed when `meta/sprint` is missing or `status = closed`.
+0. If a PR is still open on the work branch (usually the previous sprint's
+   archive), ask the user to merge it first, so the new sprint's first push
+   is not blocked.
 1. New number = previous number + 1. Record `baseRef` = current `origin/main`
    sha (`git fetch origin main && git rev-parse origin/main`).
 2. Turn the user's text into a one-sentence `goal` and 3–7 `scope` bullets.
