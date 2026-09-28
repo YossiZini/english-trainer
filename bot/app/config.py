@@ -36,3 +36,16 @@ FAST_PATH_ANSWERS = os.environ.get("FAST_PATH_ANSWERS", "true").lower() != "fals
 
 END_WORDS = {"end", "stop", "quit", "סיים", "סיום", "סיימתי", "די", "עצור"}
 START_WORDS = {"words", "word", "start", "מילים", "מילה", "התחל", "תרגול"}
+# Start the next lesson's exercises of a subject. Two words each on purpose:
+# a single word like "חשבון" is also a vocabulary answer ("account").
+EXERCISE_WORDS = {
+    "תרגיל אנגלית": "english", "תרגול אנגלית": "english", "תרגילים אנגלית": "english",
+    "תרגיל חשבון": "math", "תרגול חשבון": "math", "תרגילים חשבון": "math", "תרגיל מתמטיקה": "math",
+}
+# Open the numbered lesson list of a subject; the student answers with a number.
+LESSONS_WORDS = {
+    "שיעורים אנגלית": "english", "רשימת שיעורים אנגלית": "english",
+    "שיעורים חשבון": "math", "שיעורים מתמטיקה": "math", "רשימת שיעורים חשבון": "math",
+}
+# Optional last word of an exercise command: "תרגיל אנגלית קשה", "תרגיל חשבון 3 קל".
+DIFFICULTY_WORDS = {"קל": "easy", "בינוני": "medium", "קשה": "hard", "easy": "easy", "medium": "medium", "hard": "hard"}

@@ -160,8 +160,8 @@ class BotService {
   static async status(chatId) {
     const session = await BotSession.findOpenByChat(chatId);
     if (!session) return { active: false };
-    if (session.status === 'setup') return { active: true, sessionId: session.id, ...setupView(session) };
-    return { active: true, sessionId: session.id, word: wordView(await currentWord(session)), progress: progress(session) };
+    if (session.status === 'setup') return { active: true, kind: 'vocab', sessionId: session.id, ...setupView(session) };
+    return { active: true, kind: 'vocab', sessionId: session.id, word: wordView(await currentWord(session)), progress: progress(session) };
   }
 }
 

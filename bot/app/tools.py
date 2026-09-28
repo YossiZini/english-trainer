@@ -5,6 +5,7 @@ from google.adk.tools import ToolContext
 
 from . import replies
 from .api_client import TrainerApi
+from .exercise_replies import exercise_start_reply, lesson_list_reply
 
 _api: TrainerApi | None = None
 
@@ -30,7 +31,7 @@ async def start_session(tool_context: ToolContext) -> dict:
 
 
 async def answer_word(text: str, tool_context: ToolContext) -> dict:
-    """Submit the student's Hebrew translation of the current word; returns the verdict and the next word."""
+    """Submit the student's answer in the open session (a word's translation, or an exercise option number); returns the verdict and what comes next."""
     return {"reply": str(replies.answer_reply(await _api.answer(_chat(tool_context), text)))}
 
 
@@ -44,4 +45,24 @@ async def session_status(tool_context: ToolContext) -> dict:
     return {"reply": str(replies.status_reply(await _api.status(_chat(tool_context))))}
 
 
-TOOLS = [link_account, start_session, answer_word, end_session, session_status]
+def _subject(subject: str) -> str:
+    return "math" if subject.strip().lower() in ("math", "חשבון", "מתמטיקה") else "english"
+
+
+async def start_lesson_exercise(subject: str, tool_context: ToolContext, number: int = 0, difficulty: str = "") -> dict:
+    """Start a lesson's exercises. subject is "english" or "math"; number is the lesson's number in the
+    subject's lesson list, or 0 for the student's next lesson; difficulty is "easy", "medium", "hard"
+    or "" for the student's current level."""
+    level = difficulty.strip().lower()
+    level = level if level in ("easy", "medium", "hard") else None
+    result = await _api.exercise_start(_chat(tool_context), subject=_subject(subject), number=number or None,
+                                       difficulty=level)
+    return {"reply": str(exercise_start_reply(result))}
+
+
+async def list_lessons(subject: str, tool_context: ToolContext) -> dict:
+    """Show the numbered lesson list of a subject ("english" or "math") so the student can pick one by number."""
+    return {"reply": str(lesson_list_reply(await _api.exercise_lessons(_chat(tool_context), _subject(subject))))}
+
+
+TOOLS = [link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise, list_lessons]

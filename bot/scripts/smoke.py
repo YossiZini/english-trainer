@@ -1,8 +1,12 @@
 """End-to-end check without Telegram or a model: registers a student on the
-local API, links a fake chat with a real code, and walks a short session
-through the coach's fast path. Run with the emulator-backed API on :5000:
+local API, links a fake chat with a real code, and walks a short vocabulary
+session, a lesson's exercises and the lesson list through the coach's fast
+path. Run with the emulator-backed API on :5000:
 
     API_URL=http://127.0.0.1:5000/api BOT_API_KEY=dev_bot_key .venv/bin/python scripts/smoke.py
+
+It sends about 30 messages from one chat; start the API with
+BOT_CHAT_RATE_PER_MINUTE=1000 to run it more than once a minute.
 """
 import asyncio
 import os
@@ -34,6 +38,14 @@ async def main() -> int:
     for text in ["בטח לא", "גם לא", "עדיין לא"]:
         print(f"> {text}\n<", await say(text))
     print("> סיים\n<", await say("סיים"))
+    # Lesson exercises: next lesson, an invalid number, two answers, early end.
+    for text in ["תרגיל אנגלית", "9", "1", "2", "סיים"]:
+        print(f"> {text}\n<", await say(text))
+    # The lesson list: page 2, an unknown number, pick lesson 12, end.
+    for text in ["שיעורים אנגלית", "עוד", "500", "12", "1", "סיים"]:
+        print(f"> {text}\n<", await say(text))
+    for text in ["תרגיל חשבון 3 קשה", "?", "סיים"]:
+        print(f"> {text}\n<", await say(text))
     print("> שלום\n<", await say("שלום") if coach.runner else "(agent path skipped: no model)")
     return 0
 

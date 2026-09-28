@@ -48,5 +48,17 @@ class TrainerApi:
     async def end(self, chat_id: str) -> dict:
         return await self._call("POST", "/bot/session/end", chat_id)
 
+    async def exercise_start(self, chat_id: str, subject: str | None = None, lesson_id: str | None = None,
+                             number: int | None = None, difficulty: str | None = None) -> dict:
+        fields = {"subject": subject} if subject else {"lessonId": lesson_id}
+        if number:
+            fields["number"] = number
+        if difficulty:
+            fields["difficulty"] = difficulty
+        return await self._call("POST", "/bot/exercise/start", chat_id, **fields)
+
+    async def exercise_lessons(self, chat_id: str, subject: str) -> dict:
+        return await self._call("POST", "/bot/exercise/lessons", chat_id, subject=subject)
+
     async def status(self, chat_id: str) -> dict:
         return await self._call("GET", "/bot/session/status", chat_id)

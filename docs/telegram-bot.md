@@ -1,6 +1,7 @@
-# Telegram vocabulary bot
+# Telegram practice bot
 
-A student practises vocabulary from Telegram: the bot sends an English word,
+A student practises from Telegram in two ways: vocabulary (below) and a
+lesson's exercises, English or Math (see "Lesson exercises"). For vocabulary, the bot sends an English word,
 the student answers in Hebrew, the bot says ✅ or ❌ (with the translation)
 and sends the next word. After 20 words the failed ones come back, shuffled,
 round after round, until none are left. "סיים" ends the session.
@@ -26,17 +27,57 @@ round after round, until none are left. "סיים" ends the session.
    `vocabulary_failed_words`, `vocabulary_word_scores` and the
    accumulated-fails counter that triggers the web app's review mode.
 
+## Lesson exercises
+
+The same questions, grading and points as the web lesson page, one question
+per message.
+
+| Command | What happens |
+|---|---|
+| "תרגיל אנגלית" / "תרגיל חשבון" (also תרגול…, תרגילים…, "תרגיל מתמטיקה") | the subject's next lesson (curriculum order) |
+| "שיעורים אנגלית" / "שיעורים חשבון" | numbered lesson list, 10 per page, ✅ passed / ▶️ next; "עוד" / "הקודם" turn the page; the student sends a number |
+| "תרגיל אנגלית 12" | lesson 12 of that list, directly |
+| "תרגיל אנגלית קשה", "תרגיל חשבון 3 קל" | the same, at a chosen level (קל / בינוני / קשה) instead of the progress-based one |
+| "?" (or "רמז") during a question | the question's hint and the same question; not an answer (no exercise has a hint yet, so it says there is none) |
+| "סיים" | stops; nothing is recorded for a half-done lesson |
+
+Commands are two words on purpose: a single word such as "חשבון" is also a
+vocabulary answer ("account"). The bot calls `POST /api/bot/exercise/start`
+(a subject, a subject and a list number, or a lesson id) and
+`POST /api/bot/exercise/lessons` (a subject); the list's page turns and the
+picked number go through `/api/bot/session/answer` like any answer.
+
+1. The API picks 10 questions with `LessonService.getExercises` (the web's
+   difficulty choice and option shuffle) and freezes them in the session
+   (`bot_sessions`, `kind: exercise`).
+2. A multiple-choice question lists its options as "1) …" with buttons 1..n
+   (3 or 4 options). Only an option number is an answer; anything else
+   repeats the question and records nothing. A fill-in question takes the
+   text and removes the keyboard.
+3. Each answer gets ✅ or ❌ with the right answer and the explanation.
+4. After the last answer all answers go to `ExerciseService.submitExercise`:
+   score, points (+1 right, −2 wrong, +3 at 70 or more), mistakes, progress
+   and the next lesson are exactly the web's. The summary shows them with
+   the level, and after a pass suggests the same lesson one level up
+   ("תרגיל אנגלית 12 קשה").
+
+Starting an exercise ends an open vocabulary session and the other way
+round; `/api/bot/session/answer`, `end` and `status` route to the open
+session's kind (`services/bot/sessionKinds.js`). Exercise answers never
+touch the model.
+
 ## Architecture
 
 ```
 Telegram ──webhook──► Cloud Run: english-trainer-bot (bot/, Python, Google ADK)
                           │  verifies X-Telegram-Bot-Api-Secret-Token
-                          │  fast path: code / start / end / answers while a session is active
+                          │  fast path: code / start / exercise / lesson-list / end words, answers while a session is active
                           │  otherwise: ADK LlmAgent (Gemini Flash on Vertex AI) with tools
                           ▼  every tool = one call to the trainer API with X-Bot-Key + chatId
                        Cloud Run: english-trainer-api  /api/bot/*  (backend/)
                           │  chat → student through telegram_links (one-time code from the web app)
                           │  word selection, answer matching, rounds, counters, rate limits
+                          │  lesson exercises: questions, verdicts, grading through ExerciseService
                           │  a dictionary miss: one yes/no from Gemini (Vertex AI)
                           ▼
                        Firestore: bot_sessions, telegram_links, bot_usage (+ vocabulary_word_scores)
@@ -70,11 +111,11 @@ service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 
 | Piece | Where |
 |---|---|
-| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
+| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/sessionKinds.js`, `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
 | Student side of linking | `backend/src/routes/telegram.routes.js`, web page `/settings/telegram` |
-| Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `coach.py`, `main.py`) |
+| Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `coach.py`, `main.py`) |
 | Cloud Run spec, secrets | `infra/cloudrun-bot.yaml`, `infra/setup-bot.sh`, `infra/set-webhook.sh` |
-| Tests | `backend/tests/bot.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
+| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
 | Local end-to-end | `bot/scripts/smoke.py` |
 
 ## Security
