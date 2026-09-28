@@ -32,19 +32,20 @@ async def main() -> int:
     say = lambda t: coach.handle(chat, t)
     print("> שלום\n<", await say("שלום"))
     print(f"> {code}\n<", await say(code))
-    print("> מילים\n<", await say("מילים"))
+    print("> words\n<", await say("words"))
     print("> 1\n<", await say("1"))
     print("> ?\n<", await say("?"))
     for text in ["בטח לא", "גם לא", "עדיין לא"]:
         print(f"> {text}\n<", await say(text))
-    print("> סיים\n<", await say("סיים"))
+    print("> /help\n<", await say("/help"))
+    print("> end\n<", await say("end"))
     # Lesson exercises: next lesson, an invalid number, two answers, early end.
-    for text in ["תרגיל אנגלית", "9", "1", "2", "סיים"]:
+    for text in ["/english", "9", "1", "2", "/end"]:
         print(f"> {text}\n<", await say(text))
     # The lesson list: page 2, an unknown number, pick lesson 12, end.
-    for text in ["שיעורים אנגלית", "עוד", "500", "12", "1", "סיים"]:
+    for text in ["lessons english", "more", "500", "12", "1", "end"]:
         print(f"> {text}\n<", await say(text))
-    for text in ["תרגיל חשבון 3 קשה", "?", "סיים"]:
+    for text in ["math 3 hard", "?", "end"]:
         print(f"> {text}\n<", await say(text))
     print("> שלום\n<", await say("שלום") if coach.runner else "(agent path skipped: no model)")
     return 0

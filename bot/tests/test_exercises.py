@@ -6,7 +6,8 @@ import respx
 
 from app import exercise_replies as er
 from app.api_client import TrainerApi
-from app.coach import Coach
+from app import replies
+from app.coach import Coach, parse_command
 
 API = "http://api.test/api"
 LESSON = {"id": "L1", "title": "חלקי הדיבור", "subject": "english", "difficulty": "easy"}
@@ -28,6 +29,10 @@ def ok(data):
     return httpx.Response(200, json={"success": True, "data": data})
 
 
+def no_session():
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": False}))
+
+
 def mc(number, options):
     return {"number": number, "total": 10, "type": "multiple_choice", "text": 'מהו חלק הדיבור של "book"?',
             "textEn": None, "options": options}
@@ -39,9 +44,10 @@ def fill(number):
 
 @respx.mock
 async def test_command_starts_the_subject_lesson_with_numbered_options_and_buttons():
+    no_session()
     route = respx.post(f"{API}/bot/exercise/start").mock(return_value=ok(
         {"kind": "exercise", "sessionId": "s", "lesson": LESSON, "question": mc(1, ["Noun", "Verb", "Adjective", "Adverb"])}))
-    reply = await coach().handle("7", "תרגיל אנגלית")
+    reply = await coach().handle("7", "/english")
     assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "english"}
     assert reply.text.splitlines()[1:] == [
         "📘 חלקי הדיבור · קל · שאלה 1/10", 'מהו חלק הדיבור של "book"?', "1) Noun", "2) Verb", "3) Adjective", "4) Adverb"]
@@ -49,7 +55,7 @@ async def test_command_starts_the_subject_lesson_with_numbered_options_and_butto
 
     respx.post(f"{API}/bot/exercise/start").mock(return_value=ok(
         {"kind": "exercise", "sessionId": "s", "lesson": {**LESSON, "subject": "math"}, "question": mc(1, ["1/2", "1/3", "2/3"])}))
-    three = await coach().handle("7", "תרגיל חשבון")
+    three = await coach().handle("7", "math")
     assert three.buttons == ["1", "2", "3"]
 
 
@@ -69,7 +75,7 @@ async def test_answers_go_to_the_open_exercise_and_show_the_verdict():
     assert again.text.startswith("ענו במספר בין 1 ל-4:") and again.buttons == ["1", "2", "3", "4"]
     wrong = await c.handle("7", "2")
     assert wrong.text.startswith("❌ לא נכון. התשובה: 1) Noun\n💡 book הוא שם עצם.")
-    assert wrong.text.endswith('כתבו את התשובה ("?" לרמז):') and wrong.buttons == []  # fill-in: keyboard removed
+    assert wrong.text.endswith("כתבו את התשובה (? לרמז):") and wrong.buttons == []  # fill-in: keyboard removed
     right = await c.handle("7", "1")
     assert right.text.startswith("✅ נכון!") and right.buttons == ["1", "2", "3", "4"]
 
@@ -83,11 +89,11 @@ def test_final_summary_and_early_end():
     assert '🏁 סיימתם את "חלקי הדיבור" (רמה: קל): 9/10 נכונות, ציון 90.' in done.text
     assert "רוצים אתגר" not in done.text  # no list number known
     assert "עברתם את השיעור!" in done.text and "⭐ +10 נקודות (סה\"כ 57)." in done.text
-    assert 'השיעור הבא: מבנה המשפט. כתבו "תרגיל אנגלית" כדי להמשיך.' in done.text
+    assert 'השיעור הבא: מבנה המשפט. כתבו /english כדי להמשיך.' in done.text
 
     failed = er.result_text({"lesson": {**LESSON, "subject": "math"}, "result": {
         "score": 40, "passed": False, "correct": 4, "total": 10, "pointsEarned": -8, "totalPoints": 30, "nextLesson": None}})
-    assert "כדי לעבור צריך ציון 70" in failed and "⭐ -8 נקודות" in failed and 'כתבו "תרגיל חשבון"' in failed
+    assert "כדי לעבור צריך ציון 70" in failed and "⭐ -8 נקודות" in failed and 'כתבו /math' in failed
 
     ended = er.exercise_answer_reply({"kind": "exercise", "done": True, "ended": True, "lesson": LESSON,
                                       "answered": 3, "correct": 2, "total": 10})
@@ -96,8 +102,9 @@ def test_final_summary_and_early_end():
 
 @respx.mock
 async def test_errors_become_hebrew_replies():
+    no_session()
     respx.post(f"{API}/bot/exercise/start").mock(return_value=httpx.Response(409, json={"code": "all_done"}))
-    assert (await coach().handle("7", "תרגיל חשבון")).text == er.ALL_DONE
+    assert (await coach().handle("7", "math")).text == er.ALL_DONE
 
 
 def page(n, pages=10, statuses=("done", "next", "open")):
@@ -109,10 +116,10 @@ def page(n, pages=10, statuses=("done", "next", "open")):
 @respx.mock
 async def test_lesson_list_marks_paging_and_pick():
     route = respx.post(f"{API}/bot/exercise/lessons").mock(return_value=ok(page(1)))
-    listed = await coach().handle("7", "שיעורים חשבון")
+    listed = await coach().handle("7", "/lessons_math")
     assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "math"}
     assert listed.text.splitlines()[:4] == ["📚 שיעורי חשבון · עמוד 1/10", "1. ✅ שיעור 0", "2. ▶️ שיעור 1", "3. שיעור 2"]
-    assert listed.buttons == ["עוד"]
+    assert listed.buttons == ["more"]
 
     respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True, "kind": "exercise", "pick": True}))
     respx.post(f"{API}/bot/session/answer").mock(side_effect=[
@@ -122,8 +129,8 @@ async def test_lesson_list_marks_paging_and_pick():
         httpx.Response(409, json={"code": "no_exercises"}),
     ])
     c = coach()
-    more = await c.handle("7", "עוד")
-    assert more.text.splitlines()[1] == "11. שיעור 0" and more.buttons == ["הקודם", "עוד"]
+    more = await c.handle("7", "more")
+    assert more.text.splitlines()[1] == "11. שיעור 0" and more.buttons == ["back", "more"]
     bad = await c.handle("7", "999")
     assert bad.text.startswith(er.PICK_INVALID)
     picked = await c.handle("7", "12")
@@ -131,14 +138,15 @@ async def test_lesson_list_marks_paging_and_pick():
     assert (await c.handle("7", "13")).text == er.NO_EXERCISES
 
     assert er.exercise_end_reply({"kind": "exercise", "ended": True, "pickClosed": True}).text == er.PICK_CLOSED
-    assert er.lesson_list_text(page(10)).buttons == ["הקודם"]
+    assert er.lesson_list_text(page(10)).buttons == ["back"]
 
 
 @respx.mock
 async def test_numbered_command_starts_that_lesson():
+    no_session()
     route = respx.post(f"{API}/bot/exercise/start").mock(return_value=ok(
         {"kind": "exercise", "sessionId": "s", "lesson": LESSON, "question": fill(1)}))
-    reply = await coach().handle("7", "תרגיל אנגלית 12")
+    reply = await coach().handle("7", "english 12")
     assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "english", "number": 12}
     assert reply.text.startswith(er.START_INTRO)
 
@@ -154,26 +162,53 @@ def test_passed_lesson_suggests_the_next_level():
     lesson = {**LESSON, "number": 12, "difficulty": "medium"}
     text = er.result_text({"lesson": lesson, "result": {"score": 80, "passed": True, "correct": 8, "total": 10,
                                                          "pointsEarned": 7, "totalPoints": 20, "nextDifficulty": "hard"}})
-    assert '(רמה: בינוני)' in text and 'כתבו "תרגיל אנגלית 12 קשה" לאותו שיעור ברמה קשה.' in text
+    assert '(רמה: בינוני)' in text and 'כתבו "/english 12 hard" לאותו שיעור ברמה קשה.' in text
     hardest = er.result_text({"lesson": {**lesson, "difficulty": "hard"}, "result": {
         "score": 80, "passed": True, "correct": 8, "total": 10, "pointsEarned": 7, "totalPoints": 20, "nextDifficulty": None}})
     assert "רוצים אתגר" not in hardest
 
 
-def test_exercise_command_parsing():
-    parse = Coach.exercise_command
-    assert parse("תרגיל אנגלית") == {"subject": "english", "number": None, "difficulty": None}
-    assert parse("תרגיל חשבון קשה") == {"subject": "math", "number": None, "difficulty": "hard"}
-    assert parse("תרגיל אנגלית 12 בינוני") == {"subject": "english", "number": 12, "difficulty": "medium"}
-    assert parse("תרגיל אנגלית 12") == {"subject": "english", "number": 12, "difficulty": None}
-    assert parse("תרגיל אנגלית מחר") is None
-    assert parse("חשבון") is None and parse("מילים") is None
+def test_english_commands():
+    assert parse_command("/help") == ("help", {}) and parse_command("help") == ("help", {})
+    assert parse_command("/start") == ("help", {}) and parse_command("/help@Yzteacher_bot") == ("help", {})
+    assert parse_command("Words") == ("words", {}) and parse_command("/end") == ("end", {})
+    assert parse_command("english") == ("exercise", {"subject": "english", "number": None, "difficulty": None})
+    assert parse_command("/math hard") == ("exercise", {"subject": "math", "number": None, "difficulty": "hard"})
+    assert parse_command("english 12 medium") == ("exercise", {"subject": "english", "number": 12, "difficulty": "medium"})
+    assert parse_command("/lessons_math") == ("lessons", {"subject": "math"})
+    assert parse_command("lessons english") == ("lessons", {"subject": "english"})
+    assert parse_command("lessons") == ("lessons", {})
+    # Hebrew words are answers, never commands; unknown extras are not commands either.
+    for text in ["מילים", "סיים", "די", "מילה", "תרגיל אנגלית", "english tomorrow", "lessons history", "help me"]:
+        assert parse_command(text) is None, text
+
+
+@respx.mock
+async def test_help_needs_no_api_and_bare_words_answer_an_open_question():
+    assert (await coach().handle("7", "/help")).text == replies.HELP
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok(
+        {"active": True, "kind": "exercise", "lesson": LESSON, "question": fill(2)}))
+    answer = respx.post(f"{API}/bot/session/answer").mock(return_value=ok(
+        {"kind": "exercise", "done": False, "lesson": LESSON, "question": fill(3),
+         "verdict": {"correct": True, "correctAnswer": "help"}}))
+    c = coach()
+    # "help" may be the fill-in answer ("Can you ___ me?"); "/help" is always the command.
+    assert (await c.handle("7", "help")).text.startswith("✅ נכון!")
+    assert json.loads(answer.calls.last.request.content)["text"] == "help"
+    assert (await c.handle("7", "/help")).text == replies.HELP
+
+
+@respx.mock
+async def test_lessons_without_a_subject_offers_both():
+    no_session()
+    reply = await coach().handle("7", "lessons")
+    assert reply.text == replies.WHICH_LESSONS and reply.buttons == ["lessons english", "lessons math"]
 
 
 @respx.mock
 async def test_difficulty_goes_to_the_api():
     route = respx.post(f"{API}/bot/exercise/start").mock(return_value=ok(
         {"kind": "exercise", "sessionId": "s", "lesson": {**LESSON, "difficulty": "hard"}, "question": fill(1)}))
-    reply = await coach().handle("7", "תרגיל אנגלית 3 קשה")
+    reply = await coach().handle("7", "/english 3 hard")
     assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "english", "number": 3, "difficulty": "hard"}
     assert "📘 חלקי הדיבור · קשה · שאלה 1/10" in reply.text

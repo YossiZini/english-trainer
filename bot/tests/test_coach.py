@@ -57,12 +57,12 @@ async def test_code_start_level_answer_and_end_take_the_fast_path():
         "done": True, "summary": {"words": 20, "rounds": 1, "correct": 1, "wrong": 0, "remainingFailed": 19}}))
     c = coach()
     assert (await c.handle("7", "123456")).text == replies.LINKED
-    setup = await c.handle("7", "מילים")
+    setup = await c.handle("7", "/words")
     assert setup.text == "מתחילים תרגול של 20 מילים.\nאיזו רמה?\n1. קל\n2. בינוני\n3. קשה" and setup.buttons == ["1", "2", "3"]
     started = await c.handle("7", "1")
     assert started.text == "רמה קל. תרגמו לעברית (\"?\" למשפט לדוגמה):\n(1/20) cat" and started.buttons == []
     assert (await c.handle("7", "חתול")).text.startswith("✅ נכון! +1")
-    assert "נשארו 19 מילים" in (await c.handle("7", "סיים")).text
+    assert "נשארו 19 מילים" in (await c.handle("7", "end")).text
 
 
 @respx.mock
@@ -87,10 +87,11 @@ async def test_turn_cap_short_circuits():
     c.turns = DailyTurnCounter(1)
     assert (await c.handle("5", "")).text == replies.HELP  # empty text never counts
     with respx.mock:
+        respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": False}))
         respx.post(f"{API}/bot/session/start").mock(return_value=ok({
             "sessionId": "s", "setup": "level", "options": [{"key": 1, "label": "קל"}]}))
-        assert (await c.handle("5", "מילים")).text.startswith("מתחילים")
-    assert (await c.handle("5", "מילים")).text == replies.RATE_LIMITED
+        assert (await c.handle("5", "words")).text.startswith("מתחילים")
+    assert (await c.handle("5", "words")).text == replies.RATE_LIMITED
 
 
 @respx.mock

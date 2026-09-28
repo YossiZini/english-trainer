@@ -92,7 +92,7 @@ describe('Bot API', () => {
     const invalid = (await bot('/api/bot/session/answer', { text: 'Band 2' })).body.data;
     expect(invalid.invalid).toBe(true);
     expect(invalid.setup).toBe('level');
-    const hard = (await bot('/api/bot/session/answer', { text: 'קשה' })).body.data;
+    const hard = (await bot('/api/bot/session/answer', { text: 'Hard' })).body.data;
     expect(hard.started).toBe(true);
     expect(hard.level).toBe('קשה');
     // Starting again replaces it; this time easy words.
@@ -200,6 +200,10 @@ describe('Bot API', () => {
     await db.updateById('bot_usage', usageId, { judges: 50 });
     expect((await bot('/api/bot/session/answer', { text: 'עוד תשובה' })).body.data.correct).toBe(false);
     expect(capped.calls).toHaveLength(0);
+    // Hebrew words are answers, never commands: 'די' (quite) does not end the session.
+    const quite = (await bot('/api/bot/session/answer', { text: 'די' })).body.data;
+    expect(quite.ended).toBeUndefined();
+    expect(quite.correct).toBe(false);
 
     answerJudge.setClient(fakeGemini(false));
     await bot('/api/bot/session/end');
@@ -213,7 +217,7 @@ describe('Bot API', () => {
     const words = db.getCollection('vocabulary_words', true);
     const word = words.find(w => w.id === started.word.id);
 
-    for (const text of ['?', 'דוגמה', ' Example ']) {
+    for (const text of ['?', 'hint', ' Example ']) {
       const reply = (await bot('/api/bot/session/answer', { text })).body.data;
       expect(reply.example).toBe(true);
       expect(reply.sentence).toBe(word.sentence_en || null);
@@ -235,7 +239,7 @@ describe('Bot API', () => {
     expect((await db.findById('bot_sessions', first.body.data.sessionId)).status).toBe('ended');
 
     await bot('/api/bot/session/answer', { text: '1' });
-    const ended = (await bot('/api/bot/session/answer', { text: 'סיים' })).body.data;
+    const ended = (await bot('/api/bot/session/answer', { text: 'end' })).body.data;
     expect(ended.done).toBe(true);
     expect(ended.summary.words).toBe(20);
     expect(typeof ended.summary.totalPoints).toBe('number');

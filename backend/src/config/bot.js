@@ -34,8 +34,12 @@ module.exports = {
   JUDGE_TIMEOUT_MS: toInt(process.env.JUDGE_TIMEOUT_MS, 8000),
   /** Answer checks a student may use per day. */
   DAILY_JUDGE_CAP: toInt(process.env.BOT_DAILY_JUDGE_CAP, 100),
-  /** Words the student can type to end a session. */
-  END_WORDS: ['end', 'stop', 'quit', 'סיים', 'סיום', 'סיימתי', 'די', 'עצור'],
+  /**
+   * Commands are English on purpose: a Hebrew command word ('די', 'מילה') is
+   * also a translation, so it would steal a vocabulary answer.
+   * Words the student can type to end a session.
+   */
+  END_WORDS: ['end', '/end', 'stop', '/stop', 'quit'],
   /** Words that ask for the current word's example sentence (not an answer). */
-  EXAMPLE_WORDS: ['?', '？', 'דוגמה', 'דוגמא', 'משפט', 'example', 'hint']
+  EXAMPLE_WORDS: ['?', '？', 'example', 'hint']
 };

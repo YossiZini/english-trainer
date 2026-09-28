@@ -65,4 +65,9 @@ async def list_lessons(subject: str, tool_context: ToolContext) -> dict:
     return {"reply": str(lesson_list_reply(await _api.exercise_lessons(_chat(tool_context), _subject(subject))))}
 
 
-TOOLS = [link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise, list_lessons]
+async def show_help(tool_context: ToolContext) -> dict:
+    """Explain in Hebrew how the bot works and list its English commands."""
+    return {"reply": replies.HELP}
+
+
+TOOLS = [show_help, link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise, list_lessons]

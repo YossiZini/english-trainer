@@ -26,7 +26,7 @@ const POINTS_PER_CORRECT = 1;
 const isEndCommand = (text) => END_WORDS.includes(String(text || '').trim().toLowerCase());
 const isExampleRequest = (text) => EXAMPLE_WORDS.includes(String(text || '').trim().toLowerCase());
 
-const LEVEL_WORDS = { 'קל': 1, 'בינוני': 2, 'קשה': 3 };
+const LEVEL_WORDS = { easy: 1, medium: 2, hard: 3, 'קל': 1, 'בינוני': 2, 'קשה': 3 };
 
 /** 1, 2 or 3 from a button press or a level word, else null. */
 function parseChoice(text) {

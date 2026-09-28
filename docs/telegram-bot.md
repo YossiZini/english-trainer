@@ -4,11 +4,11 @@ A student practises from Telegram in two ways: vocabulary (below) and a
 lesson's exercises, English or Math (see "Lesson exercises"). For vocabulary, the bot sends an English word,
 the student answers in Hebrew, the bot says ✅ or ❌ (with the translation)
 and sends the next word. After 20 words the failed ones come back, shuffled,
-round after round, until none are left. "סיים" ends the session.
+round after round, until none are left. `/end` ends the session.
 
 ## What a session looks like
 
-1. "מילים" → the bot asks only the level (1 קל = difficulty 1–5, 2 בינוני =
+1. `/words` → the bot asks only the level (1 קל = difficulty 1–5, 2 בינוני =
    6–7, 3 קשה = 8–10), with buttons. Words always come from the whole
    vocabulary. The choice is stored on the API session (`status: setup`), so
    the bot keeps no state of its own.
@@ -18,14 +18,33 @@ round after round, until none are left. "סיים" ends the session.
    An answer that misses the dictionary but is short Hebrew gets one Gemini
    check in the API (see "Answer judging" below); if Gemini accepts it, it
    counts as right and the reply shows the dictionary translation too.
-   "?" (or "דוגמה") shows the current word's English example sentence and
+   "?" (or `hint`) shows the current word's English example sentence and
    asks the same word again; it is not an answer and nothing is recorded.
 3. After the 20th word the failed words return shuffled, round after round,
    until none fail. The summary shows rounds, right/wrong, points earned
-   and the new total. "סיים" ends at any time with the same summary.
+   and the new total. `/end` ends at any time with the same summary.
 4. Every wrong answer is recorded like a wrong answer in the web quiz:
    `vocabulary_failed_words`, `vocabulary_word_scores` and the
    accumulated-fails counter that triggers the web app's review mode.
+
+## Commands and help
+
+Commands are English words; the leading "/" is optional, so the Telegram
+command menu (set by `infra/set-webhook.sh`) and typed words both work.
+There are no Hebrew command words: a Hebrew word such as "די" (quite) or
+"מילה" (word) is also a translation and would steal a vocabulary answer.
+
+| Command | What happens |
+|---|---|
+| `/help` (also `/start`, Telegram's first message) | explains in Hebrew how the bot works and lists the commands; needs no API call |
+| `/words` | vocabulary practice (below) |
+| `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
+| `/end` (also `stop`) | ends any open session |
+
+While an exercise question is open, a bare word is the answer (a fill-in
+answer may be "help" or "english"); the "/" form is always the command.
+`end` always ends the session. A free-form message (for example "איך זה
+עובד?") goes to the agent, whose `show_help` tool sends the same help text.
 
 ## Lesson exercises
 
@@ -34,15 +53,14 @@ per message.
 
 | Command | What happens |
 |---|---|
-| "תרגיל אנגלית" / "תרגיל חשבון" (also תרגול…, תרגילים…, "תרגיל מתמטיקה") | the subject's next lesson (curriculum order) |
-| "שיעורים אנגלית" / "שיעורים חשבון" | numbered lesson list, 10 per page, ✅ passed / ▶️ next; "עוד" / "הקודם" turn the page; the student sends a number |
-| "תרגיל אנגלית 12" | lesson 12 of that list, directly |
-| "תרגיל אנגלית קשה", "תרגיל חשבון 3 קל" | the same, at a chosen level (קל / בינוני / קשה) instead of the progress-based one |
-| "?" (or "רמז") during a question | the question's hint and the same question; not an answer (no exercise has a hint yet, so it says there is none) |
-| "סיים" | stops; nothing is recorded for a half-done lesson |
+| `/english` / `/math` | the subject's next lesson (curriculum order) |
+| `/lessons_english` / `/lessons_math` (or `lessons english`; `lessons` alone offers both) | numbered lesson list, 10 per page, ✅ passed / ▶️ next; `more` / `back` turn the page; the student sends a number |
+| `english 12` | lesson 12 of that list, directly |
+| `english hard`, `math 3 easy` | the same, at a chosen level (easy / medium / hard) instead of the progress-based one |
+| "?" (or `hint`) during a question | the question's hint and the same question; not an answer (no exercise has a hint yet, so it says there is none) |
+| `/end` | stops; nothing is recorded for a half-done lesson |
 
-Commands are two words on purpose: a single word such as "חשבון" is also a
-vocabulary answer ("account"). The bot calls `POST /api/bot/exercise/start`
+The bot calls `POST /api/bot/exercise/start`
 (a subject, a subject and a list number, or a lesson id) and
 `POST /api/bot/exercise/lessons` (a subject); the list's page turns and the
 picked number go through `/api/bot/session/answer` like any answer.
@@ -59,7 +77,7 @@ picked number go through `/api/bot/session/answer` like any answer.
    score, points (+1 right, −2 wrong, +3 at 70 or more), mistakes, progress
    and the next lesson are exactly the web's. The summary shows them with
    the level, and after a pass suggests the same lesson one level up
-   ("תרגיל אנגלית 12 קשה").
+   (`/english 12 hard`).
 
 Starting an exercise ends an open vocabulary session and the other way
 round; `/api/bot/session/answer`, `end` and `status` route to the open
@@ -167,7 +185,7 @@ minute further.
 4. After the first green deploy: `infra/set-webhook.sh teacher-509909`.
 5. Put the bot's username in `frontend/.env.production` as
    `REACT_APP_TELEGRAM_BOT` so the web page links to it.
-6. As a student: web app → "טלגרם" → code → send it to the bot → "מילים".
+6. As a student: web app → "טלגרם" → code → send it to the bot → `/words`.
 
 ## Running locally
 
