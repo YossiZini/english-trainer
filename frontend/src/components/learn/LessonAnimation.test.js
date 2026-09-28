@@ -11,13 +11,18 @@ describe('LessonAnimation', () => {
 
   test('starts paused on a narrow screen and playing on a wide one', () => {
     const mm = (wide) => jest.fn((q) => ({ matches: q.includes('min-width') ? wide : false, addListener: () => {}, removeListener: () => {} }));
-    window.matchMedia = mm(false);
-    const { unmount } = render(<LessonAnimation scenes={scenes} />);
-    expect(screen.getByLabelText('הפעל')).toBeInTheDocument();
-    unmount();
-    window.matchMedia = mm(true);
-    render(<LessonAnimation scenes={scenes} />);
-    expect(screen.getByLabelText('השהה')).toBeInTheDocument();
+    const original = window.matchMedia;
+    try {
+      window.matchMedia = mm(false);
+      const { unmount } = render(<LessonAnimation scenes={scenes} />);
+      expect(screen.getByLabelText('הפעל')).toBeInTheDocument();
+      unmount();
+      window.matchMedia = mm(true);
+      render(<LessonAnimation scenes={scenes} />);
+      expect(screen.getByLabelText('השהה')).toBeInTheDocument();
+    } finally {
+      window.matchMedia = original;
+    }
   });
   afterEach(() => jest.useRealTimers());
 
@@ -45,7 +50,7 @@ describe('LessonAnimation', () => {
   });
 
   test('auto-advance steps every stepMs and stops after the last step', () => {
-    render(<LessonAnimation scenes={scenes} stepMs={1000} />);
+    render(<LessonAnimation scenes={scenes} stepMs={1000} autoplay />);
     expect(screen.getByLabelText('השהה')).toBeInTheDocument();
     act(() => { jest.advanceTimersByTime(1000); });
     expect(screen.getByTestId('s2')).toBeInTheDocument();
