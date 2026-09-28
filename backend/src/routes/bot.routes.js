@@ -21,4 +21,15 @@ router.post('/session/answer', [body('text').isString().notEmpty().isLength({ ma
 router.post('/session/end', BotController.end);
 router.get('/session/status', BotController.status);
 
+/**
+ * POST /api/bot/exercise/start { chatId, subject | lessonId } — a lesson's
+ * exercises: the subject's next lesson, or the given lesson. Answers and the
+ * end go through /session/answer and /session/end like vocabulary.
+ */
+router.post('/exercise/start', [
+  body('subject').optional().isIn(['english', 'math']).withMessage('subject must be english or math'),
+  body('lessonId').optional().isString().isLength({ min: 1, max: 64 }),
+  body().custom(b => !!(b.subject || b.lessonId)).withMessage('subject or lessonId is required')
+], BotController.startExercise);
+
 module.exports = router;
