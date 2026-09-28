@@ -1,0 +1,107 @@
+/* Lesson animation player. Everything is scoped under .lesson-animation. */
+.lesson-animation {
+  --la-ink: #2b2f3a;
+  --la-muted: #6b7280;
+  --la-line: #d9dce3;
+  --la-panel: #ffffff;
+  --la-a: #667eea;
+  --la-a-soft: #e8ecfd;
+  --la-b: #f5a623;
+  --la-b-soft: #fdecd0;
+  --la-sum: #b3421e;
+  --la-dur: 4500ms;
+  direction: rtl;
+  background: var(--la-panel);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+.lesson-animation:focus-visible { box-shadow: 0 0 0 3px var(--la-a-soft), 0 2px 8px rgba(0, 0, 0, 0.1); }
+
+.lesson-animation .la-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+.lesson-animation .la-tab {
+  font: inherit; font-size: 0.9rem; cursor: pointer;
+  border: 1px solid var(--la-line); background: var(--la-panel); color: var(--la-muted);
+  border-radius: 999px; padding: 0.3rem 0.85rem;
+}
+.lesson-animation .la-tab[aria-selected="true"] { border-color: var(--la-a); background: var(--la-a-soft); color: var(--la-ink); font-weight: 600; }
+.lesson-animation .la-tab:focus-visible, .lesson-animation .la-btn:focus-visible { outline: 2px solid var(--la-a); outline-offset: 2px; }
+
+.lesson-animation .la-stage { border: 1px solid var(--la-line); border-radius: 12px; padding: 1rem 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.lesson-animation .la-scene-title { margin: 0; font-size: 1.2rem; color: var(--la-ink); display: flex; align-items: baseline; gap: 0.6rem; }
+.lesson-animation .la-scene-title small { font-weight: 400; font-size: 0.8rem; color: var(--la-muted); }
+
+.lesson-animation .la-canvas { display: flex; justify-content: center; }
+.lesson-animation .la-canvas svg { width: 100%; max-width: 640px; height: auto; display: block; overflow: visible; }
+.lesson-animation svg text { font-family: inherit; font-variant-numeric: tabular-nums; fill: var(--la-ink); }
+.lesson-animation .la-fr-label { font-size: 22px; font-weight: 700; }
+.lesson-animation .la-fr-line { stroke: var(--la-ink); stroke-width: 2; }
+.lesson-animation .la-part { stroke: var(--la-ink); stroke-width: 2; }
+.lesson-animation .la-part.empty { fill: var(--la-panel); }
+.lesson-animation .la-part.a { fill: var(--la-a); }
+.lesson-animation .la-part.b { fill: var(--la-b); }
+.lesson-animation .la-part.sum { fill: var(--la-sum); }
+.lesson-animation .la-cell { stroke-width: 1.2; fill-opacity: 0.85; }
+.lesson-animation .la-dashed { stroke: var(--la-ink); stroke-width: 2; stroke-dasharray: 5 4; }
+.lesson-animation .la-tick { fill: var(--la-muted); font-size: 13px; }
+.lesson-animation .la-note { font-size: 16px; fill: var(--la-muted); }
+.lesson-animation .la-eq { font-size: 26px; font-weight: 700; }
+.lesson-animation .la-point.a { fill: var(--la-a); } .lesson-animation .la-point.b { fill: var(--la-b); }
+.lesson-animation .la-point { stroke: var(--la-panel); stroke-width: 2; }
+.lesson-animation .la-point-label { font-size: 15px; font-weight: 700; }
+.lesson-animation .la-point-label.a { fill: var(--la-a); } .lesson-animation .la-point-label.b { fill: var(--la-b); }
+.lesson-animation .la-arrow { fill: none; stroke: var(--la-a); stroke-width: 2; }
+.lesson-animation .la-arrow-head { fill: var(--la-a); }
+.lesson-animation .la-hl { fill: var(--la-a-soft); stroke: var(--la-a); stroke-width: 3; }
+
+.lesson-animation .la-caption { margin: 0; min-height: 3em; font-size: 1.1rem; text-align: center; color: var(--la-ink); animation: la-fadein 0.35s ease both; }
+
+.lesson-animation .la-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.lesson-animation .la-btn {
+  font: inherit; font-size: 0.95rem; cursor: pointer; min-width: 44px;
+  border: 1px solid var(--la-line); background: var(--la-panel); color: var(--la-ink);
+  border-radius: 8px; padding: 0.4rem 0.9rem;
+}
+.lesson-animation .la-btn:disabled { opacity: 0.45; cursor: default; }
+.lesson-animation .la-btn-primary { background: var(--la-a); border-color: var(--la-a); color: #fff; font-weight: 700; }
+.lesson-animation .la-dots { display: flex; gap: 6px; margin-inline-start: auto; }
+.lesson-animation .la-dot { width: 26px; height: 6px; border-radius: 3px; background: var(--la-line); overflow: hidden; position: relative; }
+.lesson-animation .la-dot i { position: absolute; inset: 0; background: var(--la-a); transform-origin: right; transform: scaleX(0); }
+.lesson-animation .la-dot.done i { transform: scaleX(1); }
+.lesson-animation .la-dot.live i { animation: la-fill var(--la-dur) linear forwards; }
+.lesson-animation.paused .la-dot.live i { animation-play-state: paused; }
+
+/* Keyframe classes used by the stage primitives */
+.lesson-animation .pop { animation: la-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.lesson-animation .draw { animation: la-draw 0.5s ease both; }
+.lesson-animation .fadein { animation: la-fadein 0.6s ease both; }
+.lesson-animation .rise { animation: la-rise 0.6s ease both; }
+.lesson-animation .shake { animation: la-shake 0.6s ease both; }
+.lesson-animation .la-slide { transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.lesson-animation .d1 { animation-delay: 0.15s; } .lesson-animation .d2 { animation-delay: 0.3s; }
+.lesson-animation .d3 { animation-delay: 0.45s; } .lesson-animation .d4 { animation-delay: 0.6s; } .lesson-animation .d5 { animation-delay: 0.75s; }
+
+@keyframes la-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes la-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes la-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes la-fadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes la-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes la-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-animation .pop, .lesson-animation .draw, .lesson-animation .fadein, .lesson-animation .rise, .lesson-animation .shake, .lesson-animation .la-caption { animation-duration: 0.01s; }
+  .lesson-animation .la-slide { transition-duration: 0.01s; }
+}
+
+@media (max-width: 768px) {
+  .lesson-animation { padding: 1rem 1rem 0.75rem; }
+  .lesson-animation .la-stage { padding: 0.75rem 0.6rem 0.6rem; }
+  .lesson-animation .la-caption { font-size: 1rem; min-height: 3.4em; }
+  .lesson-animation .la-scene-title { font-size: 1.05rem; }
+  .lesson-animation .la-btn { padding: 0.4rem 0.7rem; font-size: 0.9rem; }
+  .lesson-animation .la-dots { width: 100%; margin-inline-start: 0; justify-content: center; }
+  .lesson-animation .la-fr-label { font-size: 26px; }
+  .lesson-animation .la-note { font-size: 18px; }
+}
