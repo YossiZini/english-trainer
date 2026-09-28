@@ -168,3 +168,117 @@ export const Grid = ({ x, y, size = 200, rows, cols, shadeRows = 0, shadeCols = 
   }
   return <g className={anim} style={{ transformOrigin: `${x + size / 2}px ${y + size / 2}px` }}>{cells}</g>;
 };
+
+/**
+ * Arithmetic expression as a row of tokens, left-to-right, centred on (x, y).
+ * A token is a string or { t, cls, anim } (cls "result" colours it, "dim"
+ * greys it out). `hl` = [first, last] token indexes draws a highlight box
+ * behind that range (the part being computed now).
+ */
+export const Expr = ({ x = 320, y = 140, tokens, hl = null, size = 30, gap = 14, anim = '' }) => {
+  const toks = tokens.map((t) => (typeof t === 'object' && t !== null ? t : { t: String(t) }));
+  const widths = toks.map((k) => Math.max(size * 0.7, String(k.t).length * size * 0.6));
+  const total = widths.reduce((a, b) => a + b, 0) + gap * (toks.length - 1);
+  let cursor = x - total / 2;
+  const centres = widths.map((w) => { const c = cursor + w / 2; cursor += w + gap; return c; });
+  let box = null;
+  if (hl && toks.length) {
+    const a = Math.max(0, hl[0]), b = Math.min(toks.length - 1, hl[1]);
+    const x0 = centres[a] - widths[a] / 2 - 6, x1 = centres[b] + widths[b] / 2 + 6;
+    box = <rect x={x0} y={y - size * 0.72} width={x1 - x0} height={size * 1.44} rx={8} className="la-hl la-expr-hl fadein" data-hl={`${a}-${b}`} />;
+  }
+  return (
+    <g className={`la-expr-row ${anim}`.trim()} direction="ltr" style={{ transformOrigin: `${x}px ${y}px` }}>
+      {box}
+      {toks.map((k, i) => (
+        <text
+          key={i}
+          x={centres[i]}
+          y={y}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          className={`la-expr ${k.cls || ''} ${k.anim || ''}`.trim()}
+          style={{ fontSize: size, transformOrigin: `${centres[i]}px ${y}px` }}
+          data-token={i}
+        >
+          {k.t}
+        </text>
+      ))}
+    </g>
+  );
+};
+
+/**
+ * Bar chart of `values` = [{ label, value, color }] scaled to `max` (default:
+ * the largest value or the mean). `mean` draws a dashed line with its value.
+ * `levelled` animates every bar to the mean height after mount (the "share
+ * equally" picture of an average); the value labels then show the mean.
+ */
+export const BarChart = ({ x = 120, y = 40, w = 400, h = 180, values, max, mean = null, levelled = false, color = 'a', anim = '' }) => {
+  const ref = useRef(null);
+  const top = max || Math.max(...values.map((v) => v.value), mean || 0) || 1;
+  const baseline = y + h;
+  const yOf = (v) => baseline - (v / top) * h;
+  const n = values.length, slot = w / n, bw = slot * 0.6;
+  const bx = (i) => x + i * slot + (slot - bw) / 2;
+
+  useEffect(() => {
+    if (!levelled || mean == null || !ref.current) return undefined;
+    const rects = ref.current.querySelectorAll('.la-bar');
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        rects.forEach((r) => { r.style.y = `${yOf(mean)}px`; r.style.height = `${baseline - yOf(mean)}px`; });
+      });
+    });
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
+  });
+
+  return (
+    <g ref={ref} className={`la-chart ${anim}`.trim()} style={{ transformOrigin: `${x + w / 2}px ${baseline}px` }}>
+      <line x1={x} y1={baseline} x2={x + w} y2={baseline} className="la-fr-line" />
+      {values.map((v, i) => (
+        <g key={i} className={`rise d${Math.min(5, i + 1)}`} style={{ transformOrigin: `${bx(i) + bw / 2}px ${baseline}px` }}>
+          <rect x={bx(i)} y={yOf(v.value)} width={bw} height={baseline - yOf(v.value)} className={`la-part la-bar ${v.color || color}`} data-value={v.value} />
+          <Text x={bx(i) + bw / 2} y={(levelled && mean != null ? yOf(mean) : yOf(v.value)) - 12} cls="la-bar-value">{levelled && mean != null ? mean : v.value}</Text>
+          {v.label != null && <Text x={bx(i) + bw / 2} y={baseline + 16} cls="la-tick" rtl={/[֐-׿]/.test(String(v.label))}>{v.label}</Text>}
+        </g>
+      ))}
+      {mean != null && (
+        <g className="fadein d3">
+          <line x1={x - 10} y1={yOf(mean)} x2={x + w + 10} y2={yOf(mean)} className="la-mean" data-mean={mean} />
+          <Text x={x + w + 14} y={yOf(mean)} cls="la-mean-label" anchor="start">{mean}</Text>
+        </g>
+      )}
+    </g>
+  );
+};
+
+/** 10 × 10 grid (one cell = 1%), the first `k` cells shaded row by row. */
+export const HundredGrid = ({ x = 230, y = 40, size = 200, k = 0, color = 'a', anim = '' }) => {
+  const c = size / 10;
+  const cells = [];
+  for (let i = 0; i < 100; i++) {
+    const r = Math.floor(i / 10), col = i % 10;
+    cells.push(<rect key={i} x={x + col * c} y={y + r * c} width={c} height={c} className={`la-part la-cell ${i < k ? color : 'empty'}`} />);
+  }
+  return <g className={`la-hundred ${anim}`.trim()} data-shaded={k} style={{ transformOrigin: `${x + size / 2}px ${y + size / 2}px` }}>{cells}</g>;
+};
+
+/**
+ * Price tag centred on (x, y) showing `price` ₪ with an optional Hebrew
+ * `label` underneath; `strike` crosses the price out (the old price).
+ */
+export const PriceTag = ({ x, y, price, label = '', strike = false, color = '', anim = '' }) => {
+  const w = 120, h = 64, r = 6;
+  const d = `M ${x - w / 2 + 22} ${y - h / 2} H ${x + w / 2 - r} a ${r} ${r} 0 0 1 ${r} ${r} V ${y + h / 2 - r} a ${r} ${r} 0 0 1 ${-r} ${r} H ${x - w / 2 + 22} L ${x - w / 2} ${y} Z`;
+  return (
+    <g className={`la-tag-group ${anim}`.trim()} style={{ transformOrigin: `${x}px ${y}px` }} data-price={price}>
+      <path d={d} className={`la-tag ${color}`} />
+      <circle cx={x - w / 2 + 16} cy={y} r={4} className="la-tag-hole" />
+      <Text x={x + 10} y={label ? y - 8 : y} cls={`la-tag-price ${strike ? 'la-tag-old' : ''}`}>{`${price} ₪`}</Text>
+      {strike && <line x1={x - 24} y1={label ? y - 8 : y} x2={x + 44} y2={label ? y - 8 : y} className="la-strike draw" />}
+      {label && <Text x={x + 10} y={y + 16} cls="la-tag-sub" rtl>{label}</Text>}
+    </g>
+  );
+};
