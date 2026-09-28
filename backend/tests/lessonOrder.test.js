@@ -1,5 +1,7 @@
 const { compareLessons } = require('../src/utils/lessonOrder');
 const lessons = require('../data/static/lessons.json');
+const { initializeDatabase } = require('./helpers');
+const Lesson = require('../src/models/Lesson');
 
 describe('compareLessons', () => {
   test('English lessons follow topic then subtopic, not the per-topic order_index', () => {
@@ -15,5 +17,19 @@ describe('compareLessons', () => {
     expect([l(1, '1.10'), l(1, '1.2')].sort(compareLessons).map(x => x.subtopic_number)).toEqual(['1.2', '1.10']);
     const math = lessons.filter(x => x.subject === 'math').sort(compareLessons).map(x => String(x.subtopic_number));
     expect(math.slice(0, 7)).toEqual(['101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
+  });
+});
+
+describe('lesson page navigation (d5)', () => {
+  beforeAll(initializeDatabase);
+
+  test.each(['english', 'math'])('every %s lesson links to its curriculum neighbours', async (subject) => {
+    const ordered = lessons.filter(l => (l.subject || 'english') === subject).sort(compareLessons);
+    for (let i = 0; i < ordered.length; i++) {
+      const next = await Lesson.getNextLesson(ordered[i]);
+      const prev = await Lesson.getPreviousLesson(ordered[i]);
+      expect([ordered[i].subtopic_number, next && next.id]).toEqual([ordered[i].subtopic_number, ordered[i + 1] ? ordered[i + 1].id : null]);
+      expect([ordered[i].subtopic_number, prev && prev.id]).toEqual([ordered[i].subtopic_number, i > 0 ? ordered[i - 1].id : null]);
+    }
   });
 });
