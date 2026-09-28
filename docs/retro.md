@@ -450,3 +450,71 @@ bot works end to end.
 - `/sprint review` has not run for this sprint.
 - Carried over: `App.test.js` jest resolution, Hosting `no-cache` header,
   shared stage geometry.
+
+## Sprint 7 — Home page for both subjects (2026-09-28)
+
+Goal: make the home page serve English and Math equally.
+Result: a continue card per subject, shared scores kept, a progress bar per
+subject, subject badges on recent activity, English tools moved to the
+English page and Math tools on the Math page, and per-subject progress data
+in the API (PR #34). The browser check found three real bugs on the way,
+all fixed in the same PR.
+
+Addendum to Sprint 6 (work after its retro): the Gemini answer check moved
+from the bot into the API so the API owns every verdict; the system map got
+its source in `docs/architecture/` and a keep-current rule in CLAUDE.md;
+"?" returns a word's example sentence.
+
+### What went well
+- **Scoping from the code, not the request.** Reading the dashboard and its
+  queries before writing the scope showed that Math could never appear in
+  the old continue button (Math is ordered after all 106 English lessons),
+  which made the case for per-subject data in the API.
+- **A browser check with seeded data paid off three times.** A student with
+  English and Math results, clicked through at both sizes, exposed the
+  English lesson-order bug, two CSS collisions and a clipped logout button.
+  Unit tests passed through all three.
+- **Logic out of JSX.** The continue rule moved from an inline function into
+  `continueTarget.js` with its own tests; subject actions live in
+  `topicMeta`, not in `if (subject)` branches.
+- **Deploy-window safety.** The API kept its old fields, so the site that
+  was live while the new API deployed kept working.
+
+### What hurt
+- **English `order_index` is per topic.** Every English topic numbers its
+  lessons 1, 2, 3, so sorting by `order_index` interleaves topics (1.1,
+  2.1, 3.1…). The old home button had the bug; tests only checked Math,
+  whose `order_index` is global. The lesson page's own "next lesson" still
+  uses it.
+- **Generic class names in markup, again.** The existing rule forbids adding
+  CSS rules on generic names; this time the markup used `english`, `math`
+  and `progress-header`, and other pages' global rules restyled them.
+- **A Sprint 6 regression shipped unseen.** The Telegram navbar button
+  pushed logout off a 360 px screen. The Sprint 6 phone screenshot showed
+  it cut, and the check passed because the navbar hides its overflow, so
+  there was no page scroll to detect.
+- **The next sprint's push waited on the previous sprint's archive PR**
+  (#33), as in Sprints 5 and 6.
+- **CRA resets mock implementations before each test**; a mock defined in
+  the `jest.mock` factory returned undefined and the first run failed.
+
+### Lessons → rules
+- Order lessons with `compareLessons` (topic, then subtopic); never sort
+  lessons by `order_index` alone.
+- Class names in markup carry a component prefix (`home-progress-card`,
+  `subject-math`); never put a bare generic name like `english`, `math` or
+  `progress-header` in `className` (refines the Sprint 1 CSS rule).
+- Phone checks assert that every visible navbar control lies fully inside
+  the viewport (bounding box), in addition to "no horizontal scroll".
+- `/sprint start` first asks for the merge of any open PR on the work
+  branch, so the new sprint's first push is never blocked (refines "ask for
+  the merge of a small PR").
+- In CRA tests, set mock implementations in `beforeEach`, not in the
+  `jest.mock` factory.
+
+### Follow-ups
+- Lesson page navigation (`Lesson.getNextLesson` / `getPreviousLesson`)
+  still sorts by `order_index`; switch it to `compareLessons`.
+- `App.test.js` still cannot load `react-router/dom` under jest.
+- Carried over: Hosting `no-cache` header, shared stage geometry, agent-path
+  check against production once per release.
