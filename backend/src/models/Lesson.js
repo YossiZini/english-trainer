@@ -1,4 +1,5 @@
 const { db } = require('../config/database');
+const { compareLessons } = require('../utils/lessonOrder');
 
 class Lesson {
   /**
@@ -122,45 +123,25 @@ class Lesson {
   }
 
   /**
-   * Get next lesson by order
-   */
-  /**
    * The lesson after `lesson` within the same subject, or null. Takes the
-   * lesson object so callers cannot forget the subject.
+   * lesson object so callers cannot forget the subject. Curriculum order
+   * (topic, then subtopic): English lessons store order_index per topic.
    */
   static async getNextLesson(lesson) {
-    const lessons = await db.find('lessons',
-      { subject: lesson.subject || 'english', order_index: { $gt: lesson.order_index } },
-      { sort: { order_index: 'asc' }, limit: 1 }
-    );
-
-    if (lessons.length === 0) return null;
-
-    const l = lessons[0];
-    return {
-      id: l.id,
-      topic_number: l.topic_number,
-      subtopic_number: l.subtopic_number,
-      title_en: l.title_en,
-      title_he: l.title_he,
-      level: l.level,
-      order_index: l.order_index
-    };
+    return this._neighbour(lesson, +1);
   }
 
-  /**
-   * Get previous lesson by order
-   */
   /** The lesson before `lesson` within the same subject, or null. */
   static async getPreviousLesson(lesson) {
-    const lessons = await db.find('lessons',
-      { subject: lesson.subject || 'english', order_index: { $lt: lesson.order_index } },
-      { sort: { order_index: 'desc' }, limit: 1 }
-    );
+    return this._neighbour(lesson, -1);
+  }
 
-    if (lessons.length === 0) return null;
-
-    const l = lessons[0];
+  static async _neighbour(lesson, step) {
+    const subject = lesson.subject || 'english';
+    const lessons = (await db.find('lessons', {})).filter(l => (l.subject || 'english') === subject).sort(compareLessons);
+    const index = lessons.findIndex(l => l.id === lesson.id);
+    const l = index >= 0 ? lessons[index + step] : null;
+    if (!l) return null;
     return {
       id: l.id,
       topic_number: l.topic_number,
