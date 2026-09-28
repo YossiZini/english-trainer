@@ -36,7 +36,7 @@ Add the topic content including:
 Create a new seed file with this structure:
 
 ```javascript
-const topic{N}Data = [
+const lessonsData = [
   {
     topicNumber: {N},
     subtopicNumber: 1,
@@ -51,19 +51,28 @@ const topic{N}Data = [
     `,
     exercises: [
       {
-        type: 'multiple-choice',
-        questionHe: 'שאלה בעברית?',
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
-        correctAnswer: 0,
-        explanationHe: 'הסבר בעברית',
+        questionNumber: 1,
+        type: 'multiple_choice',
+        questionTextHe: 'She _______ a teacher.',
+        options: ['am', 'is', 'are', 'be'],
+        correctAnswer: 'is',  // the answer text, exactly one of the options
+        explanationHe: 'תשובה נכונה: is. ...',
         difficulty: 'easy'  // easy | medium | hard
       }
     ]
   }
 ];
 
-module.exports = topic{N}Data;
+module.exports = { lessonsData };
 ```
+
+**Every exercise is multiple choice**: students answer on a phone and in the
+Telegram bot, never by typing. Four options (three only for a yes/no style
+question), exactly one of them the answer, and every wrong option wrong in
+its sentence (not a second acceptable answer). A chosen option is graded by
+exact text, so capitalisation questions work. `backend/tests/content.test.js`
+enforces the format for all bundled exercises. Math authors write `fib`/`fibR`
+and the export turns them into multiple choice (`docs/math-content-guide.md`).
 
 ### Step 3: Register in the Data Generator
 
@@ -250,65 +259,80 @@ Track changes per topic with dates and descriptions.
 ### Topic 1: Grammar Basics
 - Initial seed file created
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 103 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 100 texts clarified, 6 keys and 10 explanations corrected; weak items rebuilt as "which is written correctly?" (book titles, the Pacific Ocean, comma inside quotes, nested quotes, spacing, word order); 1 existing question repaired (answer missing from its options); capitalisation questions now graded by exact text.
 
 ### Topic 2: Verb "To Be" - Present
 - Initial seed file created
 - 2026-01-21: Fixed naming issue (seedTopic6 → seedTopic2)
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 70 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 15 texts clarified, 2 keys and 14 explanations corrected; collective-noun explanations corrected (American English uses the singular, British also allows the plural) and 5 existing questions no longer offer the British plural as a wrong option; "Neither of them is right" key fixed (double negative).
 
 ### Topic 3: Personal Pronouns & Possessives
 - Seed file created and registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 31 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 2 texts clarified, 1 keys and 1 explanations corrected; one-blank style for "yours, hers"; 1 existing question (government: its/their) repaired.
 
 ### Topic 4: Nouns - Singular & Plural
 - Initial seed file created
 - 2026-01-21: Fixed naming issue (seedTopic5 → seedTopic4)
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 61 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 38 texts clarified, 1 keys and 12 explanations corrected; some/any items rebuilt around negatives and if-clauses so one form is right; 7 existing questions repaired (duplicate option, some/any and somebody/anybody items with two right answers).
 
 ### Topic 5: Articles
 - Seed file created and registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 32 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 16 texts clarified, 0 keys and 7 explanations corrected; Hebrew cues make "the" or "-" wrong where they are offered; 4 existing article questions repaired ("the university", "plays piano", "elected the president" were also right).
 
 ### Topic 6: Demonstratives
 - Initial seed file created
 - 2026-01-21: Fixed naming issue (seedTopic8 → seedTopic6)
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 63 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 64 texts clarified, 0 keys and 18 explanations corrected; near/far cues decide this/that and these/those; 1 existing question repaired ("Who is that? - That is..." was also right).
 
 ### Topic 7: There is / There are
 - Initial seed file created
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 70 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 23 texts clarified, 0 keys and 16 explanations corrected; "there is/are" items no longer depend on the contested first-noun rule (5 existing questions repaired too); offer/request explanations no longer call "any" a mistake, and 1 existing some/any question no longer offers "some" as a wrong option.
 
 ### Topic 8: Adjectives
 - Initial seed file created
 - 2026-01-21: Fixed naming issue (seedTopic9 → seedTopic8)
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 39 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 30 texts clarified, 4 keys and 9 explanations corrected; adjective-order items use three adjectives, "absolutely" goes with extreme adjectives, asleep/sleeping decided before a noun.
 
 ### Topic 9: Present Simple Tense
 - Seed file created and registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 53 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 8 texts clarified, 0 keys and 0 explanations corrected.
 
 ### Topic 10: Question Words
 - Documented in topics.md
 - Frontend mapping added
 - 2026-01-21: Seed file created (7 subtopics, 140 exercises)
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 63 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 4 texts clarified, 0 keys and 0 explanations corrected; short replies added as cues where two question words fitted.
 
 ### Topic 11: Present Progressive
 - Seed file created and registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 103 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 9 texts clarified, 0 keys and 0 explanations corrected; one blank per question, Hebrew cues replace hints that were the answer; 3 existing -ing spelling questions had a duplicated option.
 
 ### Topic 12: Can / Could
 - Initial seed file created
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 56 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 0 texts clarified, 0 keys and 2 explanations corrected.
 
 ### Topic 13: Prepositions of Place
 - Initial seed file created
 - 2026-01-21: Fixed naming issue (seedTopic10 → seedTopic13)
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 54 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 10 texts clarified, 1 keys and 19 explanations corrected; explanations that called correct forms mistakes (in the office, over the door, between mountains) fixed; the bird's-nest item rewritten.
 
 ### Topic 14: Prepositions of Time
 - Initial seed file created
 - 2026-01-21: Fixed naming issue (seedTopic11 → seedTopic14)
 - 2026-01-21: Registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 47 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 1 texts clarified, 0 keys and 12 explanations corrected; explanations now say which alternatives are also right (by 12, at dinner, before/until).
 
 ### Topic 15: Past Simple Tense
 - Seed file created and registered in seed-all-lessons.js
+- 2026-09-28: All exercises are multiple choice (no typing, on the web and in the Telegram bot): 105 fill-in questions converted to 4 options whose wrong options are wrong in their sentence, each independently reviewed; 5 texts clarified, 2 keys and 2 explanations corrected; "_______ he _______ (buy)" items use the two-part answer style (Did, buy).
 
 ### Topic 16: Going to
 - Documented in topics.md

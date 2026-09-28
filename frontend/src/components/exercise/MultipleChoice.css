@@ -165,7 +165,8 @@
   }
 }
 
-/* Hebrew (Math) questions read right-to-left */
+/* Hebrew questions (Math, and English-lesson questions that start in Hebrew)
+   read right-to-left */
 .multiple-choice .question-text[dir="rtl"] {
   text-align: right;
 }

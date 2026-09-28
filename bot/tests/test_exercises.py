@@ -199,6 +199,16 @@ async def test_help_needs_no_api_and_bare_words_answer_an_open_question():
 
 
 @respx.mock
+async def test_bare_command_works_during_a_multiple_choice_question():
+    # A multiple-choice answer is a number, so "help" there is the command.
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok(
+        {"active": True, "kind": "exercise", "lesson": LESSON, "question": mc(2, ["a", "b", "c", "d"])}))
+    answer = respx.post(f"{API}/bot/session/answer")
+    assert (await coach().handle("7", "help")).text == replies.HELP
+    assert not answer.called
+
+
+@respx.mock
 async def test_lessons_without_a_subject_offers_both():
     no_session()
     reply = await coach().handle("7", "lessons")

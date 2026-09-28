@@ -26,8 +26,8 @@ describe('Bot lesson exercises', () => {
   const rightAnswer = (question, exerciseId) => {
     const correct = bundled.get(exerciseId).correct_answer;
     if (question.type !== 'multiple_choice') return correct;
-    const { answersMatch } = require('../src/utils/answers');
-    return String(question.options.findIndex(o => answersMatch(o, correct)) + 1);
+    const { choiceMatches } = require('../src/utils/answers');
+    return String(question.options.findIndex(o => choiceMatches(o, correct)) + 1);
   };
   const wrongAnswer = (question, exerciseId) => {
     const right = rightAnswer(question, exerciseId);

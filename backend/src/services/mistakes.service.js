@@ -3,7 +3,7 @@ const Exercise = require('../models/Exercise');
 const Lesson = require('../models/Lesson');
 const { db, withTransaction } = require('../config/database');
 const { shuffleArray } = require('../utils/shuffle');
-const { answersMatch } = require('../utils/answers');
+const { isCorrectAnswer } = require('../utils/answers');
 
 class MistakesService {
   /**
@@ -53,7 +53,8 @@ class MistakesService {
           continue; // Skip if not found
         }
 
-        const isCorrect = answersMatch(answer.userAnswer, mistake.correct_answer);
+        const isCorrect = isCorrectAnswer(
+          { type: mistake.type, correct_answer: mistake.correct_answer }, answer.userAnswer);
 
         results.push({
           exerciseId: answer.exerciseId,

@@ -1,4 +1,28 @@
-const { answersMatch, parseNumber } = require('../src/utils/answers');
+const { answersMatch, choiceMatches, isCorrectAnswer, parseNumber } = require('../src/utils/answers');
+
+describe('choiceMatches and isCorrectAnswer', () => {
+  const capitals = { type: 'multiple_choice', correct_answer: 'I like pizza' };
+
+  test('a chosen option must be the answer exactly: case is part of it', () => {
+    expect(choiceMatches('I like pizza', 'I like pizza')).toBe(true);
+    expect(choiceMatches(' I like pizza ', 'I like pizza')).toBe(true);
+    expect(choiceMatches('i like pizza', 'I like pizza')).toBe(false);
+    expect(isCorrectAnswer(capitals, 'I Like Pizza')).toBe(false);
+    expect(isCorrectAnswer(capitals, 'I like pizza')).toBe(true);
+  });
+
+  test('numeric options still compare by value', () => {
+    expect(choiceMatches('6/8', '3/4')).toBe(true);
+    expect(choiceMatches('25%', '25')).toBe(true);
+    expect(choiceMatches('2/3', '3/4')).toBe(false);
+  });
+
+  test('a typed answer keeps the lenient comparison', () => {
+    expect(isCorrectAnswer({ type: 'fill_in_blank', correct_answer: 'Is' }, ' is ')).toBe(true);
+    expect(isCorrectAnswer({ correct_answer: 'Is' }, 'is')).toBe(true);
+    expect(choiceMatches(undefined, 'is')).toBe(false);
+  });
+});
 
 describe('answersMatch', () => {
   test('text answers compare trimmed and case-insensitively', () => {

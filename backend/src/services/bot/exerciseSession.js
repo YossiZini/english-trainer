@@ -4,7 +4,7 @@ const Exercise = require('../../models/Exercise');
 const UserProgress = require('../../models/UserProgress');
 const LessonService = require('../lesson.service');
 const ExerciseService = require('../exercise.service');
-const { answersMatch } = require('../../utils/answers');
+const { isCorrectAnswer, choiceMatches } = require('../../utils/answers');
 const { END_WORDS } = require('../../config/bot');
 
 /**
@@ -186,13 +186,15 @@ class ExerciseSession {
     }
 
     const exercise = await Exercise.findById(current.id);
-    const correct = answersMatch(given, exercise.correct_answer);
+    // Graded as the session froze the question (a typed question open
+    // during a content change keeps its lenient check).
+    const correct = isCorrectAnswer({ type: current.type, correct_answer: exercise.correct_answer }, given);
     const verdict = {
       correct,
       given,
       correctAnswer: exercise.correct_answer,
       correctOption: current.type === 'multiple_choice'
-        ? current.options.findIndex(o => answersMatch(o, exercise.correct_answer)) + 1 || null
+        ? current.options.findIndex(o => choiceMatches(o, exercise.correct_answer)) + 1 || null
         : null,
       explanation: correct ? null : capped(exercise.explanation_he)
     };

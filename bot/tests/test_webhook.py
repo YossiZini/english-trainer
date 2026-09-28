@@ -49,6 +49,42 @@ def test_handles_a_text_update_and_sends_the_reply():
     assert client.get("/health").json() == {"status": "OK"}
 
 
+MENU = "http://telegram.test/bot123:abc/setMyCommands"
+
+
+@respx.mock
+async def test_set_commands_sends_the_menu_of_commands_the_coach_understands():
+    import json
+    from app.coach import parse_command
+    route = respx.post(MENU).mock(return_value=httpx.Response(200, json={"ok": True, "result": True}))
+    assert await telegram.set_commands() is True
+    sent = json.loads(route.calls.last.request.content)["commands"]
+    assert [c["command"] for c in sent] == ["help", "words", "english", "math", "lessons_english", "lessons_math", "end"]
+    assert all(c["description"] for c in sent)
+    for c in sent:
+        assert parse_command("/" + c["command"]) is not None, c["command"]
+
+
+@respx.mock
+async def test_set_commands_failures_return_false():
+    respx.post(MENU).mock(side_effect=[
+        httpx.Response(401, json={"ok": False, "description": "Unauthorized"}),
+        httpx.ConnectError("down"),
+        httpx.Response(200, text="not json"),
+    ])
+    assert await telegram.set_commands() is False
+    assert await telegram.set_commands() is False
+    assert await telegram.set_commands() is False
+
+
+@respx.mock
+def test_startup_sets_the_menu_and_a_failure_does_not_stop_the_app():
+    route = respx.post(MENU).mock(side_effect=httpx.ConnectError("down"))
+    with TestClient(create_app(FakeCoach())) as client:
+        assert client.get("/health").json() == {"status": "OK"}
+    assert route.called
+
+
 def test_non_text_updates_are_ignored():
     coach = FakeCoach()
     client = TestClient(create_app(coach))

@@ -30,7 +30,10 @@ round after round, until none are left. `/end` ends the session.
 ## Commands and help
 
 Commands are English words; the leading "/" is optional, so the Telegram
-command menu (set by `infra/set-webhook.sh`) and typed words both work.
+command menu and typed words both work. The bot sets the menu itself at
+startup (`COMMANDS` and `set_commands` in `bot/app/telegram.py`, called from
+the app's lifespan); a failure is only logged, so nothing has to be run by
+hand after a deploy.
 There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 "מילה" (word) is also a translation and would steal a vocabulary answer.
 
@@ -41,9 +44,11 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
 | `/end` (also `stop`) | ends any open session |
 
-While an exercise question is open, a bare word is the answer (a fill-in
-answer may be "help" or "english"); the "/" form is always the command.
-`end` always ends the session. A free-form message (for example "איך זה
+A multiple-choice answer is a number, so a bare command works during a
+question too. Only while a typed (fill-in) question is open would a bare word
+be the answer (it may be "help" or "english"); no exercise is fill-in any
+more, the rule only guards the fill-in path. The "/" form is always the
+command, and `end` always ends the session. A free-form message (for example "איך זה
 עובד?") goes to the agent, whose `show_help` tool sends the same help text.
 
 ## Lesson exercises
@@ -68,10 +73,11 @@ picked number go through `/api/bot/session/answer` like any answer.
 1. The API picks 10 questions with `LessonService.getExercises` (the web's
    difficulty choice and option shuffle) and freezes them in the session
    (`bot_sessions`, `kind: exercise`).
-2. A multiple-choice question lists its options as "1) …" with buttons 1..n
-   (3 or 4 options). Only an option number is an answer; anything else
-   repeats the question and records nothing. A fill-in question takes the
-   text and removes the keyboard.
+2. Every exercise is multiple choice (a backend content test enforces it):
+   the question lists its options as "1) …" with buttons 1..n (3 or 4
+   options). Only an option number is an answer; anything else repeats the
+   question and records nothing. The fill-in path (typed text, keyboard
+   removed) remains only for a question type the content no longer uses.
 3. Each answer gets ✅ or ❌ with the right answer and the explanation.
 4. After the last answer all answers go to `ExerciseService.submitExercise`:
    score, points (+1 right, −2 wrong, +3 at 70 or more), mistakes, progress
@@ -182,7 +188,10 @@ minute further.
    three secrets, grants the runtime service account access and Vertex AI).
 3. Add the GitHub repository variable `DEPLOY_BOT = true`. From then on the
    workflow deploys the bot service and gives the API its `BOT_API_KEY`.
-4. After the first green deploy: `infra/set-webhook.sh teacher-509909`.
+4. After the first green deploy: `infra/set-webhook.sh teacher-509909`
+   (the webhook only; the bot sets its command menu itself at startup). The
+   script calls api.telegram.org, which some office networks block; Cloud
+   Shell always reaches it.
 5. Put the bot's username in `frontend/.env.production` as
    `REACT_APP_TELEGRAM_BOT` so the web page links to it.
 6. As a student: web app → "טלגרם" → code → send it to the bot → `/words`.

@@ -15,7 +15,10 @@
  *   - a dev server on :3000: APP_URL=http://127.0.0.1:3000 SERVE_BUILD=0 npm run check:viewport
  *
  * Environment: APP_URL, API_URL, QUESTIONS (default 6), SHOTS_DIR (default
- * none: no screenshots), CHROMIUM_PATH (default: Playwright's own Chromium).
+ * none: no screenshots), CHROMIUM_PATH (default: Playwright's own Chromium),
+ * LESSONS (comma-separated lesson ids instead of the first lesson) and
+ * DIFFICULTY (easy | medium | hard) to walk the questions most likely to
+ * overflow, e.g. the lessons with the longest options.
  * Exits 1 when any check fails.
  */
 const http = require('http');
@@ -30,6 +33,8 @@ const API_URL = process.env.API_URL || 'http://127.0.0.1:5000/api';
 const QUESTIONS = Number(process.env.QUESTIONS || 6);
 const SHOTS_DIR = process.env.SHOTS_DIR || '';
 const SERVE_BUILD = process.env.SERVE_BUILD !== '0';
+const LESSONS = (process.env.LESSONS || '').split(',').map(s => s.trim()).filter(Boolean);
+const DIFFICULTY = process.env.DIFFICULTY || '';
 const SIZES = [
   { name: 'laptop', width: 1366, height: 768 },
   { name: 'phone', width: 390, height: 844, mobile: true },
@@ -88,17 +93,21 @@ async function api(route, opts = {}) {
 
   const reg = await api('/auth/register', { method: 'POST', body: JSON.stringify({ name: 'viewport-' + Date.now(), password: 'check1234', age: 11 }) });
   const token = reg.data.token;
-  const lessons = await api('/lessons', { headers: { Authorization: `Bearer ${token}` } });
-  const lesson = lessons.data.flatMap(t => t.lessons || [])[0];
+  let lessonIds = LESSONS;
+  if (!lessonIds.length) {
+    const lessons = await api('/lessons', { headers: { Authorization: `Bearer ${token}` } });
+    lessonIds = [lessons.data.flatMap(t => t.lessons || [])[0].id];
+  }
 
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox'] });
   let failures = 0;
-  for (const size of SIZES) {
+  for (const size of SIZES) for (const [li, lessonId] of lessonIds.entries()) {
     const ctx = await browser.newContext({ viewport: { width: size.width, height: size.height }, isMobile: !!size.mobile, hasTouch: !!size.mobile, deviceScaleFactor: 1 });
     await ctx.addInitScript(({ t, u }) => { localStorage.setItem('token', t); localStorage.setItem('user', JSON.stringify(u)); }, { t: token, u: reg.data.user });
     const page = await ctx.newPage();
-    await page.goto(`${APP_URL}/exercise/${lesson.id}`);
+    await page.goto(`${APP_URL}/exercise/${lessonId}${DIFFICULTY ? `?difficulty=${DIFFICULTY}` : ''}`);
     await page.waitForSelector('.question-container');
+    const tag = lessonIds.length > 1 ? `${size.name}-L${li + 1}` : size.name;
 
     const metric = () => page.evaluate(() => {
       const bar = document.querySelector('.exercise-actionbar').getBoundingClientRect();
@@ -126,9 +135,9 @@ async function api(route, opts = {}) {
       const overflow = Math.round(m.contentBottom - m.barTop);
       worst = Math.max(worst, overflow);
       const fits = overflow <= 1 && m.barVisible && m.buttonsFit;
-      console.log(`${size.name} q${q + 1} (${m.type}): overflow=${overflow}px fits=${fits}${m.buttonsFit ? '' : ' (button label overflows)'}`);
+      console.log(`${tag} q${q + 1} (${m.type}): overflow=${overflow}px fits=${fits}${m.buttonsFit ? '' : ' (button label overflows)'}`);
       if (!fits) failures++;
-      if (SHOTS_DIR && (q === 0 || !fits)) await page.screenshot({ path: path.join(SHOTS_DIR, `${size.name}-q${q + 1}${fits ? '' : '-overflow'}.png`) });
+      if (SHOTS_DIR && (q === 0 || !fits)) await page.screenshot({ path: path.join(SHOTS_DIR, `${tag}-q${q + 1}${fits ? '' : '-overflow'}.png`) });
 
       if (!(await page.$('.next-button'))) break;
       await page.click('.next-button');
@@ -139,10 +148,10 @@ async function api(route, opts = {}) {
       const feedbackGone = !(await page.$('.feedback'));
       if (!atTop || !feedbackGone) {
         failures++;
-        console.log(`${size.name} after q${q + 1}: questionTop=${Math.round(after.questionTop)} navbarBottom=${Math.round(after.navbarBottom)} atTop=${atTop} feedbackGone=${feedbackGone}`);
+        console.log(`${tag} after q${q + 1}: questionTop=${Math.round(after.questionTop)} navbarBottom=${Math.round(after.navbarBottom)} atTop=${atTop} feedbackGone=${feedbackGone}`);
       }
     }
-    console.log(`${size.name}: worst overflow ${worst}px over ${QUESTIONS} questions`);
+    console.log(`${tag}: worst overflow ${worst}px over ${QUESTIONS} questions`);
     await ctx.close();
   }
   await browser.close();

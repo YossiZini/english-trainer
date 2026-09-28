@@ -26,7 +26,8 @@ class WrongAnswer {
         lesson_id: wa.lesson_id,
         exercise_id: wa.exercise_id,
         user_answer: wa.user_answer,
-        correct_answer: wa.correct_answer,
+        // The exercise's current answer: a content fix applies to old mistakes too.
+        correct_answer: exercise?.correct_answer ?? wa.correct_answer,
         attempt_number: wa.attempt_number,
         is_reviewed: wa.is_reviewed,
         is_corrected: wa.is_corrected,
@@ -76,7 +77,8 @@ class WrongAnswer {
         lesson_id: wa.lesson_id,
         exercise_id: wa.exercise_id,
         user_answer: wa.user_answer,
-        correct_answer: wa.correct_answer,
+        // The exercise's current answer: a content fix applies to old mistakes too.
+        correct_answer: exercise?.correct_answer ?? wa.correct_answer,
         attempt_number: wa.attempt_number,
         is_reviewed: wa.is_reviewed,
         is_corrected: wa.is_corrected,
