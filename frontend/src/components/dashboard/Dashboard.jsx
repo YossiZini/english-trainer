@@ -4,7 +4,54 @@ import { useAuth } from '../../context/AuthContext';
 import progressService from '../../services/progressService';
 import DailyChallenge from '../challenges/DailyChallenge';
 import achievementService from '../../services/achievementService';
+import { continueTarget, DIFFICULTY_LABELS } from './continueTarget';
 import './Dashboard.css';
+
+// The subjects on the home page, in display order. Scores, streak, level,
+// achievements and the daily challenge are shared by both.
+const SUBJECTS = [
+  { key: 'english', label: 'אנגלית', icon: '🔤', page: '/topics' },
+  { key: 'math', label: 'מתמטיקה', icon: '🔢', page: '/math' }
+];
+const SUBJECT_LABELS = Object.fromEntries(SUBJECTS.map(s => [s.key, s.label]));
+
+/** One subject's continue button: next level of the last lesson, or the next lesson. */
+const SubjectContinueCard = ({ subject, data, onGo }) => {
+  const last = data?.lastActivity || null;
+  const target = continueTarget(data?.nextLesson || null, last);
+  if (target.kind === 'done') {
+    return (
+      <button className={`continue-training-btn ${subject.key} done`} onClick={() => onGo(subject.page)}>
+        <div className="continue-training-icon">🎓</div>
+        <div className="continue-training-content">
+          <div className="continue-training-label">{subject.label}</div>
+          <div className="continue-training-lesson">סיימת את כל השיעורים!</div>
+        </div>
+      </button>
+    );
+  }
+  const lastScore = target.kind === 'exercise' && last ? last.score : null;
+  return (
+    <button className={`continue-training-btn ${subject.key}`} onClick={() => onGo(target.path)}>
+      <div className="continue-training-icon">{subject.icon}</div>
+      <div className="continue-training-content">
+        <div className="continue-training-label">המשך {subject.label}</div>
+        <div className="continue-training-lesson">{target.title}</div>
+        <div className="continue-training-detail">
+          {target.kind === 'exercise' ? (
+            <>
+              תרגול רמה: <span className="difficulty-badge">{DIFFICULTY_LABELS[target.difficulty]}</span>
+              {lastScore != null && <> {' • '}ציון אחרון: {lastScore}%</>}
+            </>
+          ) : (
+            <>שיעור חדש</>
+          )}
+        </div>
+      </div>
+      <div className="continue-training-arrow">←</div>
+    </button>
+  );
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -68,7 +115,7 @@ const Dashboard = () => {
     );
   }
 
-  const { stats, completion, nextLesson, recentActivity, mistakeStats, gamification, dailyStats } = dashboardData;
+  const { stats, completion, recentActivity, mistakeStats, gamification, dailyStats, subjects = {} } = dashboardData;
 
   return (
     <div className="dashboard-page">
@@ -78,7 +125,7 @@ const Dashboard = () => {
           <h1 className="welcome-title">
             שלום, {user?.studentName || user?.name || 'תלמיד'}! 👋
           </h1>
-          <p className="welcome-subtitle">בוא נמשיך ללמוד אנגלית</p>
+          <p className="welcome-subtitle">מה לומדים היום? אנגלית או מתמטיקה</p>
         </div>
 
         {/* Daily Stats Section */}
@@ -101,104 +148,11 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Training Actions Row */}
+        {/* One continue button per subject */}
         <div className="training-actions-row">
-          {nextLesson ? (
-            (() => {
-              const lastActivity = recentActivity?.[0];
-              const difficultyOrder = ['easy', 'medium', 'hard'];
-              const difficultyLabels = {
-                easy: 'קל',
-                medium: 'בינוני',
-                hard: 'מתקדם'
-              };
-
-              // Determine target calculation
-              let targetLessonId, targetDifficulty, targetTitle, isNextLesson = false;
-              let shouldNavigateToExercise = false;
-
-              // If no activity, just go to next lesson
-              if (!lastActivity) {
-                isNextLesson = true;
-                targetLessonId = nextLesson.id;
-                targetTitle = nextLesson.title_he;
-              } else {
-                // Check next difficulty regardless of score
-                const currentDifficulty = lastActivity.difficulty || 'easy';
-                const currentIndex = difficultyOrder.indexOf(currentDifficulty);
-
-                if (currentIndex >= 0 && currentIndex < difficultyOrder.length - 1) {
-                  // Go to next difficulty (Easy -> Medium -> Hard)
-                  shouldNavigateToExercise = true;
-                  targetLessonId = lastActivity.lesson_id; // Stay on same lesson
-                  targetDifficulty = difficultyOrder[currentIndex + 1];
-                  targetTitle = lastActivity.title_he;
-                } else {
-                  // Finished hard (or unknown) -> Go to next lesson
-                  isNextLesson = true;
-                  targetLessonId = nextLesson.id;
-                  targetTitle = nextLesson.title_he;
-                }
-              }
-
-              const difficultyLabel = targetDifficulty
-                ? difficultyLabels[targetDifficulty]
-                : null;
-
-              return (
-                <button
-                  className="continue-training-btn"
-                  onClick={() => {
-                    if (shouldNavigateToExercise) {
-                      navigate(`/exercise/${targetLessonId}?difficulty=${targetDifficulty}`);
-                    } else {
-                      navigate(`/learn/${targetLessonId}`);
-                    }
-                  }}
-                >
-                  <div className="continue-training-icon">▶️</div>
-                  <div className="continue-training-content">
-                    <div className="continue-training-label">המשך אימון</div>
-                    <div className="continue-training-lesson">{targetTitle}</div>
-                    <div className="continue-training-detail">
-                      {shouldNavigateToExercise ? (
-                        <>
-                          תרגול רמה: <span className="difficulty-badge">{difficultyLabel}</span>
-                          {(lastActivity && !isNextLesson && lastActivity.lesson_id === targetLessonId && difficultyOrder.indexOf(lastActivity.difficulty || 'easy') === difficultyOrder.indexOf(targetDifficulty)) ? (
-                            <> {' • '}ציון אחרון: {lastActivity.score}%</>
-                          ) : null}
-                        </>
-                      ) : (
-                        <>שיעור חדש</>
-                      )}
-                    </div>
-                  </div>
-                  <div className="continue-training-arrow">←</div>
-                </button>
-              );
-            })()
-          ) : (
-            <div className="continue-training-complete">
-              <div className="complete-icon">🎓</div>
-              <div className="complete-text">סיימת הכל!</div>
-            </div>
-          )}
-
-          <button
-            className="quick-training-btn vocabulary-btn"
-            onClick={() => navigate('/vocabulary')}
-          >
-            <span className="quick-training-icon">📝</span>
-            <span className="quick-training-text">לימוד מילים</span>
-          </button>
-
-          <button
-            className="quick-training-btn unseen-btn"
-            onClick={() => navigate('/unseen')}
-          >
-            <span className="quick-training-icon">📖</span>
-            <span className="quick-training-text">לימוד פסקאות</span>
-          </button>
+          {SUBJECTS.map(subject => (
+            <SubjectContinueCard key={subject.key} subject={subject} data={subjects[subject.key]} onGo={navigate} />
+          ))}
         </div>
 
         {/* Gamification Section */}
@@ -252,30 +206,13 @@ const Dashboard = () => {
         <div className="quick-actions">
           <h2 className="section-title">פעולות מהירות</h2>
           <div className="actions-grid">
-            {nextLesson ? (
-              <button
-                className="action-card primary"
-                onClick={() => navigate(`/learn/${nextLesson.id}`)}
-              >
-                <div className="action-icon">📚</div>
-                <div className="action-title">המשך ללמוד</div>
-                <div className="action-subtitle">{nextLesson.title_he}</div>
-              </button>
-            ) : (
-              <div className="action-card completed-all">
-                <div className="action-icon">🎓</div>
-                <div className="action-title">סיימת הכל!</div>
-                <div className="action-subtitle">כל הכבוד!</div>
-              </div>
-            )}
-
             <button
               className="action-card secondary"
               onClick={() => navigate('/topics')}
             >
               <div className="action-icon">📋</div>
-              <div className="action-title">כל הנושאים</div>
-              <div className="action-subtitle">אנגלית — בחר שיעור</div>
+              <div className="action-title">אנגלית</div>
+              <div className="action-subtitle">כל הנושאים, מילים ופסקאות</div>
             </button>
 
             <button
@@ -303,24 +240,6 @@ const Dashboard = () => {
               <div className="action-icon">🎯</div>
               <div className="action-title">מבחן משולב</div>
               <div className="action-subtitle">שאלות מכל הנושאים</div>
-            </button>
-
-            <button
-              className="action-card vocabulary-card"
-              onClick={() => navigate('/vocabulary')}
-            >
-              <div className="action-icon">📝</div>
-              <div className="action-title">לימוד מילים</div>
-              <div className="action-subtitle">תרגול אוצר מילים</div>
-            </button>
-
-            <button
-              className="action-card unseen-card"
-              onClick={() => navigate('/unseen')}
-            >
-              <div className="action-icon">📖</div>
-              <div className="action-title">פסקאות באנגלית</div>
-              <div className="action-subtitle">Unseen - הבנת הנקרא</div>
             </button>
 
             {mistakeStats.uncorrected_count > 0 && (
@@ -401,22 +320,25 @@ const Dashboard = () => {
         {/* Progress Bar */}
         <div className="progress-section">
           <h2 className="section-title">ההתקדמות שלך</h2>
-          <div className="progress-card">
-            <div className="progress-header">
-              <span className="progress-label">השלמת שיעורים</span>
-              <span className="progress-percentage">{completion.percentage}%</span>
-            </div>
-            <div className="progress-bar-container">
-              <div
-                className="progress-bar-fill"
-                style={{ width: `${completion.percentage}%` }}
-              ></div>
-            </div>
-            <div className="progress-footer">
-              <span>{completion.completed_lessons} הושלמו</span>
-              <span>{completion.total_lessons - completion.completed_lessons} נותרו</span>
-            </div>
-          </div>
+          {SUBJECTS.map(subject => {
+            const c = subjects[subject.key]?.completion;
+            if (!c) return null;
+            return (
+              <div className={`progress-card ${subject.key}`} key={subject.key}>
+                <div className="progress-header">
+                  <span className="progress-label">{subject.icon} {subject.label}</span>
+                  <span className="progress-percentage">{c.percentage}%</span>
+                </div>
+                <div className="progress-bar-container">
+                  <div className="progress-bar-fill" style={{ width: `${c.percentage}%` }}></div>
+                </div>
+                <div className="progress-footer">
+                  <span>{c.completed_lessons} הושלמו</span>
+                  <span>{c.total_lessons - c.completed_lessons} נותרו</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Recent Activity */}
@@ -430,7 +352,12 @@ const Dashboard = () => {
                     {activity.score >= 70 ? '✅' : '📝'}
                   </div>
                   <div className="activity-content">
-                    <div className="activity-title">{activity.title_he}</div>
+                    <div className="activity-title">
+                      {activity.subject && (
+                        <span className={`subject-badge ${activity.subject}`}>{SUBJECT_LABELS[activity.subject]}</span>
+                      )}
+                      {activity.title_he}
+                    </div>
                     <div className="activity-details">
                       ניסיון {activity.attempt_number} • ציון: {activity.score}% •{' '}
                       {activity.correct_answers}/{activity.total_questions} נכונות
