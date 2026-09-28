@@ -8,7 +8,9 @@ describe('hebrewAnswerMatches', () => {
   });
 
   test('accepts any listed alternative and an optional parenthesised part', () => {
-    expect(alternatives('גדול / ענק, עצום')).toEqual(['גדול', 'ענק', 'עצום']);
+    expect(alternatives('גדול / ענק, עצום')).toEqual(['גדול ענק עצום', 'גדול', 'ענק', 'עצום']);
+    expect(hebrewAnswerMatches('כוס / זכוכית', 'כוס / זכוכית')).toBe(true);
+    expect(hebrewAnswerMatches('מ (מילת יחס)', 'מ (מילת יחס)')).toBe(true);
     expect(hebrewAnswerMatches('ענק', 'גדול / ענק')).toBe(true);
     expect(hebrewAnswerMatches('לבד', '(לגמרי) לבד')).toBe(true);
     expect(hebrewAnswerMatches('לגמרי לבד', '(לגמרי) לבד')).toBe(true);
