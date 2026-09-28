@@ -43,9 +43,13 @@ export const Eq = ({ x, y, children, anim = '' }) => (
   <Text x={x} y={y} cls={`la-eq ${anim}`} style={{ transformOrigin: `${x}px ${y}px` }}>{children}</Text>
 );
 
+// Arithmetic inside a Hebrew note keeps its left-to-right order (bidi isolates).
+const MATH_RUN = /(\d[\d\s+−×÷=/.,%:()₪?]*\d|\d)/g;
+const isolateMath = (text) => String(text).replace(MATH_RUN, (m) => (/[+−×÷=/]/.test(m) ? `\u2066${m}\u2069` : m));
+
 /** Hebrew note under a drawing. */
 export const Note = ({ x, y, children, anim = '' }) => (
-  <Text x={x} y={y} cls={`la-note ${anim}`} rtl>{children}</Text>
+  <Text x={x} y={y} cls={`la-note ${anim}`} rtl>{typeof children === 'string' ? isolateMath(children) : children}</Text>
 );
 
 /**

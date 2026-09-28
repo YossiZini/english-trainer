@@ -218,6 +218,9 @@ Track changes per topic with dates and descriptions.
   exercises whose answers are computed by `seeds/fractions/rat.js` and checked
   by an independent evaluator. Fractions render stacked (numerator over
   denominator) everywhere. Topics 102–104 moved to order 1021/1031/1041. Sprint 3.
+- 2026-09-28: Animated explanations above the theory of all six subtopics
+  (`frontend/src/content/animations/fractions/`), one scene per rule, played by
+  `LessonAnimation`. Sprint 4.
 
 ### Topic 102: Order of Operations (Math)
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
