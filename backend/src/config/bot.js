@@ -35,5 +35,7 @@ module.exports = {
   /** Answer checks a student may use per day. */
   DAILY_JUDGE_CAP: toInt(process.env.BOT_DAILY_JUDGE_CAP, 100),
   /** Words the student can type to end a session. */
-  END_WORDS: ['end', 'stop', 'quit', 'סיים', 'סיום', 'סיימתי', 'די', 'עצור']
+  END_WORDS: ['end', 'stop', 'quit', 'סיים', 'סיום', 'סיימתי', 'די', 'עצור'],
+  /** Words that ask for the current word's example sentence (not an answer). */
+  EXAMPLE_WORDS: ['?', '？', 'דוגמה', 'דוגמא', 'משפט', 'example', 'hint']
 };

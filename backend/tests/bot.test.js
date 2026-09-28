@@ -205,6 +205,29 @@ describe('Bot API', () => {
     await bot('/api/bot/session/end');
   });
 
+  test('"?" returns the example sentence of the current word without counting as an answer', async () => {
+    await bot('/api/bot/session/start');
+    const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
+    const user = await db.findOne('users', { name: 'bot-student' });
+    const scoresBefore = (await db.find('vocabulary_word_scores', { user_id: user.id })).length;
+    const words = db.getCollection('vocabulary_words', true);
+    const word = words.find(w => w.id === started.word.id);
+
+    for (const text of ['?', 'דוגמה', ' Example ']) {
+      const reply = (await bot('/api/bot/session/answer', { text })).body.data;
+      expect(reply.example).toBe(true);
+      expect(reply.sentence).toBe(word.sentence_en || null);
+      expect(reply.word.id).toBe(word.id);
+      expect(reply.progress.index).toBe(1);
+    }
+    expect((await db.find('vocabulary_word_scores', { user_id: user.id })).length).toBe(scoresBefore);
+    // The word is still waiting for its answer.
+    const answered = (await bot('/api/bot/session/answer', { text: word.hebrew_translation })).body.data;
+    expect(answered.correct).toBe(true);
+    expect(answered.progress.index).toBe(2);
+    await bot('/api/bot/session/end');
+  });
+
   test('"end" ends the session with a summary and a new start replaces an active one', async () => {
     const first = await bot('/api/bot/session/start');
     const second = await bot('/api/bot/session/start');

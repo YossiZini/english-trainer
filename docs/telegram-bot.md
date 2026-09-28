@@ -17,6 +17,8 @@ round after round, until none are left. "סיים" ends the session.
    An answer that misses the dictionary but is short Hebrew gets one Gemini
    check in the API (see "Answer judging" below); if Gemini accepts it, it
    counts as right and the reply shows the dictionary translation too.
+   "?" (or "דוגמה") shows the current word's English example sentence and
+   asks the same word again; it is not an answer and nothing is recorded.
 3. After the 20th word the failed words return shuffled, round after round,
    until none fail. The summary shows rounds, right/wrong, points earned
    and the new total. "סיים" ends at any time with the same summary.

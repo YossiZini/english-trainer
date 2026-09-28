@@ -30,6 +30,7 @@ async def main() -> int:
     print(f"> {code}\n<", await say(code))
     print("> מילים\n<", await say("מילים"))
     print("> 1\n<", await say("1"))
+    print("> ?\n<", await say("?"))
     for text in ["בטח לא", "גם לא", "עדיין לא"]:
         print(f"> {text}\n<", await say(text))
     print("> סיים\n<", await say("סיים"))

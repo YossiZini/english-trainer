@@ -8,7 +8,7 @@ const { pickWordsForUser, LEVELS } = require('./bot/wordPicker');
 const { hebrewAnswerMatches, judgeable } = require('../utils/hebrewAnswer');
 const { shuffleArray } = require('../utils/shuffle');
 const BotUsage = require('../models/BotUsage');
-const { SESSION_SIZE, END_WORDS, DAILY_JUDGE_CAP } = require('../config/bot');
+const { SESSION_SIZE, END_WORDS, EXAMPLE_WORDS, DAILY_JUDGE_CAP } = require('../config/bot');
 const answerJudge = require('./bot/answerJudge');
 
 /**
@@ -24,6 +24,7 @@ const answerJudge = require('./bot/answerJudge');
 
 const POINTS_PER_CORRECT = 1;
 const isEndCommand = (text) => END_WORDS.includes(String(text || '').trim().toLowerCase());
+const isExampleRequest = (text) => EXAMPLE_WORDS.includes(String(text || '').trim().toLowerCase());
 
 const LEVEL_WORDS = { 'קל': 1, 'בינוני': 2, 'קשה': 3 };
 
@@ -101,6 +102,10 @@ class BotService {
     if (session.status === 'setup') return this.setup(user, session, text);
 
     const word = await currentWord(session);
+    if (isExampleRequest(text)) {
+      // The example sentence of the current word; not an answer, nothing recorded.
+      return { example: true, sentence: word.sentence_en || null, word: wordView(word), progress: progress(session) };
+    }
     const matched = hebrewAnswerMatches(text, word.hebrew_translation);
     const judged = !matched && judgeable(text) && await BotUsage.reserveJudgement(user.id, DAILY_JUDGE_CAP)
       && await answerJudge.accepts({ english: word.english_word, expected: word.hebrew_translation, given: String(text).trim() });
