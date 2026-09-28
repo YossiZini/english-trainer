@@ -202,3 +202,62 @@ work in this repository (referenced from CLAUDE.md).
   (`ExercisePage`, `LearningPage` still branch on `subject === 'math'`).
 - Allow a second work branch per session (or merge small PRs promptly) so
   defect fixes and sprint close-out do not wait on each other.
+
+## Sprint 3 — Fractions: subtopics, visual explanations, book-style notation (2026-09-27)
+
+### What went well
+- **Answers computed, never typed.** `rat.js` (exact rationals, unit-tested)
+  produced every Fractions answer and a second, independent evaluator
+  re-checked all 180; the only wrong answer key was caught by re-reading
+  before commit. The same script later verified all 270 options.
+- **One renderer for notation.** `MathText` plus the seed-level
+  `stackFractions` turned every `a/b` into textbook notation in one sprint,
+  with no change to how content is written.
+- **Pictures as pure functions.** `math-svg.js` and `pictures.js` return
+  strings, so explanation pictures were attached automatically from the
+  question's shape; 74 of 180 questions got one without hand work.
+- **Scope changes absorbed in the sprint** (explanation pictures, multiple
+  choice only) because each landed as a story with its own PR the same day.
+- **Screenshots caught what tests cannot**: reversed captions, fractions next
+  to a list comma not stacked, pictures overflowing the pinned bar on phones,
+  weak integer distractors.
+
+### What hurt
+- **A broken seed silently deleted its subject.** A mangled `require` line
+  made the generator skip the Math seed and write the JSON without Math;
+  the next run minted new lesson ids that would have orphaned progress.
+  Cause: `catch` + `console.error` around seed loading. Fixed: it throws.
+- **Escape layers again.** A heredoc wrote the isolate characters literally,
+  so the next `str.replace` matched nothing (rule from Sprint 2 not
+  followed: the Write tool was used later, the heredoc first).
+- **Serial PRs blocked defect fixes twice more** (d3 waited on PR #14, the
+  visuals on PR #15); one fix rode along in a sprint PR to unblock.
+- **Value-equal options.** Multiple choice compares by value on the server,
+  so a wrong option `18/24` next to answer `3/4` would be marked correct.
+  Six hand-written questions had this or an accidental duplicate; only the
+  check script exposed it.
+- **RTL surprises in SVG**: text inside `<svg>` inherited RTL and reversed
+  "1 1/4"; captions with two isolates reversed; the number-line labels were
+  converted to HTML inside the SVG. Each cost a render round.
+- **Board typo at start** (`startedAt` a day ahead) repeated Sprint 2's.
+
+### Lessons → rules
+- Content loaders never swallow errors: a seed or data file that fails to
+  load aborts the run (ids are derived from the previous output).
+- A wrong option must differ from the answer **by value**, and the check
+  script asserts it, because answers are compared by value.
+- Inline SVG gets `direction="ltr"` on the root and stays free of HTML
+  post-processing; captions with mixed text use `dir="auto"`.
+- Every content transform (notation, pictures, multiple choice) runs at seed
+  export in one `finish*` function, so authors write plain data and one place
+  owns the pipeline.
+- Ask for the merge of a small PR before starting the next change that
+  needs the branch, instead of stacking local branches.
+
+### Follow-ups
+- Laptop: four stacked-fraction options plus feedback slightly exceed the
+  space above the pinned bar (`.option` padding when it holds a fraction).
+- Pictures for the remaining 106 Fractions questions (reverse questions,
+  three-way ordering) and for topics 102–104.
+- Hosting `no-cache` on rewritten routes (still pending from Sprint 2).
+- Convert the English seeds to plain modules and drop the `eval` parser.
