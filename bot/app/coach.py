@@ -1,8 +1,8 @@
 """One student message in, one Hebrew reply out.
 
 Order of checks: the daily turn cap, then the deterministic fast path (a
-link code, a start or end word, or an answer while a session is active),
-then the ADK agent for anything else, with a bound on model calls per turn
+link code, a start, lesson-list or end word, or an answer while a session is
+active), then the ADK agent for anything else, with a bound on model calls per turn
 and a bounded conversation history."""
 import logging
 import re
@@ -14,7 +14,7 @@ from google.genai import types
 
 from . import config, replies
 from .replies import Reply
-from .exercise_replies import exercise_start_reply
+from .exercise_replies import exercise_start_reply, lesson_list_reply
 from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
@@ -22,6 +22,8 @@ from . import tools
 
 log = logging.getLogger("bot")
 CODE = re.compile(r"^\d{6}$")
+# "תרגיל אנגלית 12": start lesson 12 of the subject's list directly.
+NUMBERED = re.compile(r"^(.+?)\s+(\d{1,3})$")
 
 
 class Coach:
@@ -52,6 +54,12 @@ class Coach:
             return Reply(replies.LINKED if result["ok"] else replies.error_reply(result))
         if lowered in config.EXERCISE_WORDS:
             return exercise_start_reply(await self.api.exercise_start(chat_id, subject=config.EXERCISE_WORDS[lowered]))
+        numbered = NUMBERED.match(lowered)
+        if numbered and numbered.group(1) in config.EXERCISE_WORDS:
+            subject = config.EXERCISE_WORDS[numbered.group(1)]
+            return exercise_start_reply(await self.api.exercise_start(chat_id, subject=subject, number=int(numbered.group(2))))
+        if lowered in config.LESSONS_WORDS:
+            return lesson_list_reply(await self.api.exercise_lessons(chat_id, config.LESSONS_WORDS[lowered]))
         if lowered in config.START_WORDS or lowered == "/start":
             return replies.start_reply(await self.api.start(chat_id))
         if lowered in config.END_WORDS:

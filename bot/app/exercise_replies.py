@@ -1,11 +1,18 @@
 """Hebrew replies for lesson exercises, built from the API's data only.
 
 A multiple-choice question lists its options as "1) …" lines and offers
-buttons 1..n; a fill-in question removes the keyboard. The verdict, the
+buttons 1..n; a fill-in question removes the keyboard. The lesson list is
+numbered across pages; the student sends a lesson's number. The verdict, the
 right option and the score always come from the API."""
 from .replies import Reply
 
 SUBJECT_COMMAND = {"english": "תרגיל אנגלית", "math": "תרגיל חשבון"}
+SUBJECT_NAME = {"english": "אנגלית", "math": "חשבון"}
+MARKS = {"done": "✅ ", "next": "▶️ ", "open": ""}
+MORE, BACK = "עוד", "הקודם"
+PICK_INVALID = "שלחו מספר של שיעור מהרשימה:"
+PICK_CLOSED = "סגרנו את רשימת השיעורים."
+START_INTRO = "מתחילים! ענו במספר התשובה, או כתבו \"סיים\" כדי לעצור."
 
 ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה."
 LESSON_NOT_FOUND = "לא מצאתי את השיעור הזה."
@@ -58,18 +65,39 @@ def result_text(data: dict) -> str:
     return "\n".join(lines)
 
 
+def lesson_list_text(data: dict) -> Reply:
+    """One page of the lesson list; buttons turn the page, the number is typed."""
+    lines = [PICK_INVALID] if data.get("invalid") else []
+    lines.append(f"📚 שיעורי {SUBJECT_NAME.get(data['subject'], '')} · עמוד {data['page']}/{data['pages']}")
+    lines += [f"{item['n']}. {MARKS.get(item['status'], '')}{item['title']}" for item in data["items"]]
+    lines.append("שלחו את מספר השיעור (✅ עברתם, ▶️ הבא בתור), או \"סיים\" כדי לסגור.")
+    buttons = ([BACK] if data["page"] > 1 else []) + ([MORE] if data["page"] < data["pages"] else [])
+    return Reply("\n".join(lines), buttons)
+
+
+def lesson_list_reply(result: dict) -> Reply:
+    if not result["ok"]:
+        return Reply(_error(result))
+    return lesson_list_text(result["data"])
+
+
 def exercise_start_reply(result: dict) -> Reply:
     if not result["ok"]:
-        return Reply(EXERCISE_ERRORS.get(result.get("code"), "") or _error(result))
-    return question_reply(result["data"], "מתחילים! ענו במספר התשובה, או כתבו \"סיים\" כדי לעצור.")
+        return Reply(_error(result))
+    return question_reply(result["data"], START_INTRO)
 
 
 def exercise_answer_reply(data: dict) -> Reply:
     if data.get("ended"):
         return exercise_end_reply(data)
+    if data.get("pick"):
+        return lesson_list_text(data)
     if data.get("chooseNumber"):
         count = len(data["question"].get("options") or [])
         return question_reply(data, f"ענו במספר בין 1 ל-{count}:")
+    if "verdict" not in data:
+        # A lesson picked from the list: its first question.
+        return question_reply(data, START_INTRO)
     verdict = verdict_text(data["verdict"])
     if data.get("done"):
         return Reply(verdict + "\n\n" + result_text(data))
@@ -78,6 +106,8 @@ def exercise_answer_reply(data: dict) -> Reply:
 
 
 def exercise_end_reply(data: dict) -> Reply:
+    if data.get("pickClosed"):
+        return Reply(PICK_CLOSED)
     lesson = data["lesson"]
     return Reply(
         f"עצרנו באמצע \"{lesson['title']}\" ({data['answered']}/{data['total']} שאלות, {data['correct']} נכונות). "
@@ -86,6 +116,8 @@ def exercise_end_reply(data: dict) -> Reply:
 
 
 def exercise_status_reply(data: dict) -> Reply:
+    if data.get("pick"):
+        return lesson_list_text(data)
     return question_reply(data, "התרגיל ממשיך:")
 
 

@@ -97,3 +97,46 @@ def test_final_summary_and_early_end():
 async def test_errors_become_hebrew_replies():
     respx.post(f"{API}/bot/exercise/start").mock(return_value=httpx.Response(409, json={"code": "all_done"}))
     assert (await coach().handle("7", "תרגיל חשבון")).text == er.ALL_DONE
+
+
+def page(n, pages=10, statuses=("done", "next", "open")):
+    items = [{"n": (n - 1) * 10 + i + 1, "id": f"L{i}", "title": f"שיעור {i}", "status": statuses[i] if i < len(statuses) else "open"}
+             for i in range(3)]
+    return {"kind": "exercise", "pick": True, "sessionId": "s", "subject": "math", "page": n, "pages": pages, "count": 97, "items": items}
+
+
+@respx.mock
+async def test_lesson_list_marks_paging_and_pick():
+    route = respx.post(f"{API}/bot/exercise/lessons").mock(return_value=ok(page(1)))
+    listed = await coach().handle("7", "שיעורים חשבון")
+    assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "math"}
+    assert listed.text.splitlines()[:4] == ["📚 שיעורי חשבון · עמוד 1/10", "1. ✅ שיעור 0", "2. ▶️ שיעור 1", "3. שיעור 2"]
+    assert listed.buttons == ["עוד"]
+
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True, "kind": "exercise", "pick": True}))
+    respx.post(f"{API}/bot/session/answer").mock(side_effect=[
+        ok(page(2, statuses=())),
+        ok({**page(2, statuses=()), "invalid": True}),
+        ok({"kind": "exercise", "sessionId": "s2", "lesson": LESSON, "question": mc(1, ["a", "b", "c", "d"])}),
+        httpx.Response(409, json={"code": "no_exercises"}),
+    ])
+    c = coach()
+    more = await c.handle("7", "עוד")
+    assert more.text.splitlines()[1] == "11. שיעור 0" and more.buttons == ["הקודם", "עוד"]
+    bad = await c.handle("7", "999")
+    assert bad.text.startswith(er.PICK_INVALID)
+    picked = await c.handle("7", "12")
+    assert picked.text.startswith(er.START_INTRO) and picked.buttons == ["1", "2", "3", "4"]
+    assert (await c.handle("7", "13")).text == er.NO_EXERCISES
+
+    assert er.exercise_end_reply({"kind": "exercise", "ended": True, "pickClosed": True}).text == er.PICK_CLOSED
+    assert er.lesson_list_text(page(10)).buttons == ["הקודם"]
+
+
+@respx.mock
+async def test_numbered_command_starts_that_lesson():
+    route = respx.post(f"{API}/bot/exercise/start").mock(return_value=ok(
+        {"kind": "exercise", "sessionId": "s", "lesson": LESSON, "question": fill(1)}))
+    reply = await coach().handle("7", "תרגיל אנגלית 12")
+    assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "english", "number": 12}
+    assert reply.text.startswith(er.START_INTRO)

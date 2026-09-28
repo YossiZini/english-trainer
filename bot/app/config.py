@@ -42,3 +42,8 @@ EXERCISE_WORDS = {
     "תרגיל אנגלית": "english", "תרגול אנגלית": "english", "תרגילים אנגלית": "english",
     "תרגיל חשבון": "math", "תרגול חשבון": "math", "תרגילים חשבון": "math", "תרגיל מתמטיקה": "math",
 }
+# Open the numbered lesson list of a subject; the student answers with a number.
+LESSONS_WORDS = {
+    "שיעורים אנגלית": "english", "רשימת שיעורים אנגלית": "english",
+    "שיעורים חשבון": "math", "שיעורים מתמטיקה": "math", "רשימת שיעורים חשבון": "math",
+}

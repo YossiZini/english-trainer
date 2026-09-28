@@ -30,6 +30,7 @@ NOT_ENOUGH_WORDS = "אין מספיק מילים ברמה שלכם כרגע."
 HELP = ("אני מתרגל אתכם באנגלית ובחשבון.\n"
         "• \"מילים\": 20 מילים באנגלית, אתם עונים בעברית (\"?\" למשפט לדוגמה).\n"
         "• \"תרגיל אנגלית\" / \"תרגיל חשבון\": התרגילים של השיעור הבא; עונים במספר התשובה.\n"
+        "• \"שיעורים אנגלית\" / \"שיעורים חשבון\": רשימת השיעורים לבחירה (או \"תרגיל חשבון 12\").\n"
         "• \"סיים\" עוצר כל תרגול.")
 NO_EXAMPLE = "אין משפט לדוגמה למילה הזו."
 
@@ -55,7 +56,8 @@ def error_reply(result: dict) -> str:
         return BAD_CODE
     if code == "not_enough_words":
         return NOT_ENOUGH_WORDS
-    return UNREACHABLE
+    from .exercise_replies import EXERCISE_ERRORS
+    return EXERCISE_ERRORS.get(code, UNREACHABLE)
 
 
 def setup_reply(data: dict, intro: str = "") -> Reply:

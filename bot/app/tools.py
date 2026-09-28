@@ -5,7 +5,7 @@ from google.adk.tools import ToolContext
 
 from . import replies
 from .api_client import TrainerApi
-from .exercise_replies import exercise_start_reply
+from .exercise_replies import exercise_start_reply, lesson_list_reply
 
 _api: TrainerApi | None = None
 
@@ -45,10 +45,20 @@ async def session_status(tool_context: ToolContext) -> dict:
     return {"reply": str(replies.status_reply(await _api.status(_chat(tool_context))))}
 
 
-async def start_lesson_exercise(subject: str, tool_context: ToolContext) -> dict:
-    """Start the exercises of the student's next lesson. subject is "english" or "math"."""
-    subject = "math" if subject.strip().lower() in ("math", "חשבון", "מתמטיקה") else "english"
-    return {"reply": str(exercise_start_reply(await _api.exercise_start(_chat(tool_context), subject=subject)))}
+def _subject(subject: str) -> str:
+    return "math" if subject.strip().lower() in ("math", "חשבון", "מתמטיקה") else "english"
 
 
-TOOLS = [link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise]
+async def start_lesson_exercise(subject: str, tool_context: ToolContext, number: int = 0) -> dict:
+    """Start a lesson's exercises. subject is "english" or "math"; number is the lesson's number in the
+    subject's lesson list, or 0 for the student's next lesson."""
+    result = await _api.exercise_start(_chat(tool_context), subject=_subject(subject), number=number or None)
+    return {"reply": str(exercise_start_reply(result))}
+
+
+async def list_lessons(subject: str, tool_context: ToolContext) -> dict:
+    """Show the numbered lesson list of a subject ("english" or "math") so the student can pick one by number."""
+    return {"reply": str(lesson_list_reply(await _api.exercise_lessons(_chat(tool_context), _subject(subject))))}
+
+
+TOOLS = [link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise, list_lessons]
