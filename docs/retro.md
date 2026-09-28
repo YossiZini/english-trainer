@@ -518,3 +518,97 @@ its source in `docs/architecture/` and a keep-current rule in CLAUDE.md;
 - `App.test.js` still cannot load `react-router/dom` under jest.
 - Carried over: Hosting `no-cache` header, shared stage geometry, agent-path
   check against production once per release.
+
+## Sprint 8 — Lesson exercises in the Telegram bot (2026-09-28)
+
+Goal: let a student do a lesson's exercises from the Telegram bot, English
+or Math, with answers by number.
+Result: all six stories in PR #38 (next lesson, numbered lesson list, direct
+"lesson N", "?" hint, chosen level), graded by the same service as the web.
+Two follow-ups during the sprint: English commands and a Hebrew `/help`
+(PR #39), then every question in every topic multiple choice (PR #40): 950
+English fill-in questions converted and reviewed, 16 keys, 100 explanations
+and 28 older questions repaired, exact grading of chosen options, Hebrew-
+first questions shown in reading order, and the bot setting its own command
+menu. All three deploys green.
+
+### What went well
+- **One grader for web and bot.** The bot's exercise session ends in
+  `ExerciseService.submitExercise`, so score, points, mistakes and progress
+  match the web by construction; the test asserts 9/10 → 90 → +10 points.
+- **The API owns the state.** A session `kind` routes answers to the
+  vocabulary or the exercise service; the bot only builds text from API data,
+  so vocabulary sessions did not change.
+- **Content at scale with a brief, a validator and a second reviewer.** Five
+  agents converted 950 questions against one written brief; a script checked
+  every option mechanically; five fresh agents reviewed every question and a
+  final read covered all 950. The review surfaced far more old faults than
+  new ones (wrong keys, explanations calling correct English a mistake).
+- **Invariants became a test.** `content.test.js` (every exercise multiple
+  choice, 3–4 distinct options, exactly one accepted) found the twelve
+  capitalisation questions that accepted every option on its first run.
+- **Diffing the store before committing.** A script confirmed that only the
+  intended fields of the intended 978 exercises changed; ids, order and Math
+  untouched.
+- **Baseline before blame.** Running the viewport check on the old content
+  showed most overflow was pre-existing, so only the one real regression
+  (four two-line options) was fixed.
+
+### What hurt
+- **Hebrew command words were also answers.** "די", "מילה" and "משפט" are
+  translations, so a vocabulary answer could end or restart the session;
+  the words were picked in Sprint 6 without checking them against the
+  vocabulary. English commands (PR #39) removed the class of bug.
+- **One comparison rule for typed and chosen answers.** Case-insensitive
+  matching, right for typed text, made "i like pizza" / "I like pizza"
+  options all correct; nothing tested content invariants until this sprint.
+- **The English content had never been reviewed.** 16 wrong keys, 100 false
+  explanations, duplicated options and "wrong" options that are correct in
+  British or American English had shipped since the content was generated.
+- **A manual deploy step on the owner's laptop.** Setting the Telegram menu
+  needed a script that the office network blocked (api.telegram.org) and a
+  Cloud Shell without `gcloud auth login`; several phone round trips before
+  the bot took the step over at startup.
+- **The conversion brief missed patterns** (hints that print the answer, a
+  second blank inside parentheses, false explanations); it was extended
+  while agents ran, and one reviewer had to be messaged the new rule.
+- **English-lesson text was forced left-to-right**, so questions starting in
+  Hebrew showed their Hebrew words in reverse order; screenshots of the
+  converted questions exposed it.
+- **A scripted edit sliced between `index()` hits of a non-unique anchor**
+  ("LINKED" inside "NOT_LINKED") and cut three constants; the tests caught it.
+
+### Lessons → rules
+- A chosen option is graded by exact text (`choiceMatches`); lenient
+  comparison is only for typed answers.
+- A wrong option must be wrong in its sentence in both British and American
+  English, not only differ by value; when two forms are acceptable, keep the
+  other out of the options and let the explanation say it is also right
+  (refines the Sprint 3 option rule; `content.test.js` guards the format).
+- Bot commands are English words (the "/" optional); never a word that can
+  be an answer in any session kind.
+- A step the deployed service can do for itself (menus, registrations) runs
+  at its startup, best effort; never as a script on the owner's machine.
+- Before briefing agents on content, read a sample of every topic the brief
+  covers; when a new pattern appears, update the brief file and message the
+  agents already running.
+- Run a UI check on `main` first and report only the difference as a
+  regression (refines "UI acceptance checks walk enough samples").
+- Mixed Hebrew/English text takes its direction from its first letter and
+  isolates embedded runs (`<bdi>`, `utils/bidi.js`); check one Hebrew-first
+  and one English-first sample in screenshots.
+- Scripted edits assert that every anchor occurs exactly once before
+  replacing.
+
+### Follow-ups
+- d6: audit the ~1,200 older English multiple-choice questions the same way
+  (the reviewers found 23 flawed ones while reading nearby lessons).
+- Hard lessons overflow the 360 px layout (long explanations, sentence-long
+  options); add the heavy lessons to `check:viewport` (`LESSONS`,
+  `DIFFICULTY`) and decide on a compact layout or shorter explanations.
+- The English seed files still hold `fill_in_blank` exercises; the JSON is
+  the English store, so a rebuild from seeds would undo the conversion.
+  Convert or retire the English seeds (open since Sprint 2).
+- `FillInBlank` is unused now; keep it for a future typed mode or remove it.
+- Carried over: `App.test.js` under jest, Hosting `no-cache` header, shared
+  stage geometry.
