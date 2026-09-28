@@ -217,3 +217,11 @@
     font-size: 0.85rem;
   }
 }
+
+/* Telegram button: icon only on small phones so the logout button fits */
+.navbar-telegram-icon { display: none; }
+@media (max-width: 480px) {
+  .navbar-telegram-icon { display: inline; }
+  .navbar-telegram-text { display: none; }
+  .navbar-telegram { padding: 0.3rem 0.5rem; }
+}

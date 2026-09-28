@@ -291,8 +291,13 @@ const mathTopicVideos = {};
 
 const topicMeta = {
   english: {
-    title: 'נושאי לימוד',
+    title: 'אנגלית',
     route: '/topics',
+    // Header actions: a route, or 'next-lesson' (the first lesson not completed).
+    actions: [
+      { icon: '📝', label: 'לימוד מילים', to: '/vocabulary' },
+      { icon: '📖', label: 'פסקאות באנגלית', to: '/unseen' }
+    ],
     nameKey: 'en',
     numberOffset: 0,
     topicNames,
@@ -303,6 +308,10 @@ const topicMeta = {
   math: {
     title: 'מתמטיקה',
     route: '/math',
+    actions: [
+      { icon: '▶️', label: 'השיעור הבא', to: 'next-lesson' },
+      { icon: '🔄', label: 'תיקון טעויות', to: '/mistakes' }
+    ],
     nameKey: 'he',
     numberOffset: 100,
     topicNames: mathTopicNames,

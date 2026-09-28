@@ -21,7 +21,7 @@ const SubjectContinueCard = ({ subject, data, onGo }) => {
   const target = continueTarget(data?.nextLesson || null, last);
   if (target.kind === 'done') {
     return (
-      <button className={`continue-training-btn ${subject.key} done`} onClick={() => onGo(subject.page)}>
+      <button className={`continue-training-btn subject-${subject.key} done`} onClick={() => onGo(subject.page)}>
         <div className="continue-training-icon">🎓</div>
         <div className="continue-training-content">
           <div className="continue-training-label">{subject.label}</div>
@@ -32,7 +32,7 @@ const SubjectContinueCard = ({ subject, data, onGo }) => {
   }
   const lastScore = target.kind === 'exercise' && last ? last.score : null;
   return (
-    <button className={`continue-training-btn ${subject.key}`} onClick={() => onGo(target.path)}>
+    <button className={`continue-training-btn subject-${subject.key}`} onClick={() => onGo(target.path)}>
       <div className="continue-training-icon">{subject.icon}</div>
       <div className="continue-training-content">
         <div className="continue-training-label">המשך {subject.label}</div>
@@ -318,21 +318,21 @@ const Dashboard = () => {
         </div>
 
         {/* Progress Bar */}
-        <div className="progress-section">
+        <div className="home-progress-section">
           <h2 className="section-title">ההתקדמות שלך</h2>
           {SUBJECTS.map(subject => {
             const c = subjects[subject.key]?.completion;
             if (!c) return null;
             return (
-              <div className={`progress-card ${subject.key}`} key={subject.key}>
-                <div className="progress-header">
-                  <span className="progress-label">{subject.icon} {subject.label}</span>
-                  <span className="progress-percentage">{c.percentage}%</span>
+              <div className={`home-progress-card subject-${subject.key}`} key={subject.key}>
+                <div className="home-progress-header">
+                  <span className="home-progress-label">{subject.icon} {subject.label}</span>
+                  <span className="home-progress-percentage">{c.percentage}%</span>
                 </div>
-                <div className="progress-bar-container">
-                  <div className="progress-bar-fill" style={{ width: `${c.percentage}%` }}></div>
+                <div className="home-progress-bar-container">
+                  <div className="home-progress-bar-fill" style={{ width: `${c.percentage}%` }}></div>
                 </div>
-                <div className="progress-footer">
+                <div className="home-progress-footer">
                   <span>{c.completed_lessons} הושלמו</span>
                   <span>{c.total_lessons - c.completed_lessons} נותרו</span>
                 </div>
@@ -354,7 +354,7 @@ const Dashboard = () => {
                   <div className="activity-content">
                     <div className="activity-title">
                       {activity.subject && (
-                        <span className={`subject-badge ${activity.subject}`}>{SUBJECT_LABELS[activity.subject]}</span>
+                        <span className={`subject-badge subject-${activity.subject}`}>{SUBJECT_LABELS[activity.subject]}</span>
                       )}
                       {activity.title_he}
                     </div>

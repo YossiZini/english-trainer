@@ -1,4 +1,5 @@
 const { db } = require('../config/database');
+const { compareLessons } = require('../utils/lessonOrder');
 
 /** A lesson's subject; content before the Math tab has none and is English. */
 const subjectOf = (lesson) => (lesson && lesson.subject) || 'english';
@@ -275,8 +276,8 @@ class UserProgress {
     const progress = await db.findByIndex('user_progress', 'user_id', userId);
     const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
-    // Sort lessons by order_index
-    const sortedLessons = [...lessons].sort((a, b) => a.order_index - b.order_index);
+    // Curriculum order (topic, subtopic); order_index alone interleaves English topics.
+    const sortedLessons = [...lessons].sort(compareLessons);
 
     for (const lesson of sortedLessons) {
       const p = progressMap.get(lesson.id);

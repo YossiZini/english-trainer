@@ -54,8 +54,8 @@ describe('Dashboard', () => {
     expect(screen.queryByText(/ללמוד אנגלית/)).toBeNull();
     expect(screen.getByText('2 הושלמו')).toBeInTheDocument();
     expect(screen.getByText('1 הושלמו')).toBeInTheDocument();
-    expect(document.querySelectorAll('.subject-badge.math')).toHaveLength(1);
-    expect(document.querySelectorAll('.subject-badge.english')).toHaveLength(1);
+    expect(document.querySelectorAll('.subject-badge.subject-math')).toHaveLength(1);
+    expect(document.querySelectorAll('.subject-badge.subject-english')).toHaveLength(1);
     expect(screen.queryByText('לימוד מילים')).toBeNull();
     expect(screen.queryByText('לימוד פסקאות')).toBeNull();
   });
