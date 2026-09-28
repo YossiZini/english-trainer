@@ -14,7 +14,8 @@ const DYNAMIC_COLLECTIONS = [
   'user_achievements', 'vocabulary_quiz_sessions', 'vocabulary_word_scores',
   'vocabulary_user_stats', 'vocabulary_user_history', 'vocabulary_failed_words',
   'unseen_sessions', 'unseen_answers', 'unseen_user_progress',
-  'daily_challenges', 'user_daily_challenges', 'vocabulary_kanban_tasks'
+  'daily_challenges', 'user_daily_challenges', 'vocabulary_kanban_tasks',
+  'bot_sessions', 'telegram_links', 'bot_usage'
 ];
 
 let initialized = false;
