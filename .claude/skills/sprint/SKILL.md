@@ -150,17 +150,21 @@ work in this repository (referenced from CLAUDE.md).
 Allowed when `status ∈ {active, review}`.
 1. Verify: every item `done`; the sprint's PRs merged; the latest deploy on
    `main` green. If anything is open, list it and stop — no partial close.
-2. Export the board (`ArtifactData list items` with `out_dir`, plus
+2. Update the system map when the sprint changed the design (services,
+   ownership, flows, limits): edit `docs/architecture/system-map.html` and
+   republish it to its artifact URL (see CLAUDE.md, "System Map"); say in
+   the close report whether it changed.
+3. Export the board (`ArtifactData list items` with `out_dir`, plus
    `meta/sprint`) and run `node .claude/skills/sprint/scripts/archive.js
    <export-dir> <N>` to write `docs/backlog/sprint-<N>.md`. Commit on the work
    branch, push, open the PR.
-3. Clear `items`, set `meta/sprint` to `status: closed`, `closedAt`, `archive`,
+4. Clear `items`, set `meta/sprint` to `status: closed`, `closedAt`, `archive`,
    `release` (when the user gave a tag), and a `focus` saying the sprint is
    archived.
-4. If a release tag was requested: tag `origin/main` and push the tag. If the
+5. If a release tag was requested: tag `origin/main` and push the tag. If the
    tag push is refused from this session (known limitation), give the user the
    three-line `git tag`/`git push` snippet instead.
-5. Suggest `/sprint retro` if it has not run for this sprint.
+6. Suggest `/sprint retro` if it has not run for this sprint.
 
 ## Guardrails
 

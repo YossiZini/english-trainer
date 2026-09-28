@@ -1,0 +1,352 @@
+<title>English Trainer System Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root {
+    --bg: #f5f6fb;
+    --surface: #ffffff;
+    --ink: #1f2433;
+    --muted: #5b6275;
+    --line: #dde1ec;
+    --accent: #4f5bd5;
+    --accent-soft: #e9ebfc;
+    --amber: #b86e0c;
+    --amber-soft: #fbefdc;
+    --green: #1f7a4d;
+    --green-soft: #e3f3ea;
+    --display: "Manrope", "Segoe UI", system-ui, sans-serif;
+    --body: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #12141c; --surface: #1a1d28; --ink: #e7e9f1; --muted: #9ca3b8; --line: #2c3040;
+      --accent: #929dff; --accent-soft: #252a4a; --amber: #f0b35a; --amber-soft: #3a2c15;
+      --green: #6fd3a0; --green-soft: #173327;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #12141c; --surface: #1a1d28; --ink: #e7e9f1; --muted: #9ca3b8; --line: #2c3040;
+    --accent: #929dff; --accent-soft: #252a4a; --amber: #f0b35a; --amber-soft: #3a2c15;
+    --green: #6fd3a0; --green-soft: #173327;
+  }
+
+  body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--body); padding-inline: 20px; padding-block: 40px 72px; }
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 56px; }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+  h1 { font-size: clamp(2rem, 4.5vw, 2.8rem); font-weight: 800; }
+  h2 { font-size: 1.55rem; font-weight: 700; }
+  h3 { font-size: 1.15rem; font-weight: 700; }
+  p { margin: 0; max-width: 68ch; }
+  .eyebrow { font: 500 0.75rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); }
+  .lede { color: var(--muted); font-size: 1.1rem; }
+  header { display: grid; gap: 14px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--muted); font: 500 0.82rem/1.4 var(--mono); }
+  section { display: grid; gap: 20px; }
+  .section-head { display: grid; gap: 6px; }
+  .section-head p { color: var(--muted); }
+
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; overflow-x: auto; }
+  .diagram pre.mermaid { margin: 0; background: transparent; text-align: center; font-family: var(--body); }
+
+  .services { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .svc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 12px; align-content: start; }
+  .svc-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .where { font: 500 0.78rem/1.3 var(--mono); color: var(--muted); }
+  .kv { display: grid; gap: 10px; margin: 0; }
+  .kv dt { font: 500 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 4px; }
+  .kv dd { margin: 0; }
+  .kv ul { margin: 0; padding-inline-start: 1.1em; display: grid; gap: 2px; }
+  .stack { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font: 500 0.76rem/1 var(--mono); padding: 6px 8px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); }
+  .svc.bot .chip { background: var(--amber-soft); color: var(--amber); }
+  .svc.data .chip { background: var(--green-soft); color: var(--green); }
+
+  .platform { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .platform-wrap { overflow-x: auto; }
+  .platform th, .platform td { text-align: start; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .platform tr:last-child td { border-bottom: 0; }
+  .platform th { font: 500 0.72rem/1 var(--mono); text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); background: var(--bg); }
+  .platform td:first-child { font-weight: 600; white-space: nowrap; }
+
+  .flow { display: grid; gap: 14px; }
+  .flow-head { display: grid; gap: 4px; }
+  .tag { justify-self: start; font: 500 0.72rem/1 var(--mono); padding: 5px 8px; border-radius: 6px; }
+  .tag.web { background: var(--accent-soft); color: var(--accent); }
+  .tag.bot { background: var(--amber-soft); color: var(--amber); }
+  .tag.ops { background: var(--green-soft); color: var(--green); }
+  .flow-head p { color: var(--muted); }
+
+  .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .principle { border-top: 2px solid var(--accent); padding-top: 12px; display: grid; gap: 6px; }
+  .principle p { color: var(--muted); font-size: 0.95rem; }
+
+  footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--line); padding-top: 20px; }
+  code { font-family: var(--mono); font-size: 0.85em; }
+  @media (max-width: 480px) { body { padding-block: 24px 48px; } .svc { padding: 16px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Architecture overview</span>
+    <h1>English Trainer System Map</h1>
+    <p class="lede">A practice app for Hebrew-speaking students: English grammar and vocabulary plus a Math tab, used in the browser and, for vocabulary, from Telegram. Three services on Google Cloud share one API and one student database.</p>
+    <div class="facts">
+      <span>GCP project teacher-509909</span>
+      <span>Region europe-west1</span>
+      <span>Repo YossiZini/english-trainer</span>
+      <span>Every merge to main deploys</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Context</span>
+      <h2>Who talks to what</h2>
+      <p>The API is the only component that reads or writes student data. The web app and the Telegram bot are both clients of it.</p>
+    </div>
+    <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  student(["Student"])
+  subgraph clients["Clients"]
+    browser["Web app<br/>React on Firebase Hosting"]
+    tg["Telegram<br/>@Yzteacher_bot"]
+  end
+  subgraph gcp["Google Cloud"]
+    bot["Telegram bot service<br/>Python, Google ADK<br/>Cloud Run"]
+    api["Trainer API<br/>Node, Express<br/>Cloud Run"]
+    fs[("Firestore<br/>student data")]
+    content[["Curriculum content<br/>bundled read-only JSON"]]
+    gemini["Gemini 2.5 Flash<br/>Vertex AI"]
+    secrets["Secret Manager"]
+    gcs["Cloud Storage<br/>lesson videos"]
+  end
+  student --> browser
+  student --> tg
+  browser -- "/api via Hosting rewrite, JWT" --> api
+  tg -- "webhook + secret token" --> bot
+  bot -- "/api/bot, service key + chat id" --> api
+  bot -. "free-form messages" .-> gemini
+  api -. "answer checks" .-> gemini
+  api --> fs
+  api --> content
+  browser --> gcs
+  secrets -. "keys at startup" .-> api
+  secrets -. "keys at startup" .-> bot
+</pre>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Services</span>
+      <h2>What each service owns</h2>
+      <p>Ownership means the data and decisions a service is responsible for. Nothing else may change them.</p>
+    </div>
+    <div class="services">
+      <article class="svc">
+        <div class="svc-top"><h3>Web app</h3><span class="where">frontend/</span></div>
+        <dl class="kv">
+          <div><dt>Owns</dt><dd>Everything the student sees in the browser, and the login token kept on the device.</dd></div>
+          <div><dt>Main functions</dt><dd><ul>
+            <li>Login and registration</li>
+            <li>English and Math topics, lessons with animated explanations</li>
+            <li>Exercises with feedback, mistakes review, progress and points</li>
+            <li>Vocabulary quiz and history</li>
+            <li>Telegram page: issue a link code, unlink</li>
+          </ul></dd></div>
+          <div><dt>Tech stack</dt><dd class="stack"><span class="chip">React 19</span><span class="chip">React Router</span><span class="chip">axios</span><span class="chip">Firebase Hosting</span></dd></div>
+        </dl>
+      </article>
+
+      <article class="svc">
+        <div class="svc-top"><h3>Trainer API</h3><span class="where">backend/</span></div>
+        <dl class="kv">
+          <div><dt>Owns</dt><dd>All student data and every rule: who the user is, which answer is right, points, levels, limits.</dd></div>
+          <div><dt>Main functions</dt><dd><ul>
+            <li>Accounts and JWT authentication</li>
+            <li>Lessons and exercises from bundled content, answer checking</li>
+            <li>Progress, points, achievements, daily challenges</li>
+            <li>Vocabulary quiz, word scores, failed words, review mode</li>
+            <li>Answer check: a Hebrew answer that misses the dictionary gets one yes/no from Gemini</li>
+            <li>Bot API: sessions, chat linking, service key, rate and daily caps</li>
+          </ul></dd></div>
+          <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Node 22</span><span class="chip">Express 5</span><span class="chip">Firestore SDK</span><span class="chip">Google Gen AI SDK</span><span class="chip">Cloud Run</span><span class="chip">Jest + emulator</span></dd></div>
+        </dl>
+      </article>
+
+      <article class="svc bot">
+        <div class="svc-top"><h3>Telegram bot</h3><span class="where">bot/</span></div>
+        <dl class="kv">
+          <div><dt>Owns</dt><dd>The conversation only: reading Telegram messages, choosing the API call, writing the Hebrew reply. It stores no student data.</dd></div>
+          <div><dt>Main functions</dt><dd><ul>
+            <li>Verifies the Telegram webhook secret</li>
+            <li>Link code, start, level choice and word answers go straight to the API</li>
+            <li>Other messages go to an ADK agent whose tools call the API</li>
+            <li>Turn, token and call caps before any model use</li>
+          </ul></dd></div>
+          <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Python 3.12</span><span class="chip">FastAPI</span><span class="chip">Google ADK</span><span class="chip">Gemini 2.5 Flash</span><span class="chip">Cloud Run</span></dd></div>
+        </dl>
+      </article>
+    </div>
+
+    <div class="platform-wrap">
+      <table class="platform">
+        <thead><tr><th>Platform piece</th><th>Role</th><th>Holds</th></tr></thead>
+        <tbody>
+          <tr><td>Firestore</td><td>Student database, reached only through the API</td><td>Users, progress, results, word scores, failed words, bot sessions, Telegram links, bot usage</td></tr>
+          <tr><td>Curriculum content</td><td>Read-only JSON built from seed files and shipped inside the API image</td><td>Lessons, exercises, vocabulary words, reading passages</td></tr>
+          <tr><td>Secret Manager</td><td>Keys injected into the services at start</td><td>JWT secret, bot API key, Telegram token, webhook secret</td></tr>
+          <tr><td>Vertex AI</td><td>Gemini for the bot's free-form messages and the API's answer checks</td><td>Nothing; billed per call, capped by the bot</td></tr>
+          <tr><td>Cloud Storage</td><td>Public lesson videos</td><td>Video files</td></tr>
+          <tr><td>GitHub Actions</td><td>Tests, then deploys on every merge to main</td><td>No keys: signs in through Workload Identity</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Flows</span>
+      <h2>Main flows</h2>
+      <p>Sequence diagrams at service level. Endpoint details live in the code and in the repo docs.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flow-head">
+        <span class="tag web">Web app</span>
+        <h3>Practise a lesson in the browser</h3>
+        <p>The student logs in once, then every call carries the token. The API checks answers and awards points; the browser only displays.</p>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  actor S as Student
+  participant W as Web app
+  participant A as Trainer API
+  participant D as Firestore
+  S->>W: Log in
+  W->>A: Login with name and password
+  A->>D: Find user, check password
+  A-->>W: JWT token
+  S->>W: Open a topic and lesson
+  W->>A: Get lessons and exercises
+  A-->>W: Content from the bundled JSON
+  S->>W: Answer the exercises
+  W->>A: Submit answers
+  A->>A: Check answers, count score
+  A->>D: Save result, mistakes, points
+  A-->>W: Score, feedback, explanations
+  W-->>S: Results page
+</pre>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-head">
+        <span class="tag bot">Web app + Telegram</span>
+        <h3>Link a Telegram chat to a student</h3>
+        <p>The code is issued to the logged-in student, so the chat that sends it becomes that student. Codes last 10 minutes, work once and are stored only as a hash.</p>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  actor S as Student
+  participant W as Web app
+  participant A as Trainer API
+  participant T as Telegram
+  participant B as Bot service
+  S->>W: Open the Telegram page
+  W->>A: Request a link code, with JWT
+  A-->>W: 6-digit code
+  S->>T: Send the code to the bot
+  T->>B: Webhook with secret token
+  B->>A: Link chat, with service key
+  A->>A: Match code, store chat to student
+  A-->>B: Linked
+  B->>T: Connected, send words to start
+</pre>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-head">
+        <span class="tag bot">Telegram bot</span>
+        <h3>A vocabulary session in Telegram</h3>
+        <p>The bot asks the level, then sends 20 words from the whole vocabulary. Failed words come back shuffled until none are left. The API scores every answer; a Hebrew answer that misses the dictionary is first checked by the API with Gemini.</p>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  actor S as Student
+  participant B as Bot service
+  participant A as Trainer API
+  participant G as Gemini
+  participant D as Firestore
+  S->>B: מילים
+  B->>A: Start session
+  A-->>B: Which level
+  B-->>S: Easy, medium or hard, with buttons
+  S->>B: 1
+  B->>A: Answer
+  A->>A: Pick 20 words at that level
+  A-->>B: First English word
+  B-->>S: Translate to Hebrew
+  loop Each word, then rounds of failed words
+    S->>B: Hebrew answer
+    B->>A: Answer
+    opt Answer misses the dictionary
+      A->>G: Is this translation acceptable
+      G-->>A: Yes or no
+    end
+    A->>D: Word score, failed word, points
+    A-->>B: Right or wrong, next word
+    B-->>S: Verdict with points, next word
+  end
+  A-->>B: Summary
+  B-->>S: Rounds, right and wrong, points earned
+</pre>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-head">
+        <span class="tag ops">Delivery</span>
+        <h3>From merge to production</h3>
+        <p>A merge to main runs both test suites, then deploys the API, the bot and the site in order. A red test stops every deploy.</p>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  merge(["Merge to main"]) --> t1["API tests<br/>on Firestore emulator"]
+  merge --> t2["Bot tests<br/>pytest"]
+  t1 --> api["Deploy Trainer API<br/>Cloud Run"]
+  t2 --> api
+  api --> bot["Deploy bot service<br/>Cloud Run"]
+  api --> web["Deploy web app<br/>Firebase Hosting"]
+</pre>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <span class="eyebrow">Guardrails</span>
+      <h2>Security and cost limits</h2>
+    </div>
+    <div class="principles">
+      <div class="principle"><h3>One owner for data</h3><p>Only the API touches Firestore. The database rules deny all direct client access.</p></div>
+      <div class="principle"><h3>Every call authenticated</h3><p>Students use a JWT. The bot uses a service key plus a linked chat. Telegram must present the webhook secret.</p></div>
+      <div class="principle"><h3>The model has narrow jobs</h3><p>Words, points and counters come from the API. Gemini routes free-form messages and gives a yes/no on answers that miss the dictionary, nothing else.</p></div>
+      <div class="principle"><h3>Hard caps</h3><p>60 messages per minute per chat, 300 per student per day, 2 bot instances, 100 answer checks per student per day, bounded tokens and calls, and a monthly budget alert.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    Detailed references in the repository: <code>docs/deployment.md</code> for operations and <code>docs/telegram-bot.md</code> for the bot, its caps and troubleshooting.
+  </footer>
+</div>
