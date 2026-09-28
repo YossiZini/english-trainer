@@ -114,10 +114,12 @@ const scenes = [
       {
         caption: 'שברים: 1/2 + 3/4 = 2/4 + 3/4 = 5/4, וזה 1 1/4. יחד: 3 + 1 1/4 = 4 1/4.',
         draw: () => (<>
-          <Frac x={60} y={100} n={2} d={4} /><Bar y={73} n={4} k={2} />
-          <Bar y={178} n={4} k={3} color="b" onlyFilled slide={{ dy: -105 }} />
+          <Frac x={60} y={100} n={2} d={4} /><Bar y={73} n={8} k={2} />
+          <Bar y={178} n={8} k={3} color="b" offset={2} onlyFilled slide={{ dy: -105 }} />
           <Frac x={60} y={205} n={3} d={4} />
-          <Circle cx={590} cy={100} r={30} n={4} k={4} color="sum" anim="pop d4" />
+          <line x1={320} y1={63} x2={320} y2={137} className="la-dashed" />
+          <Note x={220} y={50}>שלם אחד</Note><Note x={420} y={50}>שלם שני</Note>
+          <Eq x={555} y={100} anim="fadein d4">=</Eq><Frac x={600} y={100} n={5} d={4} anim="pop d5" />
           <Note x={320} y={255} anim="fadein d5">5 רבעים = שלם ועוד רבע, סך הכול 4 1/4</Note>
         </>),
       },

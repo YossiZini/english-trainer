@@ -62,6 +62,7 @@ const LessonAnimation = ({ scenes, stepMs = STEP_MS, autoplay }) => {
   }, [playing, si, st, isLast, next, stepMs]);
 
   const onKeyDown = (e) => {
+    if (e.target !== e.currentTarget) return; // buttons and tabs handle their own keys
     if (e.key === 'ArrowLeft') { e.preventDefault(); next(); }
     else if (e.key === 'ArrowRight') { e.preventDefault(); prev(); }
     else if (e.key === ' ') { e.preventDefault(); togglePlay(); }

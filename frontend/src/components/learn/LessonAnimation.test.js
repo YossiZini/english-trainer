@@ -74,5 +74,7 @@ describe('LessonAnimation', () => {
     expect(screen.getByTestId('s2')).toBeInTheDocument();
     fireEvent.keyDown(root, { key: 'ArrowRight' });
     expect(screen.getByTestId('s1')).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByLabelText('צעד קדימה'), { key: ' ' });
+    expect(screen.getByLabelText('הפעל')).toBeInTheDocument(); // space on a button does not toggle play
   });
 });

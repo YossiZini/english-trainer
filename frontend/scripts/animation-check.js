@@ -61,7 +61,7 @@ async function api(route, opts = {}) {
       await page.goto(`${APP_URL}/learn/${l.id}`); await page.waitForSelector('.theory-html');
       const player = await page.$('.lesson-animation');
       if (!player) continue;
-      await page.click('.lesson-animation .la-btn-primary'); // pause
+      if ((await page.textContent('.lesson-animation .la-btn-primary')).includes('השהה')) await page.click('.lesson-animation .la-btn-primary'); // pause when playing
       const tabs = await page.$$('.lesson-animation .la-tab');
       for (let t = 0; t < tabs.length; t++) {
         await tabs[t].click(); await page.waitForTimeout(150);

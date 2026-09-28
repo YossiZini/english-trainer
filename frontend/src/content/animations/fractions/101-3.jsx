@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bar, Frac, Circle, Eq, Note, NumberLine } from '../primitives';
+import { Bar, Frac, Circle, Eq, Note, NumberLine, Arrow, ArrowDefs } from '../primitives';
 
 // 101.3 השוואת שברים — one scene per rule of the written theory.
 const scenes = [
@@ -112,8 +112,8 @@ const scenes = [
         caption: 'ימינה זה יותר גדול. 3/4 נמצא ימינה מ-3/8, לכן 3/4 גדול יותר.',
         draw: () => (<>
           <NumberLine y={150} den={8} points={[{ value: 3 / 8, label: '3/8' }, { value: 3 / 4, label: '3/4' }]} />
-          <path d="M 270 100 L 430 100" className="la-arrow fadein d2" markerEnd="url(#la-arr)" />
-          <defs><marker id="la-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" className="la-arrow-head" /></marker></defs>
+          <ArrowDefs />
+          <Arrow d="M 270 100 L 430 100" anim="fadein d2" />
           <Note x={320} y={230} anim="fadein d3">3/4 &gt; 3/8</Note>
         </>),
       },

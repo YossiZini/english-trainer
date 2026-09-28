@@ -25,6 +25,8 @@ describe('splitFractions', () => {
     expect(splitFractions('1/2/3')).toEqual([{ text: '1/2/3' }]);
     expect(splitFractions('7,5/8')).toEqual([{ text: '7,5/8' }]);
     expect(splitFractions('1/2, 3/4').filter(p => p.raw).map(p => p.raw)).toEqual(['1/2', '3/4']);
+    expect(splitFractions('סך הכול 4 1/4.').filter(p => p.raw).map(p => p.raw)).toEqual(['4 1/4']);
+    expect(splitFractions('3/4.5')).toEqual([{ text: '3/4.5' }]);
     expect(splitFractions('')).toEqual([]);
   });
 
