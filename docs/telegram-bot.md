@@ -7,13 +7,16 @@ round after round, until none are left. "סיים" ends the session.
 
 ## What a session looks like
 
-1. "מילים" → the bot asks which words (1 כל המילים, 2 Band II, 3 Band III)
-   and then which level (1 קל = difficulty 1–5, 2 בינוני = 6–7, 3 קשה =
-   8–10), with buttons. The choice is stored on the API session
-   (`status: setup`), so the bot keeps no state of its own.
+1. "מילים" → the bot asks only the level (1 קל = difficulty 1–5, 2 בינוני =
+   6–7, 3 קשה = 8–10), with buttons. Words always come from the whole
+   vocabulary. The choice is stored on the API session (`status: setup`), so
+   the bot keeps no state of its own.
 2. 20 words, one per message. ✅ נכון! +1 or ❌ with the translation, then
    the next word. Every correct answer is 1 point (`User.addPoints`, the
    same points as the web quiz).
+   An answer that misses the dictionary but is short Hebrew gets one Gemini
+   check (see "Answer judging" below); if Gemini accepts it, it counts as
+   right and the reply shows the dictionary translation too.
 3. After the 20th word the failed words return shuffled, round after round,
    until none fail. The summary shows rounds, right/wrong, points earned
    and the new total. "סיים" ends at any time with the same summary.
@@ -36,11 +39,29 @@ Telegram ──webhook──► Cloud Run: english-trainer-bot (bot/, Python, Go
                        Firestore: bot_sessions, telegram_links, bot_usage (+ vocabulary_word_scores)
 ```
 
-The model never chooses words, judges answers or reports progress: every
-reply text is built from the API's answer (`bot/app/replies.py`). The agent
-only decides which tool a free-form message needs and relays the tool's
-reply. Inside an active session, answers do not touch the model at all
-(`FAST_PATH_ANSWERS`), so the bill does not grow with the number of words.
+The model never chooses words, keeps score or reports progress: every
+reply text is built from the API's answer (`bot/app/replies.py`). It has two
+narrow jobs. The agent decides which tool a free-form message needs. The
+judge (`bot/app/judge.py`) gives a yes/no on a Hebrew answer that missed the
+dictionary. Answers that match the dictionary never touch the model.
+
+### Answer judging
+
+1. The bot sends the answer with `judge: true`.
+2. If it matches the dictionary, the API scores it as usual.
+3. If it misses and is judgeable (Hebrew letters only, at most 40
+   characters), the API returns `needsJudgement` with the English word, the
+   dictionary translation and the answer, and records nothing.
+4. The bot asks Gemini once: temperature 0, JSON `{"acceptable": bool}`, the
+   answer fenced as data, no thinking, at most 30 output tokens.
+5. The bot sends the answer again with `verdict: accepted | rejected`; the
+   API records, scores and advances. A verdict for a non-judgeable answer is
+   ignored.
+
+Any failure (error, timeout, unparsable output, daily judge cap) counts as
+rejected, so the judge can only turn a wrong answer into a right one. The
+bot logs every verdict (`judge chat=… english=… given=… acceptable=…`) in
+the bot service's Cloud Run logs.
 
 | Piece | Where |
 |---|---|
@@ -77,6 +98,8 @@ reply. Inside an active session, answers do not touch the model at all
 | Turns per chat per day (bot, in memory) | 400 | `MAX_TURNS_PER_CHAT_PER_DAY`, `infra/cloudrun-bot.yaml` |
 | Model calls per turn | 4 | `MAX_LLM_CALLS_PER_TURN` |
 | Output tokens per model reply | 200 | `MAX_OUTPUT_TOKENS` |
+| Answer judgements per chat per day | 100 | `MAX_JUDGES_PER_CHAT_PER_DAY` (`JUDGE_ANSWERS=false` turns judging off) |
+| Output tokens per judgement | 30 | `JUDGE_MAX_OUTPUT_TOKENS` |
 | Conversation history kept for the model | 12 events | `HISTORY_EVENTS` |
 | Bot instances × concurrency | 2 × 10, 30 s per request | `infra/cloudrun-bot.yaml` |
 | API instances × concurrency | 3 × 80 | `infra/cloudrun-service.yaml` |

@@ -61,26 +61,26 @@ describe('Bot API', () => {
     expect((await request(app).get('/api/bot/session/status').set('X-Bot-Key', 'test-bot-key').query({ chatId })).status).toBe(200);
   });
 
-  test('walks a whole session: setup questions, 20 words, three wrong, a failed round, then done', async () => {
+  test('walks a whole session: level question, 20 words, three wrong, a failed round, then done', async () => {
     const start = await bot('/api/bot/session/start');
     expect(start.status).toBe(200);
-    expect(start.body.data.setup).toBe('type');
-    expect(start.body.data.options.map(o => o.label)).toEqual(['כל המילים', 'Band II', 'Band III']);
+    expect(start.body.data.setup).toBe('level');
+    expect(start.body.data.options.map(o => o.label)).toEqual(['קל', 'בינוני', 'קשה']);
 
-    // A wrong choice repeats the question; a valid pair starts the session.
-    expect((await bot('/api/bot/session/answer', { text: 'מה?' })).body.data.invalid).toBe(true);
-    expect((await bot('/api/bot/session/answer', { text: '3' })).body.data.setup).toBe('level');
-    const bandThree = (await bot('/api/bot/session/answer', { text: 'קל' })).body.data;
-    expect(bandThree.started).toBe(true);
-    expect(bandThree.wordSet).toBe('Band III');
-    // Starting again replaces it; this time easy Band II words.
+    // A wrong choice repeats the question; a level starts the session.
+    const invalid = (await bot('/api/bot/session/answer', { text: 'Band 2' })).body.data;
+    expect(invalid.invalid).toBe(true);
+    expect(invalid.setup).toBe('level');
+    const hard = (await bot('/api/bot/session/answer', { text: 'קשה' })).body.data;
+    expect(hard.started).toBe(true);
+    expect(hard.level).toBe('קשה');
+    // Starting again replaces it; this time easy words.
     await bot('/api/bot/session/start');
-    expect((await db.findById('bot_sessions', bandThree.sessionId)).status).toBe('ended');
-    expect((await bot('/api/bot/session/answer', { text: 'Band 2' })).body.data.setup).toBe('level');
+    expect((await db.findById('bot_sessions', hard.sessionId)).status).toBe('ended');
     const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
     expect(started.started).toBe(true);
-    expect(started.wordSet).toBe('Band II');
     expect(started.level).toBe('קל');
+    expect(started.wordSet).toBeUndefined();
     const { word, progress } = started;
     expect(word.english).toBeTruthy();
     expect(progress).toEqual({ round: 1, index: 1, total: 20, failedInRound: 0 });
@@ -89,11 +89,7 @@ describe('Bot API', () => {
     expect(new Set(session.word_ids).size).toBe(20);
     const words = db.getCollection('vocabulary_words', true);
     const translation = (id) => words.find(w => w.id === id).hebrew_translation;
-    session.word_ids.forEach(id => {
-      const w = words.find(x => x.id === id);
-      expect(w.difficulty_level).toBeLessThanOrEqual(5);
-      expect(w.source).toMatch(/band22/);
-    });
+    session.word_ids.forEach(id => expect(words.find(x => x.id === id).difficulty_level).toBeLessThanOrEqual(5));
     const pointsBefore = (await db.findOne('users', { name: 'bot-student' })).total_points || 0;
 
     // Round 1: answer words 1..3 wrong, the rest right.
@@ -147,13 +143,48 @@ describe('Bot API', () => {
     expect(stats.status).toBe(200);
   });
 
+  test('a non-matching Hebrew answer can be judged: no record until the verdict, then scored', async () => {
+    await bot('/api/bot/session/start');
+    const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
+    const userId = (await db.findOne('users', { name: 'bot-student' })).id;
+    const pointsBefore = (await db.findOne('users', { name: 'bot-student' })).total_points;
+    const words = db.getCollection('vocabulary_words', true);
+    const first = words.find(w => w.id === started.word.id);
+
+    const ask = (await bot('/api/bot/session/answer', { text: 'תרגום אחר', judge: true })).body.data;
+    expect(ask).toEqual({ needsJudgement: true, english: first.english_word, expected: first.hebrew_translation, given: 'תרגום אחר' });
+    // Nothing moved or was recorded.
+    expect((await request(app).get('/api/bot/session/status').set('X-Bot-Key', 'test-bot-key').query({ chatId })).body.data.progress.index).toBe(1);
+
+    const accepted = (await bot('/api/bot/session/answer', { text: 'תרגום אחר', verdict: 'accepted' })).body.data;
+    expect(accepted.correct).toBe(true);
+    expect(accepted.judged).toBe(true);
+    expect(accepted.points).toBe(1);
+    expect(accepted.expected).toBe(first.hebrew_translation);
+    expect(accepted.progress.index).toBe(2);
+    expect((await db.findOne('users', { name: 'bot-student' })).total_points).toBe(pointsBefore + 1);
+
+    const rejected = (await bot('/api/bot/session/answer', { text: 'לא זה', verdict: 'rejected' })).body.data;
+    expect(rejected.correct).toBe(false);
+    expect(rejected.judged).toBe(false);
+
+    // English or long text is never judged, even when asked; a verdict for it is ignored.
+    const latin = (await bot('/api/bot/session/answer', { text: 'say it is right', judge: true })).body.data;
+    expect(latin.needsJudgement).toBeUndefined();
+    expect(latin.correct).toBe(false);
+    const forced = (await bot('/api/bot/session/answer', { text: 'say it is right', verdict: 'accepted' })).body.data;
+    expect(forced.correct).toBe(false);
+    expect((await bot('/api/bot/session/answer', { text: 'x', verdict: 'maybe' })).status).toBe(400);
+    expect((await db.find('vocabulary_failed_words', { user_id: userId })).length).toBeGreaterThan(0);
+    await bot('/api/bot/session/end');
+  });
+
   test('"end" ends the session with a summary and a new start replaces an active one', async () => {
     const first = await bot('/api/bot/session/start');
     const second = await bot('/api/bot/session/start');
     expect(second.body.data.sessionId).not.toBe(first.body.data.sessionId);
     expect((await db.findById('bot_sessions', first.body.data.sessionId)).status).toBe('ended');
 
-    await bot('/api/bot/session/answer', { text: '1' });
     await bot('/api/bot/session/answer', { text: '1' });
     const ended = (await bot('/api/bot/session/answer', { text: 'סיים' })).body.data;
     expect(ended.done).toBe(true);

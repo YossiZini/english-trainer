@@ -29,7 +29,6 @@ async def main() -> int:
     print("> שלום\n<", await say("שלום"))
     print(f"> {code}\n<", await say(code))
     print("> מילים\n<", await say("מילים"))
-    print("> 2\n<", await say("2"))
     print("> 1\n<", await say("1"))
     for text in ["בטח לא", "גם לא", "עדיין לא"]:
         print(f"> {text}\n<", await say(text))

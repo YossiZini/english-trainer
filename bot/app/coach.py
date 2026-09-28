@@ -1,4 +1,5 @@
-"""One student message in, one Hebrew reply out.
+"""One student message in, one Hebrew reply out (a dictionary miss may get
+one Gemini check through app.judge).
 
 Order of checks: the daily turn cap, then the deterministic fast path (a
 link code, a start or end word, or an answer while a session is active),
@@ -16,6 +17,7 @@ from . import config, replies
 from .replies import Reply
 from .agent import build_agent
 from .api_client import TrainerApi
+from .judge import AnswerJudge, answer_with_judge
 from .limits import DailyTurnCounter
 from . import tools
 
@@ -24,9 +26,10 @@ CODE = re.compile(r"^\d{6}$")
 
 
 class Coach:
-    def __init__(self, api: TrainerApi | None = None, agent=None):
+    def __init__(self, api: TrainerApi | None = None, agent=None, judge: AnswerJudge | None = None):
         self.api = api or TrainerApi()
-        tools.set_api(self.api)
+        self.judge = judge or AnswerJudge()
+        tools.set_api(self.api, self.judge)
         self.turns = DailyTurnCounter(config.MAX_TURNS_PER_CHAT_PER_DAY)
         self.sessions = InMemorySessionService()
         self.runner = Runner(app_name=config.APP_NAME, agent=agent or build_agent(), session_service=self.sessions)
@@ -58,7 +61,7 @@ class Coach:
         status = await self.api.status(chat_id)
         if status["ok"] and status["data"].get("active"):
             # In setup or mid-session every message is an answer (a choice or a translation).
-            return replies.answer_reply(await self.api.answer(chat_id, text))
+            return replies.answer_reply(await answer_with_judge(self.api, self.judge, chat_id, text))
         if not status["ok"] and status.get("code") in ("not_linked", "rate_limited", "unreachable"):
             return Reply(replies.error_reply(status))
         return None

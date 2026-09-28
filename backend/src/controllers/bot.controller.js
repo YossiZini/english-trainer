@@ -33,7 +33,8 @@ class BotController {
 
   static async answer(req, res) {
     if (invalid(req, res)) return;
-    send(res, await BotService.answer(req.user, req.chatId, req.body.text));
+    const { text, judge = false, verdict = null } = req.body;
+    send(res, await BotService.answer(req.user, req.chatId, text, { judge: judge === true, verdict }));
   }
 
   static async end(req, res) {

@@ -2,7 +2,7 @@ const { db } = require('../config/database');
 
 /**
  * A vocabulary session driven from a chat bot. It starts in `setup`, where
- * the student picks the word set and the level, then holds 20 words and
+ * the student picks the level, then holds 20 words (from all words) and
  * rounds of the failed words until none are left. One active session per
  * chat.
  */
@@ -13,8 +13,7 @@ class BotSession {
       user_id: userId,
       chat_id: String(chatId),
       status: 'setup',
-      setup_step: 'type',
-      word_set: null,
+      setup_step: 'level',
       level: null,
       word_ids: [],
       queue: [],
