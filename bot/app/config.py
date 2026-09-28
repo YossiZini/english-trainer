@@ -36,3 +36,9 @@ FAST_PATH_ANSWERS = os.environ.get("FAST_PATH_ANSWERS", "true").lower() != "fals
 
 END_WORDS = {"end", "stop", "quit", "סיים", "סיום", "סיימתי", "די", "עצור"}
 START_WORDS = {"words", "word", "start", "מילים", "מילה", "התחל", "תרגול"}
+# Start the next lesson's exercises of a subject. Two words each on purpose:
+# a single word like "חשבון" is also a vocabulary answer ("account").
+EXERCISE_WORDS = {
+    "תרגיל אנגלית": "english", "תרגול אנגלית": "english", "תרגילים אנגלית": "english",
+    "תרגיל חשבון": "math", "תרגול חשבון": "math", "תרגילים חשבון": "math", "תרגיל מתמטיקה": "math",
+}

@@ -17,17 +17,20 @@ class Reply:
 
 NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באתר, בכפתור \"טלגרם\" למעלה, קבלו קוד בן 6 ספרות "
               "ושלחו אותו לי כאן.")
-NO_SESSION = "אין תרגול פעיל. כתבו \"מילים\" כדי להתחיל."
+NO_SESSION = "אין תרגול פעיל. כתבו \"מילים\", \"תרגיל אנגלית\" או \"תרגיל חשבון\" כדי להתחיל."
 RATE_LIMITED = "הגעת למכסת ההודעות להיום. נמשיך מחר!"
 UNREACHABLE = "משהו השתבש אצלנו. נסו שוב בעוד רגע."
 BAD_CODE = "הקוד לא נכון או שפג תוקפו. קבלו קוד חדש באתר ושלחו אותו שוב."
-LINKED = "מעולה, החשבון מחובר! כתבו \"מילים\" כדי להתחיל תרגול של 20 מילים."
+LINKED = ("מעולה, החשבון מחובר! כתבו \"מילים\" לתרגול של 20 מילים, או \"תרגיל אנגלית\" / \"תרגיל חשבון\" "
+          "לתרגילי השיעור הבא.")
 SETUP_QUESTIONS = {"level": "איזו רמה?"}
 INVALID_CHOICE = "בחרו מספר מהאפשרויות:"
 NOT_ENOUGH_FOR_CHOICE = "אין מספיק מילים ברמה הזו בקבוצה שבחרתם. בחרו רמה אחרת:"
 NOT_ENOUGH_WORDS = "אין מספיק מילים ברמה שלכם כרגע."
-HELP = ("אני מתרגל אתכם במילים באנגלית. כתבו \"מילים\" להתחלת תרגול של 20 מילים: אני שולח מילה, "
-        "אתם עונים בעברית. \"?\" שולח משפט לדוגמה, \"סיים\" עוצר את התרגול.")
+HELP = ("אני מתרגל אתכם באנגלית ובחשבון.\n"
+        "• \"מילים\": 20 מילים באנגלית, אתם עונים בעברית (\"?\" למשפט לדוגמה).\n"
+        "• \"תרגיל אנגלית\" / \"תרגיל חשבון\": התרגילים של השיעור הבא; עונים במספר התשובה.\n"
+        "• \"סיים\" עוצר כל תרגול.")
 NO_EXAMPLE = "אין משפט לדוגמה למילה הזו."
 
 
@@ -81,6 +84,9 @@ def answer_reply(result: dict) -> Reply:
     if not result["ok"]:
         return Reply(error_reply(result))
     data = result["data"]
+    if data.get("kind") == "exercise":
+        from .exercise_replies import exercise_answer_reply
+        return exercise_answer_reply(data)
     if data.get("setup"):
         intro = NOT_ENOUGH_FOR_CHOICE if data.get("notEnoughWords") else INVALID_CHOICE if data.get("invalid") else ""
         return setup_reply(data, intro)
@@ -107,6 +113,9 @@ def answer_reply(result: dict) -> Reply:
 def end_reply(result: dict) -> Reply:
     if not result["ok"]:
         return Reply(error_reply(result))
+    if result["data"].get("kind") == "exercise":
+        from .exercise_replies import exercise_end_reply
+        return exercise_end_reply(result["data"])
     return Reply("סיימנו להיום.\n" + summary_text(result["data"]["summary"]))
 
 
@@ -116,6 +125,9 @@ def status_reply(result: dict) -> Reply:
     data = result["data"]
     if not data.get("active"):
         return Reply(NO_SESSION)
+    if data.get("kind") == "exercise":
+        from .exercise_replies import exercise_status_reply
+        return exercise_status_reply(data)
     if data.get("setup"):
         return setup_reply(data)
     return Reply("התרגול ממשיך. המילה הנוכחית:\n" + _word_line(data["word"], data["progress"]))

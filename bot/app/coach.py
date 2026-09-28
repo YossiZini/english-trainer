@@ -14,6 +14,7 @@ from google.genai import types
 
 from . import config, replies
 from .replies import Reply
+from .exercise_replies import exercise_start_reply
 from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
@@ -49,6 +50,8 @@ class Coach:
         if CODE.match(text):
             result = await self.api.link(chat_id, text)
             return Reply(replies.LINKED if result["ok"] else replies.error_reply(result))
+        if lowered in config.EXERCISE_WORDS:
+            return exercise_start_reply(await self.api.exercise_start(chat_id, subject=config.EXERCISE_WORDS[lowered]))
         if lowered in config.START_WORDS or lowered == "/start":
             return replies.start_reply(await self.api.start(chat_id))
         if lowered in config.END_WORDS:
@@ -57,7 +60,9 @@ class Coach:
             return None
         status = await self.api.status(chat_id)
         if status["ok"] and status["data"].get("active"):
-            # In setup or mid-session every message is an answer (a choice or a translation).
+            # In setup or mid-session every message is an answer: a level, a
+            # translation, or an exercise option number; the API routes it by
+            # the session's kind and the reply builder follows the data.
             return replies.answer_reply(await self.api.answer(chat_id, text))
         if not status["ok"] and status.get("code") in ("not_linked", "rate_limited", "unreachable"):
             return Reply(replies.error_reply(status))
