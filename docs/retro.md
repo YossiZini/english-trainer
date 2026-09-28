@@ -315,3 +315,57 @@ work in this repository (referenced from CLAUDE.md).
 - Animated lessons for topics 2–4 (order of operations, average,
   percentage) once the Fractions player has been used by a student.
 - The Hosting `no-cache` header for rewritten routes is still pending.
+
+## Sprint 5 — animated lessons for order of operations, average, percentage (2026-09-28)
+
+Goal: extend the Sprint 4 step player to the other three Math topics.
+Result: 15 scenes / 43 steps (PR #23), four new stage primitives with unit
+tests, a test that renders every registered step, six stories closed in one
+session.
+
+### What went well
+- **Primitives first, scenes second.** Building `Expr`, `BarChart`,
+  `HundredGrid` and `PriceTag` with tests before any scene made the three
+  scene files mostly data; no primitive changed shape once the scenes used it.
+- **A render test over the registry** (`index.test.js`) catches a broken
+  scene file or a missing import at unit-test speed, before the browser walk.
+- **Screenshot every step, not just the first.** `SHOT_STEPS=all` showed two
+  things the first-step screenshots hid: a meaningless "0" label on the
+  missing-score bar and phone labels too small to read. Both fixed before
+  the PR.
+- **The merged-PR rule held.** The push was withheld while PR #22 was open
+  and re-checked at push time, as the Sprint 4 rule demands.
+
+### What hurt
+- **The push still landed outside a PR.** The user merged PR #22 in the
+  minute between the re-check and the push, so the two commits sat on the
+  merged branch until a new PR (#23) was opened for them. The rule from
+  Sprint 4 was followed and was still not enough: a check and a push are two
+  separate moments.
+- **`App.test.js` cannot load in this environment** (`react-router/dom`
+  unresolved under jest), so "27 passing" hides one suite that never ran.
+  Nobody looked at it until the full suite was run at the end.
+- **No image tooling for contact sheets.** Reviewing 86 screenshots one by
+  one cost more time than the walk itself.
+
+### Lessons → rules
+- After every push, read the branch's PR state again: if the PR it was meant
+  for has merged, open a new PR for the pushed commits at once; never leave
+  commits on a branch with no open PR.
+- Run the whole frontend test suite once per sprint and record every suite
+  that fails to load, with its cause, in the PR body; a green count with a
+  failed suite is not green.
+- For every animated lesson, screenshot every step (`SHOT_STEPS=all`) at
+  both viewports before the PR, and look at the phone screenshots for label
+  size, not only for overflow.
+- A chart or drawing never shows a placeholder number for an unknown value;
+  the primitive takes `null` and draws nothing there.
+
+### Follow-ups
+- Fix `App.test.js` module resolution (`react-router/dom` under jest) so the
+  suite runs in CI.
+- Share the stage geometry and palette between `math-svg.js` and
+  `primitives.jsx` (carried over from Sprint 4).
+- Per-scene stage height (closed as not needed this sprint; revisit if a
+  scene outgrows 640×280).
+- The Hosting `no-cache` header for rewritten routes is still pending.
