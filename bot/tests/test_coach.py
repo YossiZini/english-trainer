@@ -60,7 +60,7 @@ async def test_code_start_level_answer_and_end_take_the_fast_path():
     setup = await c.handle("7", "מילים")
     assert setup.text == "מתחילים תרגול של 20 מילים.\nאיזו רמה?\n1. קל\n2. בינוני\n3. קשה" and setup.buttons == ["1", "2", "3"]
     started = await c.handle("7", "1")
-    assert started.text == "רמה קל. תרגמו לעברית:\n(1/20) cat" and started.buttons == []
+    assert started.text == "רמה קל. תרגמו לעברית (\"?\" למשפט לדוגמה):\n(1/20) cat" and started.buttons == []
     assert (await c.handle("7", "חתול")).text.startswith("✅ נכון! +1")
     assert "נשארו 19 מילים" in (await c.handle("7", "סיים")).text
 
@@ -91,3 +91,15 @@ async def test_turn_cap_short_circuits():
             "sessionId": "s", "setup": "level", "options": [{"key": 1, "label": "קל"}]}))
         assert (await c.handle("5", "מילים")).text.startswith("מתחילים")
     assert (await c.handle("5", "מילים")).text == replies.RATE_LIMITED
+
+
+@respx.mock
+async def test_question_mark_shows_the_example_sentence_and_repeats_the_word():
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True}))
+    respx.post(f"{API}/bot/session/answer").mock(side_effect=[
+        ok({"example": True, "sentence": "The cat is sleeping.", "word": WORD, "progress": progress(1)}),
+        ok({"example": True, "sentence": None, "word": WORD, "progress": progress(1)}),
+    ])
+    c = coach()
+    assert (await c.handle("7", "?")).text == "💡 The cat is sleeping.\n(1/20) cat"
+    assert (await c.handle("7", "?")).text == replies.NO_EXAMPLE + "\n(1/20) cat"

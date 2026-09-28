@@ -27,7 +27,8 @@ INVALID_CHOICE = "בחרו מספר מהאפשרויות:"
 NOT_ENOUGH_FOR_CHOICE = "אין מספיק מילים ברמה הזו בקבוצה שבחרתם. בחרו רמה אחרת:"
 NOT_ENOUGH_WORDS = "אין מספיק מילים ברמה שלכם כרגע."
 HELP = ("אני מתרגל אתכם במילים באנגלית. כתבו \"מילים\" להתחלת תרגול של 20 מילים: אני שולח מילה, "
-        "אתם עונים בעברית. \"סיים\" עוצר את התרגול.")
+        "אתם עונים בעברית. \"?\" שולח משפט לדוגמה, \"סיים\" עוצר את התרגול.")
+NO_EXAMPLE = "אין משפט לדוגמה למילה הזו."
 
 
 def _word_line(word: dict | None, progress: dict | None) -> str:
@@ -73,7 +74,7 @@ def start_reply(result: dict) -> Reply:
 
 
 def started_reply(data: dict) -> Reply:
-    return Reply(f"רמה {data['level']}. תרגמו לעברית:\n" + _word_line(data["word"], data["progress"]))
+    return Reply(f"רמה {data['level']}. תרגמו לעברית (\"?\" למשפט לדוגמה):\n" + _word_line(data["word"], data["progress"]))
 
 
 def answer_reply(result: dict) -> Reply:
@@ -85,6 +86,9 @@ def answer_reply(result: dict) -> Reply:
         return setup_reply(data, intro)
     if data.get("started"):
         return started_reply(data)
+    if data.get("example"):
+        line = f"💡 {data['sentence']}" if data.get("sentence") else NO_EXAMPLE
+        return Reply(line + "\n" + _word_line(data["word"], data["progress"]))
     if data["correct"]:
         verdict = "✅ נכון!" + (f" +{data['points']}" if data.get("points") else "")
         if data.get("judged") and data.get("expected"):

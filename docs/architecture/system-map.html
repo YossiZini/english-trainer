@@ -277,7 +277,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Telegram bot</span>
         <h3>A vocabulary session in Telegram</h3>
-        <p>The bot asks the level, then sends 20 words from the whole vocabulary. Failed words come back shuffled until none are left. The API scores every answer; a Hebrew answer that misses the dictionary is first checked by the API with Gemini.</p>
+        <p>The bot asks the level, then sends 20 words from the whole vocabulary. Failed words come back shuffled until none are left. The API scores every answer; a Hebrew answer that misses the dictionary is first checked by the API with Gemini. "?" shows an example sentence for the current word.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">
@@ -297,6 +297,12 @@ sequenceDiagram
   A-->>B: First English word
   B-->>S: Translate to Hebrew
   loop Each word, then rounds of failed words
+    opt Student sends ?
+      S->>B: ?
+      B->>A: Answer
+      A-->>B: Example sentence, same word
+      B-->>S: Example sentence
+    end
     S->>B: Hebrew answer
     B->>A: Answer
     opt Answer misses the dictionary
