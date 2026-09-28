@@ -226,15 +226,26 @@ Track changes per topic with dates and descriptions.
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
   nested parentheses, negative results, exponents note) and 30 exercises; every
   expression evaluated by a script. Sprint 2.
+- 2026-09-28: Animated explanation above the theory
+  (`frontend/src/content/animations/order-of-operations/102-1.jsx`): five
+  scenes, one per rule, showing the expression with the part computed now
+  highlighted and its result popping on the next row. Sprint 5.
 
 ### Topic 103: Average (Math)
 - 2026-09-27: Teaching document (sum ÷ count, sum from average, missing value,
   adding a value, word problems) and 30 exercises, answers verified by script. Sprint 2.
+- 2026-09-28: Animated explanation (`animations/average/103-1.jsx`): bar
+  charts with a dashed average line, bars that level out to the mean, and the
+  sum/count arithmetic. Five scenes, one per rule. Sprint 5.
 
 ### Topic 104: Percentage (Math)
 - 2026-09-27: Teaching document (percent ↔ fraction ↔ decimal, percent of a
   number, what percent, finding the whole, discount and VAT) and 30 exercises,
   answers verified by script. Sprint 2.
+- 2026-09-28: Animated explanation (`animations/percentage/104-1.jsx`):
+  hundred grid for percent ↔ fraction ↔ decimal, bars for percent of a number
+  and finding the whole, price tags for discount, VAT and the 20%-down-20%-up
+  trap. Five scenes, one per rule. Sprint 5.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

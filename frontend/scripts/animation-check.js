@@ -7,7 +7,8 @@
  * Usage: API on :5000 (emulator-backed), `npm run build`, then
  *   CHROMIUM_PATH=/opt/pw-browsers/chromium node scripts/animation-check.js
  * Env: APP_URL, API_URL, SHOTS_DIR, CHROMIUM_PATH, LESSONS (comma list of
- * subtopic numbers, default: every Math lesson that has a player).
+ * subtopic numbers, default: every Math lesson that has a player),
+ * SHOT_STEPS=all to screenshot every step instead of each scene's first.
  */
 const http = require('http');
 const fs = require('fs');
@@ -17,6 +18,7 @@ const { chromium } = require('playwright');
 const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 const API_URL = process.env.API_URL || 'http://127.0.0.1:5000/api';
 const SHOTS_DIR = process.env.SHOTS_DIR || '';
+const ALL_STEPS = process.env.SHOT_STEPS === 'all';
 const SIZES = [{ name: 'laptop', width: 1366, height: 768 }, { name: 'phone', width: 360, height: 740, mobile: true }];
 
 function serveBuild(port) {
@@ -73,7 +75,7 @@ async function api(route, opts = {}) {
             return { inside: svg.left >= 0 && svg.right <= window.innerWidth + 1, caption: document.querySelector('.lesson-animation .la-caption').textContent.trim(), stepLabel: document.querySelector('.la-scene-title small').textContent, hscroll: document.documentElement.scrollWidth > window.innerWidth + 1 };
           });
           if (!m.inside || m.hscroll || !m.caption) { failures++; console.log('FAIL', size.name, l.subtopicNumber, 'tab', t + 1, m); }
-          if (SHOTS_DIR && m.stepLabel.startsWith('שלב 1 ')) { await page.waitForTimeout(900); await page.screenshot({ path: path.join(SHOTS_DIR, `${size.name}-${l.subtopicNumber}-scene${t + 1}.png`) }); }
+          if (SHOTS_DIR && (ALL_STEPS || m.stepLabel.startsWith('שלב 1 '))) { await page.waitForTimeout(900); await page.screenshot({ path: path.join(SHOTS_DIR, `${size.name}-${l.subtopicNumber}-scene${t + 1}${ALL_STEPS ? `-step${m.stepLabel.match(/\d+/)[0]}` : ''}.png`) }); }
           const next = await page.$('.lesson-animation .la-btn[aria-label="צעד קדימה"]:not([disabled])');
           if (!next) break;
           const before = m.stepLabel;

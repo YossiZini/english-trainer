@@ -89,13 +89,19 @@ creates a new lesson and orphans progress.
   `a/b` (shown stacked); `draw` returns JSX for the SVG stage (viewBox
   640×280, left-to-right) built from `animations/primitives.jsx`:
   `Bar` (parts, `subdiv`, `offset`, `onlyFilled`, `slide={{dy}}`), `Frac`,
-  `Circle`, `Grid`, `NumberLine`, `Arrow` + `ArrowDefs`, `Eq`, `Note`.
+  `Circle`, `Grid`, `NumberLine`, `Arrow` + `ArrowDefs`, `Eq`, `Note`;
+  for arithmetic `Expr` (tokens in a row, `hl=[from,to]` highlights the part
+  computed now, a token `{ t, cls: 'result' }` is the answer); for averages
+  `BarChart` (`values`, `mean` line, `levelled` shares out to the mean,
+  `value: null` is a missing bar); for percentages `HundredGrid` (`k` of 100
+  cells) and `PriceTag` (`price`, `label`, `strike`).
   Entrance classes: `pop`, `rise`, `fadein`, `draw`, `shake` with delays
   `d1`–`d5`. Keep one idea per step; the caption says what the stage shows.
 - The player auto-advances every 4.5 s, stops at the end, and answers arrow
   keys and space; nothing else to wire.
 - Check with `node scripts/animation-check.js` (frontend, API on :5000,
-  `SHOTS_DIR` for screenshots): walks every step at laptop and phone.
+  `SHOTS_DIR` for screenshots, `SHOT_STEPS=all` for every step, `LESSONS`
+  to limit): walks every step at laptop and phone.
 
 ## Verification (before every commit)
 

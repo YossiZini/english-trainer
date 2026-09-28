@@ -104,4 +104,27 @@
   .lesson-animation .la-dots { width: 100%; margin-inline-start: 0; justify-content: center; }
   .lesson-animation .la-fr-label { font-size: 26px; }
   .lesson-animation .la-note { font-size: 18px; }
+  .lesson-animation .la-tag-sub { font-size: 16px; }
+  .lesson-animation .la-tag-price { font-size: 25px; }
+  .lesson-animation .la-bar-value, .lesson-animation .la-mean-label { font-size: 19px; }
+  .lesson-animation .la-tick { font-size: 15px; }
 }
+
+/* Sprint 5 primitives: expressions, bar charts, hundred grid, price tags */
+.lesson-animation .la-expr { font-weight: 700; }
+.lesson-animation .la-expr.result { fill: var(--la-sum); }
+.lesson-animation .la-expr.dim { fill: var(--la-muted); font-weight: 400; }
+.lesson-animation .la-expr.b { fill: var(--la-b); }
+.lesson-animation .la-expr-hl { fill: var(--la-b-soft); stroke: var(--la-b); stroke-width: 2.5; }
+.lesson-animation .la-bar { transition: y 0.8s ease, height 0.8s ease; }
+.lesson-animation .la-bar-value { font-size: 16px; font-weight: 700; }
+.lesson-animation .la-mean { stroke: var(--la-sum); stroke-width: 2.5; stroke-dasharray: 8 5; }
+.lesson-animation .la-mean-label { fill: var(--la-sum); font-size: 16px; font-weight: 700; }
+.lesson-animation .la-tag { fill: var(--la-b-soft); stroke: var(--la-b); stroke-width: 2; }
+.lesson-animation .la-tag.a { fill: var(--la-a-soft); stroke: var(--la-a); }
+.lesson-animation .la-tag-hole { fill: var(--la-panel); stroke: var(--la-ink); stroke-width: 1.5; }
+.lesson-animation .la-tag-price { font-size: 22px; font-weight: 700; }
+.lesson-animation .la-tag-old { fill: var(--la-muted); }
+.lesson-animation .la-strike { stroke: var(--la-sum); stroke-width: 3; }
+.lesson-animation .la-tag-sub { font-size: 13px; fill: var(--la-muted); }
+@media (prefers-reduced-motion: reduce) { .lesson-animation .la-bar { transition-duration: 0.01s; } }
