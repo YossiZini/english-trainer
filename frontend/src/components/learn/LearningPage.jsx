@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
 import { displayTopic, displaySubtopic } from '../../content/topicMeta';
+import { getScenes } from '../../content/animations';
+import LessonAnimation from './LessonAnimation';
 import './LearningPage.css';
 
 const LearningPage = () => {
@@ -99,6 +101,8 @@ const LearningPage = () => {
     return null;
   }
 
+  const scenes = getScenes(lesson.subtopicNumber);
+
   return (
     <div className="learning-container">
       <nav className="learning-nav">
@@ -164,6 +168,8 @@ const LearningPage = () => {
             </div>
           )}
         </header>
+
+        {scenes && <LessonAnimation key={lesson.id} scenes={scenes} />}
 
         <div className="theory-content">
           <div

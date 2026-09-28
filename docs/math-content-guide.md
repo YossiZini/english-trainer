@@ -80,6 +80,23 @@ creates a new lesson and orphans progress.
   `mul`, `div`) or `math-svg.js` directly. Keep it to one row of figures: on
   phones they are laid side by side and must fit above the action bar.
 
+## Animated lesson (optional, above the theory)
+
+- A lesson gets a step player when `frontend/src/content/animations/index.js`
+  maps its subtopic number to a scene file (`animations/fractions/101-4.jsx`).
+  One scene per rule of the written theory, in the same order; 2–5 steps each.
+- A step is `{ caption, draw }`: `caption` is plain Hebrew with fractions as
+  `a/b` (shown stacked); `draw` returns JSX for the SVG stage (viewBox
+  640×280, left-to-right) built from `animations/primitives.jsx`:
+  `Bar` (parts, `subdiv`, `offset`, `onlyFilled`, `slide={{dy}}`), `Frac`,
+  `Circle`, `Grid`, `NumberLine`, `Arrow` + `ArrowDefs`, `Eq`, `Note`.
+  Entrance classes: `pop`, `rise`, `fadein`, `draw`, `shake` with delays
+  `d1`–`d5`. Keep one idea per step; the caption says what the stage shows.
+- The player auto-advances every 4.5 s, stops at the end, and answers arrow
+  keys and space; nothing else to wire.
+- Check with `node scripts/animation-check.js` (frontend, API on :5000,
+  `SHOTS_DIR` for screenshots): walks every step at laptop and phone.
+
 ## Verification (before every commit)
 
 1. A check script re-computes every answer with an evaluator that does not
@@ -90,5 +107,6 @@ creates a new lesson and orphans progress.
 3. **Restart the API** (bundled content loads at startup), `npm test`,
    `cd frontend && npm run build`.
 4. Screenshot the learn page and one exercise per level at 1366×768 and
-   360×740 (Playwright; see `docs/screenshots/sprint-3` for the expected look).
+   360×740 (Playwright; see `docs/screenshots/sprint-3` for the expected look);
+   for an animated lesson run `scripts/animation-check.js`.
 5. Update `docs/topics-status.md` (table row + activity log entry).
