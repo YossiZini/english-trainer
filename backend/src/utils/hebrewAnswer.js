@@ -8,7 +8,7 @@
  */
 
 const NIKKUD = /[֑-ׇ]/g;
-const PUNCT = /[.,!?;:"'`׳״\-–—_*()[\]{}]/g;
+const PUNCT = /[.,!?;:"'`׳״\-–—_*()[\]{}/|]/g;
 
 /** Canonical form of one Hebrew phrase. */
 function normalize(text) {
@@ -24,7 +24,8 @@ function normalize(text) {
 
 /** Every accepted form of a stored translation, normalised. */
 function alternatives(translation) {
-  const forms = new Set();
+  // The whole entry counts too: a student who writes "כוס / זכוכית" is right.
+  const forms = new Set([normalize(translation)]);
   for (const part of String(translation || '').split(/[/,;|]|\s+או\s+/)) {
     const raw = part.trim();
     if (!raw) continue;
