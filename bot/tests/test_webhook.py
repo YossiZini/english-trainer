@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from app import telegram
 from app.main import create_app
+from app.replies import Reply
 
 
 class FakeCoach:
@@ -13,7 +14,7 @@ class FakeCoach:
 
     async def handle(self, chat_id, text):
         self.calls.append((chat_id, text))
-        return "תשובה"
+        return Reply("תשובה", ["1", "2"])
 
 
 def update(text="מילים", chat_id=42):
@@ -40,7 +41,11 @@ def test_handles_a_text_update_and_sends_the_reply():
     res = client.post("/telegram/webhook", json=update("cat", 42), headers={"X-Telegram-Bot-Api-Secret-Token": "hook-secret"})
     assert res.status_code == 200 and res.json() == {"ok": True}
     assert coach.calls == [("42", "cat")]
-    assert b'"chat_id": "42"' in send.calls.last.request.content or b'"chat_id":"42"' in send.calls.last.request.content
+    import json
+    body = json.loads(send.calls.last.request.content)
+    assert body["chat_id"] == "42" and body["text"] == "תשובה"
+    assert body["reply_markup"]["keyboard"] == [[{"text": "1"}, {"text": "2"}]]
+    assert telegram.reply_markup([]) == {"remove_keyboard": True}
     assert client.get("/health").json() == {"status": "OK"}
 
 

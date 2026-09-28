@@ -13,6 +13,7 @@ from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
 from . import config, replies
+from .replies import Reply
 from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
@@ -30,24 +31,24 @@ class Coach:
         self.sessions = InMemorySessionService()
         self.runner = Runner(app_name=config.APP_NAME, agent=agent or build_agent(), session_service=self.sessions)
 
-    async def handle(self, chat_id: str, text: str) -> str:
+    async def handle(self, chat_id: str, text: str) -> Reply:
         chat_id = str(chat_id)
         text = (text or "").strip()
         if not text:
-            return replies.HELP
+            return Reply(replies.HELP)
         if not self.turns.allow(chat_id):
-            return replies.RATE_LIMITED
+            return Reply(replies.RATE_LIMITED)
         fast = await self.fast_path(chat_id, text)
         if fast is not None:
             return fast
-        return await self.ask_agent(chat_id, text)
+        return Reply(await self.ask_agent(chat_id, text))
 
-    async def fast_path(self, chat_id: str, text: str) -> str | None:
+    async def fast_path(self, chat_id: str, text: str) -> Reply | None:
         """Replies that need no model: they are fully determined by the API."""
         lowered = text.lower()
         if CODE.match(text):
             result = await self.api.link(chat_id, text)
-            return replies.LINKED if result["ok"] else replies.error_reply(result)
+            return Reply(replies.LINKED if result["ok"] else replies.error_reply(result))
         if lowered in config.START_WORDS or lowered == "/start":
             return replies.start_reply(await self.api.start(chat_id))
         if lowered in config.END_WORDS:
@@ -56,9 +57,10 @@ class Coach:
             return None
         status = await self.api.status(chat_id)
         if status["ok"] and status["data"].get("active"):
+            # In setup or mid-session every message is an answer (a choice or a translation).
             return replies.answer_reply(await self.api.answer(chat_id, text))
         if not status["ok"] and status.get("code") in ("not_linked", "rate_limited", "unreachable"):
-            return replies.error_reply(status)
+            return Reply(replies.error_reply(status))
         return None
 
     async def ask_agent(self, chat_id: str, text: str) -> str:

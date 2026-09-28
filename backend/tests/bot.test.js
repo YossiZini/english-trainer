@@ -61,18 +61,40 @@ describe('Bot API', () => {
     expect((await request(app).get('/api/bot/session/status').set('X-Bot-Key', 'test-bot-key').query({ chatId })).status).toBe(200);
   });
 
-  test('walks a whole session: 20 words, three wrong, a failed round, then done', async () => {
+  test('walks a whole session: setup questions, 20 words, three wrong, a failed round, then done', async () => {
     const start = await bot('/api/bot/session/start');
     expect(start.status).toBe(200);
-    const { word, progress } = start.body.data;
+    expect(start.body.data.setup).toBe('type');
+    expect(start.body.data.options.map(o => o.label)).toEqual(['כל המילים', 'Band II', 'Band III']);
+
+    // A wrong choice repeats the question; a valid pair starts the session.
+    expect((await bot('/api/bot/session/answer', { text: 'מה?' })).body.data.invalid).toBe(true);
+    expect((await bot('/api/bot/session/answer', { text: '3' })).body.data.setup).toBe('level');
+    const bandThree = (await bot('/api/bot/session/answer', { text: 'קל' })).body.data;
+    expect(bandThree.started).toBe(true);
+    expect(bandThree.wordSet).toBe('Band III');
+    // Starting again replaces it; this time easy Band II words.
+    await bot('/api/bot/session/start');
+    expect((await db.findById('bot_sessions', bandThree.sessionId)).status).toBe('ended');
+    expect((await bot('/api/bot/session/answer', { text: 'Band 2' })).body.data.setup).toBe('level');
+    const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
+    expect(started.started).toBe(true);
+    expect(started.wordSet).toBe('Band II');
+    expect(started.level).toBe('קל');
+    const { word, progress } = started;
     expect(word.english).toBeTruthy();
     expect(progress).toEqual({ round: 1, index: 1, total: 20, failedInRound: 0 });
 
-    const session = await db.findById('bot_sessions', start.body.data.sessionId);
+    const session = await db.findById('bot_sessions', started.sessionId);
     expect(new Set(session.word_ids).size).toBe(20);
     const words = db.getCollection('vocabulary_words', true);
     const translation = (id) => words.find(w => w.id === id).hebrew_translation;
-    session.word_ids.forEach(id => expect(words.find(w => w.id === id).difficulty_level).toBeLessThanOrEqual(3));
+    session.word_ids.forEach(id => {
+      const w = words.find(x => x.id === id);
+      expect(w.difficulty_level).toBeLessThanOrEqual(5);
+      expect(w.source).toMatch(/band22/);
+    });
+    const pointsBefore = (await db.findOne('users', { name: 'bot-student' })).total_points || 0;
 
     // Round 1: answer words 1..3 wrong, the rest right.
     let current = word;
@@ -81,6 +103,7 @@ describe('Bot API', () => {
       const text = i < 3 ? 'תשובה לא נכונה' : translation(current.id);
       reply = (await bot('/api/bot/session/answer', { text })).body.data;
       expect(reply.correct).toBe(i >= 3);
+      expect(reply.points).toBe(i >= 3 ? 1 : 0);
       if (i < 3) expect(reply.expected).toBe(translation(current.id));
       if (i < 19) {
         expect(reply.progress.round).toBe(1);
@@ -112,7 +135,11 @@ describe('Bot API', () => {
     reply = (await bot('/api/bot/session/answer', { text: translation(current.id) })).body.data;
     expect(reply.done).toBe(true);
     expect(reply.word).toBeNull();
-    expect(reply.summary).toEqual({ words: 20, rounds: 3, correct: 20, wrong: 4, remainingFailed: 0 });
+    expect(reply.summary).toEqual({ words: 20, rounds: 3, correct: 20, wrong: 4, remainingFailed: 0, points: 20, totalPoints: pointsBefore + 20 });
+    expect((await db.findOne('users', { name: 'bot-student' })).total_points).toBe(pointsBefore + 20);
+    const userId = (await db.findOne('users', { name: 'bot-student' })).id;
+    expect((await db.findOne('vocabulary_user_stats', { user_id: userId })).accumulated_fails).toBe(4);
+    expect((await db.find('vocabulary_failed_words', { user_id: userId })).length).toBe(3);
 
     expect((await bot('/api/bot/session/answer', { text: 'שלום' })).status).toBe(404);
     // Bot practice shows in the web statistics.
@@ -126,9 +153,12 @@ describe('Bot API', () => {
     expect(second.body.data.sessionId).not.toBe(first.body.data.sessionId);
     expect((await db.findById('bot_sessions', first.body.data.sessionId)).status).toBe('ended');
 
+    await bot('/api/bot/session/answer', { text: '1' });
+    await bot('/api/bot/session/answer', { text: '1' });
     const ended = (await bot('/api/bot/session/answer', { text: 'סיים' })).body.data;
     expect(ended.done).toBe(true);
     expect(ended.summary.words).toBe(20);
+    expect(typeof ended.summary.totalPoints).toBe('number');
     expect((await request(app).get('/api/bot/session/status').set('X-Bot-Key', 'test-bot-key').query({ chatId })).body.data.active).toBe(false);
   });
 

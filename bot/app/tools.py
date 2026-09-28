@@ -26,22 +26,22 @@ async def link_account(code: str, tool_context: ToolContext) -> dict:
 
 async def start_session(tool_context: ToolContext) -> dict:
     """Start a new practice session of 20 English words and return the first word."""
-    return {"reply": replies.start_reply(await _api.start(_chat(tool_context)))}
+    return {"reply": str(replies.start_reply(await _api.start(_chat(tool_context))))}
 
 
 async def answer_word(text: str, tool_context: ToolContext) -> dict:
     """Submit the student's Hebrew translation of the current word; returns the verdict and the next word."""
-    return {"reply": replies.answer_reply(await _api.answer(_chat(tool_context), text))}
+    return {"reply": str(replies.answer_reply(await _api.answer(_chat(tool_context), text)))}
 
 
 async def end_session(tool_context: ToolContext) -> dict:
     """End the current practice session and return the summary."""
-    return {"reply": replies.end_reply(await _api.end(_chat(tool_context)))}
+    return {"reply": str(replies.end_reply(await _api.end(_chat(tool_context))))}
 
 
 async def session_status(tool_context: ToolContext) -> dict:
     """Tell whether a session is active and repeat the current word."""
-    return {"reply": replies.status_reply(await _api.status(_chat(tool_context)))}
+    return {"reply": str(replies.status_reply(await _api.status(_chat(tool_context))))}
 
 
 TOOLS = [link_account, start_session, answer_word, end_session, session_status]
