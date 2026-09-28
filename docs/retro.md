@@ -369,3 +369,84 @@ session.
 - Per-scene stage height (closed as not needed this sprint; revisit if a
   scene outgrows 640×280).
 - The Hosting `no-cache` header for rewritten routes is still pending.
+
+## Sprint 6 — Telegram vocabulary bot on a secured API (2026-09-28)
+
+Goal: let a student practise vocabulary from Telegram through a Google ADK
+agent, on authenticated API endpoints, under hard budget limits.
+Result: bot API (sessions, chat linking, key auth, rate limits), a web
+linking page, the ADK bot service on Cloud Run with caps, setup scripts and
+docs (PRs #26, #27, #28), then setup questions, points and the fail counter
+added at the user's request (#29). The user ran the setup and confirmed the
+bot works end to end.
+
+### What went well
+- **Exploring before planning changed the design.** The exploration found
+  that the web quiz checks answers by option id and keeps no word list per
+  session, so the bot got its own session API instead of bending the web
+  quiz.
+- **The model only routes.** Word choice, answer checking, rounds, points
+  and every counter live in the API; replies are built from API data. Inside
+  a session no message reaches the model, so the bill does not grow with the
+  number of words.
+- **Safe to merge before the secrets existed.** The bot deploy and the API's
+  key were gated on the `DEPLOY_BOT` variable, and the API answers 503
+  without a key, so merging #26 early broke nothing.
+- **Secrets never passed through the session.** The token was typed into a
+  script with hidden input and went straight to Secret Manager; nothing
+  secret is in the repo, the board or the chat.
+- **The smoke script** walked a real session against the emulator-backed API
+  without Telegram or a model, and showed the conversation text before the
+  user saw it.
+- **The open-PR push rule held** three times (#25, #28, #29 open on the
+  branch): new commits waited instead of landing in the wrong PR.
+
+### What hurt
+- **Main went red after #26.** The session test drew 20 random easy words
+  and failed only when it drew one of five whose stored translation lists
+  two forms (`כוס / זכוכית`) or a note in parentheses; the matcher did not
+  accept the entry typed exactly as stored. Local runs passed by chance, so
+  the bug reached `main` and its deploy was skipped.
+- **Requirements pinned from memory.** The first `requirements.txt` named a
+  FastAPI version that conflicts with google-adk; only a clean install on
+  Python 3.12 caught it.
+- **Two paths never ran in the session**: the container build (no docker
+  daemon) and the model path (no Gemini credentials). CI and the user's
+  test covered them afterwards; the session could not.
+- **The user's setup stalled three times**: scripts run before the PR that
+  adds them had merged, a missing argument answered by bash's cryptic
+  `${1:?}` message, and a Mac network that blocks `api.telegram.org`.
+- **A one-line PR blocked the next story.** The bot-username PR (#28) sat
+  open on the shared branch while the setup-questions work waited to be
+  pushed.
+- **A test assumed the data instead of querying it.** "Band III has no easy
+  words" was false because combined sources (`band22,band33july18`) belong
+  to both bands.
+
+### Lessons → rules
+- A test that samples random content is backed by a unit test over the whole
+  content set (for the matcher: every stored translation matches itself), and
+  is run at least three times before the push.
+- Pin dependency versions from the resolved environment (`uv pip freeze`,
+  `npm ls`), never from memory, and install the pinned file cleanly once.
+- Owner steps are handed over with a check after each one (`ls infra` shows
+  the script) and name the PR that must be merged first; a script that calls
+  an outside API also gets a Cloud Shell alternative.
+- Owner scripts print a plain usage line and exit when an argument is
+  missing; never rely on `${1:?}` for a person-facing message.
+- A small follow-up that is not urgent rides in the next PR instead of
+  opening its own PR on the shared branch (refines "ask for the merge of a
+  small PR").
+- Test assumptions about content (counts per band, level or source) come
+  from a query over the data file, including combined values.
+
+### Follow-ups
+- Exercise the agent path (free-form messages through Gemini) against
+  production once per release; it has no automated test with a real model.
+- `BotSession.findOpenByChat` reads every session of a chat and filters in
+  memory; query by status or expire old sessions before chats grow long.
+- The per-chat rate window and the turn counter are per instance (up to 2);
+  the durable cap is the API's daily counter. Revisit if more instances run.
+- `/sprint review` has not run for this sprint.
+- Carried over: `App.test.js` jest resolution, Hosting `no-cache` header,
+  shared stage geometry.
