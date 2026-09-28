@@ -54,6 +54,13 @@ const Navbar = () => {
           {user && (
             <>
               <span className="navbar-user">שלום, {user.name || user.username}</span>
+              <button
+                className={`navbar-link navbar-telegram ${location.pathname === '/settings/telegram' ? 'active' : ''}`}
+                onClick={() => navigate('/settings/telegram')}
+                title="תרגול מילים בטלגרם"
+              >
+                טלגרם
+              </button>
               <button className="navbar-logout" onClick={handleLogout}>
                 יציאה
               </button>

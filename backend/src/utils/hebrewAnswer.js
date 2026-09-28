@@ -1,0 +1,46 @@
+/**
+ * Free-text matching of a Hebrew translation against the stored one.
+ *
+ * The bot student types the translation; the stored translation may list
+ * alternatives ("לגמרי לבד / בעצמו", "גדול, ענק") and optional parts in
+ * parentheses ("(מאוד) גדול"). Matching ignores nikkud, punctuation, letter
+ * case (Latin) and extra spaces. Nothing is judged by a model.
+ */
+
+const NIKKUD = /[֑-ׇ]/g;
+const PUNCT = /[.,!?;:"'`׳״\-–—_*()[\]{}]/g;
+
+/** Canonical form of one Hebrew phrase. */
+function normalize(text) {
+  return String(text || '')
+    .normalize('NFC')
+    .replace(/[⁦-⁩‎‏]/g, '')
+    .replace(NIKKUD, '')
+    .replace(PUNCT, ' ')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Every accepted form of a stored translation, normalised. */
+function alternatives(translation) {
+  const forms = new Set();
+  for (const part of String(translation || '').split(/[/,;|]|\s+או\s+/)) {
+    const raw = part.trim();
+    if (!raw) continue;
+    forms.add(normalize(raw));
+    // A parenthesised part is optional: accept the phrase without it too.
+    if (/\(.*?\)/.test(raw)) forms.add(normalize(raw.replace(/\(.*?\)/g, ' ')));
+  }
+  forms.delete('');
+  return [...forms];
+}
+
+/** True when the student's text matches any accepted form. */
+function hebrewAnswerMatches(userText, translation) {
+  const given = normalize(userText);
+  if (!given) return false;
+  return alternatives(translation).includes(given);
+}
+
+module.exports = { normalize, alternatives, hebrewAnswerMatches };

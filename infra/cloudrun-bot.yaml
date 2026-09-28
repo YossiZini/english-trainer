@@ -1,0 +1,71 @@
+# Cloud Run service definition for the English Trainer Telegram bot
+# (bot/, a Google ADK agent behind a Telegram webhook).
+#
+# CI substitutes the image tag and applies it with:
+#   gcloud run services replace infra/cloudrun-bot.yaml --region europe-west1
+# The secrets are created by infra/setup-bot.sh. Hard caps: at most 2
+# instances × 10 concurrent requests, 30 s per request.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: english-trainer-bot
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "2"
+    spec:
+      serviceAccountName: english-trainer-api@teacher-509909.iam.gserviceaccount.com
+      containerConcurrency: 10
+      timeoutSeconds: 30
+      containers:
+        - image: europe-west1-docker.pkg.dev/teacher-509909/english-trainer/bot:latest
+          ports:
+            - name: http1
+              containerPort: 8080
+          env:
+            - name: API_URL
+              value: https://teacher-509909.web.app/api
+            - name: MODEL
+              value: gemini-2.5-flash
+            - name: GOOGLE_GENAI_USE_VERTEXAI
+              value: "TRUE"
+            - name: GOOGLE_CLOUD_PROJECT
+              value: teacher-509909
+            - name: GOOGLE_CLOUD_LOCATION
+              value: europe-west1
+            - name: MAX_OUTPUT_TOKENS
+              value: "200"
+            - name: MAX_LLM_CALLS_PER_TURN
+              value: "4"
+            - name: MAX_TURNS_PER_CHAT_PER_DAY
+              value: "400"
+            - name: BOT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bot-api-key
+                  key: latest
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: telegram-bot-token
+                  key: latest
+            - name: TELEGRAM_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: telegram-webhook-secret
+                  key: latest
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 3
+            failureThreshold: 10

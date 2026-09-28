@@ -13,6 +13,8 @@ Browser ──► Firebase Hosting  https://teacher-509909.web.app
                │                     ├─ Firestore (Native): student data, 16 collections
                │                     └─ Secret Manager: jwt-secret → JWT_SECRET
                └─ videos ──► Cloud Storage bucket teacher-509909-videos (public read)
+Telegram ──► Cloud Run: english-trainer-bot (Python, Google ADK) ──► /api/bot/* on the API
+               (secrets: telegram-bot-token, telegram-webhook-secret, bot-api-key; Gemini via Vertex AI)
 
 GitHub push to main ──► GitHub Actions (Workload Identity, no keys)
    test on Firestore emulator → build image → Artifact Registry → Cloud Run
@@ -22,6 +24,7 @@ GitHub push to main ──► GitHub Actions (Workload Identity, no keys)
 | Piece | Where it is defined |
 |---|---|
 | Cloud Run service | `infra/cloudrun-service.yaml` |
+| Telegram bot service | `infra/cloudrun-bot.yaml`, `bot/Dockerfile`, setup in `infra/setup-bot.sh` (see `docs/telegram-bot.md`) |
 | Container image | `backend/Dockerfile` |
 | Hosting, rewrites, cache headers | `firebase.json` |
 | Firestore rules / indexes | `firestore.rules`, `firestore.indexes.json` |
@@ -95,6 +98,8 @@ reference the filename in `frontend/src/components/topics/TopicsIndex.jsx`.
 Everything runs inside free tiers for a handful of students: Cloud Run
 (scale-to-zero), Firestore (1 GiB, 50k reads/day), Hosting (10 GB, 360 MB/day),
 Artifact Registry (0.5 GB), Secret Manager. Expected bill: $0–2 per month.
+The Telegram bot adds Vertex AI (Gemini Flash) usage, bounded by the caps in
+`docs/telegram-bot.md`; answers inside a session never call the model.
 Old container images accumulate in Artifact Registry; delete them occasionally
 or add a cleanup policy if storage grows past the free 0.5 GB.
 
