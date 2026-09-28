@@ -36,7 +36,7 @@ class BotSession {
    * type, options in the order shown), then one answer per question. The
    * answers are graded together at the end, like the web exercise page.
    */
-  static async createExercise({ userId, chatId, lesson, difficulty, exercises }) {
+  static async createExercise({ userId, chatId, lesson, number, difficulty, exercises }) {
     const now = new Date().toISOString();
     return db.insert('bot_sessions', {
       kind: 'exercise',
@@ -45,6 +45,7 @@ class BotSession {
       status: 'active',
       lesson_id: lesson.id,
       lesson_title: lesson.title_he,
+      lesson_number: number,
       subject: lesson.subject || 'english',
       difficulty,
       exercises,

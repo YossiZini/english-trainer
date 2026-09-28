@@ -44,7 +44,7 @@ async def main() -> int:
     # The lesson list: page 2, an unknown number, pick lesson 12, end.
     for text in ["שיעורים אנגלית", "עוד", "500", "12", "1", "סיים"]:
         print(f"> {text}\n<", await say(text))
-    for text in ["תרגיל חשבון 3", "סיים"]:
+    for text in ["תרגיל חשבון 3 קשה", "?", "סיים"]:
         print(f"> {text}\n<", await say(text))
     print("> שלום\n<", await say("שלום") if coach.runner else "(agent path skipped: no model)")
     return 0

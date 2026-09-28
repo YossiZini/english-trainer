@@ -120,6 +120,9 @@ describe('Bot lesson exercises', () => {
     const before = (await db.find('exercise_results', { user_id: userId })).length;
     const exerciseId = await currentExerciseId();
     await bot('/api/bot/session/answer', { text: rightAnswer(start.question, exerciseId) });
+    // '?' is not an answer: the hint (none in the content yet) and the same question.
+    const hint = (await bot('/api/bot/session/answer', { text: '?' })).body.data;
+    expect(hint).toMatchObject({ hintAsked: true, hint: null, question: { number: 2 } });
     const ended = (await bot('/api/bot/session/answer', { text: 'סיים' })).body.data;
     expect(ended).toMatchObject({ kind: 'exercise', ended: true, answered: 1, correct: 1, total: 10 });
     expect((await db.find('exercise_results', { user_id: userId })).length).toBe(before);
@@ -179,9 +182,16 @@ describe('Bot lesson exercises', () => {
   test('start the n-th lesson of a subject directly', async () => {
     const math = [...lessons].filter(l => l.subject === 'math').sort(compareLessons);
     const start = (await bot('/api/bot/exercise/start', { subject: 'math', number: 5 })).body.data;
-    expect(start.lesson.id).toBe(math[4].id);
+    expect(start.lesson).toMatchObject({ id: math[4].id, number: 5 });
     expect((await bot('/api/bot/exercise/start', { subject: 'math', number: math.length + 1 })).status).toBe(404);
     expect((await bot('/api/bot/exercise/start', { number: 5 })).status).toBe(400);
+
+    // A chosen difficulty overrides the progress-based level and is graded at it.
+    expect((await bot('/api/bot/exercise/start', { subject: 'math', number: 2, difficulty: 'expert' })).status).toBe(400);
+    const hard = (await bot('/api/bot/exercise/start', { subject: 'math', number: 2, difficulty: 'hard' })).body.data;
+    expect(hard.lesson).toMatchObject({ id: math[1].id, number: 2, difficulty: 'hard' });
+    const hardIds = (await db.find('bot_sessions', { chat_id: chatId })).find(s => s.status === 'active').exercises.map(e => e.id);
+    expect(hardIds.every(id => bundled.get(id).difficulty === 'hard')).toBe(true);
     await bot('/api/bot/session/end');
   });
 });

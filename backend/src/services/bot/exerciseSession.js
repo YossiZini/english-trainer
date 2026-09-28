@@ -13,17 +13,20 @@ const { END_WORDS } = require('../../config/bot');
  * The questions come from LessonService.getExercises (same selection and
  * option shuffle as the web page) and are frozen in the session. A
  * multiple-choice answer is the option's number (1..n); a fill-in answer is
- * the text. Each answer gets immediate feedback; after the last one all
- * answers go to ExerciseService.submitExercise, so score, points, progress,
- * mistakes and the next lesson are exactly the web's. Ending early records
+ * the text; "?" shows the question's hint. Each answer gets immediate
+ * feedback; after the last one all answers go to
+ * ExerciseService.submitExercise, so score, points, progress, mistakes and
+ * the next lesson are exactly the web's. Ending early records
  * nothing. Replies are plain data; the bot turns them into text.
  */
 
 const SUBJECTS = ['english', 'math'];
+const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const EXPLANATION_MAX = 400;
 const PAGE_SIZE = 10;
 const MORE_WORDS = ['עוד', 'הבא', 'more', 'next'];
 const BACK_WORDS = ['הקודם', 'חזרה', 'back', 'prev'];
+const HINT_WORDS = ['?', '？', 'רמז', 'hint'];
 
 const isEnd = (text) => END_WORDS.includes(String(text || '').trim().toLowerCase());
 
@@ -54,7 +57,13 @@ function questionView(session) {
 }
 
 function lessonView(session) {
-  return { id: session.lesson_id, title: session.lesson_title, subject: session.subject, difficulty: session.difficulty };
+  return {
+    id: session.lesson_id,
+    title: session.lesson_title,
+    subject: session.subject,
+    number: session.lesson_number || null,
+    difficulty: session.difficulty
+  };
 }
 
 /**
@@ -83,8 +92,12 @@ const openSession = async (chatId) => {
 };
 
 class ExerciseSession {
-  /** Start a lesson: `lessonId`, or the next lesson of `subject`. Replaces any open session. */
-  static async start(user, chatId, { subject, lessonId, number } = {}) {
+  /**
+   * Start a lesson: `lessonId`, the `number`-th lesson of `subject`, or the
+   * next lesson of `subject`. `difficulty` overrides the progress-based level.
+   * Replaces any open session.
+   */
+  static async start(user, chatId, { subject, lessonId, number, difficulty } = {}) {
     let lesson;
     if (lessonId) {
       lesson = await Lesson.findById(lessonId);
@@ -101,20 +114,23 @@ class ExerciseSession {
       lesson = await Lesson.findById(next.id);
     }
 
-    const set = await LessonService.getExercises(lesson.id, user.id);
+    const list = await Lesson.listBySubject(lesson.subject || 'english');
+    const position = list.findIndex(l => l.id === lesson.id) + 1 || null;
+    const set = await LessonService.getExercises(lesson.id, user.id, DIFFICULTIES.includes(difficulty) ? difficulty : null);
     if (!set.exercises.length) return { error: 'no_exercises' };
     const exercises = set.exercises.map(ex => ({
       id: ex.id,
       type: ex.type,
       text: ex.question_text_he || ex.question_text_en,
       textEn: ex.question_text_he ? ex.question_text_en || null : null,
-      options: ex.type === 'multiple_choice' ? ex.options : null
+      options: ex.type === 'multiple_choice' ? ex.options : null,
+      hint: ex.hint_he || null
     }));
 
     const open = await BotSession.findOpenByChat(chatId);
     if (open) await BotSession.end(open.id, 'replaced');
     const session = await BotSession.createExercise({
-      userId: user.id, chatId, lesson, difficulty: set.currentDifficulty, exercises
+      userId: user.id, chatId, lesson, number: position, difficulty: set.currentDifficulty, exercises
     });
     return { kind: 'exercise', sessionId: session.id, lesson: lessonView(session), question: questionView(session) };
   }
@@ -154,6 +170,10 @@ class ExerciseSession {
     if (session.status === 'setup') return this.pick(user, chatId, session, text);
 
     const current = session.exercises[session.index];
+    if (HINT_WORDS.includes(String(text || '').trim().toLowerCase())) {
+      // Not an answer: the hint (when the question has one) and the same question.
+      return { kind: 'exercise', hintAsked: true, hint: capped(current.hint), lesson: lessonView(session), question: questionView(session) };
+    }
     let given;
     if (current.type === 'multiple_choice') {
       const n = parseOptionNumber(text, current.options.length);

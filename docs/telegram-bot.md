@@ -37,6 +37,8 @@ per message.
 | "תרגיל אנגלית" / "תרגיל חשבון" (also תרגול…, תרגילים…, "תרגיל מתמטיקה") | the subject's next lesson (curriculum order) |
 | "שיעורים אנגלית" / "שיעורים חשבון" | numbered lesson list, 10 per page, ✅ passed / ▶️ next; "עוד" / "הקודם" turn the page; the student sends a number |
 | "תרגיל אנגלית 12" | lesson 12 of that list, directly |
+| "תרגיל אנגלית קשה", "תרגיל חשבון 3 קל" | the same, at a chosen level (קל / בינוני / קשה) instead of the progress-based one |
+| "?" (or "רמז") during a question | the question's hint and the same question; not an answer (no exercise has a hint yet, so it says there is none) |
 | "סיים" | stops; nothing is recorded for a half-done lesson |
 
 Commands are two words on purpose: a single word such as "חשבון" is also a
@@ -55,7 +57,9 @@ picked number go through `/api/bot/session/answer` like any answer.
 3. Each answer gets ✅ or ❌ with the right answer and the explanation.
 4. After the last answer all answers go to `ExerciseService.submitExercise`:
    score, points (+1 right, −2 wrong, +3 at 70 or more), mistakes, progress
-   and the next lesson are exactly the web's. The summary shows them.
+   and the next lesson are exactly the web's. The summary shows them with
+   the level, and after a pass suggests the same lesson one level up
+   ("תרגיל אנגלית 12 קשה").
 
 Starting an exercise ends an open vocabulary session and the other way
 round; `/api/bot/session/answer`, `end` and `status` route to the open

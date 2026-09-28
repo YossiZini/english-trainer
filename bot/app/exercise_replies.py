@@ -8,10 +8,12 @@ from .replies import Reply
 
 SUBJECT_COMMAND = {"english": "תרגיל אנגלית", "math": "תרגיל חשבון"}
 SUBJECT_NAME = {"english": "אנגלית", "math": "חשבון"}
+LEVEL_NAME = {"easy": "קל", "medium": "בינוני", "hard": "קשה"}
 MARKS = {"done": "✅ ", "next": "▶️ ", "open": ""}
 MORE, BACK = "עוד", "הקודם"
 PICK_INVALID = "שלחו מספר של שיעור מהרשימה:"
 PICK_CLOSED = "סגרנו את רשימת השיעורים."
+NO_HINT = "אין רמז לשאלה הזו."
 START_INTRO = "מתחילים! ענו במספר התשובה, או כתבו \"סיים\" כדי לעצור."
 
 ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה."
@@ -28,14 +30,15 @@ EXERCISE_ERRORS = {
 def question_reply(data: dict, intro: str = "") -> Reply:
     lesson, q = data["lesson"], data["question"]
     lines = [intro] if intro else []
-    lines.append(f"📘 {lesson['title']} · שאלה {q['number']}/{q['total']}")
+    level = LEVEL_NAME.get(lesson.get("difficulty"))
+    lines.append(f"📘 {lesson['title']}" + (f" · {level}" if level and q["number"] == 1 else "") + f" · שאלה {q['number']}/{q['total']}")
     lines.append(q["text"])
     if q.get("textEn"):
         lines.append(q["textEn"])
     if q.get("options"):
         lines += [f"{i}) {option}" for i, option in enumerate(q["options"], start=1)]
         return Reply("\n".join(lines), [str(i) for i in range(1, len(q["options"]) + 1)])
-    lines.append("כתבו את התשובה:")
+    lines.append("כתבו את התשובה (\"?\" לרמז):")
     return Reply("\n".join(lines))
 
 
@@ -53,11 +56,16 @@ def verdict_text(verdict: dict) -> str:
 
 def result_text(data: dict) -> str:
     lesson, r = data["lesson"], data["result"]
-    lines = [f"🏁 סיימתם את \"{lesson['title']}\": {r['correct']}/{r['total']} נכונות, ציון {r['score']}."]
+    level = LEVEL_NAME.get(lesson.get("difficulty"))
+    at_level = f" (רמה: {level})" if level else ""
+    lines = [f"🏁 סיימתם את \"{lesson['title']}\"{at_level}: {r['correct']}/{r['total']} נכונות, ציון {r['score']}."]
     lines.append("עברתם את השיעור! ✨" if r["passed"] else "כדי לעבור צריך ציון 70. אפשר לנסות שוב.")
     points = r.get("pointsEarned") or 0
     lines.append(f"⭐ {points:+d} נקודות (סה\"כ {r['totalPoints']}).")
     command = SUBJECT_COMMAND.get(lesson.get("subject"), "תרגיל אנגלית")
+    harder = LEVEL_NAME.get(r.get("nextDifficulty"))
+    if r["passed"] and harder and lesson.get("number"):
+        lines.append(f"רוצים אתגר? כתבו \"{command} {lesson['number']} {harder}\" לאותו שיעור ברמה {harder}.")
     if r.get("nextLesson"):
         lines.append(f"השיעור הבא: {r['nextLesson']['title']}. כתבו \"{command}\" כדי להמשיך.")
     else:
@@ -92,6 +100,8 @@ def exercise_answer_reply(data: dict) -> Reply:
         return exercise_end_reply(data)
     if data.get("pick"):
         return lesson_list_text(data)
+    if data.get("hintAsked"):
+        return question_reply(data, f"💡 {data['hint']}" if data.get("hint") else NO_HINT)
     if data.get("chooseNumber"):
         count = len(data["question"].get("options") or [])
         return question_reply(data, f"ענו במספר בין 1 ל-{count}:")

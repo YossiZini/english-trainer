@@ -47,3 +47,5 @@ LESSONS_WORDS = {
     "שיעורים אנגלית": "english", "רשימת שיעורים אנגלית": "english",
     "שיעורים חשבון": "math", "שיעורים מתמטיקה": "math", "רשימת שיעורים חשבון": "math",
 }
+# Optional last word of an exercise command: "תרגיל אנגלית קשה", "תרגיל חשבון 3 קל".
+DIFFICULTY_WORDS = {"קל": "easy", "בינוני": "medium", "קשה": "hard", "easy": "easy", "medium": "medium", "hard": "hard"}

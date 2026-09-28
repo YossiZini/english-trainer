@@ -49,10 +49,14 @@ def _subject(subject: str) -> str:
     return "math" if subject.strip().lower() in ("math", "חשבון", "מתמטיקה") else "english"
 
 
-async def start_lesson_exercise(subject: str, tool_context: ToolContext, number: int = 0) -> dict:
+async def start_lesson_exercise(subject: str, tool_context: ToolContext, number: int = 0, difficulty: str = "") -> dict:
     """Start a lesson's exercises. subject is "english" or "math"; number is the lesson's number in the
-    subject's lesson list, or 0 for the student's next lesson."""
-    result = await _api.exercise_start(_chat(tool_context), subject=_subject(subject), number=number or None)
+    subject's lesson list, or 0 for the student's next lesson; difficulty is "easy", "medium", "hard"
+    or "" for the student's current level."""
+    level = difficulty.strip().lower()
+    level = level if level in ("easy", "medium", "hard") else None
+    result = await _api.exercise_start(_chat(tool_context), subject=_subject(subject), number=number or None,
+                                       difficulty=level)
     return {"reply": str(exercise_start_reply(result))}
 
 

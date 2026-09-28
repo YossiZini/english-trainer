@@ -22,8 +22,8 @@ from . import tools
 
 log = logging.getLogger("bot")
 CODE = re.compile(r"^\d{6}$")
-# "תרגיל אנגלית 12": start lesson 12 of the subject's list directly.
-NUMBERED = re.compile(r"^(.+?)\s+(\d{1,3})$")
+# "תרגיל אנגלית 12 קשה": the list number and the difficulty are both optional.
+EXERCISE_COMMAND = re.compile(r"^(\S+\s+\S+)(?:\s+(\d{1,3}))?(?:\s+(\S+))?$")
 
 
 class Coach:
@@ -52,12 +52,9 @@ class Coach:
         if CODE.match(text):
             result = await self.api.link(chat_id, text)
             return Reply(replies.LINKED if result["ok"] else replies.error_reply(result))
-        if lowered in config.EXERCISE_WORDS:
-            return exercise_start_reply(await self.api.exercise_start(chat_id, subject=config.EXERCISE_WORDS[lowered]))
-        numbered = NUMBERED.match(lowered)
-        if numbered and numbered.group(1) in config.EXERCISE_WORDS:
-            subject = config.EXERCISE_WORDS[numbered.group(1)]
-            return exercise_start_reply(await self.api.exercise_start(chat_id, subject=subject, number=int(numbered.group(2))))
+        command = self.exercise_command(lowered)
+        if command:
+            return exercise_start_reply(await self.api.exercise_start(chat_id, **command))
         if lowered in config.LESSONS_WORDS:
             return lesson_list_reply(await self.api.exercise_lessons(chat_id, config.LESSONS_WORDS[lowered]))
         if lowered in config.START_WORDS or lowered == "/start":
@@ -75,6 +72,19 @@ class Coach:
         if not status["ok"] and status.get("code") in ("not_linked", "rate_limited", "unreachable"):
             return Reply(replies.error_reply(status))
         return None
+
+    @staticmethod
+    def exercise_command(text: str) -> dict | None:
+        """{subject, number, difficulty} for "תרגיל אנגלית [N] [קל|בינוני|קשה]", else None."""
+        match = EXERCISE_COMMAND.match(text)
+        if not match or match.group(1) not in config.EXERCISE_WORDS:
+            return None
+        level = match.group(3)
+        if level and level not in config.DIFFICULTY_WORDS:
+            return None
+        return {"subject": config.EXERCISE_WORDS[match.group(1)],
+                "number": int(match.group(2)) if match.group(2) else None,
+                "difficulty": config.DIFFICULTY_WORDS.get(level) if level else None}
 
     async def ask_agent(self, chat_id: str, text: str) -> str:
         session = await self._session(chat_id)

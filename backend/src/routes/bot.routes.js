@@ -22,15 +22,17 @@ router.post('/session/end', BotController.end);
 router.get('/session/status', BotController.status);
 
 /**
- * POST /api/bot/exercise/start { chatId, subject | lessonId | subject+number }
+ * POST /api/bot/exercise/start { chatId, subject | lessonId | subject+number, difficulty? }
  * — a lesson's exercises: the subject's next lesson, the given lesson, or
- * the subject's lesson with that list number. Answers and the
+ * the subject's lesson with that list number, at the progress-based level
+ * unless difficulty (easy / medium / hard) is given. Answers and the
  * end go through /session/answer and /session/end like vocabulary.
  */
 router.post('/exercise/start', [
   body('subject').optional().isIn(['english', 'math']).withMessage('subject must be english or math'),
   body('lessonId').optional().isString().isLength({ min: 1, max: 64 }),
   body('number').optional().isInt({ min: 1, max: 999 }),
+  body('difficulty').optional().isIn(['easy', 'medium', 'hard']).withMessage('difficulty must be easy, medium or hard'),
   body().custom(b => !!(b.subject || b.lessonId)).withMessage('subject or lessonId is required'),
   body().custom(b => !b.number || !!b.subject).withMessage('number needs a subject')
 ], BotController.startExercise);
