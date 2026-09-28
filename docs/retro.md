@@ -281,12 +281,13 @@ work in this repository (referenced from CLAUDE.md).
   starts paused on narrow screens.
 
 ### What hurt
-- **Pushed onto a branch whose PR had already merged.** PR #19 (the archive)
-  merged at 06:08; the animation push went to the same branch at 09:40
-  believing #19 was open (the check had been made before the merge and not
-  repeated), then #19 was retitled. The commits sat in no PR until the
-  review noticed. Cause: acting on a stale merge check; cost: a wrong PR
-  title and a new PR.
+- **Pushed onto a branch whose PR had already merged, twice.** PR #19 (the
+  archive) merged at 06:08; the animation push went to the same branch
+  minutes later believing #19 was open, and #19 was retitled. Then the
+  review fixes were pushed at 06:22, five minutes after PR #20 had merged.
+  Both times the commits sat in no PR until the next command noticed.
+  Cause: the merge state was checked once, earlier, not at push time; the
+  user merges within minutes, so any check older than the push is stale.
 - **A leaked test mock.** Overriding `window.matchMedia` in one test broke
   the auto-advance test that runs after it; one green commit followed by a
   red one.
