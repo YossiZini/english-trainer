@@ -68,6 +68,12 @@ const TopicsIndex = ({ subject = 'english' }) => {
     );
   };
 
+  // Header actions from topicMeta; 'next-lesson' is the first lesson not completed.
+  const nextLesson = topics.flatMap(t => t.lessons || []).find(l => l.progress?.status !== 'completed');
+  const actions = (meta.actions || [])
+    .map(a => ({ ...a, path: a.to === 'next-lesson' ? (nextLesson ? `/learn/${nextLesson.id}` : null) : a.to }))
+    .filter(a => a.path);
+
   if (loading) {
     return (
       <div className="topics-container">
@@ -97,6 +103,16 @@ const TopicsIndex = ({ subject = 'english' }) => {
           <div className="header-title">
             <h1>{meta.title}</h1>
           </div>
+          {actions.length > 0 && (
+            <nav className="subject-actions" aria-label={`פעולות ${meta.title}`}>
+              {actions.map(action => (
+                <Link key={action.label} to={action.path} className="subject-action">
+                  <span className="subject-action-icon" aria-hidden="true">{action.icon}</span>
+                  {action.label}
+                </Link>
+              ))}
+            </nav>
+          )}
         </div>
       </header>
 

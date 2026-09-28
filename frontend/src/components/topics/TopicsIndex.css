@@ -942,3 +942,29 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   border-right-color: #764ba2;
 }
+
+/* Subject actions in the page header (Sprint 7) */
+.subject-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.subject-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.subject-action:hover, .subject-action:focus-visible { background: rgba(255, 255, 255, 0.28); outline: none; }
+.subject-action-icon { font-size: 1.1rem; }
+@media (max-width: 768px) {
+  .header-content { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .subject-action { padding: 0.45rem 0.8rem; font-size: 0.9rem; }
+}

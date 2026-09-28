@@ -4,9 +4,15 @@ const GamificationService = require('./gamification.service');
 const User = require('../models/User');
 const { db } = require('../config/database');
 
+// Subjects shown side by side on the home page, in display order.
+const SUBJECTS = ['english', 'math'];
+
 class ProgressService {
   /**
-   * Get dashboard data for a user
+   * Home page data. Shared scores (stats, streak, points, level, mistakes)
+   * cover every subject; `subjects` holds each subject's next lesson,
+   * completion and last activity. The top-level `nextLesson`/`completion`
+   * are kept for sites deployed before the per-subject home page.
    */
   static async getDashboardData(userId) {
     // Get overall stats
@@ -30,6 +36,17 @@ class ProgressService {
     // Get daily stats (streak and points today)
     const dailyStats = await User.getDailyStats(userId);
 
+    // Per subject: where to continue and how far along the student is
+    const subjects = {};
+    for (const subject of SUBJECTS) {
+      const [subjectNext, subjectCompletion, [lastActivity = null]] = await Promise.all([
+        UserProgress.getNextLesson(userId, { subject }),
+        UserProgress.getCompletionPercentage(userId, { subject }),
+        UserProgress.getRecentActivity(userId, 1, { subject })
+      ]);
+      subjects[subject] = { nextLesson: subjectNext, completion: subjectCompletion, lastActivity };
+    }
+
     return {
       stats: {
         ...stats,
@@ -40,7 +57,8 @@ class ProgressService {
       recentActivity,
       mistakeStats,
       gamification,
-      dailyStats
+      dailyStats,
+      subjects
     };
   }
 
