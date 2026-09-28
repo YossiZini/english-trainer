@@ -169,3 +169,9 @@
 .multiple-choice .question-text[dir="rtl"] {
   text-align: right;
 }
+
+/* English lessons: an English sentence starts on the left, a question that
+   starts with Hebrew ("המילה ... היא _______") on the right */
+.multiple-choice .question-text[dir="auto"] {
+  text-align: start;
+}

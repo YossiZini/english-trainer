@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './MultipleChoice.css';
 import MathText from '../common/MathText';
 
-// subject: 'english' questions are English sentences (LTR); other subjects are
-// written in Hebrew (RTL).
+// subject: 'english' questions are mostly English sentences, some start with a
+// Hebrew instruction ("איזה משפט נכון?"), so their direction follows the first
+// letter (dir="auto"); other subjects are written in Hebrew (RTL).
 const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, subject }) => {
   // The page passes the lesson's subject; cross-test questions carry their own.
   const questionSubject = subject || question.subject || 'english';
-  const textDir = questionSubject === 'english' ? 'ltr' : 'rtl';
+  const textDir = questionSubject === 'english' ? 'auto' : 'rtl';
   const options = question.options || [];
   const [hoveredOption, setHoveredOption] = useState(null);
 
