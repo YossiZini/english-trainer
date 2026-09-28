@@ -1,6 +1,8 @@
-"""FastAPI entry point: the Telegram webhook and a health check."""
+"""FastAPI entry point: the Telegram webhook and a health check. At startup
+the bot sets its own Telegram command menu (best effort)."""
 import hmac
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Header, Request, Response
 
@@ -11,8 +13,17 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("bot")
 
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Awaited, not a background task: Cloud Run throttles the CPU once the
+    # container is ready. A failure only logs; the webhook starts anyway.
+    if await telegram.set_commands():
+        log.info("Telegram command menu set")
+    yield
+
+
 def create_app(coach: Coach | None = None) -> FastAPI:
-    app = FastAPI(title="English Trainer Telegram bot", docs_url=None, redoc_url=None)
+    app = FastAPI(title="English Trainer Telegram bot", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.state.coach = coach
 
     def get_coach() -> Coach:

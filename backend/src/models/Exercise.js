@@ -1,5 +1,5 @@
 const { db, withTransaction } = require('../config/database');
-const { answersMatch } = require('../utils/answers');
+const { isCorrectAnswer } = require('../utils/answers');
 
 class Exercise {
   /**
@@ -104,7 +104,7 @@ class Exercise {
       throw new Error('Exercise not found');
     }
 
-    const isCorrect = answersMatch(userAnswer, exercise.correct_answer);
+    const isCorrect = isCorrectAnswer(exercise, userAnswer);
 
     return {
       isCorrect,

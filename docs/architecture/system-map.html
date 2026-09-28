@@ -169,7 +169,7 @@ flowchart LR
           <div><dt>Owns</dt><dd>All student data and every rule: who the user is, which answer is right, points, levels, limits.</dd></div>
           <div><dt>Main functions</dt><dd><ul>
             <li>Accounts and JWT authentication</li>
-            <li>Lessons and exercises from bundled content, answer checking</li>
+            <li>Lessons and exercises from bundled content (all multiple choice), answer checking</li>
             <li>Progress, points, achievements, daily challenges</li>
             <li>Vocabulary quiz, word scores, failed words, review mode</li>
             <li>Answer check: a Hebrew answer that misses the dictionary gets one yes/no from Gemini</li>
@@ -184,7 +184,7 @@ flowchart LR
         <dl class="kv">
           <div><dt>Owns</dt><dd>The conversation only: reading Telegram messages, choosing the API call, writing the Hebrew reply. It stores no student data.</dd></div>
           <div><dt>Main functions</dt><dd><ul>
-            <li>Verifies the Telegram webhook secret</li>
+            <li>Verifies the Telegram webhook secret; sets its Telegram command menu at startup</li>
             <li>Link code, commands, level choice, lesson pick and answers go straight to the API</li>
             <li>Other messages go to an ADK agent whose tools call the API</li>
             <li>Turn, token and call caps before any model use</li>

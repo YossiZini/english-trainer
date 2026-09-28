@@ -36,7 +36,7 @@ Add the topic content including:
 Create a new seed file with this structure:
 
 ```javascript
-const topic{N}Data = [
+const lessonsData = [
   {
     topicNumber: {N},
     subtopicNumber: 1,
@@ -51,19 +51,28 @@ const topic{N}Data = [
     `,
     exercises: [
       {
-        type: 'multiple-choice',
-        questionHe: 'שאלה בעברית?',
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
-        correctAnswer: 0,
-        explanationHe: 'הסבר בעברית',
+        questionNumber: 1,
+        type: 'multiple_choice',
+        questionTextHe: 'She _______ a teacher.',
+        options: ['am', 'is', 'are', 'be'],
+        correctAnswer: 'is',  // the answer text, exactly one of the options
+        explanationHe: 'תשובה נכונה: is. ...',
         difficulty: 'easy'  // easy | medium | hard
       }
     ]
   }
 ];
 
-module.exports = topic{N}Data;
+module.exports = { lessonsData };
 ```
+
+**Every exercise is multiple choice**: students answer on a phone and in the
+Telegram bot, never by typing. Four options (three only for a yes/no style
+question), exactly one of them the answer, and every wrong option wrong in
+its sentence (not a second acceptable answer). A chosen option is graded by
+exact text, so capitalisation questions work. `backend/tests/content.test.js`
+enforces the format for all bundled exercises. Math authors write `fib`/`fibR`
+and the export turns them into multiple choice (`docs/math-content-guide.md`).
 
 ### Step 3: Register in the Data Generator
 

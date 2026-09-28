@@ -93,9 +93,12 @@ class Coach:
             return await self.run_command(chat_id, *command) if command else None
         status = await self.api.status(chat_id)
         active = status["ok"] and status["data"].get("active")
-        # A bare word is an answer while an exercise question is open (a
-        # fill-in answer may be "help" or "english"); "/help" always works.
-        if command and not (active and status["data"].get("question")):
+        # A bare word is an answer only while a typed (fill-in) question is
+        # open, where it may be "help" or "english"; a multiple-choice answer
+        # is a number, so there a bare command still works. "/help" always does.
+        question = status["data"].get("question") if active else None
+        typed = bool(question) and question.get("type") != "multiple_choice"
+        if command and not typed:
             return await self.run_command(chat_id, *command)
         if active:
             # In setup or mid-session every message is an answer: a level, a

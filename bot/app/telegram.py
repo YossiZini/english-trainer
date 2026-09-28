@@ -1,7 +1,24 @@
-"""The thin Telegram side: parse an update, send a message."""
+"""The thin Telegram side: parse an update, send a message, set the menu."""
+import logging
+
 import httpx
 
 from . import config
+
+log = logging.getLogger("bot")
+
+# The command menu next to the text box (English commands, Hebrew
+# descriptions). The bot sets it itself at startup: nothing to run by hand.
+COMMANDS = [
+    ("help", "איך זה עובד ומה אפשר לעשות"),
+    ("words", "20 מילים באנגלית, עונים בעברית"),
+    ("english", "תרגילי השיעור הבא באנגלית"),
+    ("math", "תרגילי השיעור הבא בחשבון"),
+    ("lessons_english", "רשימת שיעורי האנגלית"),
+    ("lessons_math", "רשימת שיעורי החשבון"),
+    ("end", "עצירת התרגול"),
+]
+COMMANDS_TIMEOUT_SECONDS = 5
 
 
 def parse_update(update: dict) -> tuple[str, str] | None:
@@ -35,3 +52,25 @@ async def send_message(chat_id: str, text: str, buttons: list[str] | None = None
     finally:
         if own:
             await client.aclose()
+
+
+async def set_commands(client: httpx.AsyncClient | None = None) -> bool:
+    """Set the command menu. Best effort: False (and a log line) on any failure."""
+    if not config.TELEGRAM_BOT_TOKEN:
+        return False
+    url = f"{config.TELEGRAM_API}/bot{config.TELEGRAM_BOT_TOKEN}/setMyCommands"
+    body = {"commands": [{"command": c, "description": d} for c, d in COMMANDS]}
+    own = client is None
+    client = client or httpx.AsyncClient(timeout=COMMANDS_TIMEOUT_SECONDS)
+    try:
+        res = await client.post(url, json=body)
+        ok = res.status_code == 200 and res.json().get("ok") is True
+    except (httpx.HTTPError, ValueError) as error:
+        log.warning("setMyCommands failed: %s", type(error).__name__)
+        return False
+    finally:
+        if own:
+            await client.aclose()
+    if not ok:
+        log.warning("setMyCommands refused: HTTP %s", res.status_code)
+    return ok
