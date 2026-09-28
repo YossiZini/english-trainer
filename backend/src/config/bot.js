@@ -3,9 +3,10 @@
  * with BOT_API_KEY, injected from Secret Manager in production; the
  * development fallback never runs in production.
  */
-if (process.env.NODE_ENV === 'production' && !process.env.BOT_API_KEY) {
-  throw new Error('BOT_API_KEY must be set in production');
-}
+// Without a key in production the bot routes stay switched off (503) rather
+// than falling back to the development key.
+const production = process.env.NODE_ENV === 'production';
+const BOT_API_KEY = process.env.BOT_API_KEY || (production ? null : 'dev_bot_key');
 
 const toInt = (value, fallback) => {
   const n = parseInt(value, 10);
@@ -13,7 +14,9 @@ const toInt = (value, fallback) => {
 };
 
 module.exports = {
-  BOT_API_KEY: process.env.BOT_API_KEY || 'dev_bot_key',
+  BOT_API_KEY,
+  /** False when no key is configured: every bot route answers 503. */
+  BOT_ENABLED: !!BOT_API_KEY,
   /** Words per session. */
   SESSION_SIZE: toInt(process.env.BOT_SESSION_SIZE, 20),
   /** Messages a chat may send per minute. */

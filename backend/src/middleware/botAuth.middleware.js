@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { BOT_API_KEY } = require('../config/bot');
+const { BOT_API_KEY, BOT_ENABLED } = require('../config/bot');
 const TelegramLink = require('../models/TelegramLink');
 const User = require('../models/User');
 
@@ -11,6 +11,9 @@ const sameKey = (given) => {
 
 /** The bot service must present the shared key in X-Bot-Key. */
 function requireBotKey(req, res, next) {
+  if (!BOT_ENABLED) {
+    return res.status(503).json({ success: false, message: 'Bot API is not configured' });
+  }
   if (!sameKey(req.get('x-bot-key'))) {
     return res.status(401).json({ success: false, message: 'Invalid bot key' });
   }

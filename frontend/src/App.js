@@ -25,6 +25,7 @@ import VocabularyHistory from './components/vocabulary/VocabularyHistory';
 import UnseenHomePage from './components/unseen/UnseenHomePage';
 import UnseenReadingPage from './components/unseen/UnseenReadingPage';
 import UnseenResults from './components/unseen/UnseenResults';
+import TelegramLinkPage from './components/settings/TelegramLinkPage';
 import './App.css';
 
 function App() {
@@ -204,6 +205,15 @@ function App() {
               element={
                 <PrivateRoute>
                   <UnseenResults />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/settings/telegram"
+              element={
+                <PrivateRoute>
+                  <TelegramLinkPage />
                 </PrivateRoute>
               }
             />
