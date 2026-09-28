@@ -17,10 +17,17 @@ import './LessonAnimation.css';
  */
 export const STEP_MS = 4500;
 
-const LessonAnimation = ({ scenes, stepMs = STEP_MS, autoplay = true }) => {
+// Default: autoplay on wide screens; on phones (and with reduced motion) the
+// player starts paused so the page does not move while the student reads.
+const autoplayDefault = () => {
+  if (typeof window === 'undefined' || !window.matchMedia) return true;
+  return window.matchMedia('(min-width: 769px)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+};
+
+const LessonAnimation = ({ scenes, stepMs = STEP_MS, autoplay }) => {
   const [si, setSi] = useState(0);
   const [st, setSt] = useState(0);
-  const [playing, setPlaying] = useState(autoplay);
+  const [playing, setPlaying] = useState(autoplay === undefined ? autoplayDefault() : autoplay);
   const [captionKey, setCaptionKey] = useState(0);
   const rootRef = useRef(null);
 

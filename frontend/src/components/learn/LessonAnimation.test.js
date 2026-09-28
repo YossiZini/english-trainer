@@ -8,6 +8,17 @@ const scenes = [
 
 describe('LessonAnimation', () => {
   beforeEach(() => jest.useFakeTimers());
+
+  test('starts paused on a narrow screen and playing on a wide one', () => {
+    const mm = (wide) => jest.fn((q) => ({ matches: q.includes('min-width') ? wide : false, addListener: () => {}, removeListener: () => {} }));
+    window.matchMedia = mm(false);
+    const { unmount } = render(<LessonAnimation scenes={scenes} />);
+    expect(screen.getByLabelText('הפעל')).toBeInTheDocument();
+    unmount();
+    window.matchMedia = mm(true);
+    render(<LessonAnimation scenes={scenes} />);
+    expect(screen.getByLabelText('השהה')).toBeInTheDocument();
+  });
   afterEach(() => jest.useRealTimers());
 
   test('renders the first step with a stacked fraction in the caption and scene tabs', () => {
