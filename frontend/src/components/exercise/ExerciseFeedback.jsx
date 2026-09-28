@@ -43,7 +43,9 @@ const ExerciseFeedback = ({ feedback, feedbackKey }) => {
         ) : (
           <>
             <p className="feedback-message">התשובה שגויה</p>
-            <p className="feedback-correct">התשובה הנכונה: <MathText text={feedback.correctAnswer} /></p>
+            {/* bdi: an English answer keeps its own direction inside the Hebrew line
+                ("She said, "Say 'hi' to Dan."" would otherwise show its end quotes on the wrong side) */}
+            <p className="feedback-correct">התשובה הנכונה: <MathText as="bdi" text={feedback.correctAnswer} /></p>
           </>
         )}
         {feedback.explanationHe && (

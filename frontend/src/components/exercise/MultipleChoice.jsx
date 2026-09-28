@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './MultipleChoice.css';
 import MathText from '../common/MathText';
+import { textDirection, isolateEnglish } from '../../utils/bidi';
 
-// subject: 'english' questions are mostly English sentences, some start with a
-// Hebrew instruction ("איזה משפט נכון?"), so their direction follows the first
-// letter (dir="auto"); other subjects are written in Hebrew (RTL).
+// subject: 'english' questions are mostly English sentences (LTR); those that
+// start in Hebrew ("המילה ... היא _______", "תקן: ...") read right-to-left with
+// their English stretches isolated. Other subjects are written in Hebrew (RTL).
 const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, subject }) => {
   // The page passes the lesson's subject; cross-test questions carry their own.
   const questionSubject = subject || question.subject || 'english';
-  const textDir = questionSubject === 'english' ? 'auto' : 'rtl';
+  const textDir = questionSubject === 'english' ? textDirection(question.question_text_he) : 'rtl';
+  const hebrewFirstEnglish = questionSubject === 'english' && textDir === 'rtl';
   const options = question.options || [];
   const [hoveredOption, setHoveredOption] = useState(null);
 
@@ -56,7 +58,15 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, su
 
   return (
     <div className="multiple-choice">
-      <MathText as="div" className="question-text" dir={textDir} text={question.question_text_he} />
+      {hebrewFirstEnglish ? (
+        <div className="question-text" dir="rtl">
+          {isolateEnglish(question.question_text_he).map((part, i) => (part.ltr
+            ? <bdi key={i} dir="ltr">{part.text}</bdi>
+            : <React.Fragment key={i}>{part.text}</React.Fragment>))}
+        </div>
+      ) : (
+        <MathText as="div" className="question-text" dir={textDir} text={question.question_text_he} />
+      )}
 
       <div className="options-container">
         {options.map((option, index) => {
