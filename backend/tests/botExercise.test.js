@@ -141,4 +141,47 @@ describe('Bot lesson exercises', () => {
     expect((await status()).body.data).toMatchObject({ kind: 'vocab', setup: 'level' });
     await bot('/api/bot/session/end');
   });
+
+  test('the lesson list: curriculum order, marks, paging, pick by number', async () => {
+    const english = [...lessons].filter(l => (l.subject || 'english') === 'english').sort(compareLessons);
+    expect((await bot('/api/bot/exercise/lessons', { subject: 'history' })).status).toBe(400);
+
+    const list = (await bot('/api/bot/exercise/lessons', { subject: 'english' })).body.data;
+    expect(list).toMatchObject({ kind: 'exercise', pick: true, page: 1, count: english.length, pages: Math.ceil(english.length / 10) });
+    expect(list.items.map(i => i.n)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(list.items.map(i => i.id)).toEqual(english.slice(0, 10).map(l => l.id));
+    // Lesson 1 was passed above; lesson 2 is the next one.
+    expect(list.items.slice(0, 3).map(i => i.status)).toEqual(['done', 'next', 'open']);
+    expect((await status()).body.data).toMatchObject({ active: true, kind: 'exercise', pick: true, page: 1 });
+
+    const more = (await bot('/api/bot/session/answer', { text: 'עוד' })).body.data;
+    expect(more).toMatchObject({ pick: true, page: 2 });
+    expect(more.items[0]).toMatchObject({ n: 11, id: english[10].id });
+    expect((await bot('/api/bot/session/answer', { text: 'הקודם' })).body.data.page).toBe(1);
+
+    for (const text of ['0', String(english.length + 1), 'lesson']) {
+      const bad = (await bot('/api/bot/session/answer', { text })).body.data;
+      expect(bad).toMatchObject({ pick: true, invalid: true, page: 1 });
+    }
+
+    const picked = (await bot('/api/bot/session/answer', { text: '12' })).body.data;
+    expect(picked.lesson.id).toBe(english[11].id);
+    expect(picked.question.number).toBe(1);
+    expect((await status()).body.data).toMatchObject({ kind: 'exercise', lesson: { id: english[11].id } });
+
+    // 'סיים' closes a list without starting anything.
+    await bot('/api/bot/exercise/lessons', { subject: 'math' });
+    const closed = (await bot('/api/bot/session/answer', { text: 'סיים' })).body.data;
+    expect(closed).toMatchObject({ ended: true, pickClosed: true });
+    expect((await status()).body.data.active).toBe(false);
+  });
+
+  test('start the n-th lesson of a subject directly', async () => {
+    const math = [...lessons].filter(l => l.subject === 'math').sort(compareLessons);
+    const start = (await bot('/api/bot/exercise/start', { subject: 'math', number: 5 })).body.data;
+    expect(start.lesson.id).toBe(math[4].id);
+    expect((await bot('/api/bot/exercise/start', { subject: 'math', number: math.length + 1 })).status).toBe(404);
+    expect((await bot('/api/bot/exercise/start', { number: 5 })).status).toBe(400);
+    await bot('/api/bot/session/end');
+  });
 });

@@ -21,6 +21,9 @@ const { END_WORDS } = require('../../config/bot');
 
 const SUBJECTS = ['english', 'math'];
 const EXPLANATION_MAX = 400;
+const PAGE_SIZE = 10;
+const MORE_WORDS = ['עוד', 'הבא', 'more', 'next'];
+const BACK_WORDS = ['הקודם', 'חזרה', 'back', 'prev'];
 
 const isEnd = (text) => END_WORDS.includes(String(text || '').trim().toLowerCase());
 
@@ -54,6 +57,26 @@ function lessonView(session) {
   return { id: session.lesson_id, title: session.lesson_title, subject: session.subject, difficulty: session.difficulty };
 }
 
+/**
+ * One page of a subject's lessons, numbered 1..N in curriculum order across
+ * pages, marked done (completed) or next (the subject's next lesson).
+ */
+async function lessonPage(user, subject, page) {
+  const lessons = await Lesson.listBySubject(subject);
+  const pages = Math.max(1, Math.ceil(lessons.length / PAGE_SIZE));
+  const current = Math.min(Math.max(1, page), pages);
+  const progress = await UserProgress.getAllProgress(user.id);
+  const done = new Set(progress.filter(p => p.status === 'completed').map(p => p.lesson_id));
+  const next = await UserProgress.getNextLesson(user.id, { subject });
+  const items = lessons.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE).map((l, i) => ({
+    n: (current - 1) * PAGE_SIZE + i + 1,
+    id: l.id,
+    title: l.title_he,
+    status: done.has(l.id) ? 'done' : next && next.id === l.id ? 'next' : 'open'
+  }));
+  return { subject, page: current, pages, count: lessons.length, items };
+}
+
 const openSession = async (chatId) => {
   const session = await BotSession.findOpenByChat(chatId);
   return session && BotSession.kindOf(session) === 'exercise' ? session : null;
@@ -61,10 +84,15 @@ const openSession = async (chatId) => {
 
 class ExerciseSession {
   /** Start a lesson: `lessonId`, or the next lesson of `subject`. Replaces any open session. */
-  static async start(user, chatId, { subject, lessonId } = {}) {
+  static async start(user, chatId, { subject, lessonId, number } = {}) {
     let lesson;
     if (lessonId) {
       lesson = await Lesson.findById(lessonId);
+      if (!lesson) return { error: 'lesson_not_found' };
+    } else if (number) {
+      // The n-th lesson of the subject, as numbered in the lesson list.
+      if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
+      lesson = (await Lesson.listBySubject(subject))[Number(number) - 1];
       if (!lesson) return { error: 'lesson_not_found' };
     } else {
       if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
@@ -91,11 +119,39 @@ class ExerciseSession {
     return { kind: 'exercise', sessionId: session.id, lesson: lessonView(session), question: questionView(session) };
   }
 
+  /** Open the lesson list of a subject; the student answers with a lesson number. */
+  static async listLessons(user, chatId, { subject }) {
+    if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
+    const open = await BotSession.findOpenByChat(chatId);
+    if (open) await BotSession.end(open.id, 'replaced');
+    const session = await BotSession.createLessonPick({ userId: user.id, chatId, subject });
+    return { kind: 'exercise', pick: true, sessionId: session.id, ...(await lessonPage(user, subject, 1)) };
+  }
+
+  /** In the lesson list: a number starts that lesson; 'עוד' / 'הקודם' turn the page. */
+  static async pick(user, chatId, session, text) {
+    const t = String(text || '').trim().toLowerCase();
+    let page = session.page || 1;
+    if (MORE_WORDS.includes(t) || BACK_WORDS.includes(t)) {
+      page += MORE_WORDS.includes(t) ? 1 : -1;
+      const view = await lessonPage(user, session.subject, page);
+      await BotSession.update(session.id, { page: view.page });
+      return { kind: 'exercise', pick: true, sessionId: session.id, ...view };
+    }
+    const lessons = await Lesson.listBySubject(session.subject);
+    const n = /^\d{1,3}$/.test(t) ? Number(t) : 0;
+    if (n < 1 || n > lessons.length) {
+      return { kind: 'exercise', pick: true, invalid: true, sessionId: session.id, ...(await lessonPage(user, session.subject, page)) };
+    }
+    return this.start(user, chatId, { lessonId: lessons[n - 1].id });
+  }
+
   /** One answer: an option number or fill-in text. The last answer grades the lesson. */
   static async answer(user, chatId, text) {
     const session = await openSession(chatId);
     if (!session) return { error: 'no_session' };
     if (isEnd(text)) return this.end(user, chatId);
+    if (session.status === 'setup') return this.pick(user, chatId, session, text);
 
     const current = session.exercises[session.index];
     let given;
@@ -158,6 +214,7 @@ class ExerciseSession {
     const session = await openSession(chatId);
     if (!session) return { error: 'no_session' };
     await BotSession.end(session.id, 'ended');
+    if (session.status === 'setup') return { kind: 'exercise', done: true, ended: true, pickClosed: true };
     return {
       kind: 'exercise',
       done: true,
@@ -172,6 +229,10 @@ class ExerciseSession {
   static async status(chatId) {
     const session = await openSession(chatId);
     if (!session) return { active: false };
+    if (session.status === 'setup') {
+      const user = { id: session.user_id };
+      return { active: true, kind: 'exercise', pick: true, sessionId: session.id, ...(await lessonPage(user, session.subject, session.page || 1)) };
+    }
     return { active: true, kind: 'exercise', sessionId: session.id, lesson: lessonView(session), question: questionView(session) };
   }
 }

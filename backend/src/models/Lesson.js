@@ -39,6 +39,12 @@ class Lesson {
     return lesson || null;
   }
 
+  /** A subject's lessons in curriculum order (topic, then subtopic). */
+  static async listBySubject(subject) {
+    const lessons = await db.find('lessons', {});
+    return lessons.filter(l => (l.subject || 'english') === subject).sort(compareLessons);
+  }
+
   /**
    * Get lessons with user progress
    */

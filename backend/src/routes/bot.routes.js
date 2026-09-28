@@ -22,14 +22,26 @@ router.post('/session/end', BotController.end);
 router.get('/session/status', BotController.status);
 
 /**
- * POST /api/bot/exercise/start { chatId, subject | lessonId } — a lesson's
- * exercises: the subject's next lesson, or the given lesson. Answers and the
+ * POST /api/bot/exercise/start { chatId, subject | lessonId | subject+number }
+ * — a lesson's exercises: the subject's next lesson, the given lesson, or
+ * the subject's lesson with that list number. Answers and the
  * end go through /session/answer and /session/end like vocabulary.
  */
 router.post('/exercise/start', [
   body('subject').optional().isIn(['english', 'math']).withMessage('subject must be english or math'),
   body('lessonId').optional().isString().isLength({ min: 1, max: 64 }),
-  body().custom(b => !!(b.subject || b.lessonId)).withMessage('subject or lessonId is required')
+  body('number').optional().isInt({ min: 1, max: 999 }),
+  body().custom(b => !!(b.subject || b.lessonId)).withMessage('subject or lessonId is required'),
+  body().custom(b => !b.number || !!b.subject).withMessage('number needs a subject')
 ], BotController.startExercise);
+
+/**
+ * POST /api/bot/exercise/lessons { chatId, subject } — the subject's lessons,
+ * numbered, 10 per page; the student answers with a number ('עוד' / 'הקודם'
+ * turn the page) through /session/answer.
+ */
+router.post('/exercise/lessons', [
+  body('subject').isIn(['english', 'math']).withMessage('subject must be english or math')
+], BotController.listLessons);
 
 module.exports = router;

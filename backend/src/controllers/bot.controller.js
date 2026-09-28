@@ -51,8 +51,13 @@ class BotController {
 
   static async startExercise(req, res) {
     if (invalid(req, res)) return;
-    const { subject, lessonId } = req.body;
-    send(res, await ExerciseSession.start(req.user, req.chatId, { subject, lessonId }));
+    const { subject, lessonId, number } = req.body;
+    send(res, await ExerciseSession.start(req.user, req.chatId, { subject, lessonId, number }));
+  }
+
+  static async listLessons(req, res) {
+    if (invalid(req, res)) return;
+    send(res, await ExerciseSession.listLessons(req.user, req.chatId, { subject: req.body.subject }));
   }
 }
 

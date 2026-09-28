@@ -56,6 +56,22 @@ class BotSession {
     });
   }
 
+  /** An exercise session waiting for the student to pick a lesson from a list. */
+  static async createLessonPick({ userId, chatId, subject }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'exercise',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'setup',
+      setup_step: 'lesson',
+      subject,
+      page: 1,
+      started_at: now,
+      ended_at: null
+    });
+  }
+
   /** Session kind; rows from before exercise sessions are vocabulary sessions. */
   static kindOf(session) {
     return (session && session.kind) || 'vocab';
