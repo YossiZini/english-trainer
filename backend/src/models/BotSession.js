@@ -1,34 +1,42 @@
 const { db } = require('../config/database');
 
 /**
- * A vocabulary session driven from a chat bot: 20 words, then rounds of the
- * failed words until none are left. One active session per chat.
+ * A vocabulary session driven from a chat bot. It starts in `setup`, where
+ * the student picks the word set and the level, then holds 20 words and
+ * rounds of the failed words until none are left. One active session per
+ * chat.
  */
 class BotSession {
-  static async create({ userId, chatId, wordIds }) {
+  static async create({ userId, chatId }) {
     const now = new Date().toISOString();
     return db.insert('bot_sessions', {
       user_id: userId,
       chat_id: String(chatId),
-      word_ids: wordIds,
-      queue: [...wordIds],
+      status: 'setup',
+      setup_step: 'type',
+      word_set: null,
+      level: null,
+      word_ids: [],
+      queue: [],
       round: 1,
-      round_size: wordIds.length,
+      round_size: 0,
       asked_in_round: 0,
       failed_word_ids: [],
       correct_count: 0,
       wrong_count: 0,
-      status: 'active',
+      points_earned: 0,
       started_at: now,
       ended_at: null
     });
   }
 
-  static async findActiveByChat(chatId) {
-    const sessions = await db.find('bot_sessions', { chat_id: String(chatId), status: 'active' });
-    if (sessions.length === 0) return null;
-    sessions.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
-    return sessions[0];
+  /** The chat's open session (in setup or active), newest first. */
+  static async findOpenByChat(chatId) {
+    const sessions = await db.find('bot_sessions', { chat_id: String(chatId) });
+    const open = sessions.filter(s => s.status === 'setup' || s.status === 'active');
+    if (open.length === 0) return null;
+    open.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+    return open[0];
   }
 
   static async findById(id) {

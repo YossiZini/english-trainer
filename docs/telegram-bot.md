@@ -5,6 +5,22 @@ the student answers in Hebrew, the bot says ✅ or ❌ (with the translation)
 and sends the next word. After 20 words the failed ones come back, shuffled,
 round after round, until none are left. "סיים" ends the session.
 
+## What a session looks like
+
+1. "מילים" → the bot asks which words (1 כל המילים, 2 Band II, 3 Band III)
+   and then which level (1 קל = difficulty 1–5, 2 בינוני = 6–7, 3 קשה =
+   8–10), with buttons. The choice is stored on the API session
+   (`status: setup`), so the bot keeps no state of its own.
+2. 20 words, one per message. ✅ נכון! +1 or ❌ with the translation, then
+   the next word. Every correct answer is 1 point (`User.addPoints`, the
+   same points as the web quiz).
+3. After the 20th word the failed words return shuffled, round after round,
+   until none fail. The summary shows rounds, right/wrong, points earned
+   and the new total. "סיים" ends at any time with the same summary.
+4. Every wrong answer is recorded like a wrong answer in the web quiz:
+   `vocabulary_failed_words`, `vocabulary_word_scores` and the
+   accumulated-fails counter that triggers the web app's review mode.
+
 ## Architecture
 
 ```

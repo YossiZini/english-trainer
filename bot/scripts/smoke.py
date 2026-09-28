@@ -28,8 +28,9 @@ async def main() -> int:
     say = lambda t: coach.handle(chat, t)
     print("> שלום\n<", await say("שלום"))
     print(f"> {code}\n<", await say(code))
-    first = await say("מילים")
-    print("> מילים\n<", first)
+    print("> מילים\n<", await say("מילים"))
+    print("> 2\n<", await say("2"))
+    print("> 1\n<", await say("1"))
     for text in ["בטח לא", "גם לא", "עדיין לא"]:
         print(f"> {text}\n<", await say(text))
     print("> סיים\n<", await say("סיים"))

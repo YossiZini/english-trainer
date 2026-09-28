@@ -38,8 +38,8 @@ def create_app(coach: Coach | None = None) -> FastAPI:
             reply = await get_coach().handle(chat_id, text)
         except Exception as error:  # never let Telegram retry the same update forever
             log.exception("handling failed: %s", error)
-            reply = replies.UNREACHABLE
-        await telegram.send_message(chat_id, reply)
+            reply = replies.Reply(replies.UNREACHABLE)
+        await telegram.send_message(chat_id, reply.text, reply.buttons)
         return {"ok": True}
 
     return app

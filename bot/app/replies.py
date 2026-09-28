@@ -1,6 +1,19 @@
 """Hebrew replies built from API results. Deterministic on purpose: the
 verdict, the expected translation and the next word never come from the
-model, and the same text serves the fast path and the agent's tools."""
+model, and the same text serves the fast path and the agent's tools.
+
+A reply is a `Reply(text, buttons)`; `buttons` (a list of strings) becomes
+a Telegram reply keyboard for the setup questions."""
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Reply:
+    text: str
+    buttons: list[str] = field(default_factory=list)
+
+    def __str__(self) -> str:
+        return self.text
 
 NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באתר, בכפתור \"טלגרם\" למעלה, קבלו קוד בן 6 ספרות "
               "ושלחו אותו לי כאן.")
@@ -9,6 +22,9 @@ RATE_LIMITED = "הגעת למכסת ההודעות להיום. נמשיך מחר
 UNREACHABLE = "משהו השתבש אצלנו. נסו שוב בעוד רגע."
 BAD_CODE = "הקוד לא נכון או שפג תוקפו. קבלו קוד חדש באתר ושלחו אותו שוב."
 LINKED = "מעולה, החשבון מחובר! כתבו \"מילים\" כדי להתחיל תרגול של 20 מילים."
+SETUP_QUESTIONS = {"type": "איזה מילים נתרגל?", "level": "איזו רמה?"}
+INVALID_CHOICE = "בחרו מספר מהאפשרויות:"
+NOT_ENOUGH_FOR_CHOICE = "אין מספיק מילים ברמה הזו בקבוצה שבחרתם. בחרו רמה אחרת:"
 NOT_ENOUGH_WORDS = "אין מספיק מילים ברמה שלכם כרגע."
 HELP = ("אני מתרגל אתכם במילים באנגלית. כתבו \"מילים\" להתחלת תרגול של 20 מילים: אני שולח מילה, "
         "אתם עונים בעברית. \"סיים\" עוצר את התרגול.")
@@ -38,40 +54,65 @@ def error_reply(result: dict) -> str:
     return UNREACHABLE
 
 
-def start_reply(result: dict) -> str:
-    if not result["ok"]:
-        return error_reply(result)
-    data = result["data"]
-    return "מתחילים! תרגמו לעברית:\n" + _word_line(data["word"], data["progress"])
+def setup_reply(data: dict, intro: str = "") -> Reply:
+    """A setup question with its numbered options as buttons."""
+    options = data.get("options", [])
+    lines = [intro] if intro else []
+    lines.append(SETUP_QUESTIONS.get(data["setup"], ""))
+    lines += [f"{o['key']}. {o['label']}" for o in options]
+    return Reply("\n".join(lines), [str(o["key"]) for o in options])
 
 
-def answer_reply(result: dict) -> str:
+def start_reply(result: dict) -> Reply:
     if not result["ok"]:
-        return error_reply(result)
+        return Reply(error_reply(result))
     data = result["data"]
-    verdict = "✅ נכון!" if data["correct"] else f"❌ לא בדיוק. התרגום: {data['expected']}"
+    if data.get("setup"):
+        return setup_reply(data, "מתחילים תרגול של 20 מילים.")
+    return Reply("מתחילים! תרגמו לעברית:\n" + _word_line(data["word"], data["progress"]))
+
+
+def started_reply(data: dict) -> Reply:
+    return Reply(f"{data['wordSet']}, רמה {data['level']}. תרגמו לעברית:\n" + _word_line(data["word"], data["progress"]))
+
+
+def answer_reply(result: dict) -> Reply:
+    if not result["ok"]:
+        return Reply(error_reply(result))
+    data = result["data"]
+    if data.get("setup"):
+        intro = NOT_ENOUGH_FOR_CHOICE if data.get("notEnoughWords") else INVALID_CHOICE if data.get("invalid") else ""
+        return setup_reply(data, intro)
+    if data.get("started"):
+        return started_reply(data)
+    if data["correct"]:
+        verdict = "✅ נכון!" + (f" +{data['points']}" if data.get("points") else "")
+    else:
+        verdict = f"❌ לא בדיוק. התרגום: {data['expected']}"
     if data.get("done"):
-        return verdict + "\n" + summary_text(data["summary"])
+        return Reply(verdict + "\n" + summary_text(data["summary"]))
     lines = [verdict]
     if data.get("roundStarted"):
         lines.append(f"סיימנו את הסבב. עכשיו חוזרים על {data['progress']['total']} המילים שטעיתם בהן, בסדר אקראי:")
     lines.append(_word_line(data["word"], data["progress"]))
-    return "\n".join(lines)
+    return Reply("\n".join(lines))
 
 
-def end_reply(result: dict) -> str:
+def end_reply(result: dict) -> Reply:
     if not result["ok"]:
-        return error_reply(result)
-    return "סיימנו להיום.\n" + summary_text(result["data"]["summary"])
+        return Reply(error_reply(result))
+    return Reply("סיימנו להיום.\n" + summary_text(result["data"]["summary"]))
 
 
-def status_reply(result: dict) -> str:
+def status_reply(result: dict) -> Reply:
     if not result["ok"]:
-        return error_reply(result)
+        return Reply(error_reply(result))
     data = result["data"]
     if not data.get("active"):
-        return NO_SESSION
-    return "התרגול ממשיך. המילה הנוכחית:\n" + _word_line(data["word"], data["progress"])
+        return Reply(NO_SESSION)
+    if data.get("setup"):
+        return setup_reply(data)
+    return Reply("התרגול ממשיך. המילה הנוכחית:\n" + _word_line(data["word"], data["progress"]))
 
 
 def summary_text(summary: dict) -> str:
@@ -81,4 +122,10 @@ def summary_text(summary: dict) -> str:
         text += f" נשארו {summary['remainingFailed']} מילים לחזרה בפעם הבאה."
     else:
         text += " כל המילים נכונות, כל הכבוד! 🎉"
+    points = summary.get("points") or 0
+    if points:
+        text += f"\n⭐ צברתם {points} נקודות"
+        if summary.get("totalPoints") is not None:
+            text += f" (סה\"כ {summary['totalPoints']})"
+        text += "."
     return text
