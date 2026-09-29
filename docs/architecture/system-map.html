@@ -172,7 +172,7 @@ flowchart LR
             <li>Lessons and exercises from bundled content (all multiple choice), answer checking</li>
             <li>Progress, points, achievements, daily challenges</li>
             <li>Vocabulary quiz, word scores, failed words, review mode</li>
-            <li>Answer check: a Hebrew answer that misses the dictionary gets one yes/no from Gemini</li>
+            <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
             <li>Bot API: vocabulary and lesson-exercise sessions, chat linking, service key, rate and daily caps</li>
           </ul></dd></div>
           <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Node 22</span><span class="chip">Express 5</span><span class="chip">Firestore SDK</span><span class="chip">Google Gen AI SDK</span><span class="chip">Cloud Run</span><span class="chip">Jest + emulator</span></dd></div>
@@ -185,7 +185,7 @@ flowchart LR
           <div><dt>Owns</dt><dd>The conversation only: reading Telegram messages, choosing the API call, writing the Hebrew reply. It stores no student data.</dd></div>
           <div><dt>Main functions</dt><dd><ul>
             <li>Verifies the Telegram webhook secret; sets its Telegram command menu at startup</li>
-            <li>Link code, commands, level choice, lesson pick and answers go straight to the API</li>
+            <li>Link code, commands, level and direction choice, lesson pick and answers go straight to the API</li>
             <li>Other messages go to an ADK agent whose tools call the API</li>
             <li>Turn, token and call caps before any model use</li>
           </ul></dd></div>
@@ -277,7 +277,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Telegram bot</span>
         <h3>A vocabulary session in Telegram</h3>
-        <p>The bot asks the level, then sends 20 words from the whole vocabulary. Failed words come back shuffled until none are left. The API scores every answer; a Hebrew answer that misses the dictionary is first checked by the API with Gemini. "?" shows an example sentence for the current word.</p>
+        <p>The bot asks the level and the direction (English to Hebrew or Hebrew to English), then sends 20 words from the whole vocabulary. Failed words come back shuffled until none are left. The API scores every answer; an answer that misses the dictionary is first checked by the API with Gemini. "?" shows an example sentence for the current word. After the summary, one button repeats the same words the other way round.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">
@@ -293,9 +293,13 @@ sequenceDiagram
   B-->>S: Easy, medium or hard, with buttons
   S->>B: 1
   B->>A: Answer
+  A-->>B: Which direction
+  B-->>S: English to Hebrew or Hebrew to English, with buttons
+  S->>B: Direction
+  B->>A: Answer
   A->>A: Pick 20 words at that level
-  A-->>B: First English word
-  B-->>S: Translate to Hebrew
+  A-->>B: First word, in the chosen language
+  B-->>S: Translate it
   loop Each word, then rounds of failed words
     opt Student sends ?
       S->>B: ?
@@ -303,7 +307,7 @@ sequenceDiagram
       A-->>B: Example sentence, same word
       B-->>S: Example sentence
     end
-    S->>B: Hebrew answer
+    S->>B: Typed translation
     B->>A: Answer
     opt Answer misses the dictionary
       A->>G: Is this translation acceptable
@@ -314,7 +318,13 @@ sequenceDiagram
     B-->>S: Verdict with points, next word
   end
   A-->>B: Summary
-  B-->>S: Rounds, right and wrong, points earned
+  B-->>S: Rounds, right and wrong, points earned, switch button
+  opt Student taps the switch button
+    S->>B: Same words, other direction
+    B->>A: Switch
+    A->>A: Same 20 words, new order, opposite direction
+    A-->>B: First word
+  end
 </pre>
       </div>
     </div>

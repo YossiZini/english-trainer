@@ -40,6 +40,7 @@ FAST_PATH_ANSWERS = os.environ.get("FAST_PATH_ANSWERS", "true").lower() != "fals
 HELP_WORDS = {"help", "start"}
 START_WORDS = {"words"}
 END_WORDS = {"end", "stop", "quit"}
+SWITCH_WORDS = {"switch"}
 SUBJECTS = {"english", "math"}
 LESSONS_WORD = "lessons"
 DIFFICULTIES = {"easy", "medium", "hard"}

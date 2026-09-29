@@ -28,7 +28,7 @@ LIST_NUMBER = re.compile(r"^\d{1,3}$")
 def parse_command(text: str) -> tuple[str, dict] | None:
     """An English command, with or without "/" (and "@bot" in groups), else None.
 
-    help | words | end | english|math [N] [easy|medium|hard] |
+    help | words | end | switch | english|math [N] [easy|medium|hard] |
     lessons english|math (also lessons_english) | lessons"""
     words = text.lower().split()
     if not words or len(words) > 3:
@@ -43,6 +43,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "words", {}
     if not rest and first in config.END_WORDS:
         return "end", {}
+    if not rest and first in config.SWITCH_WORDS:
+        return "switch", {}
     if first == config.LESSONS_WORD:
         if not rest:
             return "lessons", {}
@@ -86,6 +88,9 @@ class Coach:
         if CODE.match(text):
             result = await self.api.link(chat_id, text)
             return Reply(replies.LINKED if result["ok"] else replies.error_reply(result))
+        if text.startswith(replies.SWITCH_SIGN):
+            # The button under a words summary: the same words, the other way round.
+            return await self.run_command(chat_id, "switch", {})
         command = parse_command(text)
         if command and (text.startswith("/") or command[0] == "end"):
             return await self.run_command(chat_id, *command)
@@ -116,6 +121,8 @@ class Coach:
             return replies.start_reply(await self.api.start(chat_id))
         if action == "end":
             return replies.end_reply(await self.api.end(chat_id))
+        if action == "switch":
+            return replies.switch_reply(await self.api.switch(chat_id))
         if action == "lessons" and not args:
             return Reply(replies.WHICH_LESSONS, list(replies.LESSONS_BUTTONS))
         if action == "lessons":

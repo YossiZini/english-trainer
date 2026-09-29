@@ -104,3 +104,47 @@ async def test_question_mark_shows_the_example_sentence_and_repeats_the_word():
     c = coach()
     assert (await c.handle("7", "?")).text == "💡 The cat is sleeping.\n(1/20) cat"
     assert (await c.handle("7", "?")).text == replies.NO_EXAMPLE + "\n(1/20) cat"
+
+
+DIRECTIONS = [{"key": 1, "label": "מאנגלית לעברית"}, {"key": 2, "label": "מעברית לאנגלית"}]
+
+
+@respx.mock
+async def test_direction_buttons_start_a_hebrew_to_english_exam():
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True}))
+    route = respx.post(f"{API}/bot/session/answer").mock(side_effect=[
+        ok({"sessionId": "s", "level": "קל", "setup": "direction", "options": DIRECTIONS}),
+        ok({"sessionId": "s", "started": True, "level": "קל", "direction": "he-en", "directionLabel": "מעברית לאנגלית",
+            "word": {"id": "w", "direction": "he-en", "prompt": "חתול"}, "progress": progress(1)}),
+        ok({"correct": False, "judged": False, "expected": "cat", "points": 0, "roundStarted": False, "done": False,
+            "word": {"id": "w2", "direction": "he-en", "prompt": "כלב"}, "progress": progress(2)}),
+    ])
+    c = coach()
+    question = await c.handle("7", "1")
+    assert question.text == "רמה קל.\nבאיזה כיוון?\n1. מאנגלית לעברית\n2. מעברית לאנגלית"
+    assert question.buttons == ["מאנגלית לעברית", "מעברית לאנגלית"]
+    started = await c.handle("7", "מעברית לאנגלית")
+    assert started.text == "רמה קל, מעברית לאנגלית. תרגמו לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול"
+    assert __import__("json").loads(route.calls[1].request.content)["text"] == "מעברית לאנגלית"
+    assert (await c.handle("7", "dgo")).text == "❌ לא בדיוק. התרגום: cat\n(2/20) כלב"
+
+
+@respx.mock
+async def test_summary_button_repeats_the_same_words_the_other_way_round():
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": False}))
+    respx.post(f"{API}/bot/session/end").mock(return_value=ok({"done": True, "summary": {
+        "words": 20, "rounds": 1, "correct": 20, "wrong": 0, "remainingFailed": 0,
+        "switchTo": {"direction": "he-en", "label": "מעברית לאנגלית"}}}))
+    switch = respx.post(f"{API}/bot/session/switch").mock(side_effect=[
+        ok({"sessionId": "s2", "started": True, "switched": True, "level": "קל", "direction": "he-en",
+            "directionLabel": "מעברית לאנגלית", "word": {"id": "w", "direction": "he-en", "prompt": "חתול"},
+            "progress": progress(1)}),
+        httpx.Response(404, json={"success": False, "code": "no_session"}),
+    ])
+    c = coach()
+    ended = await c.handle("7", "end")
+    assert ended.buttons == ["🔄 אותן מילים מעברית לאנגלית"]
+    again = await c.handle("7", ended.buttons[0])
+    assert again.text == "אותן מילים, מעברית לאנגלית. תרגמו לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול"
+    assert (await c.handle("7", "/switch")).text == replies.NO_WORDS_TO_SWITCH
+    assert switch.call_count == 2

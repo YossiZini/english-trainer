@@ -45,6 +45,9 @@ class TrainerApi:
     async def answer(self, chat_id: str, text: str) -> dict:
         return await self._call("POST", "/bot/session/answer", chat_id, text=text)
 
+    async def switch(self, chat_id: str) -> dict:
+        return await self._call("POST", "/bot/session/switch", chat_id)
+
     async def end(self, chat_id: str) -> dict:
         return await self._call("POST", "/bot/session/end", chat_id)
 

@@ -1,29 +1,44 @@
 # Telegram practice bot
 
 A student practises from Telegram in two ways: vocabulary (below) and a
-lesson's exercises, English or Math (see "Lesson exercises"). For vocabulary, the bot sends an English word,
-the student answers in Hebrew, the bot says ✅ or ❌ (with the translation)
+lesson's exercises, English or Math (see "Lesson exercises"). For vocabulary, the bot sends a word,
+English or Hebrew as the student chose, the student types the translation, the bot says ✅ or ❌ (with the translation)
 and sends the next word. After 20 words the failed ones come back, shuffled,
 round after round, until none are left. `/end` ends the session.
 
 ## What a session looks like
 
-1. `/words` → the bot asks only the level (1 קל = difficulty 1–5, 2 בינוני =
-   6–7, 3 קשה = 8–10), with buttons. Words always come from the whole
-   vocabulary. The choice is stored on the API session (`status: setup`), so
+1. `/words` → the bot asks the level (1 קל = difficulty 1–5, 2 בינוני =
+   6–7, 3 קשה = 8–10), then the direction: מאנגלית לעברית (the English word
+   is shown, the student types Hebrew) or מעברית לאנגלית (the Hebrew is
+   shown, the student types English), both with buttons; typing 1/2 works
+   too. Words always come from the whole vocabulary. The choices are stored
+   on the API session (`status: setup`, then `level` and `direction`), so
    the bot keeps no state of its own.
 2. 20 words, one per message. ✅ נכון! +1 or ❌ with the translation, then
    the next word. Every correct answer is 1 point (`User.addPoints`, the
-   same points as the web quiz).
-   An answer that misses the dictionary but is short Hebrew gets one Gemini
-   check in the API (see "Answer judging" below); if Gemini accepts it, it
-   counts as right and the reply shows the dictionary translation too.
-   "?" (or `hint`) shows the current word's English example sentence and
-   asks the same word again; it is not an answer and nothing is recorded.
+   same points as the web quiz), in either direction.
+   Hebrew answers are matched by `utils/hebrewAnswer.js`; English answers by
+   `utils/englishAnswer.js`, which ignores case, punctuation and a leading
+   a/an/the/to, accepts listed alternatives ("adviser/advisor"), optional
+   parts and other English words stored with the same Hebrew, and forgives
+   one wrong letter in words of 5+ letters unless the result is another
+   stored word ("horse" for "house" is wrong).
+   An answer that misses the dictionary gets one Gemini check in the API
+   (see "Answer judging" below); if Gemini accepts it, it counts as right
+   and the reply shows the dictionary translation too.
+   "?" (or `hint`) shows the current word's English example sentence (in
+   Hebrew→English with the answer blanked, or none when it cannot be
+   blanked) and asks the same word again; it is not an answer and nothing
+   is recorded.
 3. After the 20th word the failed words return shuffled, round after round,
    until none fail. The summary shows rounds, right/wrong, points earned
    and the new total. `/end` ends at any time with the same summary.
-4. Every wrong answer is recorded like a wrong answer in the web quiz:
+4. Under every summary a "🔄 אותן מילים …" button (or `/switch`) starts the
+   same 20 words again, in a new order and the other direction, with no
+   setup questions (`POST /api/bot/session/switch`; it turns round the open
+   exam if there is one, else the chat's last finished one).
+5. Every wrong answer is recorded like a wrong answer in the web quiz:
    `vocabulary_failed_words`, `vocabulary_word_scores` and the
    accumulated-fails counter that triggers the web app's review mode.
 
@@ -41,6 +56,7 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 |---|---|
 | `/help` (also `/start`, Telegram's first message) | explains in Hebrew how the bot works and lists the commands; needs no API call |
 | `/words` | vocabulary practice (below) |
+| `/switch` (also the 🔄 button under a words summary) | the same words again, the other way round |
 | `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
 | `/end` (also `stop`) | ends any open session |
 
@@ -119,17 +135,19 @@ touch the model.
 `backend/src/services/bot/answerJudge.js`, called by `bot.service.js`:
 
 1. The answer is compared with the dictionary as before.
-2. On a miss, the answer is judged only if it is short Hebrew (Hebrew
-   letters only, at most 40 characters) and the student has checks left
+2. On a miss, the answer is judged only if it is short text in the language
+   asked for (Hebrew letters only in English→Hebrew, Latin letters only in
+   Hebrew→English, at most 40 characters) and the student has checks left
    today (`bot_usage.judges`, 100 per day, in a Firestore transaction).
-3. One Gemini call: temperature 0, JSON `{"acceptable": bool}`, the answer
+3. One Gemini call with the question for the exam's direction
+   (`PROMPT` / `PROMPT_HE_EN`): temperature 0, JSON `{"acceptable": bool}`, the answer
    fenced as data, no thinking, at most 30 output tokens, 8 second timeout.
 4. Accepted counts as right (+1 point) and the reply also shows the
    dictionary translation; everything else counts as wrong.
 
 Any failure (error, timeout, unparsable output, the daily cap) counts as
 wrong, so the judge can only turn a wrong answer into a right one. Every
-verdict is logged by the API (`answer judge english=… given=… acceptable=…`)
+verdict is logged by the API (`answer judge direction=… english=… given=… acceptable=…`)
 in the API service's Cloud Run logs. The API calls Vertex AI as its runtime
 service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 

@@ -35,6 +35,11 @@ class BotController {
     send(res, await BotService.start(req.user, req.chatId));
   }
 
+  /** The same words as the last words exam, in the other direction. */
+  static async switchDirection(req, res) {
+    send(res, await BotService.switchDirection(req.user, req.chatId));
+  }
+
   // answer, end and status go to the service of the chat's open session.
   static async answer(req, res) {
     if (invalid(req, res)) return;

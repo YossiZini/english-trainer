@@ -19,6 +19,7 @@ router.use(dailyCap);
 router.post('/session/start', BotController.start);
 router.post('/session/answer', [body('text').isString().notEmpty().isLength({ max: 200 })], BotController.answer);
 router.post('/session/end', BotController.end);
+router.post('/session/switch', BotController.switchDirection);
 router.get('/session/status', BotController.status);
 
 /**
