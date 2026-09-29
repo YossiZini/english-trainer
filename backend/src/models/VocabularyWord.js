@@ -54,6 +54,19 @@ class VocabularyWord {
     }));
   }
 
+  /** English entries of the other words stored with this exact Hebrew translation. */
+  static async findEnglishByHebrew(hebrew, excludeId = null) {
+    return db.getCollection('vocabulary_words', true)
+      .filter(w => w.hebrew_translation === hebrew && w.id !== excludeId)
+      .map(w => w.english_word);
+  }
+
+  /** Whether any stored English entry equals `text` once both go through `normalize`. */
+  static async isEnglishWord(text, normalize = s => String(s || '').trim().toLowerCase()) {
+    const t = normalize(text);
+    return !!t && db.getCollection('vocabulary_words', true).some(w => normalize(w.english_word) === t);
+  }
+
   /**
    * Find a single word by ID
    */

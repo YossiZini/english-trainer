@@ -3,7 +3,8 @@ const { db } = require('../config/database');
 /**
  * A practice session driven from a chat bot. `kind` is 'vocab' or
  * 'exercise'. A vocabulary session starts in `setup`, where the student
- * picks the level, then holds 20 words (from all words) and rounds of the
+ * picks the level and the direction ('en-he' shows the English word, 'he-en'
+ * the Hebrew; rows without one are 'en-he'), then holds 20 words (from all words) and rounds of the
  * failed words until none are left. An exercise session holds one lesson's
  * questions (createExercise). One open session per chat, of either kind.
  */
@@ -17,6 +18,7 @@ class BotSession {
       status: 'setup',
       setup_step: 'level',
       level: null,
+      direction: null,
       word_ids: [],
       queue: [],
       round: 1,

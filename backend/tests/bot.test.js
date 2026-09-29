@@ -92,18 +92,27 @@ describe('Bot API', () => {
     const invalid = (await bot('/api/bot/session/answer', { text: 'Band 2' })).body.data;
     expect(invalid.invalid).toBe(true);
     expect(invalid.setup).toBe('level');
+    // A level asks for the direction; a direction starts the session.
     const hard = (await bot('/api/bot/session/answer', { text: 'Hard' })).body.data;
-    expect(hard.started).toBe(true);
+    expect(hard.started).toBeUndefined();
     expect(hard.level).toBe('קשה');
+    expect(hard.setup).toBe('direction');
+    expect(hard.options.map(o => o.label)).toEqual(['מאנגלית לעברית', 'מעברית לאנגלית']);
+    const badDirection = (await bot('/api/bot/session/answer', { text: '3' })).body.data;
+    expect(badDirection).toMatchObject({ invalid: true, setup: 'direction' });
+    const hardStarted = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
+    expect(hardStarted).toMatchObject({ started: true, level: 'קשה', direction: 'en-he' });
     // Starting again replaces it; this time easy words.
     await bot('/api/bot/session/start');
     expect((await db.findById('bot_sessions', hard.sessionId)).status).toBe('ended');
+    await bot('/api/bot/session/answer', { text: '1' });
     const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
     expect(started.started).toBe(true);
     expect(started.level).toBe('קל');
     expect(started.wordSet).toBeUndefined();
     const { word, progress } = started;
     expect(word.english).toBeTruthy();
+    expect(word.prompt).toBe(word.english);
     expect(progress).toEqual({ round: 1, index: 1, total: 20, failedInRound: 0 });
 
     const session = await db.findById('bot_sessions', started.sessionId);
@@ -166,6 +175,7 @@ describe('Bot API', () => {
 
   test('a Hebrew answer that misses the dictionary is checked by Gemini inside the API', async () => {
     await bot('/api/bot/session/start');
+    await bot('/api/bot/session/answer', { text: '1' });
     const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
     const user = await db.findOne('users', { name: 'bot-student' });
     const words = db.getCollection('vocabulary_words', true);
@@ -211,6 +221,7 @@ describe('Bot API', () => {
 
   test('"?" returns the example sentence of the current word without counting as an answer', async () => {
     await bot('/api/bot/session/start');
+    await bot('/api/bot/session/answer', { text: '1' });
     const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
     const user = await db.findOne('users', { name: 'bot-student' });
     const scoresBefore = (await db.find('vocabulary_word_scores', { user_id: user.id })).length;
@@ -232,12 +243,57 @@ describe('Bot API', () => {
     await bot('/api/bot/session/end');
   });
 
+  test('Hebrew→English: shows the Hebrew, checks the typed English, judges in that direction', async () => {
+    // The judge test above used up today's judge cap.
+    const user = await db.findOne('users', { name: 'bot-student' });
+    await db.updateById('bot_usage', `${user.id}_${new Date().toISOString().slice(0, 10)}`, { judges: 0 });
+    await bot('/api/bot/session/start');
+    await bot('/api/bot/session/answer', { text: 'easy' });
+    const started = (await bot('/api/bot/session/answer', { text: '2' })).body.data;
+    expect(started).toMatchObject({ started: true, direction: 'he-en', directionLabel: 'מעברית לאנגלית' });
+    const words = db.getCollection('vocabulary_words', true);
+    const byId = (id) => words.find(w => w.id === id);
+    let word = byId(started.word.id);
+    expect(started.word).toEqual({ id: word.id, direction: 'he-en', prompt: word.hebrew_translation });
+
+    // "?" gives the Hebrew example sentence, never the English one.
+    const example = (await bot('/api/bot/session/answer', { text: '?' })).body.data;
+    expect(example.sentence).toBe(word.sentence_he || null);
+
+    // The stored English, in capitals with a leading "the", is right.
+    let reply = (await bot('/api/bot/session/answer', { text: `  The ${word.english_word.toUpperCase()} ` })).body.data;
+    expect(reply).toMatchObject({ correct: true, judged: false, expected: null });
+    word = byId(reply.word.id);
+
+    // A Hebrew answer is wrong and never goes to the model.
+    const judge = fakeGemini(false);
+    answerJudge.setClient(judge);
+    reply = (await bot('/api/bot/session/answer', { text: word.hebrew_translation })).body.data;
+    expect(reply).toMatchObject({ correct: false, judged: false, expected: word.english_word });
+    expect(judge.calls).toHaveLength(0);
+    word = byId(reply.word.id);
+
+    // A different English answer goes to the model with the Hebrew→English question.
+    const yes = fakeGemini(true);
+    answerJudge.setClient(yes);
+    reply = (await bot('/api/bot/session/answer', { text: 'wrong guess' })).body.data;
+    expect(reply).toMatchObject({ correct: true, judged: true, expected: word.english_word });
+    expect(yes.calls[0].contents).toContain(`Hebrew word or phrase: ${word.hebrew_translation}`);
+    expect(yes.calls[0].contents).toContain(`Dictionary English: ${word.english_word}`);
+    expect(yes.calls[0].contents).toContain('<answer>wrong guess</answer>');
+
+    answerJudge.setClient(fakeGemini(false));
+    const ended = (await bot('/api/bot/session/end')).body.data;
+    expect(ended.summary).toMatchObject({ correct: 2, wrong: 1 });
+  });
+
   test('"end" ends the session with a summary and a new start replaces an active one', async () => {
     const first = await bot('/api/bot/session/start');
     const second = await bot('/api/bot/session/start');
     expect(second.body.data.sessionId).not.toBe(first.body.data.sessionId);
     expect((await db.findById('bot_sessions', first.body.data.sessionId)).status).toBe('ended');
 
+    await bot('/api/bot/session/answer', { text: '1' });
     await bot('/api/bot/session/answer', { text: '1' });
     const ended = (await bot('/api/bot/session/answer', { text: 'end' })).body.data;
     expect(ended.done).toBe(true);
