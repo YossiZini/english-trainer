@@ -58,6 +58,8 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/words` | vocabulary practice (below) |
 | `/switch` (also the 🔄 button under a words summary) | the same words again, the other way round |
 | `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
+| `/report` | report the lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
+| `/review manual`, `/review auto` | the admin's review of reported questions; not in the menu, other chats are refused |
 | `/end` (also `stop`) | ends any open session |
 
 A multiple-choice answer is a number, so a bare command works during a
@@ -66,6 +68,45 @@ be the answer (it may be "help" or "english"); no exercise is fill-in any
 more, the rule only guards the fill-in path. The "/" form is always the
 command, and `end` always ends the session. A free-form message (for example "איך זה
 עובד?") goes to the agent, whose `show_help` tool sends the same help text.
+
+## Reported questions and review
+
+Students report a lesson question as wrong from the site (🚩 beside the
+question number) or with `/report` here: the reason is one tap (the correct
+answer is wrong / more than one right answer / unclear / other with a short
+note). The API stores the report with a snapshot of the question
+(`question_reports`, one open report per student and question, 20 per
+student a day) and **hides the question** from new lessons, the mistakes
+test and retries until it is reviewed. A student who already has it on the
+screen is still graded normally.
+
+The admin reviews in Telegram. The admin is the account named in
+`ADMIN_USERS` (API setting, exact name, currently "Yossi Zini"); only the
+chat linked to that account gets past `/api/bot/review/*`.
+
+- `/review manual`: one question at a time with its reports and the review
+  agent's proposal (keep / change with the whole corrected question /
+  remove, and a short Hebrew reason). Buttons: ✅ approve, ↩️ keep as it
+  was, 🗑 remove, ⏭ skip (stays under review). Any typed message is a
+  correction: the agent revises its proposal and shows it again.
+- `/review auto`: every proposal the API accepts is applied; invalid ones
+  are skipped and listed. It works in rounds of about 40 seconds (Telegram
+  waits that long for the webhook); ▶️ continues.
+
+The review agent (`bot/app/review_agent.py`) is an ADK `LlmAgent` with a
+structured output on the latest Gemini Pro model (`REVIEW_MODEL`,
+`gemini-3.1-pro-preview`, through the `global` endpoint while in preview:
+`REVIEW_LOCATION`). Students' notes reach it fenced as data. It only
+proposes: every decision goes through the API, which validates a change
+(non-empty text, 3–4 distinct options, the answer exactly one of them) and
+applies it at once through `question_overrides`, a layer over the bundled
+questions read by the `Exercise` model: keep shows the question again,
+change serves and grades the corrected fields, remove keeps it hidden. The
+question's reports are closed with the decision. If the model is not
+available, `/review manual` still offers keep / remove / skip.
+
+The bundled content (`backend/data/static/exercises.json`) does not change;
+fold approved changes into it from `question_overrides` when convenient.
 
 ## Lesson exercises
 
