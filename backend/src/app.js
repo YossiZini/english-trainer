@@ -64,6 +64,7 @@ app.use('/api/unseen', require('./routes/unseen.routes'));
 app.use('/api/kanban', require('./routes/kanban.routes'));
 app.use('/api/telegram', require('./routes/telegram.routes'));
 app.use('/api/bot', require('./routes/bot.routes'));
+app.use('/api/reports', require('./routes/report.routes'));
 
 // 404 handler
 app.use((req, res) => {
