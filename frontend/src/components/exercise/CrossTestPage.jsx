@@ -6,6 +6,7 @@ import MultipleChoice from './MultipleChoice';
 import FillInBlank from './FillInBlank';
 import ExerciseActionBar from './ExerciseActionBar';
 import ExerciseFeedback from './ExerciseFeedback';
+import ReportQuestion from './ReportQuestion';
 import useScrollToQuestion from './useScrollToQuestion';
 import './ExercisePage.css';
 
@@ -334,6 +335,7 @@ const CrossTestPage = () => {
                   📚 {currentExercise.lesson_title}
                 </div>
               )}
+              <ReportQuestion key={currentExercise.id} exerciseId={currentExercise.id} />
             </div>
 
             {currentExercise.type === 'multiple_choice' ? (

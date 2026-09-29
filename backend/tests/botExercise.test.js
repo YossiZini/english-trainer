@@ -194,4 +194,38 @@ describe('Bot lesson exercises', () => {
     expect(hardIds.every(id => bundled.get(id).difficulty === 'hard')).toBe(true);
     await bot('/api/bot/session/end');
   });
+
+  test('report the question answered last, else the current one; the lesson goes on', async () => {
+    await bot('/api/bot/exercise/start', { subject: 'english' });
+    const first = await currentExerciseId();
+    // Nothing answered yet: the current question is reported.
+    let res = await bot('/api/bot/exercise/report', { reason: 'unclear' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toMatchObject({ reported: true, duplicate: false, reportedNumber: 1, active: true });
+    expect((await db.findOne('question_reports', { exercise_id: first, user_id: userId })).source).toBe('bot');
+
+    // After an answer, the answered question is the one reported; the session does not move.
+    const question = (await status()).body.data.question;
+    await bot('/api/bot/session/answer', { text: wrongAnswer(question, first) });
+    const second = await currentExerciseId();
+    res = await bot('/api/bot/exercise/report', { reason: 'wrong_answer' });
+    expect(res.body.data).toMatchObject({ reported: true, duplicate: true, reportedNumber: 1 });
+    expect(await currentExerciseId()).toBe(second);
+    expect((await status()).body.data.question.number).toBe(2);
+
+    expect((await bot('/api/bot/exercise/report', { reason: 'boring' })).status).toBe(400);
+    await bot('/api/bot/session/end');
+    // After the lesson ended, its last answered question can still be reported.
+    res = await bot('/api/bot/exercise/report', { reason: 'two_answers' });
+    expect(res.body.data).toMatchObject({ reported: true, duplicate: true, active: false });
+
+    // Not with a words exam open, and not an hour after the lesson ended.
+    await bot('/api/bot/session/start');
+    expect((await bot('/api/bot/exercise/report', { reason: 'unclear' })).status).toBe(404);
+    await bot('/api/bot/session/end');
+    const lesson = (await db.find('bot_sessions', { chat_id: chatId })).filter(s => s.kind === 'exercise')
+      .sort((a, b) => new Date(b.started_at) - new Date(a.started_at))[0];
+    await db.updateById('bot_sessions', lesson.id, { ended_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() });
+    expect((await bot('/api/bot/exercise/report', { reason: 'unclear' })).status).toBe(404);
+  });
 });

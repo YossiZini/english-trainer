@@ -47,4 +47,12 @@ router.post('/exercise/lessons', [
   body('subject').isIn(['english', 'math']).withMessage('subject must be english or math')
 ], BotController.listLessons);
 
+/**
+ * POST /api/bot/exercise/report { chatId, reason } — report the question the
+ * student answered last in the chat's lesson session (else the current one).
+ */
+router.post('/exercise/report', [
+  body('reason').isIn(['wrong_answer', 'two_answers', 'unclear', 'other']).withMessage('unknown reason')
+], BotController.reportQuestion);
+
 module.exports = router;

@@ -44,8 +44,9 @@ async def main() -> int:
     # The summary button: the same words, Hebrew→English; "?" gives the Hebrew sentence.
     for text in [ended.buttons[0], "?", "house", "end"]:
         print(f"> {text}\n<", await say(text))
-    # Lesson exercises: next lesson, an invalid number, two answers, early end.
-    for text in ["/english", "9", "1", "2", "/end"]:
+    # Lesson exercises: next lesson, an invalid number, an answer, a report of
+    # that question (the lesson goes on), another answer, early end.
+    for text in ["/english", "9", "1", "/report", "🚩 השאלה לא ברורה", "2", "/end"]:
         print(f"> {text}\n<", await say(text))
     # The lesson list: page 2, an unknown number, pick lesson 12, end.
     for text in ["lessons english", "more", "500", "12", "1", "end"]:

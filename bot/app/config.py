@@ -41,6 +41,7 @@ HELP_WORDS = {"help", "start"}
 START_WORDS = {"words"}
 END_WORDS = {"end", "stop", "quit"}
 SWITCH_WORDS = {"switch"}
+REPORT_WORDS = {"report"}
 SUBJECTS = {"english", "math"}
 LESSONS_WORD = "lessons"
 DIFFICULTIES = {"easy", "medium", "hard"}

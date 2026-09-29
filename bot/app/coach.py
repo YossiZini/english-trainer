@@ -14,7 +14,8 @@ from google.genai import types
 
 from . import config, replies
 from .replies import Reply
-from .exercise_replies import exercise_start_reply, lesson_list_reply
+from .exercise_replies import (exercise_start_reply, exercise_status_reply, lesson_list_reply,
+                               report_ask_reply, report_reason, report_reply)
 from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
@@ -28,7 +29,7 @@ LIST_NUMBER = re.compile(r"^\d{1,3}$")
 def parse_command(text: str) -> tuple[str, dict] | None:
     """An English command, with or without "/" (and "@bot" in groups), else None.
 
-    help | words | end | switch | english|math [N] [easy|medium|hard] |
+    help | words | end | switch | report | english|math [N] [easy|medium|hard] |
     lessons english|math (also lessons_english) | lessons"""
     words = text.lower().split()
     if not words or len(words) > 3:
@@ -45,6 +46,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "end", {}
     if not rest and first in config.SWITCH_WORDS:
         return "switch", {}
+    if not rest and first in config.REPORT_WORDS:
+        return "report", {}
     if first == config.LESSONS_WORD:
         if not rest:
             return "lessons", {}
@@ -88,6 +91,10 @@ class Coach:
         if CODE.match(text):
             result = await self.api.link(chat_id, text)
             return Reply(replies.LINKED if result["ok"] else replies.error_reply(result))
+        reason = report_reason(text)
+        if reason:
+            # A report-reason button: never an answer to the open question.
+            return await self.report(chat_id, reason)
         if text.startswith(replies.SWITCH_SIGN):
             # The button under a words summary: the same words, the other way round.
             return await self.run_command(chat_id, "switch", {})
@@ -123,11 +130,25 @@ class Coach:
             return replies.end_reply(await self.api.end(chat_id))
         if action == "switch":
             return replies.switch_reply(await self.api.switch(chat_id))
+        if action == "report":
+            return report_ask_reply()
         if action == "lessons" and not args:
             return Reply(replies.WHICH_LESSONS, list(replies.LESSONS_BUTTONS))
         if action == "lessons":
             return lesson_list_reply(await self.api.exercise_lessons(chat_id, args["subject"]))
         return exercise_start_reply(await self.api.exercise_start(chat_id, **args))
+
+    async def report(self, chat_id: str, reason: str) -> Reply:
+        """File the report; when a lesson is still open, show its current question again."""
+        result = await self.api.exercise_report(chat_id, reason)
+        confirmation = report_reply(result)
+        if not (result["ok"] and result["data"].get("active")):
+            return confirmation
+        status = await self.api.status(chat_id)
+        if not (status["ok"] and status["data"].get("active") and status["data"].get("kind") == "exercise"):
+            return confirmation
+        question = exercise_status_reply(status["data"])
+        return Reply(confirmation.text + "\n\n" + question.text, question.buttons)
 
     async def ask_agent(self, chat_id: str, text: str) -> str:
         session = await self._session(chat_id)

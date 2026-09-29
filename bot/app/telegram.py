@@ -17,6 +17,7 @@ COMMANDS = [
     ("math", "תרגילי השיעור הבא בחשבון"),
     ("lessons_english", "רשימת שיעורי האנגלית"),
     ("lessons_math", "רשימת שיעורי החשבון"),
+    ("report", "דיווח על שאלה שגויה"),
     ("end", "עצירת התרגול"),
 ]
 COMMANDS_TIMEOUT_SECONDS = 5

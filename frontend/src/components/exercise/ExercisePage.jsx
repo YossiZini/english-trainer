@@ -8,6 +8,7 @@ import FillInBlank from './FillInBlank';
 import PreviousAttemptModal from './PreviousAttemptModal';
 import ExerciseActionBar from './ExerciseActionBar';
 import ExerciseFeedback from './ExerciseFeedback';
+import ReportQuestion from './ReportQuestion';
 import useScrollToQuestion from './useScrollToQuestion';
 import './ExercisePage.css';
 
@@ -311,7 +312,10 @@ const ExercisePage = () => {
         {/* Question */}
         <div className="exercise-content">
           <div className="question-container" ref={questionRef}>
-            <div className="question-number">שאלה {currentExercise.question_number}</div>
+            <div className="question-number-row">
+              <div className="question-number">שאלה {currentExercise.question_number}</div>
+              <ReportQuestion key={currentExercise.id} exerciseId={currentExercise.id} />
+            </div>
 
             {currentExercise.type === 'multiple_choice' ? (
               <MultipleChoice
