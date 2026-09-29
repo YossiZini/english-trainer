@@ -34,11 +34,16 @@ async def main() -> int:
     print(f"> {code}\n<", await say(code))
     print("> words\n<", await say("words"))
     print("> 1\n<", await say("1"))
+    print("> מאנגלית לעברית\n<", await say("מאנגלית לעברית"))
     print("> ?\n<", await say("?"))
     for text in ["בטח לא", "גם לא", "עדיין לא"]:
         print(f"> {text}\n<", await say(text))
     print("> /help\n<", await say("/help"))
-    print("> end\n<", await say("end"))
+    ended = await say("end")
+    print("> end\n<", ended, ended.buttons)
+    # The summary button: the same words, Hebrew→English; "?" gives the Hebrew sentence.
+    for text in [ended.buttons[0], "?", "house", "end"]:
+        print(f"> {text}\n<", await say(text))
     # Lesson exercises: next lesson, an invalid number, two answers, early end.
     for text in ["/english", "9", "1", "2", "/end"]:
         print(f"> {text}\n<", await say(text))

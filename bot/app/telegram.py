@@ -11,7 +11,8 @@ log = logging.getLogger("bot")
 # descriptions). The bot sets it itself at startup: nothing to run by hand.
 COMMANDS = [
     ("help", "איך זה עובד ומה אפשר לעשות"),
-    ("words", "20 מילים באנגלית, עונים בעברית"),
+    ("words", "מבחן 20 מילים, מאנגלית לעברית או מעברית לאנגלית"),
+    ("switch", "אותן מילים שוב, בכיוון השני"),
     ("english", "תרגילי השיעור הבא באנגלית"),
     ("math", "תרגילי השיעור הבא בחשבון"),
     ("lessons_english", "רשימת שיעורי האנגלית"),

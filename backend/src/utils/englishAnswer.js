@@ -97,4 +97,29 @@ function judgeable(userText, maxChars = 40) {
   return t.length > 0 && t.length <= maxChars && /[a-z]/i.test(t) && /^[a-z\s.,'’\-/()]+$/i.test(t);
 }
 
-module.exports = { normalize, core, alternatives, englishAnswerMatch, judgeable };
+/**
+ * The example sentence with the answer blanked, for the Hebrew→English
+ * exam: every sentence word that starts like a word of the answer (its
+ * stem, so "invitations" and "invited" go too) becomes "_____". Null when
+ * nothing could be blanked, so the sentence never gives the answer away.
+ */
+function maskAnswer(sentence, english) {
+  if (!sentence) return null;
+  const stems = new Set();
+  for (const form of alternatives(english)) {
+    for (const word of form.split(' ')) {
+      if (word.length < 3) continue;
+      stems.add(word.length > 4 ? word.slice(0, word.length - 2) : word);
+    }
+  }
+  if (!stems.size) return null;
+  let masked = false;
+  const out = sentence.replace(/[A-Za-z'’]+/g, (token) => {
+    const t = token.toLowerCase();
+    if ([...stems].some(stem => t.startsWith(stem))) { masked = true; return '_____'; }
+    return token;
+  });
+  return masked ? out : null;
+}
+
+module.exports = { normalize, core, alternatives, englishAnswerMatch, judgeable, maskAnswer };

@@ -6,7 +6,9 @@ const VocabularyUserStats = require('../models/VocabularyUserStats');
 const User = require('../models/User');
 const { pickWordsForUser, LEVELS } = require('./bot/wordPicker');
 const { hebrewAnswerMatches, judgeable } = require('../utils/hebrewAnswer');
-const { englishAnswerMatch, core: englishCore, judgeable: englishJudgeable } = require('../utils/englishAnswer');
+const {
+  englishAnswerMatch, core: englishCore, judgeable: englishJudgeable, maskAnswer
+} = require('../utils/englishAnswer');
 const { shuffleArray } = require('../utils/shuffle');
 const BotUsage = require('../models/BotUsage');
 const { SESSION_SIZE, END_WORDS, EXAMPLE_WORDS, DAILY_JUDGE_CAP } = require('../config/bot');
@@ -71,8 +73,10 @@ function wordView(word, direction = 'en-he') {
   return { id: word.id, direction, prompt: word.english_word, english: word.english_word, sentence: word.sentence_en || null };
 }
 
-/** The example sentence for "?": he-en gets the Hebrew one, which does not give the answer away. */
-const exampleOf = (word, direction) => (direction === 'he-en' ? word.sentence_he : word.sentence_en) || null;
+/** The example sentence for "?": in he-en with the answer blanked, so it does not give it away. */
+const exampleOf = (word, direction) => (direction === 'he-en'
+  ? maskAnswer(word.sentence_en, word.english_word)
+  : word.sentence_en || null);
 
 /** Is the student's text right for the current word in this direction? */
 async function checkAnswer(user, word, text, direction) {

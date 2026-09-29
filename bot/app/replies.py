@@ -23,7 +23,11 @@ UNREACHABLE = "משהו השתבש אצלנו. נסו שוב בעוד רגע."
 BAD_CODE = "הקוד לא נכון או שפג תוקפו. קבלו קוד חדש באתר ושלחו אותו שוב."
 LINKED = ("מעולה, החשבון מחובר! כתבו /words לתרגול של 20 מילים, /english או /math לתרגילי השיעור הבא, "
           "או /help להסבר מלא.")
-SETUP_QUESTIONS = {"level": "איזו רמה?"}
+SETUP_QUESTIONS = {"level": "איזו רמה?", "direction": "באיזה כיוון?"}
+# The button under a words summary; the coach knows it by this sign (no
+# translation starts with it), so it works without a session.
+SWITCH_SIGN = "🔄"
+TRANSLATE_TO = {"en-he": "תרגמו לעברית", "he-en": "תרגמו לאנגלית"}
 INVALID_CHOICE = "בחרו מספר מהאפשרויות:"
 NOT_ENOUGH_FOR_CHOICE = "אין מספיק מילים ברמה הזו בקבוצה שבחרתם. בחרו רמה אחרת:"
 NOT_ENOUGH_WORDS = "אין מספיק מילים ברמה שלכם כרגע."
@@ -52,6 +56,7 @@ HELP = """🤖 איך זה עובד
 WHICH_LESSONS = "רשימת השיעורים של איזה מקצוע?"
 LESSONS_BUTTONS = ("lessons english", "lessons math")
 NO_EXAMPLE = "אין משפט לדוגמה למילה הזו."
+NO_WORDS_TO_SWITCH = "אין עדיין מבחן מילים לחזור עליו. כתבו /words כדי להתחיל."
 
 
 def _word_line(word: dict | None, progress: dict | None) -> str:
@@ -60,7 +65,7 @@ def _word_line(word: dict | None, progress: dict | None) -> str:
     prefix = ""
     if progress:
         prefix = f"({progress['index']}/{progress['total']}) "
-    return f"{prefix}{word['english']}"
+    return f"{prefix}{word.get('prompt') or word.get('english', '')}"
 
 
 def error_reply(result: dict) -> str:
@@ -80,12 +85,18 @@ def error_reply(result: dict) -> str:
 
 
 def setup_reply(data: dict, intro: str = "") -> Reply:
-    """A setup question with its numbered options as buttons."""
+    """A setup question with its numbered options as buttons.
+
+    The level buttons are the numbers; the direction buttons carry their
+    labels ("מאנגלית לעברית"), which the API accepts as well as 1 and 2."""
     options = data.get("options", [])
     lines = [intro] if intro else []
+    if data.get("level") and data["setup"] == "direction":
+        lines.append(f"רמה {data['level']}.")
     lines.append(SETUP_QUESTIONS.get(data["setup"], ""))
     lines += [f"{o['key']}. {o['label']}" for o in options]
-    return Reply("\n".join(lines), [str(o["key"]) for o in options])
+    labels = data["setup"] == "direction"
+    return Reply("\n".join(lines), [o["label"] if labels else str(o["key"]) for o in options])
 
 
 def start_reply(result: dict) -> Reply:
@@ -98,7 +109,26 @@ def start_reply(result: dict) -> Reply:
 
 
 def started_reply(data: dict) -> Reply:
-    return Reply(f"רמה {data['level']}. תרגמו לעברית (\"?\" למשפט לדוגמה):\n" + _word_line(data["word"], data["progress"]))
+    direction = data.get("direction") or "en-he"
+    head = f"רמה {data['level']}" if data.get("level") else "מתחילים"
+    if data.get("switched"):
+        head = f"אותן מילים, {data['directionLabel']}"
+    elif data.get("directionLabel"):
+        head += f", {data['directionLabel']}"
+    return Reply(f"{head}. {TRANSLATE_TO[direction]} (\"?\" למשפט לדוגמה):\n" + _word_line(data["word"], data["progress"]))
+
+
+def switch_reply(result: dict) -> Reply:
+    if not result["ok"]:
+        return Reply(NO_WORDS_TO_SWITCH if result.get("code") == "no_session" else error_reply(result))
+    return started_reply(result["data"])
+
+
+def _summary_reply(head: str, summary: dict) -> Reply:
+    """The words summary, with a button for the same words the other way round."""
+    switch = summary.get("switchTo")
+    buttons = [f"{SWITCH_SIGN} אותן מילים {switch['label']}"] if switch else []
+    return Reply(head + summary_text(summary), buttons)
 
 
 def answer_reply(result: dict) -> Reply:
@@ -123,7 +153,7 @@ def answer_reply(result: dict) -> Reply:
     else:
         verdict = f"❌ לא בדיוק. התרגום: {data['expected']}"
     if data.get("done"):
-        return Reply(verdict + "\n" + summary_text(data["summary"]))
+        return _summary_reply(verdict + "\n", data["summary"])
     lines = [verdict]
     if data.get("roundStarted"):
         lines.append(f"סיימנו את הסבב. עכשיו חוזרים על {data['progress']['total']} המילים שטעיתם בהן, בסדר אקראי:")
@@ -137,7 +167,7 @@ def end_reply(result: dict) -> Reply:
     if result["data"].get("kind") == "exercise":
         from .exercise_replies import exercise_end_reply
         return exercise_end_reply(result["data"])
-    return Reply("סיימנו להיום.\n" + summary_text(result["data"]["summary"]))
+    return _summary_reply("סיימנו להיום.\n", result["data"]["summary"])
 
 
 def status_reply(result: dict) -> Reply:

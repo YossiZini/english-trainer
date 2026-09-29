@@ -259,9 +259,11 @@ describe('Bot API', () => {
     let word = byId(started.word.id);
     expect(started.word).toEqual({ id: word.id, direction: 'he-en', prompt: word.hebrew_translation });
 
-    // "?" gives the Hebrew example sentence, never the English one.
+    // "?" gives the example sentence with the answer blanked, never the word itself.
     const example = (await bot('/api/bot/session/answer', { text: '?' })).body.data;
-    expect(example.sentence).toBe(word.sentence_he || null);
+    const { maskAnswer } = require('../src/utils/englishAnswer');
+    expect(example.sentence).toBe(maskAnswer(word.sentence_en, word.english_word));
+    if (example.sentence) expect(example.sentence).not.toBe(word.sentence_en);
 
     // The stored English, in capitals with a leading "the", is right.
     let reply = (await bot('/api/bot/session/answer', { text: `  The ${word.english_word.toUpperCase()} ` })).body.data;
