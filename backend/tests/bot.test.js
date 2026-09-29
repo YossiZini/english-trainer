@@ -161,7 +161,10 @@ describe('Bot API', () => {
     reply = (await bot('/api/bot/session/answer', { text: translation(current.id) })).body.data;
     expect(reply.done).toBe(true);
     expect(reply.word).toBeNull();
-    expect(reply.summary).toEqual({ words: 20, rounds: 3, correct: 20, wrong: 4, remainingFailed: 0, points: 20, totalPoints: pointsBefore + 20 });
+    expect(reply.summary).toEqual({
+      words: 20, rounds: 3, correct: 20, wrong: 4, remainingFailed: 0, points: 20, totalPoints: pointsBefore + 20,
+      switchTo: { direction: 'he-en', label: 'מעברית לאנגלית' }
+    });
     expect((await db.findOne('users', { name: 'bot-student' })).total_points).toBe(pointsBefore + 20);
     const userId = (await db.findOne('users', { name: 'bot-student' })).id;
     expect((await db.findOne('vocabulary_user_stats', { user_id: userId })).accumulated_fails).toBe(4);
@@ -285,6 +288,40 @@ describe('Bot API', () => {
     answerJudge.setClient(fakeGemini(false));
     const ended = (await bot('/api/bot/session/end')).body.data;
     expect(ended.summary).toMatchObject({ correct: 2, wrong: 1 });
+  });
+
+  test('switch repeats the same words in the other direction, and back', async () => {
+    await bot('/api/bot/session/start');
+    await bot('/api/bot/session/answer', { text: '1' });
+    const first = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
+    const ended = (await bot('/api/bot/session/end')).body.data;
+    expect(ended.summary.switchTo).toEqual({ direction: 'he-en', label: 'מעברית לאנגלית' });
+    const firstIds = (await db.findById('bot_sessions', first.sessionId)).word_ids;
+
+    const switched = (await bot('/api/bot/session/switch')).body.data;
+    expect(switched).toMatchObject({ started: true, switched: true, direction: 'he-en', level: 'קל' });
+    expect(switched.progress).toEqual({ round: 1, index: 1, total: 20, failedInRound: 0 });
+    expect(switched.word.english).toBeUndefined();
+    const second = await db.findById('bot_sessions', switched.sessionId);
+    expect([...second.word_ids].sort()).toEqual([...firstIds].sort());
+    expect(second.switched_from).toBe(first.sessionId);
+
+    // Switching while that exam is still open turns it round again and replaces it.
+    const back = (await bot('/api/bot/session/switch')).body.data;
+    expect(back.direction).toBe('en-he');
+    expect((await db.findById('bot_sessions', switched.sessionId)).status).toBe('ended');
+    expect([...(await db.findById('bot_sessions', back.sessionId)).word_ids].sort()).toEqual([...firstIds].sort());
+    const backSummary = (await bot('/api/bot/session/end')).body.data.summary;
+    expect(backSummary.switchTo.direction).toBe('he-en');
+  });
+
+  test('switch without a finished words exam answers no_session', async () => {
+    // Move the chat's earlier sessions away, as if it had none.
+    const sessions = await db.find('bot_sessions', { chat_id: chatId });
+    for (const s of sessions) await db.updateById('bot_sessions', s.id, { chat_id: 'other-chat' });
+    const res = await bot('/api/bot/session/switch');
+    expect(res.status).toBe(404);
+    expect(res.body.code).toBe('no_session');
   });
 
   test('"end" ends the session with a summary and a new start replaces an active one', async () => {

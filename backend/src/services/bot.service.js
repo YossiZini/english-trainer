@@ -37,6 +37,7 @@ const DIRECTIONS = {
 const DIRECTION_WORDS = { 'en-he': 1, 'he-en': 2, 'מאנגלית לעברית': 1, 'מעברית לאנגלית': 2 };
 const directionOf = (session) => session.direction || 'en-he';
 const directionLabel = (key) => Object.values(DIRECTIONS).find(d => d.key === key).he;
+const opposite = (key) => (key === 'he-en' ? 'en-he' : 'he-en');
 
 /** 1, 2 or 3 from a button press or a level word, else null. */
 function parseChoice(text) {
@@ -108,7 +109,11 @@ function summary(session, totalPoints = null) {
     wrong: session.wrong_count,
     remainingFailed: session.failed_word_ids.length + session.queue.length,
     points: session.points_earned || 0,
-    totalPoints
+    totalPoints,
+    // The same words can be taken again the other way round (switchDirection).
+    switchTo: session.word_ids.length
+      ? { direction: opposite(directionOf(session)), label: directionLabel(opposite(directionOf(session))) }
+      : null
   };
 }
 
@@ -201,6 +206,32 @@ class BotService {
       return { ...reply, done: true, word: null, summary: summary(ended, totalPoints) };
     }
     return { ...reply, word: wordView(await currentWord(next), direction), progress: progress(next) };
+  }
+
+  /**
+   * The same words as the chat's last finished words exam, the other way
+   * round: all of them again, in a new order, at the same level, with no
+   * setup questions. An open session is replaced, as with start.
+   */
+  static async switchDirection(user, chatId) {
+    // An exam still open with words is the one to turn round; else the last finished one.
+    const open = await BotSession.findOpenByChat(chatId);
+    const openWords = open && BotSession.kindOf(open) === 'vocab' && open.word_ids && open.word_ids.length ? open : null;
+    const last = openWords || await BotSession.findLastFinishedVocab(chatId, user.id);
+    if (!last) return { error: 'no_session' };
+    if (open) await BotSession.end(open.id, 'replaced');
+    const direction = opposite(directionOf(last));
+    const ids = shuffleArray(last.word_ids);
+    const created = await BotSession.create({ userId: user.id, chatId });
+    const started = await BotSession.update(created.id, {
+      level: last.level, direction, status: 'active', setup_step: null,
+      word_ids: ids, queue: ids, round_size: ids.length, switched_from: last.id
+    });
+    return {
+      sessionId: started.id, started: true, switched: true, level: LEVELS[last.level] ? LEVELS[last.level].he : null,
+      direction, directionLabel: directionLabel(direction),
+      word: wordView(await currentWord(started), direction), progress: progress(started)
+    };
   }
 
   static async end(user, chatId) {
