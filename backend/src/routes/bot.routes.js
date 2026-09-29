@@ -55,4 +55,20 @@ router.post('/exercise/report', [
   body('reason').isIn(['wrong_answer', 'two_answers', 'unclear', 'other']).withMessage('unknown reason')
 ], BotController.reportQuestion);
 
+/**
+ * Review of reported questions, for the admin's chat only (ADMIN_USERS):
+ * GET /api/bot/review/queue — questions under review with their reports;
+ * POST /api/bot/review/decide { chatId, exerciseId, decision: keep|change|remove, change? }.
+ */
+const { isAdmin } = require('../services/review.service');
+const adminOnly = (req, res, next) => (isAdmin(req.user)
+  ? next()
+  : res.status(403).json({ success: false, code: 'not_admin', message: 'Review is for the admin only' }));
+router.get('/review/queue', adminOnly, BotController.reviewQueue);
+router.post('/review/decide', adminOnly, [
+  body('exerciseId').isString().isLength({ min: 1, max: 100 }),
+  body('decision').isIn(['keep', 'change', 'remove']).withMessage('decision must be keep, change or remove'),
+  body('change').optional({ nullable: true }).isObject()
+], BotController.reviewDecide);
+
 module.exports = router;

@@ -3,11 +3,12 @@ const BotService = require('../services/bot.service');
 const ExerciseSession = require('../services/bot/exerciseSession');
 const { serviceFor } = require('../services/bot/sessionKinds');
 const TelegramLink = require('../models/TelegramLink');
+const ReviewService = require('../services/review.service');
 
 const ERROR_STATUS = {
   no_session: 404, not_enough_words: 409, lesson_not_found: 404, bad_subject: 400, all_done: 409, no_exercises: 409,
   // 409, not 429: the bot reads 429 as its own daily message cap.
-  exercise_not_found: 404, bad_reason: 400, report_cap: 409
+  exercise_not_found: 404, bad_reason: 400, report_cap: 409, bad_decision: 400
 };
 
 function send(res, result) {
@@ -65,6 +66,20 @@ class BotController {
   static async reportQuestion(req, res) {
     if (invalid(req, res)) return;
     send(res, await ExerciseSession.report(req.user, req.chatId, req.body.reason));
+  }
+
+  static async reviewQueue(req, res) {
+    send(res, await ReviewService.queue());
+  }
+
+  static async reviewDecide(req, res) {
+    if (invalid(req, res)) return;
+    const { exerciseId, decision, change } = req.body;
+    const result = await ReviewService.decide(exerciseId, decision, change || null);
+    if (result.error === 'invalid_change') {
+      return res.status(400).json({ success: false, code: 'invalid_change', message: result.reason });
+    }
+    send(res, result);
   }
 
   static async listLessons(req, res) {
