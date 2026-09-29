@@ -89,6 +89,14 @@ class BotSession {
     return open[0];
   }
 
+  /** The student's latest lesson-exercise session in this chat with questions (open or ended), or null. */
+  static async findLatestExercise(chatId, userId) {
+    const sessions = await db.find('bot_sessions', { chat_id: String(chatId) });
+    const found = sessions.filter(s => s.user_id === userId && s.kind === 'exercise' && Array.isArray(s.exercises));
+    found.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+    return found[0] || null;
+  }
+
   /** The student's latest finished vocabulary session in this chat that had words, or null. */
   static async findLastFinishedVocab(chatId, userId) {
     const sessions = await db.find('bot_sessions', { chat_id: String(chatId) });

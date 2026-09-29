@@ -5,7 +5,9 @@ const { serviceFor } = require('../services/bot/sessionKinds');
 const TelegramLink = require('../models/TelegramLink');
 
 const ERROR_STATUS = {
-  no_session: 404, not_enough_words: 409, lesson_not_found: 404, bad_subject: 400, all_done: 409, no_exercises: 409
+  no_session: 404, not_enough_words: 409, lesson_not_found: 404, bad_subject: 400, all_done: 409, no_exercises: 409,
+  // 409, not 429: the bot reads 429 as its own daily message cap.
+  exercise_not_found: 404, bad_reason: 400, report_cap: 409
 };
 
 function send(res, result) {
@@ -58,6 +60,11 @@ class BotController {
     if (invalid(req, res)) return;
     const { subject, lessonId, number, difficulty } = req.body;
     send(res, await ExerciseSession.start(req.user, req.chatId, { subject, lessonId, number, difficulty }));
+  }
+
+  static async reportQuestion(req, res) {
+    if (invalid(req, res)) return;
+    send(res, await ExerciseSession.report(req.user, req.chatId, req.body.reason));
   }
 
   static async listLessons(req, res) {

@@ -26,6 +26,44 @@ EXERCISE_ERRORS = {
     "bad_subject": "אפשר לתרגל אנגלית או חשבון.",
 }
 
+# Reporting a question: the reasons are buttons carrying this sign, so the
+# coach knows them from an answer (no option or translation starts with it).
+REPORT_SIGN = "🚩"
+REPORT_REASONS = {
+    f"{REPORT_SIGN} התשובה הנכונה שגויה": "wrong_answer",
+    f"{REPORT_SIGN} יש יותר מתשובה נכונה אחת": "two_answers",
+    f"{REPORT_SIGN} השאלה לא ברורה": "unclear",
+    f"{REPORT_SIGN} משהו אחר": "other",
+}
+REPORT_ASK = ("🚩 דיווח על השאלה האחרונה שעניתם עליה (או על השאלה הנוכחית). מה לא בסדר בה?\n"
+              "בחרו בכפתור. אם אתם באמצע תרגיל, אחרי הדיווח ממשיכים מאותה שאלה.")
+REPORT_NO_LESSON = "אפשר לדווח על שאלה במהלך תרגילי שיעור או מיד אחריהם (/english או /math)."
+REPORT_CAP = "הגעת למכסת הדיווחים להיום. תודה על העזרה, נמשיך מחר!"
+
+
+def report_ask_reply() -> Reply:
+    return Reply(REPORT_ASK, list(REPORT_REASONS))
+
+
+def report_reason(text: str) -> str | None:
+    """The reason key of a reason button, or None."""
+    return REPORT_REASONS.get(text.strip())
+
+
+def report_reply(result: dict) -> Reply:
+    """The report's confirmation; the caller adds the current question when a lesson is open."""
+    if not result["ok"]:
+        code = result.get("code")
+        if code == "no_session":
+            return Reply(REPORT_NO_LESSON)
+        if code == "report_cap":
+            return Reply(REPORT_CAP)
+        return Reply(_error(result))
+    data = result["data"]
+    if data.get("duplicate"):
+        return Reply(f"🚩 כבר דיווחתם על שאלה {data['reportedNumber']}. תודה, נבדוק אותה!")
+    return Reply(f"🚩 תודה! דיווחנו על שאלה {data['reportedNumber']} ונבדוק אותה.")
+
 
 def question_reply(data: dict, intro: str = "") -> Reply:
     lesson, q = data["lesson"], data["question"]

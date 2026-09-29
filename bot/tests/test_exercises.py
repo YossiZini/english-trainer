@@ -222,3 +222,34 @@ async def test_difficulty_goes_to_the_api():
     reply = await coach().handle("7", "/english 3 hard")
     assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "english", "number": 3, "difficulty": "hard"}
     assert "📘 חלקי הדיבור · קשה · שאלה 1/10" in reply.text
+
+
+@respx.mock
+async def test_report_shows_reason_buttons_files_the_report_and_repeats_the_question():
+    question = mc(2, ["Noun", "Verb", "Adjective", "Adverb"])
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok(
+        {"active": True, "kind": "exercise", "lesson": LESSON, "question": question}))
+    route = respx.post(f"{API}/bot/exercise/report").mock(side_effect=[
+        ok({"kind": "exercise", "reported": True, "duplicate": False, "reportedNumber": 1, "active": True}),
+        ok({"kind": "exercise", "reported": True, "duplicate": True, "reportedNumber": 1, "active": True}),
+        httpx.Response(409, json={"success": False, "code": "report_cap"}),
+    ])
+    answer = respx.post(f"{API}/bot/session/answer")
+    c = coach()
+    ask = await c.handle("7", "report")
+    assert ask.text == er.REPORT_ASK and ask.buttons == list(er.REPORT_REASONS)
+    reply = await c.handle("7", "🚩 יש יותר מתשובה נכונה אחת")
+    assert reply.text.startswith("🚩 תודה! דיווחנו על שאלה 1 ונבדוק אותה.\n\nהתרגיל ממשיך:")
+    assert "שאלה 2/10" in reply.text and reply.buttons == ["1", "2", "3", "4"]
+    assert json.loads(route.calls[0].request.content) == {"chatId": "7", "reason": "two_answers"}
+    assert (await c.handle("7", "🚩 השאלה לא ברורה")).text.startswith("🚩 כבר דיווחתם על שאלה 1.")
+    assert (await c.handle("7", "🚩 משהו אחר")).text == er.REPORT_CAP
+    assert not answer.called  # a reason is never an answer
+
+
+@respx.mock
+async def test_report_without_a_lesson_says_when_it_works():
+    no_session()
+    respx.post(f"{API}/bot/exercise/report").mock(return_value=httpx.Response(404, json={"success": False, "code": "no_session"}))
+    assert (await coach().handle("7", "🚩 השאלה לא ברורה")).text == er.REPORT_NO_LESSON
+    assert parse_command("/report") == ("report", {})

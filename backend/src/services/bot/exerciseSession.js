@@ -6,6 +6,10 @@ const LessonService = require('../lesson.service');
 const ExerciseService = require('../exercise.service');
 const { isCorrectAnswer, choiceMatches } = require('../../utils/answers');
 const { END_WORDS } = require('../../config/bot');
+const ReportService = require('../report.service');
+
+/** A finished lesson's questions can be reported for this long after it ended. */
+const REPORT_WINDOW_MS = 60 * 60 * 1000;
 
 /**
  * A lesson's exercises in the chat bot, one question per message.
@@ -245,6 +249,37 @@ class ExerciseSession {
       answered: session.index,
       correct: session.correct_count || 0,
       total: session.exercises.length
+    };
+  }
+
+  /**
+   * Report a question from the chat's latest lesson session: the question
+   * answered last, or the current one when none was answered yet. Works
+   * after the lesson ended too, so the last question can be reported from
+   * the summary. Nothing in the session changes.
+   */
+  static async report(user, chatId, reason) {
+    // Only the lesson in front of the student: an open one, or one that
+    // ended within the hour when no other session is open.
+    const open = await BotSession.findOpenByChat(chatId);
+    if (open && BotSession.kindOf(open) !== 'exercise') return { error: 'no_session' };
+    const session = await BotSession.findLatestExercise(chatId, user.id);
+    if (!session) return { error: 'no_session' };
+    const endedLongAgo = session.status === 'ended'
+      && Date.now() - new Date(session.ended_at || session.started_at).getTime() > REPORT_WINDOW_MS;
+    if (endedLongAgo) return { error: 'no_session' };
+    const answers = session.answers || [];
+    const exerciseId = answers.length
+      ? answers[answers.length - 1].exerciseId
+      : session.exercises[session.index] && session.exercises[session.index].id;
+    if (!exerciseId) return { error: 'no_session' };
+    const result = await ReportService.report(user.id, { exerciseId, reason, source: 'bot' });
+    if (result.error) return result;
+    const ex = session.exercises.find(e => e.id === exerciseId);
+    return {
+      kind: 'exercise', reported: true, duplicate: result.duplicate,
+      reportedNumber: session.exercises.indexOf(ex) + 1, reportedText: ex ? ex.text : null,
+      active: session.status === 'active'
     };
   }
 

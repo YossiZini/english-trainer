@@ -60,6 +60,9 @@ class TrainerApi:
             fields["difficulty"] = difficulty
         return await self._call("POST", "/bot/exercise/start", chat_id, **fields)
 
+    async def exercise_report(self, chat_id: str, reason: str) -> dict:
+        return await self._call("POST", "/bot/exercise/report", chat_id, reason=reason)
+
     async def exercise_lessons(self, chat_id: str, subject: str) -> dict:
         return await self._call("POST", "/bot/exercise/lessons", chat_id, subject=subject)
 
