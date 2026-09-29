@@ -60,8 +60,10 @@ class TrainerApi:
             fields["difficulty"] = difficulty
         return await self._call("POST", "/bot/exercise/start", chat_id, **fields)
 
-    async def exercise_report(self, chat_id: str, reason: str) -> dict:
-        return await self._call("POST", "/bot/exercise/report", chat_id, reason=reason)
+    async def report(self, chat_id: str, reason: str | None = None) -> dict:
+        """Without a reason: what /report would report (a word or a question) and its reasons."""
+        fields = {"reason": reason} if reason else {}
+        return await self._call("POST", "/bot/report", chat_id, **fields)
 
     async def review_start(self, chat_id: str, mode: str) -> dict:
         return await self._call("POST", "/bot/review/start", chat_id, mode=mode)
