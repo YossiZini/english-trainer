@@ -13,6 +13,7 @@ const { shuffleArray } = require('../utils/shuffle');
 const BotUsage = require('../models/BotUsage');
 const { SESSION_SIZE, END_WORDS, EXAMPLE_WORDS, DAILY_JUDGE_CAP } = require('../config/bot');
 const answerJudge = require('./bot/answerJudge');
+const ReportService = require('./report.service');
 
 /**
  * The chat-bot vocabulary session: start (setup questions), answer, end.
@@ -188,7 +189,10 @@ class BotService {
       correct_count: session.correct_count + (correct ? 1 : 0),
       wrong_count: session.wrong_count + (correct ? 0 : 1),
       points_earned: (session.points_earned || 0) + (correct ? POINTS_PER_CORRECT : 0),
-      failed_word_ids: correct ? session.failed_word_ids : [...session.failed_word_ids, word.id]
+      failed_word_ids: correct ? session.failed_word_ids : [...session.failed_word_ids, word.id],
+      // What /report refers to: the word answered last, and the answer.
+      last_word_id: word.id,
+      last_given: String(text).trim().slice(0, 100)
     };
     let roundStarted = false;
     if (updates.queue.length === 0 && updates.failed_word_ids.length > 0) {
@@ -244,6 +248,28 @@ class BotService {
     const ended = await BotSession.end(session.id, 'ended');
     const fresh = await User.findById(user.id);
     return { done: true, word: null, summary: summary(ended, fresh ? fresh.total_points : null) };
+  }
+
+  /**
+   * Report a word of a words exam (`session`, open or finished within the
+   * hour; found by bot/report.js): the word answered last, else the current
+   * one. Nothing in the exam changes; the reply shows the word as the exam
+   * showed it, so an unanswered he-en word does not give its English away.
+   */
+  static async reportWord(user, session, reason) {
+    const answered = !!session.last_word_id;
+    const wordId = session.last_word_id || (session.status === 'active' ? session.queue[0] : null);
+    if (!wordId) return { error: 'no_session' };
+    const direction = directionOf(session);
+    const result = await ReportService.reportWord(user.id, {
+      wordId, reason, source: 'bot', direction, given: answered ? session.last_given || null : null
+    });
+    if (result.error) return result;
+    return {
+      kind: 'vocab', reported: true, duplicate: result.duplicate,
+      reportedWord: wordView(result.word, answered ? 'en-he' : direction).prompt,
+      active: session.status === 'active'
+    };
   }
 
   static async status(chatId) {

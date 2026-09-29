@@ -56,9 +56,20 @@ router.post('/exercise/report', [
 ], BotController.reportQuestion);
 
 /**
+ * POST /api/bot/report { chatId, reason? } — /report for whatever is in front
+ * of the student: the word of the words exam or the lesson question (open,
+ * or ended within the hour). Without a reason: { ask, target: word|question,
+ * reasons }; with one: the report is filed.
+ */
+router.post('/report', [
+  body('reason').optional({ nullable: true }).isString().isLength({ max: 30 })
+], BotController.report);
+
+/**
  * Review of reported questions, for the admin's chat only (ADMIN_USERS):
  * GET /api/bot/review/queue — questions under review with their reports;
- * POST /api/bot/review/decide { chatId, exerciseId, decision: keep|change|remove, change? }.
+ * POST /api/bot/review/decide { chatId, key (or exerciseId), decision: keep|change|remove, change? };
+ * a word's key is "word:<id>".
  */
 const { isAdmin } = require('../services/review.service');
 const adminOnly = (req, res, next) => (isAdmin(req.user)
@@ -73,7 +84,9 @@ router.post('/review/act', adminOnly, [
   body('action').isIn(['approve', 'keep', 'remove', 'skip']).withMessage('action must be approve, keep, remove or skip')
 ], BotController.reviewAct);
 router.post('/review/decide', adminOnly, [
-  body('exerciseId').isString().isLength({ min: 1, max: 100 }),
+  body('key').optional().isString().isLength({ min: 1, max: 110 }),
+  body('exerciseId').optional().isString().isLength({ min: 1, max: 100 }),
+  body().custom(b => !!(b.key || b.exerciseId)).withMessage('key or exerciseId is required'),
   body('decision').isIn(['keep', 'change', 'remove']).withMessage('decision must be keep, change or remove'),
   body('change').optional({ nullable: true }).isObject()
 ], BotController.reviewDecide);
