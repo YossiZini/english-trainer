@@ -42,10 +42,9 @@ spec:
               value: europe-west1
             - name: BOT_DAILY_JUDGE_CAP
               value: "100"
-            # Accounts (login names, comma-separated) whose linked Telegram
-            # chat may review reported questions (/review). Not a secret.
-            - name: ADMIN_USERS
-              value: Yossi Zini
+            # Review-agent (Gemini Pro) proposals a student may ask for per day in /review.
+            - name: BOT_DAILY_REVIEW_CAP
+              value: "40"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:

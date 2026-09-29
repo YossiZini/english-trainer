@@ -59,7 +59,7 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/switch` (also the 🔄 button under a words summary) | the same words again, the other way round |
 | `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
-| `/review manual`, `/review auto` | the admin's review of reported questions and words; not in the menu, other chats are refused |
+| `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | review of reported questions and words, open to every linked student (see "Reported questions and review") |
 | `/end` (also `stop`) | ends any open session |
 
 A multiple-choice answer is a number, so a bare command works during a
@@ -90,9 +90,14 @@ ended last within the hour). Word reports (`word_reports`) keep the exam
 direction and the student's answer; the word is left out of new exams,
 quizzes and wrong options until reviewed.
 
-The admin reviews in Telegram. The admin is the account named in
-`ADMIN_USERS` (API setting, exact name, currently "Yossi Zini"); only the
-chat linked to that account gets past `/api/bot/review/*`.
+Reviewing is open to every linked student in Telegram (no admin role), and
+the review commands are in everyone's menu. Two things keep that safe: the
+API validates every change whoever proposed or approved it, and each call to
+the review agent first takes one unit of the student's daily review cap
+(`POST /api/bot/review/reserve`, `BOT_DAILY_REVIEW_CAP`, 40); at the cap the
+agent is not called, manual review keeps its keep / remove / skip buttons
+and auto review stops. Note that any student's decision is live for all
+students at once (approved changes, removals and "keep" alike).
 
 - `/review manual`: one question or word at a time (one queue, oldest
   report first) with its reports and the review agent's proposal (keep /
@@ -108,11 +113,13 @@ The review agent (`bot/app/review_agent.py`) is an ADK `LlmAgent` with a
 structured output on the latest Gemini Pro model (`REVIEW_MODEL`,
 `gemini-3.1-pro-preview`, through the `global` endpoint while in preview:
 `REVIEW_LOCATION`), with one output schema for questions and one for words.
-Students' notes and answers reach it fenced as data. It only
+Students' notes and answers reach it fenced as data, and a reviewer's typed
+correction is followed only when it is right. It only
 proposes: every decision goes through the API, which validates a change
 (a question: non-empty text, 3–4 distinct options, the answer exactly one of
-them; a word: a Hebrew translation, alternatives separated by " / ", and an
-English sentence) and applies it at once through `question_overrides` or
+them; a word: a Hebrew translation, alternatives separated by " / ", an
+English sentence, and up to 5 other English answers accepted in the
+Hebrew→English exam; a new English sentence drops the old Hebrew one) and applies it at once through `question_overrides` or
 `word_overrides`, layers over the bundled content read by the `Exercise` and
 `VocabularyWord` models: keep shows the item again, change serves and
 grades the corrected fields, remove keeps it hidden. The item's reports are
@@ -244,6 +251,7 @@ service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 | Output tokens per model reply | 200 | `MAX_OUTPUT_TOKENS` |
 | Answer checks per student per day (API, durable) | 100 | `BOT_DAILY_JUDGE_CAP`, `infra/cloudrun-service.yaml` (`JUDGE_ANSWERS=false` turns checking off) |
 | Output tokens and time per answer check | 30 tokens, 8 s | `JUDGE_MAX_OUTPUT_TOKENS`, `JUDGE_TIMEOUT_MS` |
+| Review-agent (Gemini Pro) proposals per student per day (API, durable) | 40 | `BOT_DAILY_REVIEW_CAP`, `infra/cloudrun-service.yaml` |
 | Conversation history kept for the model | 12 events | `HISTORY_EVENTS` |
 | Bot instances × concurrency | 2 × 10, 30 s per request | `infra/cloudrun-bot.yaml` |
 | API instances × concurrency | 3 × 80 | `infra/cloudrun-service.yaml` |

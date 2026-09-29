@@ -100,7 +100,9 @@ class VocabularyWord {
       difficulty_level: word.difficulty_level,
       source: word.source,
       sentence_en: word.sentence_en,
-      sentence_he: word.sentence_he
+      sentence_he: word.sentence_he,
+      // Other English answers a review accepted (Hebrew→English exam).
+      english_alternatives: word.english_alternatives || []
     };
   }
 

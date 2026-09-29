@@ -51,6 +51,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "switch", {}
     if not rest and first in config.REPORT_WORDS:
         return "report", {}
+    if first.startswith(config.REVIEW_WORD + "_") and not rest:
+        first, rest = config.REVIEW_WORD, [first.split("_", 1)[1]]
     if first == config.REVIEW_WORD and len(rest) <= 1:
         mode = rest[0] if rest else "manual"
         return ("review", {"mode": mode}) if mode in config.REVIEW_MODES else None
@@ -148,7 +150,7 @@ class Coach:
         if action == "review":
             result = await self.api.review_start(chat_id, args["mode"])
             if not result["ok"]:
-                return Reply(rr.ADMIN_ONLY if result.get("code") == "not_admin" else replies.error_reply(result))
+                return Reply(replies.error_reply(result))
             if args["mode"] == "auto":
                 return await self.review_auto(chat_id, result["data"])
             return await self.review_show(chat_id, result["data"])
@@ -185,8 +187,14 @@ class Coach:
             self._reviewer = ReviewAgent()
         return self._reviewer
 
-    async def _propose(self, item: dict, proposal: dict | None = None, instruction: str | None = None):
-        """(proposal, error text): the agent's proposal, or why there is none."""
+    async def _propose(self, chat_id: str, item: dict, proposal: dict | None = None, instruction: str | None = None):
+        """(proposal, error text): the agent's proposal, or why there is none.
+
+        Every call to the agent first takes one unit of the student's daily
+        review cap from the API; at the cap there is no call."""
+        reserved = await self.api.review_reserve(chat_id)
+        if not reserved["ok"]:
+            return None, rr.REVIEW_CAP if reserved.get("code") == "review_cap" else replies.error_reply(reserved)
         try:
             if instruction:
                 return await self.reviewer.revise(item, proposal, instruction), ""
@@ -199,7 +207,7 @@ class Coach:
         """Ask the agent about the current question, store the proposal, show both with the buttons."""
         if data.get("done") or not data.get("item"):
             return rr.summary_reply(data, intro)
-        proposal, error = await self._propose(data["item"], data.get("proposal"), instruction)
+        proposal, error = await self._propose(chat_id, data["item"], data.get("proposal"), instruction)
         if proposal:
             stored = await self.api.review_propose(chat_id, proposal)
             if stored["ok"]:
@@ -219,7 +227,7 @@ class Coach:
             if after.get("rejected"):
                 return rr.review_reply(after, None, f"⚠️ ההצעה לא תקינה: {after['rejected']}. כתבו תיקון או החליטו בכפתורים.")
             return await self.review_show(chat_id, after, "✔️ נשמר.")
-        # Anything else is the admin's correction: the agent revises its proposal.
+        # Anything else is the reviewer's correction: the agent revises its proposal.
         return await self.review_show(chat_id, data, instruction=text)
 
     async def review_auto(self, chat_id: str, data: dict) -> Reply:
@@ -229,7 +237,11 @@ class Coach:
         while data.get("item") and not data.get("done") and time.monotonic() < deadline:
             item = data["item"]
             title = rr.item_title(item)
-            proposal, error = await self._propose(item)
+            proposal, error = await self._propose(chat_id, item)
+            if error == rr.REVIEW_CAP:
+                # Nothing more today: leave the rest under review.
+                results.append(error)
+                break
             if not proposal:
                 results.append(f"⏭ {title}: {error}")
                 data = (await self.api.review_act(chat_id, "skip"))["data"]

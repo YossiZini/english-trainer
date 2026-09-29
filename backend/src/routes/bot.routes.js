@@ -66,24 +66,22 @@ router.post('/report', [
 ], BotController.report);
 
 /**
- * Review of reported questions, for the admin's chat only (ADMIN_USERS):
+ * Review of reported questions and words, for every linked student:
  * GET /api/bot/review/queue — questions under review with their reports;
  * POST /api/bot/review/decide { chatId, key (or exerciseId), decision: keep|change|remove, change? };
  * a word's key is "word:<id>".
  */
-const { isAdmin } = require('../services/review.service');
-const adminOnly = (req, res, next) => (isAdmin(req.user)
-  ? next()
-  : res.status(403).json({ success: false, code: 'not_admin', message: 'Review is for the admin only' }));
-router.get('/review/queue', adminOnly, BotController.reviewQueue);
-router.post('/review/start', adminOnly, [
+router.get('/review/queue', BotController.reviewQueue);
+// The bot takes one unit of the student's daily review cap before each call to the review agent.
+router.post('/review/reserve', BotController.reviewReserve);
+router.post('/review/start', [
   body('mode').isIn(['manual', 'auto']).withMessage('mode must be manual or auto')
 ], BotController.reviewStart);
-router.post('/review/proposal', adminOnly, [body('proposal').isObject()], BotController.reviewPropose);
-router.post('/review/act', adminOnly, [
+router.post('/review/proposal', [body('proposal').isObject()], BotController.reviewPropose);
+router.post('/review/act', [
   body('action').isIn(['approve', 'keep', 'remove', 'skip']).withMessage('action must be approve, keep, remove or skip')
 ], BotController.reviewAct);
-router.post('/review/decide', adminOnly, [
+router.post('/review/decide', [
   body('key').optional().isString().isLength({ min: 1, max: 110 }),
   body('exerciseId').optional().isString().isLength({ min: 1, max: 100 }),
   body().custom(b => !!(b.key || b.exerciseId)).withMessage('key or exerciseId is required'),

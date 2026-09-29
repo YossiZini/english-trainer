@@ -9,9 +9,10 @@ export const REASONS = [
   { key: 'other', label: 'משהו אחר' }
 ];
 
+// The quiz picks among translations, so "another option is right too" is about
+// a wrong option, which a review of this word cannot change: not offered.
 export const WORD_REASONS = [
   { key: 'wrong_translation', label: 'התרגום שגוי' },
-  { key: 'missing_translation', label: 'יש עוד תרגום נכון בין האפשרויות' },
   { key: 'other', label: 'משהו אחר' }
 ];
 

@@ -34,6 +34,8 @@ module.exports = {
   JUDGE_TIMEOUT_MS: toInt(process.env.JUDGE_TIMEOUT_MS, 8000),
   /** Answer checks a student may use per day. */
   DAILY_JUDGE_CAP: toInt(process.env.BOT_DAILY_JUDGE_CAP, 100),
+  /** Review-agent proposals (Gemini Pro calls) a student may ask for per day in /review. */
+  DAILY_REVIEW_CAP: toInt(process.env.BOT_DAILY_REVIEW_CAP, 40),
   /**
    * Commands are English on purpose: a Hebrew command word ('די', 'מילה') is
    * also a translation, so it would steal a vocabulary answer.

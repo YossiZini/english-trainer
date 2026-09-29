@@ -1,7 +1,6 @@
 process.env.BOT_API_KEY = 'test-bot-key';
 process.env.BOT_CHAT_RATE_PER_MINUTE = '1000';
 process.env.BOT_DAILY_MESSAGE_CAP = '1000';
-process.env.ADMIN_USERS = 'Yossi Zini';
 
 const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db } = require('./helpers');
@@ -42,7 +41,7 @@ describe('Word reports', () => {
 
   beforeAll(async () => {
     await resetDatabase();
-    await linkedAccount('Yossi Zini', adminChat);
+    await linkedAccount('word-reviewer', adminChat);
     student = await linkedAccount('word-student', studentChat);
     studentId = (await db.findOne('users', { name: 'word-student' })).id;
   });
@@ -124,6 +123,10 @@ describe('Word reports', () => {
     expect(invalidWordChange({ hebrew_translation: 'גדול //' })).toMatch(/alternative/);
     expect(invalidWordChange({ hebrew_translation: 'גדול', sentence_en: 'כלב גדול' })).toMatch(/English/);
     expect(invalidWordChange({ hebrew_translation: 'גדול', sentence_en: 'x'.repeat(301) })).toMatch(/long/);
+    expect(invalidWordChange({ hebrew_translation: 'גדול', english_alternatives: ['large', 'huge'] })).toBeNull();
+    expect(invalidWordChange({ hebrew_translation: 'גדול', english_alternatives: ['גדול'] })).toMatch(/English/);
+    expect(invalidWordChange({ hebrew_translation: 'גדול', english_alternatives: ['a', 'b', 'c', 'd', 'e', 'f'] })).toMatch(/at most/);
+    expect(invalidWordChange({ hebrew_translation: 'גדול', english_alternatives: 'large' })).toMatch(/at most/);
   });
 
   test('/review lists words with questions; a change is live, keep restores', async () => {
@@ -160,6 +163,27 @@ describe('Word reports', () => {
     expect(kept.decided).toMatchObject({ key: second.key, decision: 'keep', closed: 1 });
     const back = await VocabularyWord.findByDifficultyRange(1, 10, [], Infinity);
     expect(back.some(w => w.id === second.wordId)).toBe(true);
+  });
+
+  test('an English alternative is accepted in Hebrew→English; a new sentence drops the old Hebrew one', async () => {
+    const BotSession = require('../src/models/BotSession');
+    const word = words().find(w => w.difficulty_level === 2 && /^[a-z]+$/.test(w.english_word));
+    await webReport({ wordId: word.id, reason: 'wrong_translation' });
+    const change = { hebrew_translation: word.hebrew_translation, sentence_en: 'A brand new sentence.', english_alternatives: ['zzqword'] };
+    const res = await bot(adminChat).post('/api/bot/review/decide', { key: `word:${word.id}`, decision: 'change', change });
+    expect(res.body.data).toMatchObject({ decided: true, decision: 'change' });
+    expect(await VocabularyWord.findById(word.id)).toMatchObject({
+      english_alternatives: ['zzqword'], sentence_en: 'A brand new sentence.', sentence_he: null
+    });
+
+    // A Hebrew→English exam on that word accepts the reviewed alternative.
+    const studentUser = await db.findOne('users', { name: 'word-student' });
+    const created = await BotSession.create({ userId: studentUser.id, chatId: studentChat });
+    await BotSession.update(created.id, {
+      level: 2, direction: 'he-en', status: 'active', setup_step: null, word_ids: [word.id], queue: [word.id], round_size: 1
+    });
+    const answer = (await bot(studentChat).post('/api/bot/session/answer', { text: 'zzqword' })).body.data;
+    expect(answer).toMatchObject({ correct: true, judged: false });
   });
 
   test('a removed word stays out', async () => {
