@@ -83,10 +83,11 @@ openssl rand -base64 48 | tr -d '\n' | gcloud secrets versions add jwt-secret --
 ```
 then redeploy (the service reads the `latest` version at revision start).
 
-**Review reported questions and words**: in Telegram, from the admin's linked chat,
-`/review manual` or `/review auto` (see `docs/telegram-bot.md`, "Reported
-questions and review"). The admin account is `ADMIN_USERS` in
-`infra/cloudrun-service.yaml`; the review model is `REVIEW_MODEL` /
+**Review reported questions and words**: in Telegram, from any linked chat,
+`/review_manual` or `/review_auto` (see `docs/telegram-bot.md`, "Reported
+questions and review"). Each student may ask the review agent for
+`BOT_DAILY_REVIEW_CAP` proposals a day (`infra/cloudrun-service.yaml`); the
+review model is `REVIEW_MODEL` /
 `REVIEW_LOCATION` in `infra/cloudrun-bot.yaml` (change it there for a newer
 Gemini Pro; no code change).
 

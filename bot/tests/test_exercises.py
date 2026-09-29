@@ -33,10 +33,6 @@ def no_session():
     respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": False}))
 
 
-def not_admin():
-    respx.get(f"{API}/bot/review/queue").mock(return_value=httpx.Response(403, json={"success": False, "code": "not_admin"}))
-
-
 def mc(number, options):
     return {"number": number, "total": 10, "type": "multiple_choice", "text": 'מהו חלק הדיבור של "book"?',
             "textEn": None, "options": options}
@@ -188,11 +184,8 @@ def test_english_commands():
 
 
 @respx.mock
-async def test_help_works_without_the_api_and_bare_words_answer_an_open_question():
-    # The API is down: /help still answers (without the admin part).
-    respx.get(f"{API}/bot/review/queue").mock(side_effect=httpx.ConnectError("down"))
+async def test_help_needs_no_api_and_bare_words_answer_an_open_question():
     assert (await coach().handle("7", "/help")).text == replies.HELP
-    not_admin()
     respx.get(f"{API}/bot/session/status").mock(return_value=ok(
         {"active": True, "kind": "exercise", "lesson": LESSON, "question": fill(2)}))
     answer = respx.post(f"{API}/bot/session/answer").mock(return_value=ok(
@@ -211,7 +204,6 @@ async def test_bare_command_works_during_a_multiple_choice_question():
     respx.get(f"{API}/bot/session/status").mock(return_value=ok(
         {"active": True, "kind": "exercise", "lesson": LESSON, "question": mc(2, ["a", "b", "c", "d"])}))
     answer = respx.post(f"{API}/bot/session/answer")
-    not_admin()
     assert (await coach().handle("7", "help")).text == replies.HELP
     assert not answer.called
 

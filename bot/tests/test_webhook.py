@@ -53,50 +53,18 @@ MENU = "http://telegram.test/bot123:abc/setMyCommands"
 
 
 @respx.mock
-def test_an_admin_reply_sets_that_chats_menu_after_sending():
-    import json
-    respx.post("http://telegram.test/bot123:abc/sendMessage").mock(return_value=httpx.Response(200, json={"ok": True}))
-    menu = respx.post(MENU).mock(return_value=httpx.Response(200, json={"ok": True, "result": True}))
-
-    class AdminCoach(FakeCoach):
-        async def handle(self, chat_id, text):
-            return Reply("help", menu="admin" if text == "/help" else None)
-
-    client = TestClient(create_app(AdminCoach()))
-    headers = {"X-Telegram-Bot-Api-Secret-Token": "hook-secret"}
-    calls_at_start = menu.call_count  # the startup menu, when the lifespan runs
-    client.post("/telegram/webhook", json=update("hello", 42), headers=headers)
-    assert menu.call_count == calls_at_start
-    client.post("/telegram/webhook", json=update("/help", 42), headers=headers)
-    assert json.loads(menu.calls.last.request.content)["scope"] == {"type": "chat", "chat_id": "42"}
-
-
-@respx.mock
 async def test_set_commands_sends_the_menu_of_commands_the_coach_understands():
     import json
     from app.coach import parse_command
     route = respx.post(MENU).mock(return_value=httpx.Response(200, json={"ok": True, "result": True}))
     assert await telegram.set_commands() is True
     sent = json.loads(route.calls.last.request.content)["commands"]
-    assert [c["command"] for c in sent] == ["help", "words", "switch", "english", "math", "lessons_english", "lessons_math", "report", "end"]
+    assert [c["command"] for c in sent] == ["help", "words", "switch", "english", "math", "lessons_english", "lessons_math",
+                                            "report", "review_manual", "review_auto", "end"]
+    assert "scope" not in json.loads(route.calls.last.request.content)  # one menu for every chat
     assert all(c["description"] for c in sent)
     for c in sent:
         assert parse_command("/" + c["command"]) is not None, c["command"]
-
-
-@respx.mock
-async def test_the_admin_chat_menu_adds_the_review_commands_in_that_chat_only():
-    import json
-    from app.coach import parse_command
-    route = respx.post(MENU).mock(return_value=httpx.Response(200, json={"ok": True, "result": True}))
-    assert await telegram.set_commands(admin_chat="42") is True
-    body = json.loads(route.calls.last.request.content)
-    assert body["scope"] == {"type": "chat", "chat_id": "42"}
-    names = [c["command"] for c in body["commands"]]
-    assert names == ["help", "words", "switch", "english", "math", "lessons_english", "lessons_math", "report",
-                     "review_manual", "review_auto", "end"]
-    for name in names:
-        assert parse_command("/" + name) is not None, name
 
 
 @respx.mock

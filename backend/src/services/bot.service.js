@@ -83,7 +83,10 @@ const exampleOf = (word, direction) => (direction === 'he-en'
 async function checkAnswer(user, word, text, direction) {
   const given = String(text).trim();
   if (direction === 'he-en') {
-    const others = await VocabularyWord.findEnglishByHebrew(word.hebrew_translation, word.id);
+    const others = [
+      ...(await VocabularyWord.findEnglishByHebrew(word.hebrew_translation, word.id)),
+      ...(word.english_alternatives || [])
+    ];
     const match = englishAnswerMatch(text, word.english_word, others);
     // A one-letter slip that spells another stored word is a different word, not a typo.
     const matched = match === 'exact' || (match === 'typo' && !(await VocabularyWord.isEnglishWord(text, englishCore)));

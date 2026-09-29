@@ -1,4 +1,4 @@
-"""The admin's /review in Telegram, with a fake review agent (no model)."""
+"""/review in Telegram (any linked student), with a fake review agent (no model)."""
 import json
 
 import httpx
@@ -34,7 +34,9 @@ class FakeReviewer:
         return self.proposals.pop(0)
 
 
-def coach(reviewer):
+def coach(reviewer, reserve=None):
+    # Each agent call first takes one unit of the daily review cap.
+    respx.post(f"{API}/bot/review/reserve").mock(return_value=reserve or ok({"reserved": True}))
     c = Coach(api=TrainerApi(base_url=API, key="k", client=httpx.AsyncClient()), agent=None, reviewer=reviewer)
     c.runner = NoAgentRunner()
     return c
@@ -64,7 +66,7 @@ CHANGE = {"decision": "change", "reason": "חסר נושא ביחיד.", "change
 def test_parse_review():
     assert parse_command("/review") == ("review", {"mode": "manual"})
     assert parse_command("/review auto") == ("review", {"mode": "auto"})
-    # The admin's menu entries.
+    # The menu entries.
     assert parse_command("/review_manual") == ("review", {"mode": "manual"})
     assert parse_command("/review_auto") == ("review", {"mode": "auto"})
     assert parse_command("/review_later") is None
@@ -102,12 +104,25 @@ async def test_manual_review_proposes_approves_and_revises_on_a_typed_correction
 
 
 @respx.mock
-async def test_agent_failure_leaves_the_manual_buttons_and_non_admins_are_refused():
-    respx.post(f"{API}/bot/review/start").mock(side_effect=[
-        ok(queue("e1")), httpx.Response(403, json={"success": False, "code": "not_admin"})])
+async def test_agent_failure_leaves_the_manual_buttons():
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok(queue("e1")))
     reply = await coach(FakeReviewer(fail=True)).handle("1", "/review manual")
     assert "סוכן הבדיקה לא זמין כרגע" in reply.text and reply.buttons == [rr.KEEP, rr.REMOVE, rr.SKIP]
-    assert (await coach(FakeReviewer()).handle("2", "/review")).text == rr.ADMIN_ONLY
+
+
+@respx.mock
+async def test_at_the_daily_review_cap_the_agent_is_not_called():
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok(queue("e1")))
+    capped = httpx.Response(409, json={"success": False, "code": "review_cap"})
+    reviewer = FakeReviewer([KEEP])
+    reply = await coach(reviewer, reserve=capped).handle("1", "/review_manual")
+    assert reviewer.calls == []
+    assert rr.REVIEW_CAP in reply.text and reply.buttons == [rr.KEEP, rr.REMOVE, rr.SKIP]
+    # Auto stops at the cap and leaves the rest under review.
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok({**queue("e1"), "mode": "auto"}))
+    act = respx.post(f"{API}/bot/review/act")
+    auto = await coach(reviewer, reserve=capped).handle("1", "/review_auto")
+    assert rr.REVIEW_CAP in auto.text and not act.called and reviewer.calls == []
 
 
 @respx.mock
@@ -151,27 +166,7 @@ def test_word_prompt_fences_the_student_answer_as_data():
     from app.review_agent import _prompt, WordProposal
     text = _prompt(WORD_ITEM, instruction="add שמח")
     assert text.startswith("<word>") and '"student_answer": "שמח"' in text
-    assert "<question>" not in text and text.endswith("Admin's correction: add שמח")
+    assert "<question>" not in text and text.endswith("Reviewer's correction: add שמח")
     assert WordProposal.model_validate(WORD_CHANGE).change.hebrew_translation == "שמח / מרוצה"
     assert rr.item_title(WORD_ITEM) == "glad = עצוב"
 
-
-@respx.mock
-async def test_help_in_the_admin_chat_adds_the_review_commands_and_the_admin_menu():
-    respx.get(f"{API}/bot/review/queue").mock(return_value=ok({"total": 0, "items": []}))
-    reply = await coach(FakeReviewer()).handle("1", "/help")
-    assert reply.text == replies.HELP + replies.ADMIN_HELP and reply.menu == "admin"
-    assert "/review_manual" in reply.text and "/review_auto" in reply.text
-
-
-@respx.mock
-async def test_review_sets_the_admin_menu_and_other_chats_are_refused():
-    respx.post(f"{API}/bot/review/start").mock(side_effect=[
-        ok({"kind": "review", "mode": "manual", "item": None, "done": True, "remaining": 0, "counts": {}}),
-        httpx.Response(403, json={"success": False, "code": "not_admin"}),
-    ])
-    c = coach(FakeReviewer())
-    done = await c.handle("1", "/review_manual")
-    assert done.text == rr.NOTHING and done.menu == "admin"
-    refused = await c.handle("2", "/review_manual")
-    assert refused.text == rr.ADMIN_ONLY and refused.menu is None

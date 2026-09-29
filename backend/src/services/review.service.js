@@ -8,8 +8,9 @@ const WordOverride = require('../models/WordOverride');
 const { choiceMatches } = require('../utils/answers');
 
 /**
- * The admin's review of reported questions and words (from the Telegram
- * bot's /review). The queue groups open reports by item; a decision keeps,
+ * The review of reported questions and words, open to every linked student
+ * in the Telegram bot (/review), within a daily cap on the review agent's
+ * proposals. The queue groups open reports by item; a decision keeps,
  * changes or removes the item (QuestionOverride / WordOverride, live at
  * once) and closes its reports. Every change is validated here, whoever
  * proposed it.
@@ -23,19 +24,10 @@ const MAX_EXPLANATION = 1000;
 const MAX_OPTION = 120;
 const MAX_TRANSLATION = 120;
 const MAX_SENTENCE = 300;
+const MAX_ENGLISH_ALTERNATIVES = 5;
+const MAX_ENGLISH = 60;
 const WORD_KEY = 'word:';
 const wordKey = (id) => WORD_KEY + id;
-
-/**
- * Admin account names from ADMIN_USERS (comma-separated), matched exactly:
- * account names are unique only case-sensitively, so "yossi zini" could be
- * registered by someone else.
- */
-function adminNames() {
-  return String(process.env.ADMIN_USERS || '').split(',').map(s => s.trim()).filter(Boolean);
-}
-
-const isAdmin = (user) => !!user && adminNames().includes(String(user.name || ''));
 
 /** Why a proposed change is not a valid question, or null when it is. */
 function invalidChange(change) {
@@ -58,12 +50,13 @@ function invalidChange(change) {
 
 /**
  * Why a proposed word change is not valid, or null. The translation may list
- * alternatives ("גדול / ענק"), each accepted as an answer; the sentence is
- * English and should use the word.
+ * alternatives ("גדול / ענק"), each accepted as an answer in English→Hebrew;
+ * `english_alternatives` are other English answers accepted in
+ * Hebrew→English; the sentence is English and should use the word.
  */
 function invalidWordChange(change) {
   if (!change || typeof change !== 'object') return 'missing change';
-  const { hebrew_translation: hebrew, sentence_en: sentence } = change;
+  const { hebrew_translation: hebrew, sentence_en: sentence, english_alternatives: english } = change;
   if (typeof hebrew !== 'string' || !hebrew.trim() || hebrew.length > MAX_TRANSLATION) return 'hebrew translation is empty or too long';
   if (!/[\u05D0-\u05EA]/.test(hebrew) || /[A-Za-z]/.test(hebrew)) return 'the translation must be in Hebrew';
   if (hebrew.split(/[/,;|]/).some(part => !part.trim())) return 'every alternative must be a non-empty text';
@@ -71,13 +64,30 @@ function invalidWordChange(change) {
     if (typeof sentence !== 'string' || sentence.length > MAX_SENTENCE) return 'example sentence is too long';
     if (/[\u0590-\u05FF]/.test(sentence)) return 'the example sentence must be in English';
   }
+  if (english !== undefined && english !== null) {
+    if (!Array.isArray(english) || english.length > MAX_ENGLISH_ALTERNATIVES) return `at most ${MAX_ENGLISH_ALTERNATIVES} English alternatives`;
+    if (english.some(e => typeof e !== 'string' || !e.trim() || e.length > MAX_ENGLISH || !/^[A-Za-z][A-Za-z '()\-.,;]*$/.test(e.trim()))) {
+      return 'every English alternative must be a short English word or phrase';
+    }
+  }
   return null;
 }
 
-const pickWord = (change) => ({
-  hebrew_translation: change.hebrew_translation.trim(),
-  sentence_en: typeof change.sentence_en === 'string' && change.sentence_en.trim() ? change.sentence_en.trim() : null
-});
+/**
+ * The fields a word change may set. A new English sentence drops the Hebrew
+ * one, which translated the old sentence.
+ */
+function pickWord(change, word) {
+  const sentence = typeof change.sentence_en === 'string' && change.sentence_en.trim() ? change.sentence_en.trim() : null;
+  const fields = {
+    hebrew_translation: change.hebrew_translation.trim(),
+    sentence_en: sentence,
+    english_alternatives: Array.isArray(change.english_alternatives)
+      ? [...new Set(change.english_alternatives.map(e => e.trim()))] : []
+  };
+  if (sentence !== (word.sentence_en || null)) fields.sentence_he = null;
+  return fields;
+}
 
 /** The fields a change may set, nothing else. */
 const pick = (change) => ({
@@ -111,7 +121,8 @@ class ReviewService {
         kind: 'word', key: wordKey(wordId), wordId,
         word: {
           english: word.english_word, hebrew: word.hebrew_translation,
-          sentence: word.sentence_en || null, difficulty: word.difficulty_level || null
+          sentence: word.sentence_en || null, difficulty: word.difficulty_level || null,
+          englishAlternatives: word.english_alternatives || []
         },
         reports: reports.map(r => ({
           reason: r.reason, note: r.note || null, source: r.source,
@@ -180,7 +191,7 @@ class ReviewService {
     if (decision === 'change') {
       const reason = invalidWordChange(change);
       if (reason) return { error: 'invalid_change', reason };
-      await WordOverride.decide(wordId, 'change', pickWord(change));
+      await WordOverride.decide(wordId, 'change', pickWord(change, word));
     } else {
       await WordOverride.decide(wordId, decision);
     }
@@ -190,7 +201,6 @@ class ReviewService {
 }
 
 module.exports = ReviewService;
-module.exports.isAdmin = isAdmin;
 module.exports.invalidChange = invalidChange;
 module.exports.invalidWordChange = invalidWordChange;
 module.exports.wordKey = wordKey;

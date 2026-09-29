@@ -42,6 +42,7 @@ describe('ReportQuestion', () => {
     render(<ReportQuestion wordId="w1" />);
     fireEvent.click(screen.getByText('🚩 דיווח על טעות במילה'));
     expect(screen.queryByText('השאלה לא ברורה')).toBeNull();
+    expect(screen.queryByText('יש עוד תרגום נכון בין האפשרויות')).toBeNull();
     fireEvent.click(screen.getByText('התרגום שגוי'));
     expect(await screen.findByText('🚩 תודה! נבדוק את המילה.')).toBeInTheDocument();
     expect(reportService.reportWord).toHaveBeenCalledWith('w1', 'wrong_translation', undefined);

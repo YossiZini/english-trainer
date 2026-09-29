@@ -11,8 +11,6 @@ from dataclasses import dataclass, field
 class Reply:
     text: str
     buttons: list[str] = field(default_factory=list)
-    # "admin": after sending, give this chat the admin's command menu.
-    menu: str | None = None
 
     def __str__(self) -> str:
         return self.text
@@ -52,18 +50,14 @@ HELP = """🤖 איך זה עובד
 • /lessons_english או /lessons_math: רשימת השיעורים (✅ עברתם, ▶️ הבא בתור). שולחים את מספר השיעור; more ו-back מדפדפים.
 • english 12 מתחיל ישר את שיעור 12. math 3 hard מתחיל את שיעור 3 ברמה קשה (easy / medium / hard).
 
-🚩 /report מדווח על מילה או שאלה שנראית לכם שגויה (במבחן מילים או בתרגיל שיעור). היא יורדת מהתרגול עד שנבדוק אותה.
+🚩 /report מדווח על מילה או שאלה שנראית לכם שגויה (במבחן מילים או בתרגיל שיעור). היא יורדת מהתרגול עד שתיבדק.
+🧐 /review_manual בודק את מה שדווח, אחד אחרי השני: סוכן הבדיקה מציע תיקון, ואתם מאשרים, משאירים, מסירים או כותבים תיקון משלכם. /review_auto מחיל את ההצעות התקינות לבד. כל שינוי נבדק לפני שהוא נכנס לתרגול של כולם.
 ⏹ /end עוצר כל תרגול. תרגיל שלא הסתיים לא נשמר.
 ❓ /help מציג את ההסבר הזה.
 
 עוד לא מחוברים? באתר, בכפתור "טלגרם" למעלה, קבלו קוד בן 6 ספרות ושלחו אותו לכאן."""
 WHICH_LESSONS = "רשימת השיעורים של איזה מקצוע?"
 LESSONS_BUTTONS = ("lessons english", "lessons math")
-ADMIN_HELP = """
-
-🛠 למנהל (רק בצ'אט הזה):
-• /review_manual: בדיקת שאלות ומילים שדווחו, אחת אחת, עם הצעה של סוכן הבדיקה.
-• /review_auto: הצעות תקינות מוחלות אוטומטית, עם סיכום."""
 NO_EXAMPLE = "אין משפט לדוגמה למילה הזו."
 NO_WORDS_TO_SWITCH = "אין עדיין מבחן מילים לחזור עליו. כתבו /words כדי להתחיל."
 

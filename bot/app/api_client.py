@@ -65,9 +65,9 @@ class TrainerApi:
         fields = {"reason": reason} if reason else {}
         return await self._call("POST", "/bot/report", chat_id, **fields)
 
-    async def review_queue(self, chat_id: str) -> dict:
-        """The review queue; refused (not_admin) for any chat but the admin's."""
-        return await self._call("GET", "/bot/review/queue", chat_id)
+    async def review_reserve(self, chat_id: str) -> dict:
+        """One unit of the student's daily review cap, taken before each review-agent call."""
+        return await self._call("POST", "/bot/review/reserve", chat_id)
 
     async def review_start(self, chat_id: str, mode: str) -> dict:
         return await self._call("POST", "/bot/review/start", chat_id, mode=mode)

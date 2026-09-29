@@ -6,12 +6,14 @@ const TelegramLink = require('../models/TelegramLink');
 const ReviewService = require('../services/review.service');
 const ReviewSession = require('../services/bot/reviewSession');
 const BotReport = require('../services/bot/report');
+const BotUsage = require('../models/BotUsage');
+const { DAILY_REVIEW_CAP } = require('../config/bot');
 
 const ERROR_STATUS = {
   no_session: 404, not_enough_words: 409, lesson_not_found: 404, bad_subject: 400, all_done: 409, no_exercises: 409,
   // 409, not 429: the bot reads 429 as its own daily message cap.
   exercise_not_found: 404, word_not_found: 404, bad_reason: 400, report_cap: 409, bad_decision: 400,
-  bad_proposal: 400, bad_action: 400, no_proposal: 409
+  bad_proposal: 400, bad_action: 400, no_proposal: 409, review_cap: 409
 };
 
 function send(res, result) {
@@ -75,6 +77,11 @@ class BotController {
   static async report(req, res) {
     if (invalid(req, res)) return;
     send(res, await BotReport.report(req.user, req.chatId, req.body.reason || null));
+  }
+
+  static async reviewReserve(req, res) {
+    const ok = await BotUsage.reserveReview(req.user.id, DAILY_REVIEW_CAP);
+    send(res, ok ? { reserved: true } : { error: 'review_cap' });
   }
 
   static async reviewStart(req, res) {

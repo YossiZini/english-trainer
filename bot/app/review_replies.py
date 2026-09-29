@@ -1,7 +1,7 @@
-"""Hebrew replies for the admin's review of reported questions and words (/review).
+"""Hebrew replies for the review of reported questions and words (/review, any linked student).
 
 The question or word, its reports and the review agent's proposal are shown as data
-from the API and the agent; the admin answers with the buttons below, or
+from the API and the agent; the reviewer answers with the buttons below, or
 types a correction for the agent."""
 from .replies import Reply
 
@@ -12,7 +12,7 @@ SKIP = "⏭ לדלג"
 CONTINUE = "▶️ להמשיך"
 ACTIONS = {APPROVE: "approve", KEEP: "keep", REMOVE: "remove", SKIP: "skip"}
 
-ADMIN_ONLY = "הפקודה /review מיועדת למנהל בלבד."
+REVIEW_CAP = "הגעתם למכסת הבדיקות להיום. מה שנשאר ממתין לבדיקה מחר."
 NOTHING = "אין שאלות או מילים שמחכות לבדיקה. 🎉"
 AGENT_DOWN = ("סוכן הבדיקה לא זמין כרגע ({model}). אפשר להחליט בעצמכם בכפתורים, "
               "או לנסות שוב מאוחר יותר.")
@@ -48,6 +48,8 @@ def item_title(item: dict) -> str:
 def word_text(data: dict) -> str:
     word = data["item"]["word"]
     lines = [f"🔤 מילה בבדיקה (נותרו {data['remaining']})", f"{word['english']} = {word['hebrew']}"]
+    if word.get("englishAlternatives"):
+        lines.append("גם באנגלית: " + ", ".join(word["englishAlternatives"]))
     if word.get("sentence"):
         lines.append(f"💬 {word['sentence']}")
     return "\n".join(lines + _report_lines(data["item"]))
@@ -73,6 +75,8 @@ def proposal_text(proposal: dict) -> str:
     change = proposal.get("change")
     if proposal["decision"] == "change" and change and "hebrew_translation" in change:
         lines += ["המילה המתוקנת:", change["hebrew_translation"]]
+        if change.get("english_alternatives"):
+            lines.append("גם באנגלית: " + ", ".join(change["english_alternatives"]))
         if change.get("sentence_en"):
             lines.append(f"💬 {change['sentence_en']}")
     elif proposal["decision"] == "change" and change:

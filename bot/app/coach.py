@@ -134,10 +134,6 @@ class Coach:
 
     async def run_command(self, chat_id: str, action: str, args: dict) -> Reply:
         if action == "help":
-            # The admin's chat also gets the review commands, in the help and the menu.
-            admin = await self.api.review_queue(chat_id)
-            if admin["ok"]:
-                return Reply(replies.HELP + replies.ADMIN_HELP, menu="admin")
             return Reply(replies.HELP)
         if action == "words":
             return replies.start_reply(await self.api.start(chat_id))
@@ -154,13 +150,10 @@ class Coach:
         if action == "review":
             result = await self.api.review_start(chat_id, args["mode"])
             if not result["ok"]:
-                return Reply(rr.ADMIN_ONLY if result.get("code") == "not_admin" else replies.error_reply(result))
+                return Reply(replies.error_reply(result))
             if args["mode"] == "auto":
-                reply = await self.review_auto(chat_id, result["data"])
-            else:
-                reply = await self.review_show(chat_id, result["data"])
-            reply.menu = "admin"
-            return reply
+                return await self.review_auto(chat_id, result["data"])
+            return await self.review_show(chat_id, result["data"])
         if action == "lessons" and not args:
             return Reply(replies.WHICH_LESSONS, list(replies.LESSONS_BUTTONS))
         if action == "lessons":
@@ -194,8 +187,14 @@ class Coach:
             self._reviewer = ReviewAgent()
         return self._reviewer
 
-    async def _propose(self, item: dict, proposal: dict | None = None, instruction: str | None = None):
-        """(proposal, error text): the agent's proposal, or why there is none."""
+    async def _propose(self, chat_id: str, item: dict, proposal: dict | None = None, instruction: str | None = None):
+        """(proposal, error text): the agent's proposal, or why there is none.
+
+        Every call to the agent first takes one unit of the student's daily
+        review cap from the API; at the cap there is no call."""
+        reserved = await self.api.review_reserve(chat_id)
+        if not reserved["ok"]:
+            return None, rr.REVIEW_CAP if reserved.get("code") == "review_cap" else replies.error_reply(reserved)
         try:
             if instruction:
                 return await self.reviewer.revise(item, proposal, instruction), ""
@@ -208,7 +207,7 @@ class Coach:
         """Ask the agent about the current question, store the proposal, show both with the buttons."""
         if data.get("done") or not data.get("item"):
             return rr.summary_reply(data, intro)
-        proposal, error = await self._propose(data["item"], data.get("proposal"), instruction)
+        proposal, error = await self._propose(chat_id, data["item"], data.get("proposal"), instruction)
         if proposal:
             stored = await self.api.review_propose(chat_id, proposal)
             if stored["ok"]:
@@ -228,7 +227,7 @@ class Coach:
             if after.get("rejected"):
                 return rr.review_reply(after, None, f"⚠️ ההצעה לא תקינה: {after['rejected']}. כתבו תיקון או החליטו בכפתורים.")
             return await self.review_show(chat_id, after, "✔️ נשמר.")
-        # Anything else is the admin's correction: the agent revises its proposal.
+        # Anything else is the reviewer's correction: the agent revises its proposal.
         return await self.review_show(chat_id, data, instruction=text)
 
     async def review_auto(self, chat_id: str, data: dict) -> Reply:
@@ -238,7 +237,11 @@ class Coach:
         while data.get("item") and not data.get("done") and time.monotonic() < deadline:
             item = data["item"]
             title = rr.item_title(item)
-            proposal, error = await self._propose(item)
+            proposal, error = await self._propose(chat_id, item)
+            if error == rr.REVIEW_CAP:
+                # Nothing more today: leave the rest under review.
+                results.append(error)
+                break
             if not proposal:
                 results.append(f"⏭ {title}: {error}")
                 data = (await self.api.review_act(chat_id, "skip"))["data"]

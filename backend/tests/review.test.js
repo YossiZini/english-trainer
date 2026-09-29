@@ -1,7 +1,7 @@
 process.env.BOT_API_KEY = 'test-bot-key';
 process.env.BOT_CHAT_RATE_PER_MINUTE = '1000';
 process.env.BOT_DAILY_MESSAGE_CAP = '1000';
-process.env.ADMIN_USERS = 'Some One, Yossi Zini';
+process.env.BOT_DAILY_REVIEW_CAP = '3';
 
 const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db } = require('./helpers');
@@ -30,18 +30,29 @@ describe('Review of reported questions', () => {
 
   beforeAll(async () => {
     await resetDatabase();
-    await linkedAccount('Yossi Zini', adminChat);
-    // Same name in other letters is another account, never the admin.
-    student = await linkedAccount('yossi zini', studentChat);
+    // Any linked student may review; "adminChat" is just the reviewing student.
+    await linkedAccount('reviewer', adminChat);
+    student = await linkedAccount('reporter', studentChat);
   });
   afterAll(shutdownDatabase);
 
-  test('only the admin chat may review', async () => {
-    const res = await bot(studentChat).get('/api/bot/review/queue');
-    expect(res.status).toBe(403);
-    expect(res.body.code).toBe('not_admin');
-    expect((await bot(studentChat).post('/api/bot/review/decide', { exerciseId: pool()[0].id, decision: 'keep' })).status).toBe(403);
+  test('any linked chat may review; an unlinked one may not', async () => {
+    expect((await bot(studentChat).get('/api/bot/review/queue')).body.data).toEqual({ total: 0, items: [] });
     expect((await bot(adminChat).get('/api/bot/review/queue')).body.data).toEqual({ total: 0, items: [] });
+    const unlinked = await bot('9999').get('/api/bot/review/queue');
+    expect(unlinked.status).toBe(403);
+    expect(unlinked.body.code).toBe('not_linked');
+  });
+
+  test('the review agent is capped per student per day', async () => {
+    for (let i = 0; i < 3; i++) {
+      expect((await bot(studentChat).post('/api/bot/review/reserve')).body.data).toEqual({ reserved: true });
+    }
+    const capped = await bot(studentChat).post('/api/bot/review/reserve');
+    expect(capped.status).toBe(409);
+    expect(capped.body.code).toBe('review_cap');
+    // Another student's cap is separate.
+    expect((await bot(adminChat).post('/api/bot/review/reserve')).status).toBe(200);
   });
 
   test('the queue groups open reports by question, oldest first', async () => {
@@ -128,6 +139,6 @@ describe('Review of reported questions', () => {
     expect((await admin.get('/api/bot/session/status')).body.data.active).toBe(false);
     // The skipped question is still under review for next time.
     expect((await admin.get('/api/bot/review/queue')).body.data.items.map(i => i.exerciseId)).toEqual([d.id]);
-    expect((await bot(studentChat).post('/api/bot/review/start', { mode: 'auto' })).status).toBe(403);
+    expect((await bot(studentChat).post('/api/bot/review/start', { mode: 'auto' })).body.data).toMatchObject({ kind: 'review', mode: 'auto' });
   });
 });

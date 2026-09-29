@@ -17,13 +17,10 @@ COMMANDS = [
     ("math", "תרגילי השיעור הבא בחשבון"),
     ("lessons_english", "רשימת שיעורי האנגלית"),
     ("lessons_math", "רשימת שיעורי החשבון"),
-    ("report", "דיווח על שאלה שגויה"),
-    ("end", "עצירת התרגול"),
-]
-# Added to the menu of the admin's chat only (a chat-scoped menu).
-ADMIN_COMMANDS = [
-    ("review_manual", "בדיקת דיווחים: שאלה אחר שאלה"),
+    ("report", "דיווח על מילה או שאלה שגויה"),
+    ("review_manual", "בדיקת דיווחים: אחד אחרי השני"),
     ("review_auto", "בדיקת דיווחים אוטומטית"),
+    ("end", "עצירת התרגול"),
 ]
 COMMANDS_TIMEOUT_SECONDS = 5
 
@@ -61,16 +58,12 @@ async def send_message(chat_id: str, text: str, buttons: list[str] | None = None
             await client.aclose()
 
 
-async def set_commands(client: httpx.AsyncClient | None = None, admin_chat: str | None = None) -> bool:
-    """Set the command menu: everyone's, or with `admin_chat` that chat's menu with
-    the admin commands too. Best effort: False (and a log line) on any failure."""
+async def set_commands(client: httpx.AsyncClient | None = None) -> bool:
+    """Set the command menu. Best effort: False (and a log line) on any failure."""
     if not config.TELEGRAM_BOT_TOKEN:
         return False
     url = f"{config.TELEGRAM_API}/bot{config.TELEGRAM_BOT_TOKEN}/setMyCommands"
-    commands = COMMANDS[:-1] + ADMIN_COMMANDS + COMMANDS[-1:] if admin_chat else COMMANDS
-    body = {"commands": [{"command": c, "description": d} for c, d in commands]}
-    if admin_chat:
-        body["scope"] = {"type": "chat", "chat_id": admin_chat}
+    body = {"commands": [{"command": c, "description": d} for c, d in COMMANDS]}
     own = client is None
     client = client or httpx.AsyncClient(timeout=COMMANDS_TIMEOUT_SECONDS)
     try:
