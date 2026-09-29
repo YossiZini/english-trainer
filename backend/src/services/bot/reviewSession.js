@@ -2,9 +2,9 @@ const BotSession = require('../../models/BotSession');
 const ReviewService = require('../review.service');
 
 /**
- * The admin's review of reported questions in the chat bot (/review manual
+ * The admin's review of reported questions and words in the chat bot (/review manual
  * or /review auto), as a bot session of kind 'review' so the bot keeps no
- * state: the session holds the question being reviewed, the review agent's
+ * state: the session holds the item being reviewed (its queue key), the review agent's
  * pending proposal (written by the bot) and the questions skipped this time.
  * The agent runs in the bot; every decision still goes through
  * ReviewService.decide, which validates it.
@@ -16,7 +16,7 @@ const PROPOSAL_DECISIONS = ['keep', 'change', 'remove'];
 async function nextItem(session) {
   const { items } = await ReviewService.queue();
   const skipped = new Set(session.skipped || []);
-  const left = items.filter(i => !skipped.has(i.exerciseId));
+  const left = items.filter(i => !skipped.has(i.key));
   return { item: left[0] || null, remaining: left.length };
 }
 
@@ -30,7 +30,7 @@ function view(session, item, remaining, extra = {}) {
 
 async function moveOn(session, extra) {
   const { item, remaining } = await nextItem(session);
-  const updated = await BotSession.update(session.id, { current: item ? item.exerciseId : null, proposal: null });
+  const updated = await BotSession.update(session.id, { current: item ? item.key : null, proposal: null });
   if (!item) await BotSession.end(session.id, 'completed');
   return view(updated, item, remaining, extra);
 }
@@ -85,7 +85,7 @@ class ReviewSession {
     }
     bump(decision);
     const updated = await BotSession.update(session.id, { counts });
-    return moveOn(updated, { decided: { exerciseId: session.current, decision, closed: result.closed } });
+    return moveOn(updated, { decided: { key: session.current, exerciseId: session.current, decision, closed: result.closed } });
   }
 
   // Generic session routes (sessionKinds): status and end work for a review too.

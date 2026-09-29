@@ -229,7 +229,8 @@ async def test_report_shows_reason_buttons_files_the_report_and_repeats_the_ques
     question = mc(2, ["Noun", "Verb", "Adjective", "Adverb"])
     respx.get(f"{API}/bot/session/status").mock(return_value=ok(
         {"active": True, "kind": "exercise", "lesson": LESSON, "question": question}))
-    route = respx.post(f"{API}/bot/exercise/report").mock(side_effect=[
+    route = respx.post(f"{API}/bot/report").mock(side_effect=[
+        ok({"ask": True, "target": "question", "reasons": ["wrong_answer", "two_answers", "unclear", "other"]}),
         ok({"kind": "exercise", "reported": True, "duplicate": False, "reportedNumber": 1, "active": True}),
         ok({"kind": "exercise", "reported": True, "duplicate": True, "reportedNumber": 1, "active": True}),
         httpx.Response(409, json={"success": False, "code": "report_cap"}),
@@ -241,7 +242,8 @@ async def test_report_shows_reason_buttons_files_the_report_and_repeats_the_ques
     reply = await c.handle("7", "🚩 יש יותר מתשובה נכונה אחת")
     assert reply.text.startswith("🚩 תודה! דיווחנו על שאלה 1 ונבדוק אותה.\n\nהתרגיל ממשיך:")
     assert "שאלה 2/10" in reply.text and reply.buttons == ["1", "2", "3", "4"]
-    assert json.loads(route.calls[0].request.content) == {"chatId": "7", "reason": "two_answers"}
+    assert json.loads(route.calls[0].request.content) == {"chatId": "7"}
+    assert json.loads(route.calls[1].request.content) == {"chatId": "7", "reason": "two_answers"}
     assert (await c.handle("7", "🚩 השאלה לא ברורה")).text.startswith("🚩 כבר דיווחתם על שאלה 1.")
     assert (await c.handle("7", "🚩 משהו אחר")).text == er.REPORT_CAP
     assert not answer.called  # a reason is never an answer
@@ -250,6 +252,27 @@ async def test_report_shows_reason_buttons_files_the_report_and_repeats_the_ques
 @respx.mock
 async def test_report_without_a_lesson_says_when_it_works():
     no_session()
-    respx.post(f"{API}/bot/exercise/report").mock(return_value=httpx.Response(404, json={"success": False, "code": "no_session"}))
+    respx.post(f"{API}/bot/report").mock(return_value=httpx.Response(404, json={"success": False, "code": "no_session"}))
     assert (await coach().handle("7", "🚩 השאלה לא ברורה")).text == er.REPORT_NO_LESSON
+    assert (await coach().handle("7", "/report")).text == er.REPORT_NO_LESSON
     assert parse_command("/report") == ("report", {})
+
+
+@respx.mock
+async def test_report_in_a_words_exam_offers_word_reasons_and_shows_the_word_again():
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok(
+        {"active": True, "kind": "vocab", "word": {"id": "w", "direction": "en-he", "prompt": "house", "english": "house"},
+         "progress": {"round": 1, "index": 3, "total": 20, "failedInRound": 0}}))
+    route = respx.post(f"{API}/bot/report").mock(side_effect=[
+        ok({"ask": True, "target": "word", "reasons": ["wrong_translation", "missing_translation", "bad_sentence", "other"]}),
+        ok({"kind": "vocab", "reported": True, "duplicate": False, "reportedWord": "dog", "active": True}),
+    ])
+    answer = respx.post(f"{API}/bot/session/answer")
+    c = coach()
+    ask = await c.handle("7", "/report")
+    assert ask.text == er.WORD_REPORT_ASK and ask.buttons == list(er.WORD_REPORT_REASONS)
+    reply = await c.handle("7", "🚩 גם התשובה שלי נכונה")
+    assert json.loads(route.calls[1].request.content) == {"chatId": "7", "reason": "missing_translation"}
+    assert reply.text.startswith("🚩 תודה! דיווחנו על המילה dog ונבדוק אותה.\n\nהתרגול ממשיך. המילה הנוכחית:")
+    assert "(3/20) house" in reply.text
+    assert not answer.called

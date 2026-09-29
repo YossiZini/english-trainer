@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReportQuestion from '../exercise/ReportQuestion';
 import './VocabularyQuestion.css';
 
 const VocabularyQuestion = ({
@@ -20,6 +21,8 @@ const VocabularyQuestion = ({
     if (disabled || feedback) return;
 
     const handleKeyDown = (e) => {
+      // Keys typed in the report panel are not answers.
+      if (e.target.closest && e.target.closest('.report-question')) return;
       const optionsCount = question.options.length;
 
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
@@ -69,6 +72,7 @@ const VocabularyQuestion = ({
       <div className="question-card">
         <div className="question-header">
           <span className="question-label">מה המשמעות של המילה:</span>
+          <ReportQuestion key={question.word.id} wordId={question.word.id} />
         </div>
 
         <div className="english-word">

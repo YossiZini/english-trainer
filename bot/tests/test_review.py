@@ -24,13 +24,13 @@ class FakeReviewer:
         self.calls = []
 
     async def propose(self, item):
-        self.calls.append(("propose", item["exerciseId"], None))
+        self.calls.append(("propose", item.get("key", item.get("exerciseId")), None))
         if self.fail:
             raise TimeoutError()
         return self.proposals.pop(0)
 
     async def revise(self, item, proposal, instruction):
-        self.calls.append(("revise", item["exerciseId"], instruction))
+        self.calls.append(("revise", item.get("key", item.get("exerciseId")), instruction))
         return self.proposals.pop(0)
 
 
@@ -120,3 +120,33 @@ async def test_auto_applies_valid_proposals_and_skips_rejected_ones():
     assert "✏️ She _______ to school.: לתקן." in reply.text
     assert "ההצעה לא תקינה (there must be 3 or 4 options)" in reply.text
     assert "סיימנו: 1 תוקנו, 1 דולגו." in reply.text and reply.buttons == []
+
+
+WORD_ITEM = {"kind": "word", "key": "word:w1", "wordId": "w1",
+             "word": {"english": "glad", "hebrew": "עצוב", "sentence": "I am glad to see you.", "difficulty": 2},
+             "reports": [{"reason": "wrong_translation", "note": None, "source": "bot", "direction": "en-he", "given": "שמח"}]}
+WORD_CHANGE = {"decision": "change", "reason": "glad פירושו שמח.",
+               "change": {"hebrew_translation": "שמח / מרוצה", "sentence_en": "I am glad to see you."}}
+
+
+@respx.mock
+async def test_manual_review_of_a_word_shows_the_word_its_reports_and_the_new_translation():
+    data = {"kind": "review", "mode": "manual", "item": WORD_ITEM, "proposal": None, "remaining": 1, "done": False, "counts": {}}
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok(data))
+    respx.post(f"{API}/bot/review/proposal").mock(return_value=ok({**data, "proposal": WORD_CHANGE}))
+    reviewer = FakeReviewer([WORD_CHANGE])
+    reply = await coach(reviewer).handle("1", "/review")
+    assert reviewer.calls == [("propose", "word:w1", None)]
+    assert "🔤 מילה בבדיקה (נותרו 1)" in reply.text and "glad = עצוב" in reply.text
+    assert "• התרגום שגוי (ענה: שמח, מאנגלית לעברית)" in reply.text
+    assert "המילה המתוקנת:\nשמח / מרוצה" in reply.text
+    assert reply.buttons == [rr.APPROVE, rr.KEEP, rr.REMOVE, rr.SKIP]
+
+
+def test_word_prompt_fences_the_student_answer_as_data():
+    from app.review_agent import _prompt, WordProposal
+    text = _prompt(WORD_ITEM, instruction="add שמח")
+    assert text.startswith("<word>") and '"student_answer": "שמח"' in text
+    assert "<question>" not in text and text.endswith("Admin's correction: add שמח")
+    assert WordProposal.model_validate(WORD_CHANGE).change.hebrew_translation == "שמח / מרוצה"
+    assert rr.item_title(WORD_ITEM) == "glad = עצוב"

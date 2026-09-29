@@ -16,7 +16,7 @@ const DYNAMIC_COLLECTIONS = [
   'unseen_sessions', 'unseen_answers', 'unseen_user_progress',
   'daily_challenges', 'user_daily_challenges', 'vocabulary_kanban_tasks',
   'bot_sessions', 'telegram_links', 'bot_usage', 'question_reports',
-  'question_overrides'
+  'question_overrides', 'word_reports', 'word_overrides'
 ];
 
 let initialized = false;

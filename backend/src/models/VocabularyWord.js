@@ -1,5 +1,22 @@
 const { db, withTransaction } = require('../config/database');
 const { shuffleInPlace: shuffleArray } = require('../utils/shuffle');
+const WordOverride = require('./WordOverride');
+
+/**
+ * The bundled words with the admin's review decisions (WordOverride)
+ * applied: a changed word serves its corrected translation and sentence.
+ * 'visible' drops reported words under review and removed ones (what a new
+ * quiz may pick); 'kept' drops only removed ones (for accepting answers).
+ */
+async function served(which = 'visible') {
+  const all = db.getCollection('vocabulary_words', true);
+  const overrides = await WordOverride.all();
+  if (!overrides.size) return all;
+  const keep = which === 'visible'
+    ? (w) => WordOverride.visible(overrides.get(w.id))
+    : (w) => !(overrides.get(w.id) || {}).removed;
+  return all.filter(keep).map(w => WordOverride.apply(w, overrides.get(w.id)));
+}
 
 class VocabularyWord {
   /**
@@ -20,7 +37,7 @@ class VocabularyWord {
    * Used for quiz question selection
    */
   static async findByDifficultyRange(minLevel, maxLevel, excludeWordIds = [], limit = 100, source = null) {
-    let allWords = db.getCollection('vocabulary_words', true);
+    let allWords = await served('visible');
 
     // Filter by difficulty range
     let filtered = allWords.filter(w =>
@@ -56,7 +73,7 @@ class VocabularyWord {
 
   /** English entries of the other words stored with this exact Hebrew translation. */
   static async findEnglishByHebrew(hebrew, excludeId = null) {
-    return db.getCollection('vocabulary_words', true)
+    return (await served('kept'))
       .filter(w => w.hebrew_translation === hebrew && w.id !== excludeId)
       .map(w => w.english_word);
   }
@@ -71,8 +88,10 @@ class VocabularyWord {
    * Find a single word by ID
    */
   static async findById(id) {
-    const word = await db.findById('vocabulary_words', id);
-    if (!word) return null;
+    const stored = await db.findById('vocabulary_words', id);
+    if (!stored) return null;
+    // A word under review is still found: an open exam grades it.
+    const word = WordOverride.apply(stored, await WordOverride.get(id));
 
     return {
       id: word.id,
@@ -94,10 +113,10 @@ class VocabularyWord {
     const maxDifficulty = Math.min(10, correctDifficulty + 2);
 
     // Get the correct word's translation to exclude it
-    const correctWord = await db.findById('vocabulary_words', correctWordId);
+    const correctWord = await this.findById(correctWordId);
     const correctTranslation = correctWord?.hebrew_translation;
 
-    let allWords = db.getCollection('vocabulary_words', true);
+    let allWords = await served('visible');
 
     // Filter by criteria
     let filtered = allWords.filter(w =>
@@ -131,7 +150,7 @@ class VocabularyWord {
     }
 
     const wordIdSet = new Set(wordIds);
-    const allWords = db.getCollection('vocabulary_words', true);
+    const allWords = await served('kept');
 
     const result = allWords
       .filter(w => wordIdSet.has(w.id))

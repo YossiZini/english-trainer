@@ -2,10 +2,10 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import ReportQuestion from './ReportQuestion';
 import reportService from '../../services/reportService';
 
-jest.mock('../../services/reportService', () => ({ reportQuestion: jest.fn() }));
+jest.mock('../../services/reportService', () => ({ reportQuestion: jest.fn(), reportWord: jest.fn() }));
 
 describe('ReportQuestion', () => {
-  beforeEach(() => reportService.reportQuestion.mockReset());
+  beforeEach(() => { reportService.reportQuestion.mockReset(); reportService.reportWord.mockReset(); });
 
   test('one tap on a reason sends the report and thanks the student', async () => {
     reportService.reportQuestion.mockResolvedValue({ reportId: 'r1', duplicate: false });
@@ -35,5 +35,16 @@ describe('ReportQuestion', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('הגעת למכסת הדיווחים להיום.');
     fireEvent.click(screen.getByText('ביטול'));
     expect(screen.getByText('🚩 דיווח על טעות בשאלה')).toBeInTheDocument();
+  });
+
+  test('a word gets word reasons and is sent as a word report', async () => {
+    reportService.reportWord.mockResolvedValue({ reportId: 'r4', duplicate: false });
+    render(<ReportQuestion wordId="w1" />);
+    fireEvent.click(screen.getByText('🚩 דיווח על טעות במילה'));
+    expect(screen.queryByText('השאלה לא ברורה')).toBeNull();
+    fireEvent.click(screen.getByText('התרגום שגוי'));
+    expect(await screen.findByText('🚩 תודה! נבדוק את המילה.')).toBeInTheDocument();
+    expect(reportService.reportWord).toHaveBeenCalledWith('w1', 'wrong_translation', undefined);
+    expect(reportService.reportQuestion).not.toHaveBeenCalled();
   });
 });

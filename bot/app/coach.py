@@ -140,7 +140,11 @@ class Coach:
         if action == "switch":
             return replies.switch_reply(await self.api.switch(chat_id))
         if action == "report":
-            return report_ask_reply()
+            # The API knows what is in front of the student: a word or a question.
+            result = await self.api.report(chat_id)
+            if not result["ok"]:
+                return report_reply(result)
+            return report_ask_reply(result["data"].get("target", "question"))
         if action == "review":
             result = await self.api.review_start(chat_id, args["mode"])
             if not result["ok"]:
@@ -155,16 +159,22 @@ class Coach:
         return exercise_start_reply(await self.api.exercise_start(chat_id, **args))
 
     async def report(self, chat_id: str, reason: str) -> Reply:
-        """File the report; when a lesson is still open, show its current question again."""
-        result = await self.api.exercise_report(chat_id, reason)
+        """File the report; when a lesson or words exam is still open, show where it stands again."""
+        result = await self.api.report(chat_id, reason)
         confirmation = report_reply(result)
         if not (result["ok"] and result["data"].get("active")):
             return confirmation
         status = await self.api.status(chat_id)
-        if not (status["ok"] and status["data"].get("active") and status["data"].get("kind") == "exercise"):
+        if not (status["ok"] and status["data"].get("active")):
             return confirmation
-        question = exercise_status_reply(status["data"])
-        return Reply(confirmation.text + "\n\n" + question.text, question.buttons)
+        kind = status["data"].get("kind")
+        if kind == "exercise":
+            current = exercise_status_reply(status["data"])
+        elif kind == "vocab" and status["data"].get("word"):
+            current = replies.status_reply(status)
+        else:
+            return confirmation
+        return Reply(confirmation.text + "\n\n" + current.text, current.buttons)
 
     # ---------------------------------------------------------------- review
     @property
@@ -218,7 +228,7 @@ class Coach:
         deadline = time.monotonic() + config.REVIEW_AUTO_BUDGET_SECONDS
         while data.get("item") and not data.get("done") and time.monotonic() < deadline:
             item = data["item"]
-            title = item["question"]["text"][:60]
+            title = rr.item_title(item)
             proposal, error = await self._propose(item)
             if not proposal:
                 results.append(f"⏭ {title}: {error}")
