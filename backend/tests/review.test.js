@@ -94,4 +94,40 @@ describe('Review of reported questions', () => {
     expect(invalidChange({ ...base, question_text_he: '' })).toMatch(/empty/);
     expect(invalidChange(null)).toMatch(/missing/);
   });
+
+  test('a review session: proposal, approve, skip, keep, and the end', async () => {
+    const [, , c, d, e] = pool();
+    for (const ex of [c, d, e]) await request(app).post('/api/reports').set(student).send({ exerciseId: ex.id, reason: 'unclear' });
+    const admin = bot(adminChat);
+
+    let res = (await admin.post('/api/bot/review/start', { mode: 'manual' })).body.data;
+    expect(res).toMatchObject({ kind: 'review', mode: 'manual', remaining: 3, done: false, proposal: null });
+    expect(res.item.exerciseId).toBe(c.id);
+    expect((await admin.get('/api/bot/session/status')).body.data).toMatchObject({ active: true, kind: 'review' });
+    // Approve needs a proposal; a proposal that is not valid stays pending with the reason.
+    expect((await admin.post('/api/bot/review/act', { action: 'approve' })).status).toBe(409);
+    const bad = { decision: 'change', reason: 'x', change: { question_text_he: 'q', options: ['a', 'b'], correct_answer: 'a' } };
+    await admin.post('/api/bot/review/proposal', { proposal: bad });
+    res = (await admin.post('/api/bot/review/act', { action: 'approve' })).body.data;
+    expect(res.rejected).toMatch(/3 or 4/);
+    expect(res.item.exerciseId).toBe(c.id);
+
+    const good = { decision: 'change', reason: 'two answers fit', change: { question_text_he: 'חדש _______', options: ['in', 'on', 'at'], correct_answer: 'at', explanation_he: 'at' } };
+    res = (await admin.post('/api/bot/review/proposal', { proposal: good })).body.data;
+    expect(res.proposal).toEqual(good);
+    res = (await admin.post('/api/bot/review/act', { action: 'approve' })).body.data;
+    expect(res.decided).toMatchObject({ exerciseId: c.id, decision: 'change', closed: 1 });
+    expect(res.item.exerciseId).toBe(d.id);
+    expect(res.proposal).toBeNull();
+
+    res = (await admin.post('/api/bot/review/act', { action: 'skip' })).body.data;
+    expect(res).toMatchObject({ skipped: d.id, remaining: 1 });
+    expect(res.item.exerciseId).toBe(e.id);
+    res = (await admin.post('/api/bot/review/act', { action: 'keep' })).body.data;
+    expect(res).toMatchObject({ done: true, item: null, counts: { change: 1, skip: 1, keep: 1 } });
+    expect((await admin.get('/api/bot/session/status')).body.data.active).toBe(false);
+    // The skipped question is still under review for next time.
+    expect((await admin.get('/api/bot/review/queue')).body.data.items.map(i => i.exerciseId)).toEqual([d.id]);
+    expect((await bot(studentChat).post('/api/bot/review/start', { mode: 'auto' })).status).toBe(403);
+  });
 });

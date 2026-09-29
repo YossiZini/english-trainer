@@ -65,6 +65,13 @@ const adminOnly = (req, res, next) => (isAdmin(req.user)
   ? next()
   : res.status(403).json({ success: false, code: 'not_admin', message: 'Review is for the admin only' }));
 router.get('/review/queue', adminOnly, BotController.reviewQueue);
+router.post('/review/start', adminOnly, [
+  body('mode').isIn(['manual', 'auto']).withMessage('mode must be manual or auto')
+], BotController.reviewStart);
+router.post('/review/proposal', adminOnly, [body('proposal').isObject()], BotController.reviewPropose);
+router.post('/review/act', adminOnly, [
+  body('action').isIn(['approve', 'keep', 'remove', 'skip']).withMessage('action must be approve, keep, remove or skip')
+], BotController.reviewAct);
 router.post('/review/decide', adminOnly, [
   body('exerciseId').isString().isLength({ min: 1, max: 100 }),
   body('decision').isIn(['keep', 'change', 'remove']).withMessage('decision must be keep, change or remove'),
