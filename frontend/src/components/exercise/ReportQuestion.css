@@ -1,0 +1,105 @@
+/* "Report this question" under the question card: quiet until opened. */
+.report-question {
+  margin-top: 0.75rem;
+  text-align: start;
+}
+
+.report-question-link,
+.report-question-cancel {
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  color: #6b7280;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.report-question-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.75rem;
+  background: #fafafa;
+}
+
+.report-question-title {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.report-question-reasons {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.report-question-reason {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #c7cdf5;
+  border-radius: 8px;
+  background: #fff;
+  color: #3f47b8;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: start;
+}
+
+.report-question-reason:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.report-question-other {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.report-question-other input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.report-question-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+}
+
+.report-question-thanks {
+  margin: 0.75rem 0 0;
+  color: #1f7a4d;
+  font-size: 0.9rem;
+}
+
+/* In the question's header row: beside "שאלה N", no extra height; the
+   opened panel takes the whole row. */
+.question-number-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 0.75rem;
+}
+
+.question-number-row .report-question,
+.question-header .report-question {
+  margin-top: 0;
+}
+
+.question-number-row .report-question.open,
+.question-header .report-question.open {
+  flex-basis: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.question-number-row .report-question-thanks,
+.question-header .report-question-thanks {
+  margin: 0;
+}
