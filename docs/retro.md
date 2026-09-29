@@ -612,3 +612,81 @@ menu. All three deploys green.
 - `FillInBlank` is unused now; keep it for a future typed mode or remove it.
 - Carried over: `App.test.js` under jest, Hosting `no-cache` header, shared
   stage geometry.
+
+## Sprint 9 — Two-way words exam in the Telegram bot (2026-09-29)
+
+Goal: let a student take the Telegram words exam English→Hebrew or
+Hebrew→English, chosen with buttons, and repeat the same words the other
+way round at the end.
+Result: all four stories in PR #43 (direction step, English answer matching,
+judge per direction, blanked example sentence, switch endpoint and button,
+docs and system map v8), merged and deployed the same morning. Between
+Sprint 8 and this sprint, defect d6 audited the 1,178 older English
+multiple-choice questions (PR #42: 380 fixed, 798 confirmed); its lessons
+are recorded here too. `/sprint review` was not run: the sprint closed
+right after the merge.
+
+### What went well
+- **Small sprint, one PR.** The design reused what existed: the setup step
+  of the session, the reply keyboard for choices, and the API owning all
+  state, so the bot change was reply text and one new command.
+- **The smoke run caught a data gap before users did.** Walking a real
+  Hebrew→English exam against the emulator showed "no example sentence"
+  for every word; the fix (blank the answer in the English sentence) went
+  in before the PR.
+- **A typo rule with a guard.** One wrong letter is forgiven, but not when
+  the result is another stored word ("horse" for "house"), so tolerance
+  cannot turn a wrong word into a right one.
+- **d6: the same method as the conversion held up at scale.** Auditor,
+  independent reviewer, then a full read of every change; a validator made
+  every decision explicit (`ok` or a justified change), and a sweep applied
+  the audit's findings to 6 sibling questions outside the audit set.
+- **Stopped agents lost nothing.** A usage limit stopped five agents
+  mid-run; they wrote their output only at the end, so each was resumed
+  from its transcript with one message.
+
+### What hurt
+- **The plan assumed data that did not exist.** Scope and code used
+  `sentence_he` for the Hebrew→English hint; 0 of 3,287 words have one.
+  Nobody counted the field before planning.
+- **A wrong acceptance criterion.** "Existing bot tests pass unchanged"
+  could not hold: a new mandatory setup step changes every words flow, so
+  every existing flow test needed the extra answer.
+- **Tests coupled through today's usage.** The new judge test failed
+  because an earlier test had filled the student's daily judge cap.
+- **d6 found option texts that break under shuffling** ("the first two
+  answers are correct") and capitalisation keys that were the only
+  capitalised option; neither was covered by the content test.
+- **Review skipped.** Closing straight after the merge left the sprint's
+  code without the review lens (coupling, dependencies, duplication).
+
+### Lessons → rules
+- Before planning a feature on existing data, count the fields it relies
+  on (for example `sentence_he`: 0 of 3,287) and plan from the counts.
+- A new mandatory step in a flow is a behaviour change: the acceptance
+  criteria name the existing tests that change and how; never promise
+  "tests unchanged" for it.
+- A test that depends on a daily cap or counter resets it itself; never
+  rely on test order.
+- A multiple-choice option never refers to other options' positions or
+  order (options are shuffled); a meta option names its content, and
+  options that differ only in capitals are written in one case unless the
+  question is about capitals.
+- Tolerant answer matching (typos, variants) is checked against the word
+  list, so a variant that is another real word is never accepted.
+- Long agent batches write their output only when done; after an
+  interruption, check which outputs exist and resume every stopped agent
+  from its transcript before starting new ones.
+- Run `/sprint review` before `/sprint close`; if the user closes first,
+  review the merged range as the first follow-up.
+
+### Follow-ups
+- Review the Sprint 9 range (`2a30a47...32b230a`) with the review lens.
+- 511 words have an example sentence that cannot be blanked (irregular
+  forms such as bought/buy); add Hebrew example sentences or a form list.
+- Add a content-test rule: no option text refers to option positions
+  ("הראשונות", "first two", "1 ו-2").
+- The web vocabulary quiz is English→Hebrew only (deferred from this sprint).
+- Carried over from Sprint 8: heavy lessons in `check:viewport`, English
+  seeds still `fill_in_blank`, unused `FillInBlank`, `App.test.js`, Hosting
+  `no-cache` header, shared stage geometry.
