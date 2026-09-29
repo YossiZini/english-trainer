@@ -9,23 +9,39 @@ export const REASONS = [
   { key: 'other', label: 'משהו אחר' }
 ];
 
+export const WORD_REASONS = [
+  { key: 'wrong_translation', label: 'התרגום שגוי' },
+  { key: 'missing_translation', label: 'יש עוד תרגום נכון בין האפשרויות' },
+  { key: 'other', label: 'משהו אחר' }
+];
+
+const TEXT = {
+  question: { link: '🚩 דיווח על טעות בשאלה', title: 'מה לא בסדר בשאלה?', thanks: '🚩 תודה! נבדוק את השאלה.' },
+  word: { link: '🚩 דיווח על טעות במילה', title: 'מה לא בסדר במילה?', thanks: '🚩 תודה! נבדוק את המילה.' }
+};
+
 /**
  * "Report this question": a small link under the question card that opens
  * the reasons as buttons. One tap sends the report; "other" asks for a short
  * optional note first. Reporting never touches the answer or the score.
- * Render it with `key={exerciseId}` so its state resets per question.
+ * Render it with `key={exerciseId}` (or `key={wordId}` for a vocabulary
+ * word) so its state resets per question.
  */
-const ReportQuestion = ({ exerciseId }) => {
+const ReportQuestion = ({ exerciseId, wordId }) => {
+  const kind = wordId ? 'word' : 'question';
+  const reasons = wordId ? WORD_REASONS : REASONS;
+  const text = TEXT[kind];
   const [open, setOpen] = useState(false);
   const [other, setOther] = useState(false);
   const [note, setNote] = useState('');
   const [state, setState] = useState('idle'); // idle | sending | sent | error
   const [message, setMessage] = useState('');
 
-  const send = async (reason, text) => {
+  const send = async (reason, note) => {
     setState('sending');
     try {
-      await reportService.reportQuestion(exerciseId, reason, text);
+      if (wordId) await reportService.reportWord(wordId, reason, note);
+      else await reportService.reportQuestion(exerciseId, reason, note);
       setState('sent');
       setOpen(false);
     } catch (error) {
@@ -36,21 +52,21 @@ const ReportQuestion = ({ exerciseId }) => {
   };
 
   if (state === 'sent') {
-    return <p className="report-question-thanks" role="status">🚩 תודה! נבדוק את השאלה.</p>;
+    return <p className="report-question-thanks" role="status">{text.thanks}</p>;
   }
 
   return (
     <div className={`report-question${open ? ' open' : ''}`}>
       {!open ? (
         <button type="button" className="report-question-link" onClick={() => setOpen(true)}>
-          🚩 דיווח על טעות בשאלה
+          {text.link}
         </button>
       ) : (
         <div className="report-question-panel" role="group" aria-label="סיבת הדיווח">
-          <p className="report-question-title">מה לא בסדר בשאלה?</p>
+          <p className="report-question-title">{text.title}</p>
           {!other ? (
             <div className="report-question-reasons">
-              {REASONS.map(r => (
+              {reasons.map(r => (
                 <button
                   key={r.key}
                   type="button"
