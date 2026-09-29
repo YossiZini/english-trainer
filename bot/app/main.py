@@ -51,6 +51,8 @@ def create_app(coach: Coach | None = None) -> FastAPI:
             log.exception("handling failed: %s", error)
             reply = replies.Reply(replies.UNREACHABLE)
         await telegram.send_message(chat_id, reply.text, reply.buttons)
+        if getattr(reply, "menu", None) == "admin":
+            await telegram.set_commands(admin_chat=chat_id)
         return {"ok": True}
 
     return app

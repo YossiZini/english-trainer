@@ -51,6 +51,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "switch", {}
     if not rest and first in config.REPORT_WORDS:
         return "report", {}
+    if first.startswith(config.REVIEW_WORD + "_") and not rest:
+        first, rest = config.REVIEW_WORD, [first.split("_", 1)[1]]
     if first == config.REVIEW_WORD and len(rest) <= 1:
         mode = rest[0] if rest else "manual"
         return ("review", {"mode": mode}) if mode in config.REVIEW_MODES else None
@@ -132,6 +134,10 @@ class Coach:
 
     async def run_command(self, chat_id: str, action: str, args: dict) -> Reply:
         if action == "help":
+            # The admin's chat also gets the review commands, in the help and the menu.
+            admin = await self.api.review_queue(chat_id)
+            if admin["ok"]:
+                return Reply(replies.HELP + replies.ADMIN_HELP, menu="admin")
             return Reply(replies.HELP)
         if action == "words":
             return replies.start_reply(await self.api.start(chat_id))
@@ -150,8 +156,11 @@ class Coach:
             if not result["ok"]:
                 return Reply(rr.ADMIN_ONLY if result.get("code") == "not_admin" else replies.error_reply(result))
             if args["mode"] == "auto":
-                return await self.review_auto(chat_id, result["data"])
-            return await self.review_show(chat_id, result["data"])
+                reply = await self.review_auto(chat_id, result["data"])
+            else:
+                reply = await self.review_show(chat_id, result["data"])
+            reply.menu = "admin"
+            return reply
         if action == "lessons" and not args:
             return Reply(replies.WHICH_LESSONS, list(replies.LESSONS_BUTTONS))
         if action == "lessons":

@@ -4,7 +4,7 @@ import json
 import httpx
 import respx
 
-from app import review_replies as rr
+from app import replies, review_replies as rr
 from app.api_client import TrainerApi
 from app.coach import Coach, parse_command
 
@@ -64,6 +64,10 @@ CHANGE = {"decision": "change", "reason": "חסר נושא ביחיד.", "change
 def test_parse_review():
     assert parse_command("/review") == ("review", {"mode": "manual"})
     assert parse_command("/review auto") == ("review", {"mode": "auto"})
+    # The admin's menu entries.
+    assert parse_command("/review_manual") == ("review", {"mode": "manual"})
+    assert parse_command("/review_auto") == ("review", {"mode": "auto"})
+    assert parse_command("/review_later") is None
     assert parse_command("review later") is None
 
 
@@ -150,3 +154,24 @@ def test_word_prompt_fences_the_student_answer_as_data():
     assert "<question>" not in text and text.endswith("Admin's correction: add שמח")
     assert WordProposal.model_validate(WORD_CHANGE).change.hebrew_translation == "שמח / מרוצה"
     assert rr.item_title(WORD_ITEM) == "glad = עצוב"
+
+
+@respx.mock
+async def test_help_in_the_admin_chat_adds_the_review_commands_and_the_admin_menu():
+    respx.get(f"{API}/bot/review/queue").mock(return_value=ok({"total": 0, "items": []}))
+    reply = await coach(FakeReviewer()).handle("1", "/help")
+    assert reply.text == replies.HELP + replies.ADMIN_HELP and reply.menu == "admin"
+    assert "/review_manual" in reply.text and "/review_auto" in reply.text
+
+
+@respx.mock
+async def test_review_sets_the_admin_menu_and_other_chats_are_refused():
+    respx.post(f"{API}/bot/review/start").mock(side_effect=[
+        ok({"kind": "review", "mode": "manual", "item": None, "done": True, "remaining": 0, "counts": {}}),
+        httpx.Response(403, json={"success": False, "code": "not_admin"}),
+    ])
+    c = coach(FakeReviewer())
+    done = await c.handle("1", "/review_manual")
+    assert done.text == rr.NOTHING and done.menu == "admin"
+    refused = await c.handle("2", "/review_manual")
+    assert refused.text == rr.ADMIN_ONLY and refused.menu is None

@@ -59,7 +59,7 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/switch` (also the 🔄 button under a words summary) | the same words again, the other way round |
 | `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
-| `/review manual`, `/review auto` | the admin's review of reported questions and words; not in the menu, other chats are refused |
+| `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | the admin's review of reported questions and words; in the admin chat's menu only (set when that chat sends `/help` or `/review`, which the API confirms), other chats are refused |
 | `/end` (also `stop`) | ends any open session |
 
 A multiple-choice answer is a number, so a bare command works during a
@@ -92,7 +92,10 @@ quizzes and wrong options until reviewed.
 
 The admin reviews in Telegram. The admin is the account named in
 `ADMIN_USERS` (API setting, exact name, currently "Yossi Zini"); only the
-chat linked to that account gets past `/api/bot/review/*`.
+chat linked to that account gets past `/api/bot/review/*`. The menu is
+the same for every chat, so the review commands are added to the admin's
+chat alone (a chat-scoped `setMyCommands`) the first time it sends `/help`
+or `/review`; `/help` there also lists them.
 
 - `/review manual`: one question or word at a time (one queue, oldest
   report first) with its reports and the review agent's proposal (keep /

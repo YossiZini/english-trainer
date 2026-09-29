@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 class Reply:
     text: str
     buttons: list[str] = field(default_factory=list)
+    # "admin": after sending, give this chat the admin's command menu.
+    menu: str | None = None
 
     def __str__(self) -> str:
         return self.text
@@ -57,6 +59,11 @@ HELP = """🤖 איך זה עובד
 עוד לא מחוברים? באתר, בכפתור "טלגרם" למעלה, קבלו קוד בן 6 ספרות ושלחו אותו לכאן."""
 WHICH_LESSONS = "רשימת השיעורים של איזה מקצוע?"
 LESSONS_BUTTONS = ("lessons english", "lessons math")
+ADMIN_HELP = """
+
+🛠 למנהל (רק בצ'אט הזה):
+• /review_manual: בדיקת שאלות ומילים שדווחו, אחת אחת, עם הצעה של סוכן הבדיקה.
+• /review_auto: הצעות תקינות מוחלות אוטומטית, עם סיכום."""
 NO_EXAMPLE = "אין משפט לדוגמה למילה הזו."
 NO_WORDS_TO_SWITCH = "אין עדיין מבחן מילים לחזור עליו. כתבו /words כדי להתחיל."
 
