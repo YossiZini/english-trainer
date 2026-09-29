@@ -63,6 +63,15 @@ class TrainerApi:
     async def exercise_report(self, chat_id: str, reason: str) -> dict:
         return await self._call("POST", "/bot/exercise/report", chat_id, reason=reason)
 
+    async def review_start(self, chat_id: str, mode: str) -> dict:
+        return await self._call("POST", "/bot/review/start", chat_id, mode=mode)
+
+    async def review_propose(self, chat_id: str, proposal: dict) -> dict:
+        return await self._call("POST", "/bot/review/proposal", chat_id, proposal=proposal)
+
+    async def review_act(self, chat_id: str, action: str) -> dict:
+        return await self._call("POST", "/bot/review/act", chat_id, action=action)
+
     async def exercise_lessons(self, chat_id: str, subject: str) -> dict:
         return await self._call("POST", "/bot/exercise/lessons", chat_id, subject=subject)
 

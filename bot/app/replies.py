@@ -168,6 +168,9 @@ def end_reply(result: dict) -> Reply:
     if result["data"].get("kind") == "exercise":
         from .exercise_replies import exercise_end_reply
         return exercise_end_reply(result["data"])
+    if result["data"].get("kind") == "review":
+        from .review_replies import summary_reply
+        return summary_reply(result["data"])
     return _summary_reply("סיימנו להיום.\n", result["data"]["summary"])
 
 
