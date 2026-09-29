@@ -81,4 +81,38 @@ describe('Question reports', () => {
     expect(stored).toMatchObject({ status: 'decided', decision: 'keep', decision_note: 'the key is right' });
     expect(await QuestionReport.decide(exercise.id, 'keep')).toBe(0);
   });
+
+  test('a reported question is hidden from new lessons until reviewed; decisions are live', async () => {
+    const Exercise = require('../src/models/Exercise');
+    const QuestionOverride = require('../src/models/QuestionOverride');
+    // A fresh student, so the daily cap of the tests above does not apply.
+    const other = await request(app).post('/api/auth/register').send({ name: 'reporter-2', password: 'secret123', age: 12 });
+    const auth2 = { Authorization: `Bearer ${other.body.data.token}` };
+    const target = exercises().slice(300).find(e => e.type === 'multiple_choice' && e.options.length === 4);
+    const served = async () => (await Exercise.findByLessonIdForClient(target.lesson_id)).find(e => e.id === target.id);
+    expect(await served()).toBeTruthy();
+
+    await request(app).post('/api/reports').set(auth2).send({ exerciseId: target.id, reason: 'wrong_answer' });
+    expect(await served()).toBeUndefined();
+    // Still gradable by id (a student who already has it on screen).
+    const check = (answer) => request(app).post('/api/exercises/check').set(auth2).send({ exerciseId: target.id, userAnswer: answer });
+    expect((await check(target.correct_answer)).body.data.isCorrect).toBe(true);
+
+    // keep: the question is served again as it was.
+    await QuestionOverride.decide(target.id, 'keep');
+    expect((await served()).question_text_he).toBe(target.question_text_he);
+
+    // change: the corrected question is served and graded against its new answer.
+    await QuestionOverride.hide(target.id);
+    expect(await served()).toBeUndefined();
+    const wrongOne = target.options.find(o => o !== target.correct_answer);
+    const change = { question_text_he: 'שאלה מתוקנת', options: target.options, correct_answer: wrongOne, explanation_he: 'הסבר מתוקן' };
+    await QuestionOverride.decide(target.id, 'change', change);
+    expect((await served()).question_text_he).toBe('שאלה מתוקנת');
+    expect((await check(wrongOne)).body.data).toMatchObject({ isCorrect: true, correctAnswer: wrongOne, explanationHe: 'הסבר מתוקן' });
+
+    // remove: never served again.
+    await QuestionOverride.decide(target.id, 'remove');
+    expect(await served()).toBeUndefined();
+  });
 });

@@ -107,7 +107,8 @@ class MistakesService {
    * Get exercises for retry (only uncorrected mistakes)
    */
   static async getExercisesForRetry(userId, lessonId) {
-    const mistakes = await WrongAnswer.findByUserAndLesson(userId, lessonId, true);
+    const { visible } = await Exercise.overlay();
+    const mistakes = (await WrongAnswer.findByUserAndLesson(userId, lessonId, true)).filter(m => visible(m.exercise_id));
 
     if (mistakes.length === 0) {
       return [];
@@ -247,12 +248,15 @@ class MistakesService {
    * Get exercises for cross-topic test (mix of all topics, prioritizing wrong answers)
    */
   static async getCrossTopicTest(userId, questionCount = 20) {
+    // Questions hidden for review (reported) or removed are never served.
+    const { visible, apply } = await Exercise.overlay();
+
     // Get all uncorrected mistakes across all topics
-    const uncorrectedMistakes = await WrongAnswer.findByUser(userId, true);
+    const uncorrectedMistakes = (await WrongAnswer.findByUser(userId, true)).filter(m => visible(m.exercise_id));
 
     // Get all corrected mistakes as backup
     const correctedMistakes = await WrongAnswer.findByUser(userId, false);
-    const allCorrectedOnly = correctedMistakes.filter(m => m.is_corrected);
+    const allCorrectedOnly = correctedMistakes.filter(m => m.is_corrected && visible(m.exercise_id));
 
     let selectedQuestions = [];
 
@@ -291,7 +295,8 @@ class MistakesService {
 
       // Filter out already selected exercises and shuffle
       const availableExercises = allExercises
-        .filter(e => !existingExerciseIds.has(e.id) && subjects.has(subjectOf(e.lesson_id)))
+        .filter(e => !existingExerciseIds.has(e.id) && subjects.has(subjectOf(e.lesson_id)) && visible(e.id))
+        .map(apply)
         .map(e => ({
           exercise_id: e.id,
           question_number: e.question_number,
