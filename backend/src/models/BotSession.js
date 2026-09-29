@@ -75,6 +75,24 @@ class BotSession {
     });
   }
 
+  /** The admin's review of reported questions (kind 'review'): mode manual | auto. */
+  static async createReview({ userId, chatId, mode }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'review',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'active',
+      mode,
+      current: null,
+      proposal: null,
+      skipped: [],
+      counts: {},
+      started_at: now,
+      ended_at: null
+    });
+  }
+
   /** Session kind; rows from before exercise sessions are vocabulary sessions. */
   static kindOf(session) {
     return (session && session.kind) || 'vocab';

@@ -1,4 +1,5 @@
 const { db } = require('../config/database');
+const Exercise = require('./Exercise');
 
 class WrongAnswer {
   /**
@@ -15,7 +16,8 @@ class WrongAnswer {
 
     // Get exercises for joining
     const exercises = db.getCollection('exercises', true);
-    const exerciseMap = new Map(exercises.map(e => [e.id, e]));
+    const { apply } = await Exercise.overlay();
+    const exerciseMap = new Map(exercises.map(e => [e.id, apply(e)]));
 
     // Join with exercises and sort
     const result = wrongAnswers.map(wa => {
@@ -62,7 +64,8 @@ class WrongAnswer {
 
     // Get exercises and lessons for joining
     const exercises = db.getCollection('exercises', true);
-    const exerciseMap = new Map(exercises.map(e => [e.id, e]));
+    const { apply } = await Exercise.overlay();
+    const exerciseMap = new Map(exercises.map(e => [e.id, apply(e)]));
 
     const lessons = db.getCollection('lessons', true);
     const lessonMap = new Map(lessons.map(l => [l.id, l]));

@@ -6,6 +6,7 @@ then the ADK agent for anything else, with a bound on model calls per turn
 and a bounded conversation history."""
 import logging
 import re
+import time
 
 from google.adk.agents.run_config import RunConfig
 from google.adk.runners import Runner
@@ -20,6 +21,7 @@ from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
 from . import tools
+from . import review_replies as rr
 
 log = logging.getLogger("bot")
 CODE = re.compile(r"^\d{6}$")
@@ -29,7 +31,8 @@ LIST_NUMBER = re.compile(r"^\d{1,3}$")
 def parse_command(text: str) -> tuple[str, dict] | None:
     """An English command, with or without "/" (and "@bot" in groups), else None.
 
-    help | words | end | switch | report | english|math [N] [easy|medium|hard] |
+    help | words | end | switch | report | review [manual|auto] |
+    english|math [N] [easy|medium|hard] |
     lessons english|math (also lessons_english) | lessons"""
     words = text.lower().split()
     if not words or len(words) > 3:
@@ -48,6 +51,9 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "switch", {}
     if not rest and first in config.REPORT_WORDS:
         return "report", {}
+    if first == config.REVIEW_WORD and len(rest) <= 1:
+        mode = rest[0] if rest else "manual"
+        return ("review", {"mode": mode}) if mode in config.REVIEW_MODES else None
     if first == config.LESSONS_WORD:
         if not rest:
             return "lessons", {}
@@ -67,8 +73,9 @@ def parse_command(text: str) -> tuple[str, dict] | None:
 
 
 class Coach:
-    def __init__(self, api: TrainerApi | None = None, agent=None):
+    def __init__(self, api: TrainerApi | None = None, agent=None, reviewer=None):
         self.api = api or TrainerApi()
+        self._reviewer = reviewer
         tools.set_api(self.api)
         self.turns = DailyTurnCounter(config.MAX_TURNS_PER_CHAT_PER_DAY)
         self.sessions = InMemorySessionService()
@@ -112,6 +119,8 @@ class Coach:
         typed = bool(question) and question.get("type") != "multiple_choice"
         if command and not typed:
             return await self.run_command(chat_id, *command)
+        if active and status["data"].get("kind") == "review":
+            return await self.review_message(chat_id, text, status["data"])
         if active:
             # In setup or mid-session every message is an answer: a level, a
             # translation, or an exercise option number; the API routes it by
@@ -132,6 +141,13 @@ class Coach:
             return replies.switch_reply(await self.api.switch(chat_id))
         if action == "report":
             return report_ask_reply()
+        if action == "review":
+            result = await self.api.review_start(chat_id, args["mode"])
+            if not result["ok"]:
+                return Reply(rr.ADMIN_ONLY if result.get("code") == "not_admin" else replies.error_reply(result))
+            if args["mode"] == "auto":
+                return await self.review_auto(chat_id, result["data"])
+            return await self.review_show(chat_id, result["data"])
         if action == "lessons" and not args:
             return Reply(replies.WHICH_LESSONS, list(replies.LESSONS_BUTTONS))
         if action == "lessons":
@@ -149,6 +165,75 @@ class Coach:
             return confirmation
         question = exercise_status_reply(status["data"])
         return Reply(confirmation.text + "\n\n" + question.text, question.buttons)
+
+    # ---------------------------------------------------------------- review
+    @property
+    def reviewer(self):
+        """The review agent (Gemini Pro), built on first use."""
+        if self._reviewer is None:
+            from .review_agent import ReviewAgent
+            self._reviewer = ReviewAgent()
+        return self._reviewer
+
+    async def _propose(self, item: dict, proposal: dict | None = None, instruction: str | None = None):
+        """(proposal, error text): the agent's proposal, or why there is none."""
+        try:
+            if instruction:
+                return await self.reviewer.revise(item, proposal, instruction), ""
+            return await self.reviewer.propose(item), ""
+        except Exception as error:  # model unavailable, timeout, unparsable output
+            log.warning("review agent failed: %s", type(error).__name__)
+            return None, rr.AGENT_DOWN.format(model=config.REVIEW_MODEL)
+
+    async def review_show(self, chat_id: str, data: dict, intro: str = "", instruction: str | None = None) -> Reply:
+        """Ask the agent about the current question, store the proposal, show both with the buttons."""
+        if data.get("done") or not data.get("item"):
+            return rr.summary_reply(data, intro)
+        proposal, error = await self._propose(data["item"], data.get("proposal"), instruction)
+        if proposal:
+            stored = await self.api.review_propose(chat_id, proposal)
+            if stored["ok"]:
+                data = stored["data"]
+        return rr.review_reply(data, proposal, intro, error)
+
+    async def review_message(self, chat_id: str, text: str, data: dict) -> Reply:
+        """A message during a review: a decision button, "continue" (auto), or a correction for the agent."""
+        if text == rr.CONTINUE and data.get("mode") == "auto":
+            return await self.review_auto(chat_id, data)
+        action = rr.ACTIONS.get(text)
+        if action:
+            result = await self.api.review_act(chat_id, action)
+            if not result["ok"]:
+                return Reply(replies.error_reply(result))
+            after = result["data"]
+            if after.get("rejected"):
+                return rr.review_reply(after, None, f"⚠️ ההצעה לא תקינה: {after['rejected']}. כתבו תיקון או החליטו בכפתורים.")
+            return await self.review_show(chat_id, after, "✔️ נשמר.")
+        # Anything else is the admin's correction: the agent revises its proposal.
+        return await self.review_show(chat_id, data, instruction=text)
+
+    async def review_auto(self, chat_id: str, data: dict) -> Reply:
+        """Apply the agent's valid proposals for as long as Telegram's webhook allows, then report."""
+        results = []
+        deadline = time.monotonic() + config.REVIEW_AUTO_BUDGET_SECONDS
+        while data.get("item") and not data.get("done") and time.monotonic() < deadline:
+            item = data["item"]
+            title = item["question"]["text"][:60]
+            proposal, error = await self._propose(item)
+            if not proposal:
+                results.append(f"⏭ {title}: {error}")
+                data = (await self.api.review_act(chat_id, "skip"))["data"]
+                continue
+            await self.api.review_propose(chat_id, proposal)
+            after = (await self.api.review_act(chat_id, "approve"))["data"]
+            if after.get("rejected"):
+                results.append(f"⏭ {title}: ההצעה לא תקינה ({after['rejected']})")
+                after = (await self.api.review_act(chat_id, "skip"))["data"]
+            else:
+                results.append(f"{'✏️' if proposal['decision'] == 'change' else '🗑' if proposal['decision'] == 'remove' else '↩️'} "
+                               f"{title}: {rr.DECISION_NAME[proposal['decision']]}. {proposal.get('reason', '')}")
+            data = after
+        return rr.auto_reply(results, data)
 
     async def ask_agent(self, chat_id: str, text: str) -> str:
         session = await self._session(chat_id)

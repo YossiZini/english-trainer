@@ -174,6 +174,7 @@ flowchart LR
             <li>Vocabulary quiz, word scores, failed words, review mode</li>
             <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
             <li>Bot API: vocabulary and lesson-exercise sessions, chat linking, service key, rate and daily caps</li>
+            <li>Question reports: a reported question is hidden until the admin reviews it; review decisions are applied live as a layer over the bundled questions</li>
           </ul></dd></div>
           <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Node 22</span><span class="chip">Express 5</span><span class="chip">Firestore SDK</span><span class="chip">Google Gen AI SDK</span><span class="chip">Cloud Run</span><span class="chip">Jest + emulator</span></dd></div>
         </dl>
@@ -185,7 +186,8 @@ flowchart LR
           <div><dt>Owns</dt><dd>The conversation only: reading Telegram messages, choosing the API call, writing the Hebrew reply. It stores no student data.</dd></div>
           <div><dt>Main functions</dt><dd><ul>
             <li>Verifies the Telegram webhook secret; sets its Telegram command menu at startup</li>
-            <li>Link code, commands, level and direction choice, lesson pick and answers go straight to the API</li>
+            <li>Link code, commands, level and direction choice, lesson pick, reports and answers go straight to the API</li>
+            <li>The admin's /review: a review agent on Gemini Pro proposes keep, change or remove for each reported question</li>
             <li>Other messages go to an ADK agent whose tools call the API</li>
             <li>Turn, token and call caps before any model use</li>
           </ul></dd></div>
@@ -198,10 +200,10 @@ flowchart LR
       <table class="platform">
         <thead><tr><th>Platform piece</th><th>Role</th><th>Holds</th></tr></thead>
         <tbody>
-          <tr><td>Firestore</td><td>Student database, reached only through the API</td><td>Users, progress, results, word scores, failed words, bot sessions, Telegram links, bot usage</td></tr>
+          <tr><td>Firestore</td><td>Student database, reached only through the API</td><td>Users, progress, results, word scores, failed words, bot sessions, Telegram links, bot usage, question reports and review corrections</td></tr>
           <tr><td>Curriculum content</td><td>Read-only JSON built from seed files and shipped inside the API image</td><td>Lessons, exercises, vocabulary words, reading passages</td></tr>
           <tr><td>Secret Manager</td><td>Keys injected into the services at start</td><td>JWT secret, bot API key, Telegram token, webhook secret</td></tr>
-          <tr><td>Vertex AI</td><td>Gemini for the bot's free-form messages and the API's answer checks</td><td>Nothing; billed per call, capped by the bot</td></tr>
+          <tr><td>Vertex AI</td><td>Gemini Flash for the bot's free-form messages and the API's answer checks; Gemini Pro for the admin's review agent</td><td>Nothing; billed per call, capped by the bot</td></tr>
           <tr><td>Cloud Storage</td><td>Public lesson videos</td><td>Video files</td></tr>
           <tr><td>GitHub Actions</td><td>Tests, then deploys on every merge to main</td><td>No keys: signs in through Workload Identity</td></tr>
         </tbody>
@@ -372,6 +374,45 @@ sequenceDiagram
 
     <div class="flow">
       <div class="flow-head">
+        <span class="tag bot">Web app + Telegram</span>
+        <h3>Report a question, review it in Telegram</h3>
+        <p>A student reports a question from the site or the bot; it is hidden from students until the admin reviews it. In Telegram the admin's /review asks a review agent on Gemini Pro for a proposal (keep, change or remove); in manual mode the admin approves or types a correction, in auto mode valid proposals apply directly. The API validates every change and applies it at once as a layer over the bundled questions.</p>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  actor S as Student
+  actor M as Admin
+  participant B as Bot service
+  participant R as Review agent (Gemini Pro)
+  participant A as Trainer API
+  participant D as Firestore
+  S->>A: Report question with a reason (site or /report)
+  A->>D: Report with a snapshot, question hidden
+  M->>B: /review manual
+  B->>A: Start review (admin chat only)
+  A-->>B: Question, its reports
+  B->>R: Propose keep, change or remove
+  R-->>B: Proposal with a reason
+  B->>A: Store proposal
+  B-->>M: Question, reports, proposal, buttons
+  alt Admin types a correction
+    M->>B: What to fix
+    B->>R: Revise the proposal
+    R-->>B: New proposal
+    B-->>M: New proposal
+  end
+  M->>B: Approve
+  B->>A: Approve
+  A->>A: Validate the change
+  A->>D: Correction live, reports closed
+  A-->>B: Next question
+</pre>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-head">
         <span class="tag ops">Delivery</span>
         <h3>From merge to production</h3>
         <p>A merge to main runs both test suites, then deploys the API, the bot and the site in order. A red test stops every deploy.</p>
@@ -398,7 +439,7 @@ flowchart LR
     <div class="principles">
       <div class="principle"><h3>One owner for data</h3><p>Only the API touches Firestore. The database rules deny all direct client access.</p></div>
       <div class="principle"><h3>Every call authenticated</h3><p>Students use a JWT. The bot uses a service key plus a linked chat. Telegram must present the webhook secret.</p></div>
-      <div class="principle"><h3>The model has narrow jobs</h3><p>Words, points and counters come from the API. Gemini routes free-form messages and gives a yes/no on answers that miss the dictionary, nothing else.</p></div>
+      <div class="principle"><h3>The model has narrow jobs</h3><p>Words, points and counters come from the API. Gemini routes free-form messages, gives a yes/no on answers that miss the dictionary, and proposes fixes to reported questions; the API validates every fix and the admin approves in manual mode.</p></div>
       <div class="principle"><h3>Hard caps</h3><p>60 messages per minute per chat, 300 per student per day, 2 bot instances, 100 answer checks per student per day, bounded tokens and calls, and a monthly budget alert.</p></div>
     </div>
   </section>

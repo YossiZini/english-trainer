@@ -50,6 +50,7 @@ HELP = """🤖 איך זה עובד
 • /lessons_english או /lessons_math: רשימת השיעורים (✅ עברתם, ▶️ הבא בתור). שולחים את מספר השיעור; more ו-back מדפדפים.
 • english 12 מתחיל ישר את שיעור 12. math 3 hard מתחיל את שיעור 3 ברמה קשה (easy / medium / hard).
 
+🚩 /report מדווח על שאלה שנראית לכם שגויה (בתרגיל שיעור). השאלה יורדת מהתרגול עד שנבדוק אותה.
 ⏹ /end עוצר כל תרגול. תרגיל שלא הסתיים לא נשמר.
 ❓ /help מציג את ההסבר הזה.
 
@@ -168,6 +169,9 @@ def end_reply(result: dict) -> Reply:
     if result["data"].get("kind") == "exercise":
         from .exercise_replies import exercise_end_reply
         return exercise_end_reply(result["data"])
+    if result["data"].get("kind") == "review":
+        from .review_replies import summary_reply
+        return summary_reply(result["data"])
     return _summary_reply("סיימנו להיום.\n", result["data"]["summary"])
 
 

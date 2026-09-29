@@ -83,6 +83,13 @@ openssl rand -base64 48 | tr -d '\n' | gcloud secrets versions add jwt-secret --
 ```
 then redeploy (the service reads the `latest` version at revision start).
 
+**Review reported questions**: in Telegram, from the admin's linked chat,
+`/review manual` or `/review auto` (see `docs/telegram-bot.md`, "Reported
+questions and review"). The admin account is `ADMIN_USERS` in
+`infra/cloudrun-service.yaml`; the review model is `REVIEW_MODEL` /
+`REVIEW_LOCATION` in `infra/cloudrun-bot.yaml` (change it there for a newer
+Gemini Pro; no code change).
+
 **Add or change curriculum content**: follow `docs/topics-status.md`; content is
 regenerated with `npm run generate-data` and ships with the next deploy.
 

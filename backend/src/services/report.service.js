@@ -1,10 +1,12 @@
 const Exercise = require('../models/Exercise');
 const Lesson = require('../models/Lesson');
 const QuestionReport = require('../models/QuestionReport');
+const QuestionOverride = require('../models/QuestionOverride');
 
 /**
  * Students report questions they think are wrong, from the web or the bot.
- * The owner reviews open reports with Claude Code (/reports) and decides.
+ * A reported question is hidden until the admin reviews it in Telegram
+ * (/review): keep, change or remove.
  */
 const REASONS = ['wrong_answer', 'two_answers', 'unclear', 'other'];
 const DAILY_REPORT_CAP = 20;
@@ -25,6 +27,8 @@ class ReportService {
     const lesson = await Lesson.findById(exercise.lesson_id);
     const clean = reason === 'other' && typeof note === 'string' ? note.trim().slice(0, MAX_NOTE) : null;
     const created = await QuestionReport.create({ userId, exercise, lesson, reason, note: clean, source });
+    // Hidden from new lessons until the admin reviews it.
+    await QuestionOverride.hide(exercise.id);
     return { reportId: created.id, duplicate: false };
   }
 }

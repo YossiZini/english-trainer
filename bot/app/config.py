@@ -22,6 +22,15 @@ TELEGRAM_WEBHOOK_SECRET = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "")
 TELEGRAM_API = os.environ.get("TELEGRAM_API", "https://api.telegram.org")
 
 MODEL = os.environ.get("MODEL", "gemini-2.5-flash")
+GOOGLE_CLOUD_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
+# The review agent (/review) uses the latest Gemini Pro model. Preview models
+# are served from the "global" endpoint, not a region; both are settings so a
+# newer model needs no code change.
+REVIEW_MODEL = os.environ.get("REVIEW_MODEL", "gemini-3.1-pro-preview")
+REVIEW_LOCATION = os.environ.get("REVIEW_LOCATION", "global")
+REVIEW_TIMEOUT_SECONDS = _int("REVIEW_TIMEOUT_SECONDS", 40)
+# /review auto works in rounds that fit Telegram's webhook wait.
+REVIEW_AUTO_BUDGET_SECONDS = _int("REVIEW_AUTO_BUDGET_SECONDS", 40)
 APP_NAME = "english-trainer-bot"
 
 # Budget caps (see docs/telegram-bot.md).
@@ -42,6 +51,8 @@ START_WORDS = {"words"}
 END_WORDS = {"end", "stop", "quit"}
 SWITCH_WORDS = {"switch"}
 REPORT_WORDS = {"report"}
+REVIEW_WORD = "review"
+REVIEW_MODES = {"manual", "auto"}
 SUBJECTS = {"english", "math"}
 LESSONS_WORD = "lessons"
 DIFFICULTIES = {"easy", "medium", "hard"}

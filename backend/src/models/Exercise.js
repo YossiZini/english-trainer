@@ -1,24 +1,47 @@
 const { db, withTransaction } = require('../config/database');
 const { isCorrectAnswer } = require('../utils/answers');
+const QuestionOverride = require('./QuestionOverride');
 
+/**
+ * Lesson questions: the bundled content with the live review corrections
+ * (QuestionOverride) applied. Grading and lookups by id always see the
+ * corrected question; what is served to students leaves out questions that
+ * are hidden (reported, under review) or removed.
+ */
 class Exercise {
   /**
-   * Get all exercises for a lesson
+   * All exercises of a lesson, corrected, hidden ones included (grading of
+   * a lesson that was already served needs them).
    */
   static async findByLessonId(lessonId) {
     const exercises = await db.findByIndex('exercises', 'lesson_id', lessonId);
+    const overrides = await QuestionOverride.all();
 
     // Sort by question_number
     exercises.sort((a, b) => a.question_number - b.question_number);
 
-    return exercises;
+    return exercises.map(e => QuestionOverride.apply(e, overrides.get(e.id)));
   }
 
   /**
-   * Get exercises without answers (for client)
+   * The corrections and a visibility test, for callers that join many
+   * exercises at once (mistakes).
+   */
+  static async overlay() {
+    const overrides = await QuestionOverride.all();
+    return {
+      apply: (e) => (e ? QuestionOverride.apply(e, overrides.get(e.id)) : e),
+      visible: (id) => QuestionOverride.visible(overrides.get(id))
+    };
+  }
+
+  /**
+   * Get exercises without answers (for client): only the questions students
+   * may be given now.
    */
   static async findByLessonIdForClient(lessonId) {
-    const exercises = await this.findByLessonId(lessonId);
+    const overrides = await QuestionOverride.all();
+    const exercises = (await this.findByLessonId(lessonId)).filter(e => QuestionOverride.visible(overrides.get(e.id)));
 
     // Return without correct_answer and explanations
     return exercises.map(e => ({
@@ -38,7 +61,8 @@ class Exercise {
    */
   static async findById(id) {
     const exercise = await db.findById('exercises', id);
-    return exercise || null;
+    if (!exercise) return null;
+    return QuestionOverride.apply(exercise, await QuestionOverride.get(id));
   }
 
   /**

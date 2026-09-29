@@ -16,6 +16,7 @@ const { db, DYNAMIC_COLLECTIONS, initializeDatabase, shutdownDatabase } = requir
 async function resetDatabase() {
   await initializeDatabase();
   await db.clearCollections(DYNAMIC_COLLECTIONS);
+  require('../src/models/QuestionOverride').clearCache();
 }
 
 module.exports = { db, DYNAMIC_COLLECTIONS, initializeDatabase, shutdownDatabase, resetDatabase };

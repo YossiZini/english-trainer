@@ -37,6 +37,12 @@ spec:
               value: teacher-509909
             - name: GOOGLE_CLOUD_LOCATION
               value: europe-west1
+            # The review agent (/review, admin only): the latest Gemini Pro
+            # model, served from the global endpoint while it is in preview.
+            - name: REVIEW_MODEL
+              value: gemini-3.1-pro-preview
+            - name: REVIEW_LOCATION
+              value: global
             - name: MAX_OUTPUT_TOKENS
               value: "200"
             - name: MAX_LLM_CALLS_PER_TURN
