@@ -228,7 +228,7 @@ class UserProgress {
    */
   /**
    * Latest exercise results with their lesson, newest first. `subject`
-   * ('english' | 'math') keeps one subject; no subject keeps all.
+   * ('english' | 'math' | 'arabic') keeps one subject; no subject keeps all.
    */
   static async getRecentActivity(userId, limit = 10, { subject } = {}) {
     const results = await db.find('exercise_results', { user_id: userId });

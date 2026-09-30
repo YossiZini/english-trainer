@@ -59,7 +59,7 @@ class Lesson {
       criteria.topic_number = parseInt(topicNumber);
     }
 
-    // 'english' | 'math'; no filter returns every subject
+    // 'english' | 'math' | 'arabic'; no filter returns every subject
     if (subject) {
       criteria.subject = subject;
     }

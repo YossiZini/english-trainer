@@ -7,6 +7,7 @@ const ExerciseService = require('../exercise.service');
 const { isCorrectAnswer, choiceMatches } = require('../../utils/answers');
 const { END_WORDS } = require('../../config/bot');
 const ReportService = require('../report.service');
+const { SUBJECTS } = require('../../config/subjects');
 
 /** A finished lesson's questions can be reported for this long after it ended. */
 const REPORT_WINDOW_MS = 60 * 60 * 1000;
@@ -24,7 +25,6 @@ const REPORT_WINDOW_MS = 60 * 60 * 1000;
  * nothing. Replies are plain data; the bot turns them into text.
  */
 
-const SUBJECTS = ['english', 'math'];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const EXPLANATION_MAX = 400;
 const PAGE_SIZE = 10;
