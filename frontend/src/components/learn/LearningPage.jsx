@@ -173,7 +173,7 @@ const LearningPage = () => {
 
         <div className="theory-content">
           <div
-            className="theory-html"
+            className={`theory-html${lesson.subject === 'arabic' ? ' arabic' : ''}`}
             dangerouslySetInnerHTML={{ __html: lesson.theoryContentHe }}
           />
         </div>
