@@ -12,6 +12,7 @@ SKIP = "⏭ לדלג"
 CONTINUE = "▶️ להמשיך"
 ACTIONS = {APPROVE: "approve", KEEP: "keep", REMOVE: "remove", SKIP: "skip"}
 
+ALREADY_DECIDED = "מישהו אחר כבר החליט על הפריט הזה, אז לא שינינו אותו. ממשיכים:"
 REVIEW_CAP = "הגעתם למכסת הבדיקות להיום. מה שנשאר ממתין לבדיקה מחר."
 NOTHING = "אין שאלות או מילים שמחכות לבדיקה. 🎉"
 AGENT_DOWN = ("סוכן הבדיקה לא זמין כרגע ({model}). אפשר להחליט בעצמכם בכפתורים, "

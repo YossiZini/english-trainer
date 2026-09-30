@@ -106,8 +106,12 @@ students at once (approved changes, removals and "keep" alike).
   was, 🗑 remove, ⏭ skip (stays under review). Any typed message is a
   correction: the agent revises its proposal and shows it again.
 - `/review auto`: every proposal the API accepts is applied; invalid ones
-  are skipped and listed. It works in rounds of about 40 seconds (Telegram
-  waits that long for the webhook); ▶️ continues.
+  are skipped and listed. It works in rounds of up to 25 seconds, so every
+  reply is sent inside the bot service's 30-second request limit (one agent
+  call gets 20 seconds, and a call starts only if it can end in the round);
+  ▶️ continues. A failed call ends the round with what was done so far.
+- If another reviewer decided an item first, a decision on it is not applied
+  ("already decided") and the review moves on.
 
 The review agent (`bot/app/review_agent.py`) is an ADK `LlmAgent` with a
 structured output on the latest Gemini Pro model (`REVIEW_MODEL`,

@@ -170,3 +170,38 @@ def test_word_prompt_fences_the_student_answer_as_data():
     assert WordProposal.model_validate(WORD_CHANGE).change.hebrew_translation == "שמח / מרוצה"
     assert rr.item_title(WORD_ITEM) == "glad = עצוב"
 
+
+
+@respx.mock
+async def test_auto_stops_with_a_summary_when_a_call_fails():
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok({**queue("e1"), "mode": "auto"}))
+    respx.post(f"{API}/bot/review/proposal").mock(return_value=ok(queue("e1")))
+    respx.post(f"{API}/bot/review/act").mock(side_effect=[
+        ok({**queue("e2", remaining=1), "decided": {"key": "e1", "decision": "change", "closed": 1}}),
+        httpx.Response(429, json={"success": False, "code": "rate_limited", "message": "הגעת למכסת ההודעות היומית."}),
+    ])
+    reply = await coach(FakeReviewer([CHANGE, KEEP])).handle("1", "/review_auto")
+    assert "✏️ She _______ to school.: לתקן." in reply.text
+    assert "הגעת למכסת ההודעות היומית." in reply.text
+    assert "נותרו 1 לבדיקה." in reply.text and reply.buttons == [rr.CONTINUE]
+
+
+@respx.mock
+async def test_auto_starts_no_agent_call_that_cannot_end_inside_the_round(monkeypatch):
+    from app import config
+    monkeypatch.setattr(config, "REVIEW_TIMEOUT_SECONDS", 30)
+    monkeypatch.setattr(config, "REVIEW_AUTO_BUDGET_SECONDS", 25)
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok({**queue("e1"), "mode": "auto"}))
+    reviewer = FakeReviewer([KEEP])
+    reply = await coach(reviewer).handle("1", "/review_auto")
+    assert reviewer.calls == [] and reply.buttons == [rr.CONTINUE]
+
+
+@respx.mock
+async def test_a_decision_someone_else_made_first_moves_on_without_changing_it():
+    status = respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True, **queue("e1"), "proposal": KEEP}))
+    respx.post(f"{API}/bot/review/act").mock(return_value=ok({**queue("e2", remaining=1), "alreadyDecided": "e1"}))
+    respx.post(f"{API}/bot/review/proposal").mock(return_value=ok(queue("e2", remaining=1)))
+    reply = await coach(FakeReviewer([KEEP])).handle("1", rr.KEEP)
+    assert reply.text.startswith(rr.ALREADY_DECIDED)
+    assert status.called

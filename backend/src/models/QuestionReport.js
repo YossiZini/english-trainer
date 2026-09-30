@@ -39,6 +39,11 @@ class QuestionReport {
     return db.findOne('question_reports', { user_id: userId, exercise_id: exerciseId, status: 'open' });
   }
 
+  /** Whether any report on the question is still open (under review). */
+  static async hasOpen(exerciseId) {
+    return !!(await db.findOne('question_reports', { exercise_id: exerciseId, status: 'open' }));
+  }
+
   /** Reports the student filed today. */
   static async countToday(userId) {
     return (await db.find('question_reports', { user_id: userId, date: today() })).length;
