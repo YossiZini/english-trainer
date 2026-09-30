@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { hasArabic } from '../../utils/bidi';
-
-// Arabic reads right-to-left; English sentences and math expressions left-to-right.
-const dirOf = (text) => (hasArabic(text) ? 'rtl' : 'ltr');
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import mistakesService from '../../services/mistakesService';
 import lessonService from '../../services/lessonService';
 import './ReviewMistakesPage.css';
 import MathText from '../common/MathText';
+
+// Arabic reads right-to-left; English sentences and math expressions left-to-right.
+const dirOf = (text) => (hasArabic(text) ? 'rtl' : 'ltr');
 
 const ReviewMistakesPage = () => {
   const { lessonId } = useParams();
