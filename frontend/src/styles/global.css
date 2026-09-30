@@ -146,13 +146,21 @@ input:focus, textarea:focus, select:focus {
 
 /* Arabic text (the Arabic subject): a Naskh font whose vowel marks (harakat)
    sit clearly above and below the letters, a little larger than the Hebrew
-   around it. Loaded in public/index.html; Hebrew and Latin fall back to the
-   usual fonts. */
-.arabic {
+   around it. Loaded in public/index.html. Hebrew and Latin glyphs fall
+   through to the usual fonts, so the rule can cover whole Arabic-subject
+   blocks. Specific enough to beat the pages' own font rules. */
+.multiple-choice.arabic .question-text,
+.multiple-choice.arabic .option-text,
+.feedback.arabic .feedback-content,
+.feedback.arabic .feedback-content *,
+.mistake-content.arabic,
+.mistake-content.arabic *,
+.theory-html.arabic,
+.theory-html.arabic *:not(svg):not(svg *) {
   font-family: 'Noto Naskh Arabic', var(--font-family-primary);
 }
-.arabic .option-text,
-.arabic .question-text,
+.multiple-choice.arabic .option-text,
+.multiple-choice.arabic .question-text,
 .theory-html.arabic .ar {
   font-size: 1.2em;
   line-height: 2;
