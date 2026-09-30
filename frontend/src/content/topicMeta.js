@@ -289,6 +289,22 @@ const mathTopicDescriptions = {
 
 const mathTopicVideos = {};
 
+// ===================== Arabic (grade 7, reading and recognition) =====================
+const arabicTopicNames = {
+  201: { en: 'Letters, vowels and first words', he: 'אותיות, תנועות ומילים ראשונות' }
+};
+
+const arabicTocExamples = {
+  201: '(האותיות د و ذ ا ر ز, אלף והמזה, תנועות, 8 מילים)'
+};
+
+const arabicTopicDescriptions = {
+  201: {
+    description: 'שש אותיות ראשונות, ההבדל בין אלף עם המזה לאלף בלי המזה, התנועות פתחה, דמה, כסרה וסוכון, ושמונה מילים ראשונות עם הפירוש שלהן.',
+    examples: ['دَار = בית', 'وَرْد = ורדים', 'أَرَادَ = רצה']
+  }
+};
+
 const topicMeta = {
   english: {
     title: 'אנגלית',
@@ -318,15 +334,32 @@ const topicMeta = {
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,
     topicVideos: mathTopicVideos
+  },
+  arabic: {
+    title: 'ערבית',
+    route: '/arabic',
+    actions: [
+      { icon: '▶️', label: 'השיעור הבא', to: 'next-lesson' },
+      { icon: '🔄', label: 'תיקון טעויות', to: '/mistakes' }
+    ],
+    nameKey: 'he',
+    numberOffset: 200,
+    topicNames: arabicTopicNames,
+    tocExamples: arabicTocExamples,
+    topicDescriptions: arabicTopicDescriptions,
+    topicVideos: {}
   }
 };
 
-// Math topics are numbered 101+ internally and shown as 1+ (101.1 -> 1.1).
+// Topic numbers keep the subjects apart (backend/src/config/subjects.js):
+// English 1-99, math 101-199, Arabic 201-299, each shown from 1 (201.1 -> 1.1).
 // The subject is inferred from the number so pages that only have a lesson
 // can use it too.
-const subjectOfTopic = (topicNumber) => (topicNumber > 100 ? 'math' : 'english');
+const subjectOfTopic = (topicNumber) => (topicNumber > 200 ? 'arabic' : topicNumber > 100 ? 'math' : 'english');
+/** The subject's page and display text; unknown subjects fall back to English. */
+const metaOf = (subject) => topicMeta[subject] || topicMeta.english;
 const displayTopic = (topicNumber) => topicNumber - topicMeta[subjectOfTopic(topicNumber)].numberOffset;
 const displaySubtopic = (subtopicNumber) => String(subtopicNumber).replace(/^\d+/, (n) => displayTopic(Number(n)));
 
-export { getSubtopicExamples, displayTopic, displaySubtopic };
+export { getSubtopicExamples, displayTopic, displaySubtopic, subjectOfTopic, metaOf };
 export default topicMeta;

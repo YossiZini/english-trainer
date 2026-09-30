@@ -65,6 +65,14 @@ function App() {
               }
             />
             <Route
+              path="/arabic"
+              element={
+                <PrivateRoute>
+                  <TopicsIndex key="arabic" subject="arabic" />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/progress"
               element={
                 <PrivateRoute>

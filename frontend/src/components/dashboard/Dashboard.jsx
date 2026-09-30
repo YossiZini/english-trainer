@@ -8,10 +8,11 @@ import { continueTarget, DIFFICULTY_LABELS } from './continueTarget';
 import './Dashboard.css';
 
 // The subjects on the home page, in display order. Scores, streak, level,
-// achievements and the daily challenge are shared by both.
+// achievements and the daily challenge are shared by all of them.
 const SUBJECTS = [
   { key: 'english', label: 'אנגלית', icon: '🔤', page: '/topics' },
-  { key: 'math', label: 'מתמטיקה', icon: '🔢', page: '/math' }
+  { key: 'math', label: 'מתמטיקה', icon: '🔢', page: '/math' },
+  { key: 'arabic', label: 'ערבית', icon: '🌙', page: '/arabic' }
 ];
 const SUBJECT_LABELS = Object.fromEntries(SUBJECTS.map(s => [s.key, s.label]));
 
@@ -125,7 +126,7 @@ const Dashboard = () => {
           <h1 className="welcome-title">
             שלום, {user?.studentName || user?.name || 'תלמיד'}! 👋
           </h1>
-          <p className="welcome-subtitle">מה לומדים היום? אנגלית או מתמטיקה</p>
+          <p className="welcome-subtitle">מה לומדים היום? אנגלית, מתמטיקה או ערבית</p>
         </div>
 
         {/* Daily Stats Section */}
@@ -222,6 +223,15 @@ const Dashboard = () => {
               <div className="action-icon">🔢</div>
               <div className="action-title">מתמטיקה</div>
               <div className="action-subtitle">שברים, סדר פעולות, ממוצע, אחוזים</div>
+            </button>
+
+            <button
+              className="action-card secondary"
+              onClick={() => navigate('/arabic')}
+            >
+              <div className="action-icon">🌙</div>
+              <div className="action-title">ערבית</div>
+              <div className="action-subtitle">אותיות, תנועות ומילים ראשונות</div>
             </button>
 
             <button
