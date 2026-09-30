@@ -46,11 +46,16 @@ async def session_status(tool_context: ToolContext) -> dict:
 
 
 def _subject(subject: str) -> str:
-    return "math" if subject.strip().lower() in ("math", "חשבון", "מתמטיקה") else "english"
+    s = subject.strip().lower()
+    if s in ("math", "חשבון", "מתמטיקה"):
+        return "math"
+    if s in ("arabic", "ערבית"):
+        return "arabic"
+    return "english"
 
 
 async def start_lesson_exercise(subject: str, tool_context: ToolContext, number: int = 0, difficulty: str = "") -> dict:
-    """Start a lesson's exercises. subject is "english" or "math"; number is the lesson's number in the
+    """Start a lesson's exercises. subject is "english", "math" or "arabic"; number is the lesson's number in the
     subject's lesson list, or 0 for the student's next lesson; difficulty is "easy", "medium", "hard"
     or "" for the student's current level."""
     level = difficulty.strip().lower()
@@ -61,7 +66,7 @@ async def start_lesson_exercise(subject: str, tool_context: ToolContext, number:
 
 
 async def list_lessons(subject: str, tool_context: ToolContext) -> dict:
-    """Show the numbered lesson list of a subject ("english" or "math") so the student can pick one by number."""
+    """Show the numbered lesson list of a subject ("english", "math" or "arabic") so the student can pick one by number."""
     return {"reply": str(lesson_list_reply(await _api.exercise_lessons(_chat(tool_context), _subject(subject))))}
 
 

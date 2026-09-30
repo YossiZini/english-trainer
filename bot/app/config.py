@@ -56,6 +56,6 @@ REPORT_WORDS = {"report"}
 USAGE_WORDS = {"usage"}
 REVIEW_WORD = "review"
 REVIEW_MODES = {"manual", "auto"}
-SUBJECTS = {"english", "math"}
+SUBJECTS = {"english", "math", "arabic"}
 LESSONS_WORD = "lessons"
 DIFFICULTIES = {"easy", "medium", "hard"}

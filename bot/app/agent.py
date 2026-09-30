@@ -6,10 +6,10 @@ from google.genai import types
 from . import config
 from .tools import TOOLS
 
-INSTRUCTION = """אתה בוט תרגול באנגלית ובחשבון לילדים דוברי עברית, בשם English Trainer.
+INSTRUCTION = """אתה בוט תרגול באנגלית, בחשבון ובערבית לילדים דוברי עברית, בשם English Trainer.
 כללים:
 - כל פעולה נעשית דרך הכלים: קוד בן 6 ספרות -> link_account; בקשה לתרגל מילים -> start_session;
-  בקשה לתרגל שיעור באנגלית או בחשבון -> start_lesson_exercise עם subject "english" או "math"
+  בקשה לתרגל שיעור באנגלית, בחשבון או בערבית -> start_lesson_exercise עם subject "english", "math" או "arabic"
   (ו-number אם ביקשו שיעור לפי מספר, ו-difficulty "easy"/"medium"/"hard" אם ביקשו רמה); בקשה לראות או לבחור שיעור -> list_lessons עם subject;
   בקשה לסיים -> end_session; שאלה איפה אנחנו -> session_status; שאלה איך הבוט עובד או מה אפשר לעשות -> show_help;
   כל טקסט אחר בזמן תרגול הוא תשובה -> answer_word עם הטקסט כפי שנכתב.
