@@ -690,3 +690,89 @@ right after the merge.
 - Carried over from Sprint 8: heavy lessons in `check:viewport`, English
   seeds still `fill_in_blank`, unused `FillInBlank`, `App.test.js`, Hosting
   `no-cache` header, shared stage geometry.
+
+## Sprint 10 — Students report bad questions and words (2026-09-29 → 2026-09-30)
+
+Goal: let a student report a bad question from the website or the Telegram
+bot, hide it until it is reviewed, and review it (keep, change, remove) in
+Telegram with a review agent on Gemini Pro.
+Result: 10 stories in PRs #45–#49, all merged and deployed green. Questions
+and words can be reported on the web and in the bot; a report hides the
+item; `/review_manual` and `/review_auto` review both through one queue. Mid
+sprint the owner opened review to every linked student (no admin role),
+with a daily cap per student. Also shipped: 💡 instead of ❌ / ✗ for a wrong
+answer in the bot and on the site. `/sprint review` was not run; a
+`/code-review` of the word-report branch found 4 issues, all fixed in #48.
+
+### What went well
+- **A layer, not content edits.** Review decisions live in
+  `question_overrides` / `word_overrides` over the bundled JSON, read by
+  the models only, so a decision is live at once without a redeploy, and
+  words reused the same store (`overrideStore`) with one line.
+- **Validation in the API, whoever decides.** Every change is checked
+  server-side, so opening review from one admin to every student needed
+  only a cap, not a redesign.
+- **The bot stayed stateless.** A review is a bot session of kind `review`
+  in the API; the bot keeps nothing between messages, and auto mode works
+  in time-boxed rounds that fit Telegram's webhook.
+- **Graceful failure for the unverified model.** The model ID could not be
+  checked from the session; if the agent fails, manual review still offers
+  keep / remove / skip.
+- **A code review before the next change caught real gaps** (unfixable
+  report reasons, an API call on every `/help`, a stale Hebrew sentence).
+
+### What hurt
+- **The access model changed four times.** Claude Code review with a new
+  IAM role (the owner questioned it, and Cloud Shell on mobile kept
+  dropping), then a Telegram admin by name, then an admin-only menu, then
+  review for every student. Who may review, how they find it and what it
+  costs were not decided before building.
+- **A hidden command looked like a missing feature.** `/review` was left
+  out of the menu on purpose; the owner could not find it, which cost two
+  rounds (an admin-chat menu, then a menu for everyone).
+- **Report reasons with no fix path.** The web's "another option is right
+  too" and Hebrew→English "my answer is right too" offered reasons no
+  review decision could fix; found only by the code review.
+- **A hot-path API call.** `/help` gained an admin check that counted
+  against every student's message caps.
+- **Tooling slips.** `pkill -f "firebase emulators"` matched its own shell
+  (exit 144, the commit did not run); a build left over from a `git stash`
+  comparison made a screenshot run time out; the GitHub connector and git
+  credentials returned 503 for a while, so one PR was opened by the owner
+  from a compare link.
+- **No live check possible.** The session cannot reach the live site or
+  Telegram, so "deployed" was proved from CI job steps only, and the first
+  real Gemini Pro call is still untested.
+
+### Lessons → rules
+- Before building a privileged feature, write its access model into the
+  story: who may use it, how they find it (menu, help), and the per-user
+  cap and server-side check that bound it; confirm it with the owner once.
+- Every report reason maps to a field a review decision can change; drop a
+  reason that has no fix path.
+- A command users need is in the menu or the help; never hide one without
+  telling the user how to reach it.
+- Common messages (`/help`, `/start`) make no API call unless needed; any
+  new call on a hot path is checked against the caps it counts toward.
+- Opening a write path to more users ships a per-user cap and server-side
+  validation in the same PR.
+- Stop local servers by port (`lsof -t -i :PORT | xargs -r kill`), never
+  with `pkill -f` on a pattern that appears in the command itself.
+- Rebuild from the branch under test right before a screenshot or viewport
+  check; never reuse a build made for a comparison.
+- When a model, endpoint or page cannot be verified from the session, ship
+  a graceful fallback and name the first live check for the owner in the
+  PR and in chat.
+
+### Follow-ups
+- Owner: the first live `/review_manual` (the Gemini Pro call on
+  `REVIEW_MODEL` / `REVIEW_LOCATION`), and confirm the review commands now
+  show in the Telegram menu.
+- Record who decided each review (user id on the override and the closed
+  reports) and add an undo, now that any student can decide.
+- `/report` without a reason still makes one counted API call.
+- Fold `question_overrides` and `word_overrides` into the bundled JSON.
+- Run `/sprint review` on the Sprint 10 range (`6ef51f1...f50596e`) and the
+  Sprint 9 range still pending.
+- Carried over: 511 words whose sentence cannot be blanked, the option
+  position content rule, the English-only web quiz, and the Sprint 8 items.
