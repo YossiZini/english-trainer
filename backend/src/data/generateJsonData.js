@@ -52,7 +52,7 @@ function loadExistingContent() {
 /**
  * Generate lessons and exercises JSON from topic seed files
  */
-async function generateLessonsAndExercises(subjects = ['math']) {
+async function generateLessonsAndExercises(subjects = ['math', 'arabic']) {
   console.log(`Generating lessons and exercises for: ${subjects.join(', ')}...`);
 
   // Seed files per subject. The subject is decided here, not inside the seed
@@ -80,6 +80,9 @@ async function generateLessonsAndExercises(subjects = ['math']) {
       'topic102-order-of-operations.js',
       'topic103-average.js',
       'topic104-percentage.js'
+    ],
+    arabic: [
+      'topic201-arabic-first-unit.js'
     ]
   };
 
@@ -688,7 +691,7 @@ async function main(argv = process.argv.slice(2)) {
   const subjects = argv.filter(a => !a.startsWith('--'));
 
   try {
-    await generateLessonsAndExercises(subjects.length ? subjects : ['math']);
+    await generateLessonsAndExercises(subjects.length ? subjects : ['math', 'arabic']);
     console.log();
 
     if (all) {
