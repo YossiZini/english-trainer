@@ -288,6 +288,11 @@ class UnseenSession {
 
     return stats;
   }
+
+  /** Every student's reading sessions completed at or after `since` (ISO), for the usage summary. */
+  static async completedSince(since) {
+    return db.findSince('unseen_sessions', 'completed_at', since);
+  }
 }
 
 module.exports = UnseenSession;

@@ -136,6 +136,18 @@ class BotSession {
   static async end(id, reason = 'ended') {
     return this.update(id, { status: 'ended', end_reason: reason, ended_at: new Date().toISOString() });
   }
+
+  /**
+   * Bot words exams started at or after `since` (ISO) with at least one
+   * answer, for the usage summary: { userId, startedAt, answers }.
+   */
+  static async vocabAnswersSince(since) {
+    const sessions = await db.findSince('bot_sessions', 'started_at', since);
+    return sessions
+      .filter(s => this.kindOf(s) === 'vocab' && s.user_id)
+      .map(s => ({ userId: s.user_id, startedAt: s.started_at, answers: (s.correct_count || 0) + (s.wrong_count || 0) }))
+      .filter(s => s.answers > 0);
+  }
 }
 
 module.exports = BotSession;

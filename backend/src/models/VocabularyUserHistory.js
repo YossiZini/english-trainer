@@ -484,6 +484,11 @@ class VocabularyUserHistory {
       }
     };
   }
+
+  /** Every student's word-quiz answers at or after `since` (ISO), for the usage summary. */
+  static async answersSince(since) {
+    return db.findSince('vocabulary_user_history', 'answered_at', since);
+  }
 }
 
 module.exports = VocabularyUserHistory;

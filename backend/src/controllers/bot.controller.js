@@ -7,6 +7,7 @@ const ReviewService = require('../services/review.service');
 const ReviewSession = require('../services/bot/reviewSession');
 const BotReport = require('../services/bot/report');
 const BotUsage = require('../models/BotUsage');
+const UsageService = require('../services/usage.service');
 const { DAILY_REVIEW_CAP } = require('../config/bot');
 
 const ERROR_STATUS = {
@@ -77,6 +78,11 @@ class BotController {
   static async report(req, res) {
     if (invalid(req, res)) return;
     send(res, await BotReport.report(req.user, req.chatId, req.body.reason || null));
+  }
+
+  /** /usage: every student's participation in the last 7 and 30 days. */
+  static async usage(req, res) {
+    send(res, await UsageService.summary());
   }
 
   static async reviewReserve(req, res) {

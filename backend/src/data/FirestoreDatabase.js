@@ -88,6 +88,17 @@ class FirestoreDatabase {
     return this.find(collection, { [field]: value });
   }
 
+  /**
+   * Records whose `field` (an ISO timestamp) is at or after `since`, from the
+   * whole collection: one single-field range query in Firestore (served by
+   * the automatic single-field index), for reports across students.
+   */
+  async findSince(collection, field, since) {
+    this._assertDynamic(collection, 'range-query');
+    const snapshot = await this._ref(collection).where(field, '>=', since).get();
+    return snapshot.docs.map(doc => doc.data());
+  }
+
   async count(collection, criteria = {}) {
     if (this._isStatic(collection)) return this.staticStore.count(collection, criteria);
     return (await this._fetch(collection, criteria)).length;
