@@ -46944,7 +46944,7 @@
     "lesson_id": "ceb0b422-38c8-48be-90ca-c1c4d0c31b3e",
     "question_number": 17,
     "type": "multiple_choice",
-    "question_text_he": "באיזו מילה יש את האות ز?",
+    "question_text_he": "באיזו מילה מופיעה האות ز?",
     "question_text_en": null,
     "options": [
       "وَرْد",
@@ -46965,7 +46965,7 @@
     "lesson_id": "ceb0b422-38c8-48be-90ca-c1c4d0c31b3e",
     "question_number": 18,
     "type": "multiple_choice",
-    "question_text_he": "באיזו מילה יש את האות و?",
+    "question_text_he": "באיזו מילה מופיעה האות و?",
     "question_text_en": null,
     "options": [
       "دَار",
@@ -46986,7 +46986,7 @@
     "lesson_id": "ceb0b422-38c8-48be-90ca-c1c4d0c31b3e",
     "question_number": 19,
     "type": "multiple_choice",
-    "question_text_he": "באיזו מילה יש את האות ر?",
+    "question_text_he": "באיזו מילה מופיעה האות ر?",
     "question_text_en": null,
     "options": [
       "وِدَاد",
@@ -47007,7 +47007,7 @@
     "lesson_id": "ceb0b422-38c8-48be-90ca-c1c4d0c31b3e",
     "question_number": 20,
     "type": "multiple_choice",
-    "question_text_he": "באיזו מילה אין את האות د?",
+    "question_text_he": "באיזו מילה לא מופיעה האות د?",
     "question_text_en": null,
     "options": [
       "زَارَ",
@@ -47287,7 +47287,7 @@
       "עיצור שהוגים"
     ],
     "correct_answer": "עיצור שהוגים",
-    "explanation_he": "אלף עם המזה נהגית כעיצור, כמו א׳ בעברית.",
+    "explanation_he": "אלף עם המזה נהגית כעיצור, כמו א בעברית.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -47362,7 +47362,7 @@
     "lesson_id": "5f50fba3-75ac-44de-a417-52a110216f85",
     "question_number": 7,
     "type": "multiple_choice",
-    "question_text_he": "מה שם הסימן הקטן שיושב על האלף במילה أَرْز?",
+    "question_text_he": "איזה סימן הופך את האלף לעיצור שהוגים (أ)?",
     "question_text_en": null,
     "options": [
       "פתחה",
@@ -47371,7 +47371,7 @@
       "המזה"
     ],
     "correct_answer": "המזה",
-    "explanation_he": "הסימן על ראש האלף הוא ההמזה; מעליו יש גם פתחה.",
+    "explanation_he": "הסימן הקטן על ראש האלף הוא ההמזה; היא הופכת את האלף לעיצור, ומעליו באה גם תנועה (ב-أَرْز – פתחה).",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -47550,7 +47550,7 @@
     "lesson_id": "5f50fba3-75ac-44de-a417-52a110216f85",
     "question_number": 16,
     "type": "multiple_choice",
-    "question_text_he": "איפה במילה נמצאת בדרך כלל אלף עם המזה במילים שלמדנו?",
+    "question_text_he": "איפה במילה נמצאת אלף עם המזה במילים שלמדנו?",
     "question_text_en": null,
     "options": [
       "בתחילת המילה",
@@ -47790,7 +47790,7 @@
       "ا – אלף בלי המזה"
     ],
     "correct_answer": "ا – אלף בלי המזה",
-    "explanation_he": "وِدَاد: אחרי دَ באה ا שמאריכה את ה-a: \"דָאד\".",
+    "explanation_he": "وِدَاد: אחרי دَ באה ا שמאריכה את ה-a: \"דַאד\".",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -47828,7 +47828,7 @@
     "options": [
       "שום דבר, זו אותה אות",
       "האלף תהפוך לעיצור ותצטרך תנועה",
-      "המילה תיקרא אחרת רק בכתיב",
+      "רק הכתיב ישתנה, הקריאה לא",
       "האלף תהפוך לאם קריאה"
     ],
     "correct_answer": "האלף תהפוך לעיצור ותצטרך תנועה",
@@ -47886,7 +47886,7 @@
     "lesson_id": "64a25fea-4681-4383-8055-7fc56a3b6b17",
     "question_number": 2,
     "type": "multiple_choice",
-    "question_text_he": "איך קוראים לסימן הזה: دُ (הוו הקטנה מעל האות)?",
+    "question_text_he": "איך קוראים לסימן הזה: دُ (הסימן שנראה כמו ו קטנה מעל האות)?",
     "question_text_en": null,
     "options": [
       "פתחה",
@@ -48168,7 +48168,7 @@
       "דמה"
     ],
     "correct_answer": "דמה",
-    "explanation_he": "وُ – הוו הקטנה מעל האות היא דמה: דַאוֻד.",
+    "explanation_he": "وُ – הסימן שנראה כמו ו קטנה מעל האות הוא דמה: דַאוֻד.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48180,7 +48180,7 @@
     "lesson_id": "64a25fea-4681-4383-8055-7fc56a3b6b17",
     "question_number": 16,
     "type": "multiple_choice",
-    "question_text_he": "איזו תנועה יש על ה-ر במילה وَرْد?",
+    "question_text_he": "איזה סימן יש על ה-ر במילה وَرْد?",
     "question_text_en": null,
     "options": [
       "סוכון",
@@ -48264,16 +48264,16 @@
     "lesson_id": "64a25fea-4681-4383-8055-7fc56a3b6b17",
     "question_number": 20,
     "type": "multiple_choice",
-    "question_text_he": "לאיזה סימן עברי דומה הסוכון בתפקידו?",
+    "question_text_he": "איזו תנועה יש על ה-د שאחרי ה-و במילה وِدَاد?",
     "question_text_en": null,
     "options": [
-      "שווא נח",
-      "פתח",
-      "חיריק",
-      "דגש"
+      "פתחה",
+      "כסרה",
+      "דמה",
+      "סוכון"
     ],
-    "correct_answer": "שווא נח",
-    "explanation_he": "סוכון מסמן שאין תנועה, כמו שווא נח בעברית.",
+    "correct_answer": "פתחה",
+    "explanation_he": "دَ – פתחה: וִדַאד.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48453,16 +48453,16 @@
     "lesson_id": "64a25fea-4681-4383-8055-7fc56a3b6b17",
     "question_number": 29,
     "type": "multiple_choice",
-    "question_text_he": "איזו אות במילה دَاوُد אינה מנוקדת בכלל?",
+    "question_text_he": "איזו אות במילה زَارَ אינה מנוקדת בכלל?",
     "question_text_en": null,
     "options": [
-      "ה-د שבתחילת המילה",
+      "ز",
       "ا – האלף",
-      "و",
-      "ה-د שבסוף המילה"
+      "ر",
+      "כולן מנוקדות"
     ],
     "correct_answer": "ا – האלף",
-    "explanation_he": "האלף בלי המזה אינה מנוקדת. ה-د האחרונה גם ללא סימן כאן, אבל היא עיצור; האלף היא אם קריאה.",
+    "explanation_he": "ز ו-ر עם פתחה; רק האלף בלי המזה אינה מנוקדת – היא אם קריאה.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48840,7 +48840,7 @@
       "אַרְז"
     ],
     "correct_answer": "דַאר",
-    "explanation_he": "دَار = דַאר (בית).",
+    "explanation_he": "دَار = דַאר: בית, דירה, משפחה.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48861,7 +48861,7 @@
       "אַרַאדַ"
     ],
     "correct_answer": "וַרְד",
-    "explanation_he": "وَرْد = וַרְד (ורדים).",
+    "explanation_he": "وَرْد = וַרְד: ורדים.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48882,7 +48882,7 @@
       "אַרְז"
     ],
     "correct_answer": "אַרְז",
-    "explanation_he": "أَرْز = אַרְז (ארזים).",
+    "explanation_he": "أَرْز = אַרְז: ארזים.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48903,7 +48903,7 @@
       "אַו"
     ],
     "correct_answer": "זַארַ",
-    "explanation_he": "زَارَ = זַארַ (ביקר).",
+    "explanation_he": "زَارَ = זַארַ: ביקר (ביקר במקום כלשהו).",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48924,7 +48924,7 @@
       "זַארַ"
     ],
     "correct_answer": "וִדַאד",
-    "explanation_he": "وِدَاد = וִדַאד (ודאד (שם של בת)).",
+    "explanation_he": "وِدَاد = וִדַאד: ודאד (שם פרטי של בת).",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48945,7 +48945,7 @@
       "אַו"
     ],
     "correct_answer": "דַאוֻד",
-    "explanation_he": "دَاوُد = דַאוֻד (דאוד (שם של בן)).",
+    "explanation_he": "دَاوُد = דַאוֻד: דאוד (שם פרטי של בן).",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48966,7 +48966,7 @@
       "אַרַאדַ"
     ],
     "correct_answer": "אַרַאדַ",
-    "explanation_he": "أَرَادَ = אַרַאדַ (רצה).",
+    "explanation_he": "أَرَادَ = אַרַאדַ: רצה (רצה משהו).",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -48987,7 +48987,7 @@
       "וִדַאד"
     ],
     "correct_answer": "אַו",
-    "explanation_he": "أَو = אַו (או).",
+    "explanation_he": "أَو = אַו: או (ברירה).",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -49104,7 +49104,7 @@
     "lesson_id": "1b981a67-dd3a-4f01-b1ed-1228ea49fb66",
     "question_number": 30,
     "type": "multiple_choice",
-    "question_text_he": "איזו מילה מתאימה: \"ודאד ___ ורדים\" (חשקה בהם)?",
+    "question_text_he": "איזו מילה מתאימה: \"דאוד ___ ורדים\" (חשק בהם)?",
     "question_text_en": null,
     "options": [
       "زَارَ",
@@ -49113,7 +49113,7 @@
       "أَرْز"
     ],
     "correct_answer": "أَرَادَ",
-    "explanation_he": "רצה = أَرَادَ. ודאד רצתה ורדים.",
+    "explanation_he": "רצה = أَرَادَ. דאוד רצה ורדים.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -49218,7 +49218,7 @@
       "סוכון"
     ],
     "correct_answer": "דמה",
-    "explanation_he": "הוו הקטנה מעל האות היא דמה (u).",
+    "explanation_he": "הסימן שנראה כמו ו קטנה מעל האות הוא דמה (u).",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -49335,7 +49335,7 @@
     "lesson_id": "95a54ff7-3acc-4b8f-95df-1b9f4e57a8c2",
     "question_number": 11,
     "type": "multiple_choice",
-    "question_text_he": "באיזו מילה יש את האות ذ?",
+    "question_text_he": "באיזו מילה מופיעה האות ذ?",
     "question_text_en": null,
     "options": [
       "دَار",
@@ -49356,7 +49356,7 @@
     "lesson_id": "95a54ff7-3acc-4b8f-95df-1b9f4e57a8c2",
     "question_number": 12,
     "type": "multiple_choice",
-    "question_text_he": "איזו תנועה יש על ה-ر במילה أَرْز?",
+    "question_text_he": "איזה סימן יש על ה-ر במילה أَرْز?",
     "question_text_en": null,
     "options": [
       "סוכון",
@@ -49470,7 +49470,7 @@
       "מקבילה ל-ר"
     ],
     "correct_answer": "מאריכה את הפתחה של ز",
-    "explanation_he": "אלף בלי המזה היא אם קריאה: זָארַ.",
+    "explanation_he": "אלף בלי המזה היא אם קריאה: זַארַ.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -49649,7 +49649,7 @@
     "lesson_id": "95a54ff7-3acc-4b8f-95df-1b9f4e57a8c2",
     "question_number": 26,
     "type": "multiple_choice",
-    "question_text_he": "איזו אות מתאימה לתיאור: \"כמו را בלי הנקודה\"? (כלומר ر)",
+    "question_text_he": "האות שנראית כמו ز אבל בלי הנקודה – לאיזו אות עברית היא מקבילה?",
     "question_text_en": null,
     "options": [
       "ז",
