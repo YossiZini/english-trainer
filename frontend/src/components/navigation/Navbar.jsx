@@ -47,6 +47,12 @@ const Navbar = () => {
             >
               מתמטיקה
             </button>
+            <button
+              className={`navbar-link ${location.pathname === '/arabic' ? 'active' : ''}`}
+              onClick={() => navigate('/arabic')}
+            >
+              ערבית
+            </button>
           </div>
         </div>
 

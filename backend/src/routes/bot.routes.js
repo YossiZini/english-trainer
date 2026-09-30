@@ -1,6 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const BotController = require('../controllers/bot.controller');
+const { SUBJECTS } = require('../config/subjects');
 const { requireBotKey, requireLinkedChat } = require('../middleware/botAuth.middleware');
 const { chatRateLimit, dailyCap } = require('../middleware/botLimits.middleware');
 
@@ -30,7 +31,7 @@ router.get('/session/status', BotController.status);
  * end go through /session/answer and /session/end like vocabulary.
  */
 router.post('/exercise/start', [
-  body('subject').optional().isIn(['english', 'math']).withMessage('subject must be english or math'),
+  body('subject').optional().isIn(SUBJECTS).withMessage(`subject must be one of ${SUBJECTS.join(', ')}`),
   body('lessonId').optional().isString().isLength({ min: 1, max: 64 }),
   body('number').optional().isInt({ min: 1, max: 999 }),
   body('difficulty').optional().isIn(['easy', 'medium', 'hard']).withMessage('difficulty must be easy, medium or hard'),
@@ -44,7 +45,7 @@ router.post('/exercise/start', [
  * turn the page) through /session/answer.
  */
 router.post('/exercise/lessons', [
-  body('subject').isIn(['english', 'math']).withMessage('subject must be english or math')
+  body('subject').isIn(SUBJECTS).withMessage(`subject must be one of ${SUBJECTS.join(', ')}`)
 ], BotController.listLessons);
 
 /**

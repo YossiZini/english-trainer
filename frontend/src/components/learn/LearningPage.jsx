@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
-import { displayTopic, displaySubtopic } from '../../content/topicMeta';
+import { displayTopic, displaySubtopic, metaOf } from '../../content/topicMeta';
 import { getScenes } from '../../content/animations';
 import LessonAnimation from './LessonAnimation';
 import './LearningPage.css';
@@ -106,8 +106,8 @@ const LearningPage = () => {
   return (
     <div className="learning-container">
       <nav className="learning-nav">
-        <Link to={lesson.subject === 'math' ? '/math' : '/topics'} className="btn-nav-back">
-          ← {lesson.subject === 'math' ? 'חזור למתמטיקה' : 'חזור לנושאים'}
+        <Link to={metaOf(lesson.subject).route} className="btn-nav-back">
+          ← {lesson.subject === 'english' || !lesson.subject ? 'חזור לנושאים' : `חזור ל${metaOf(lesson.subject).title}`}
         </Link>
         <div className="lesson-breadcrumb">
           <span>נושא {displayTopic(lesson.topicNumber)}</span>
@@ -173,7 +173,7 @@ const LearningPage = () => {
 
         <div className="theory-content">
           <div
-            className="theory-html"
+            className={`theory-html${lesson.subject === 'arabic' ? ' arabic' : ''}`}
             dangerouslySetInnerHTML={{ __html: lesson.theoryContentHe }}
           />
         </div>

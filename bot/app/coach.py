@@ -33,8 +33,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
     """An English command, with or without "/" (and "@bot" in groups), else None.
 
     help | words | end | switch | report | usage | review [manual|auto] |
-    english|math [N] [easy|medium|hard] |
-    lessons english|math (also lessons_english) | lessons"""
+    english|math|arabic [N] [easy|medium|hard] |
+    lessons english|math|arabic (also lessons_english) | lessons"""
     words = text.lower().split()
     if not words or len(words) > 3:
         return None

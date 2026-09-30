@@ -3,9 +3,8 @@ const WrongAnswer = require('../models/WrongAnswer');
 const GamificationService = require('./gamification.service');
 const User = require('../models/User');
 const { db } = require('../config/database');
-
 // Subjects shown side by side on the home page, in display order.
-const SUBJECTS = ['english', 'math'];
+const { SUBJECTS } = require('../config/subjects');
 
 class ProgressService {
   /**

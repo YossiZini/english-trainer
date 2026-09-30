@@ -5,12 +5,14 @@ import { textDirection, isolateEnglish } from '../../utils/bidi';
 
 // subject: 'english' questions are mostly English sentences (LTR); those that
 // start in Hebrew ("המילה ... היא _______", "תקן: ...") read right-to-left with
-// their English stretches isolated. Other subjects are written in Hebrew (RTL).
+// their English stretches isolated. Other subjects are written in Hebrew (RTL);
+// math options are expressions (LTR), Arabic options are Arabic (RTL, Arabic font).
 const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, subject }) => {
   // The page passes the lesson's subject; cross-test questions carry their own.
   const questionSubject = subject || question.subject || 'english';
   const textDir = questionSubject === 'english' ? textDirection(question.question_text_he) : 'rtl';
   const hebrewFirstEnglish = questionSubject === 'english' && textDir === 'rtl';
+  const arabic = questionSubject === 'arabic';
   const options = question.options || [];
   const [hoveredOption, setHoveredOption] = useState(null);
 
@@ -57,7 +59,7 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, su
   };
 
   return (
-    <div className="multiple-choice">
+    <div className={`multiple-choice${arabic ? ' arabic' : ''}`}>
       {hebrewFirstEnglish ? (
         <div className="question-text" dir="rtl">
           {isolateEnglish(question.question_text_he).map((part, i) => (part.ltr
@@ -90,7 +92,7 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, su
               onClick={() => handleOptionClick(option)}
               onMouseEnter={() => !feedback && setHoveredOption(option)}
               onMouseLeave={() => setHoveredOption(null)}
-              dir="ltr"
+              dir={arabic ? 'rtl' : 'ltr'}
             >
               <div className="option-indicator">
                 {feedback ? (

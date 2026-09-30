@@ -23,7 +23,7 @@ describe('compareLessons', () => {
 describe('lesson page navigation (d5)', () => {
   beforeAll(initializeDatabase);
 
-  test.each(['english', 'math'])('every %s lesson links to its curriculum neighbours', async (subject) => {
+  test.each(['english', 'math', 'arabic'])('every %s lesson links to its curriculum neighbours', async (subject) => {
     const ordered = lessons.filter(l => (l.subject || 'english') === subject).sort(compareLessons);
     for (let i = 0; i < ordered.length; i++) {
       const next = await Lesson.getNextLesson(ordered[i]);

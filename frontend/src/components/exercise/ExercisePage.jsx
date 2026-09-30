@@ -10,6 +10,7 @@ import ExerciseActionBar from './ExerciseActionBar';
 import ExerciseFeedback from './ExerciseFeedback';
 import ReportQuestion from './ReportQuestion';
 import useScrollToQuestion from './useScrollToQuestion';
+import { metaOf } from '../../content/topicMeta';
 import './ExercisePage.css';
 
 const ExercisePage = () => {
@@ -271,10 +272,10 @@ const ExercisePage = () => {
         <div className="exercise-header">
           <div className="breadcrumb">
             <span
-              onClick={() => navigate(lesson?.subject === 'math' ? '/math' : '/topics')}
+              onClick={() => navigate(metaOf(lesson?.subject).route)}
               className="breadcrumb-link"
             >
-              {lesson?.subject === 'math' ? 'מתמטיקה' : 'נושאים'}
+              {!lesson?.subject || lesson.subject === 'english' ? 'נושאים' : metaOf(lesson.subject).title}
             </span>
             <span className="breadcrumb-separator"> &gt; </span>
             <span className="breadcrumb-current">{lesson?.title_he}</span>

@@ -927,3 +927,11 @@
 }
 .subject-badge.subject-english { background: #d9f7ef; color: #00866b; }
 .subject-badge.subject-math { background: #e8ecfd; color: #4f5bd5; }
+.subject-badge.subject-arabic { background: #fdeede; color: #a0521c; }
+.continue-training-btn.subject-arabic {
+  background: linear-gradient(135deg, #e17055 0%, #d35400 100%);
+  box-shadow: 0 6px 20px rgba(225, 112, 85, 0.4);
+}
+.continue-training-btn.subject-arabic:hover { box-shadow: 0 8px 25px rgba(225, 112, 85, 0.5); }
+.home-progress-card.subject-arabic .home-progress-bar-fill { background: linear-gradient(90deg, #e17055, #d35400); }
+.home-progress-card.subject-arabic .home-progress-percentage { color: #a0521c; }

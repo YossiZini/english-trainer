@@ -200,6 +200,23 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
 | 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
 
+### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
+
+Arabic lessons carry `subject: "arabic"` and are numbered 201+ (shown as 1+
+on the `/arabic` page). A unit is a folder (`seeds/arabic/`) with one file per
+lesson, composed by `topic2NN-*.js`; the facts of the unit (letters, vowels,
+words) live in `seeds/arabic/facts.js` and every question is built from them
+with `seeds/arabic/common.js` (`q`, `lesson`, which enforce 10 questions per
+level, distinct options and no positional options). Students read and
+recognise; they never write Arabic. Regenerate with
+`cd backend && npm run generate-data arabic`. Display text:
+`frontend/src/content/topicMeta.js` (`arabic`). Guide:
+`docs/arabic-content-guide.md`.
+
+| # | Topic Name (EN) | Topic Name (HE) | Seed File | Registered | Frontend | Status |
+|---|-----------------|-----------------|-----------|------------|----------|--------|
+| 201 | Letters, vowels and first words (5 lessons 201.1–201.5) | אותיות, תנועות ומילים ראשונות | topic201-arabic-first-unit.js + arabic/*.js | Yes | Yes | Complete |
+
 ### Status Legend
 
 - **Complete**: All assets exist and are registered
@@ -209,7 +226,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 
 ### Summary
 
-- **Complete:** 15 topics (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+- **Complete:** 15 English topics (1–15), 4 math topics (101–104), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -217,6 +234,14 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 ## Recent Activity Log
 
 Track changes per topic with dates and descriptions.
+
+### Topic 201: Letters, vowels and first words (Arabic)
+- 2026-09-30: Arabic added as a third subject (API subject list, `/arabic`
+  page, right-to-left options, Noto Naskh Arabic font). First unit for the
+  11.10 test (book pp. 13–25): 201.1 letters د ذ ا ر ز و, 201.2 alif with and
+  without hamza, 201.3 vowels, 201.4 the eight words, 201.5 review; each a
+  Hebrew teaching page and 30 multiple-choice questions (10 per level) built
+  from `seeds/arabic/facts.js` and checked by an independent review. Sprint 12.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises

@@ -93,7 +93,7 @@
   <header>
     <span class="eyebrow">Architecture overview</span>
     <h1>English Trainer System Map</h1>
-    <p class="lede">A practice app for Hebrew-speaking students: English grammar and vocabulary plus a Math tab, used in the browser and from Telegram (vocabulary and lesson exercises). Three services on Google Cloud share one API and one student database.</p>
+    <p class="lede">A practice app for Hebrew-speaking students: English grammar and vocabulary, a Math tab and an Arabic tab (reading and recognition), used in the browser and from Telegram (vocabulary and lesson exercises). Three services on Google Cloud share one API and one student database.</p>
     <div class="facts">
       <span>GCP project teacher-509909</span>
       <span>Region europe-west1</span>
@@ -154,7 +154,7 @@ flowchart LR
           <div><dt>Owns</dt><dd>Everything the student sees in the browser, and the login token kept on the device.</dd></div>
           <div><dt>Main functions</dt><dd><ul>
             <li>Login and registration</li>
-            <li>English and Math topics, lessons with animated explanations</li>
+            <li>English, Math and Arabic topics (numbered 1+, 101+, 201+), lessons with animated explanations</li>
             <li>Exercises with feedback, mistakes review, progress and points</li>
             <li>Vocabulary quiz and history</li>
             <li>Telegram page: issue a link code, unlink</li>
@@ -337,7 +337,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Telegram bot</span>
         <h3>A lesson's exercises in Telegram</h3>
-        <p>English or Math: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved.</p>
+        <p>English, Math or Arabic: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">

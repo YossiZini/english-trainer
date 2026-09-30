@@ -15,6 +15,9 @@ Reference: `/docs/topics-status.md` contains:
 **Math content** (teaching documents, exercises, explanations, pictures,
 verification): follow `/docs/math-content-guide.md`.
 
+**Arabic content** (lessons, questions, transliteration, verification):
+follow `/docs/arabic-content-guide.md`.
+
 ---
 
 ## Deployment

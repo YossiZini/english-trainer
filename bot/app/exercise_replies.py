@@ -6,8 +6,8 @@ numbered across pages; the student sends a lesson's number. The verdict, the
 right option and the score always come from the API."""
 from .replies import Reply
 
-SUBJECT_COMMAND = {"english": "/english", "math": "/math"}
-SUBJECT_NAME = {"english": "אנגלית", "math": "חשבון"}
+SUBJECT_COMMAND = {"english": "/english", "math": "/math", "arabic": "/arabic"}
+SUBJECT_NAME = {"english": "אנגלית", "math": "חשבון", "arabic": "ערבית"}
 LEVEL_NAME = {"easy": "קל", "medium": "בינוני", "hard": "קשה"}
 MARKS = {"done": "✅ ", "next": "▶️ ", "open": ""}
 MORE, BACK = "more", "back"
@@ -16,14 +16,14 @@ PICK_CLOSED = "סגרנו את רשימת השיעורים."
 NO_HINT = "אין רמז לשאלה הזו."
 START_INTRO = "מתחילים! ענו במספר התשובה (? לרמז), או /end כדי לעצור."
 
-ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה: /lessons_english או /lessons_math."
+ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה: /lessons_english, /lessons_math או /lessons_arabic."
 LESSON_NOT_FOUND = "לא מצאתי את השיעור הזה."
 NO_EXERCISES = "לשיעור הזה אין עדיין תרגילים."
 EXERCISE_ERRORS = {
     "all_done": ALL_DONE,
     "lesson_not_found": LESSON_NOT_FOUND,
     "no_exercises": NO_EXERCISES,
-    "bad_subject": "אפשר לתרגל אנגלית או חשבון.",
+    "bad_subject": "אפשר לתרגל אנגלית, חשבון או ערבית.",
 }
 
 # Reporting a question or a word: the reasons are buttons carrying this sign,
@@ -47,7 +47,7 @@ REPORT_ASK = ("🚩 דיווח על השאלה האחרונה שעניתם על�
 WORD_REPORT_ASK = ("🚩 דיווח על המילה האחרונה שעניתם עליה (או על המילה הנוכחית). מה לא בסדר בה?\n"
                    "בחרו בכפתור. אחרי הדיווח ממשיכים מאותה מילה.")
 REPORT_NO_LESSON = ("אפשר לדווח על מילה או שאלה במהלך מבחן מילים (/words) או תרגילי שיעור "
-                    "(/english או /math), או מיד אחריהם.")
+                    "(/english, /math או /arabic), או מיד אחריהם.")
 REPORT_CAP = "הגעת למכסת הדיווחים להיום. תודה על העזרה, נמשיך מחר!"
 
 

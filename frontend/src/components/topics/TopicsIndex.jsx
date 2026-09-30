@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
-import topicMeta, { getSubtopicExamples, displayTopic, displaySubtopic } from '../../content/topicMeta';
+import { getSubtopicExamples, displayTopic, displaySubtopic, metaOf } from '../../content/topicMeta';
 import './TopicsIndex.css';
 
 // One page for every subject: the lessons come from the API filtered by
@@ -10,11 +10,11 @@ const TopicsIndex = ({ subject = 'english' }) => {
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [expandedTopics, setExpandedTopics] = useState([subject === 'math' ? 101 : 1]); // Expand first topic by default
+  const meta = metaOf(subject);
+  const [expandedTopics, setExpandedTopics] = useState([meta.numberOffset + 1]); // Expand first topic by default
   const [videoModal, setVideoModal] = useState({ isOpen: false, video: null });
 
   // Display text per subject (names, examples, descriptions, videos)
-  const meta = topicMeta[subject] || topicMeta.english;
   const { topicNames, tocExamples, topicDescriptions, topicVideos } = meta;
   const openVideoModal = (video) => {
     setVideoModal({ isOpen: true, video });

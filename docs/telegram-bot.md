@@ -58,7 +58,7 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/words` | vocabulary practice (below) |
 | `/switch` (also the 🔄 button under a words summary) | the same words again, the other way round |
 | `/usage` | who practised in the last 7 and 30 days (see "Usage") |
-| `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
+| `/english`, `/math`, `/arabic`, `/lessons_english`, `/lessons_math`, `/lessons_arabic` | lesson exercises (see "Lesson exercises") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
 | `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | review of reported questions and words, open to every linked student (see "Reported questions and review") |
 | `/end` (also `stop`) | ends any open session |
@@ -162,7 +162,7 @@ per message.
 | Command | What happens |
 |---|---|
 | `/english` / `/math` | the subject's next lesson (curriculum order) |
-| `/lessons_english` / `/lessons_math` (or `lessons english`; `lessons` alone offers both) | numbered lesson list, 10 per page, ✅ passed / ▶️ next; `more` / `back` turn the page; the student sends a number |
+| `/lessons_english` / `/lessons_math` / `/lessons_arabic` (or `lessons english`; `lessons` alone offers all three) | numbered lesson list, 10 per page, ✅ passed / ▶️ next; `more` / `back` turn the page; the student sends a number |
 | `english 12` | lesson 12 of that list, directly |
 | `english hard`, `math 3 easy` | the same, at a chosen level (easy / medium / hard) instead of the progress-based one |
 | "?" (or `hint`) during a question | the question's hint and the same question; not an answer (no exercise has a hint yet, so it says there is none) |

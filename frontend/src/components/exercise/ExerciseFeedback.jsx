@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { hasArabic } from '../../utils/bidi';
 import MathText from '../common/MathText';
 import './ExerciseFeedback.css';
 
@@ -33,7 +34,8 @@ const ExerciseFeedback = ({ feedback, feedbackKey }) => {
   if (!feedback) return null;
 
   return (
-    <div className={`feedback ${feedback.isCorrect ? 'correct' : 'incorrect'}`}>
+    <div className={`feedback ${feedback.isCorrect ? 'correct' : 'incorrect'}${
+      hasArabic(feedback.correctAnswer) || hasArabic(feedback.explanationHe) ? ' arabic' : ''}`}>
       <div className="feedback-icon">
         {feedback.isCorrect ? '✅' : '💡'}
       </div>

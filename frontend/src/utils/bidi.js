@@ -7,12 +7,18 @@
  */
 
 const HEBREW = /[֐-׿]/;
+const ARABIC = /[\u0600-\u06FF]/;
 const LATIN = /[A-Za-z]/;
 
-/** 'rtl' when the first letter of the text is Hebrew, else 'ltr'. */
+/** Whether the text holds Arabic script (letters or vowel marks). */
+export function hasArabic(text) {
+  return ARABIC.test(String(text || ''));
+}
+
+/** 'rtl' when the first letter of the text is Hebrew or Arabic, else 'ltr'. */
 export function textDirection(text) {
   for (const ch of String(text || '')) {
-    if (HEBREW.test(ch)) return 'rtl';
+    if (HEBREW.test(ch) || ARABIC.test(ch)) return 'rtl';
     if (LATIN.test(ch)) return 'ltr';
   }
   return 'ltr';

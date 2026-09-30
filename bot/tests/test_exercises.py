@@ -212,7 +212,7 @@ async def test_bare_command_works_during_a_multiple_choice_question():
 async def test_lessons_without_a_subject_offers_both():
     no_session()
     reply = await coach().handle("7", "lessons")
-    assert reply.text == replies.WHICH_LESSONS and reply.buttons == ["lessons english", "lessons math"]
+    assert reply.text == replies.WHICH_LESSONS and reply.buttons == ["lessons english", "lessons math", "lessons arabic"]
 
 
 @respx.mock
@@ -276,3 +276,18 @@ async def test_report_in_a_words_exam_offers_word_reasons_and_shows_the_word_aga
     assert reply.text.startswith("🚩 תודה! דיווחנו על המילה dog ונבדוק אותה.\n\nהתרגול ממשיך. המילה הנוכחית:")
     assert "(3/20) house" in reply.text
     assert not answer.called
+
+
+@respx.mock
+async def test_arabic_is_a_subject_of_its_own():
+    from app.tools import _subject
+    assert _subject("arabic") == "arabic" and _subject("ערבית") == "arabic" and _subject("math") == "math"
+    assert parse_command("/arabic") == ("exercise", {"subject": "arabic", "number": None, "difficulty": None})
+    assert parse_command("arabic 2 easy") == ("exercise", {"subject": "arabic", "number": 2, "difficulty": "easy"})
+    assert parse_command("/lessons_arabic") == ("lessons", {"subject": "arabic"})
+    route = respx.post(f"{API}/bot/exercise/start").mock(return_value=ok(
+        {"kind": "exercise", "sessionId": "s", "lesson": {**LESSON, "subject": "arabic", "title": "אותיות"},
+         "question": mc(1, ["ד", "ד׳", "א", "ר"])}))
+    reply = await coach().handle("7", "/arabic")
+    assert json.loads(route.calls.last.request.content)["subject"] == "arabic"
+    assert "📘 אותיות" in reply.text and reply.buttons == ["1", "2", "3", "4"]

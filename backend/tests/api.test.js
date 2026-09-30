@@ -81,6 +81,11 @@ describe('API', () => {
     expect(math.body.data.every(t => t.subject === 'math')).toBe(true);
     expect(math.body.data.every(t => t.topicNumber >= 101)).toBe(true);
 
+    // Arabic is a subject of its own: only its lessons, never the others'.
+    const arabic = await request(app).get('/api/lessons?subject=arabic').set(auth());
+    expect(arabic.status).toBe(200);
+    expect(arabic.body.data.every(t => t.subject === 'arabic' && t.topicNumber >= 201)).toBe(true);
+
     // An unknown subject is ignored, not an error
     const all = await request(app).get('/api/lessons?subject=music').set(auth());
     expect(all.status).toBe(200);
@@ -198,8 +203,11 @@ describe('API', () => {
 
     // Totals split the lessons between the subjects.
     expect(subjects.math.completion.total_lessons).toBe(mathLessons.length);
-    expect(subjects.english.completion.total_lessons + subjects.math.completion.total_lessons)
-      .toBe(completion.total_lessons);
+    // The subjects' lessons add up to the whole curriculum (English, math and Arabic).
+    const arabic = await request(app).get('/api/lessons?subject=arabic').set(auth());
+    expect(subjects.arabic.completion.total_lessons).toBe(arabic.body.data.flatMap(t => t.lessons).length);
+    expect(subjects.english.completion.total_lessons + subjects.math.completion.total_lessons
+      + subjects.arabic.completion.total_lessons).toBe(completion.total_lessons);
 
     // Each subject continues in its own lessons, even though Math comes after every English lesson.
     expect(Number(subjects.english.nextLesson.subtopic_number)).toBeLessThan(101);
@@ -209,6 +217,8 @@ describe('API', () => {
     expect(subjects.math.lastActivity).toMatchObject({ subject: 'math', lesson_id: mathLessons[6].id, difficulty: 'easy' });
     expect(subjects.english.lastActivity.subject).toBe('english');
     expect(recentActivity.map(a => a.subject).sort()).toEqual(['english', 'math']);
+    // A subject still without lessons (Arabic before its first unit) is listed with nothing to continue.
+    expect(Object.keys(subjects)).toEqual(['english', 'math', 'arabic']);
   });
 
   test('reading passages, achievements, challenges and dashboard respond', async () => {

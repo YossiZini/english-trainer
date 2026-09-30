@@ -1,4 +1,5 @@
 const LessonService = require('../services/lesson.service');
+const { isSubject } = require('../config/subjects');
 
 class LessonController {
   /**
@@ -13,7 +14,7 @@ class LessonController {
       const filters = {};
       if (level) filters.level = level;
       if (topicNumber) filters.topicNumber = parseInt(topicNumber);
-      if (subject === 'english' || subject === 'math') filters.subject = subject;
+      if (isSubject(subject)) filters.subject = subject;
 
       const lessons = await LessonService.getAllLessons(userId, filters);
 
