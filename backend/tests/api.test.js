@@ -203,8 +203,11 @@ describe('API', () => {
 
     // Totals split the lessons between the subjects.
     expect(subjects.math.completion.total_lessons).toBe(mathLessons.length);
-    expect(subjects.english.completion.total_lessons + subjects.math.completion.total_lessons)
-      .toBe(completion.total_lessons);
+    // The subjects' lessons add up to the whole curriculum (English, math and Arabic).
+    const arabic = await request(app).get('/api/lessons?subject=arabic').set(auth());
+    expect(subjects.arabic.completion.total_lessons).toBe(arabic.body.data.flatMap(t => t.lessons).length);
+    expect(subjects.english.completion.total_lessons + subjects.math.completion.total_lessons
+      + subjects.arabic.completion.total_lessons).toBe(completion.total_lessons);
 
     // Each subject continues in its own lessons, even though Math comes after every English lesson.
     expect(Number(subjects.english.nextLesson.subtopic_number)).toBeLessThan(101);
