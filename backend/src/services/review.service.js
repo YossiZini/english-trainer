@@ -167,13 +167,18 @@ class ReviewService {
     return items;
   }
 
-  /** Apply the admin's decision to a question ("<exercise id>") or word ("word:<id>") under review. */
+  /**
+   * Apply a reviewer's decision to a question ("<exercise id>") or word
+   * ("word:<id>") under review. An item no longer under review (another
+   * reviewer decided it first) is left alone: already_decided.
+   */
   static async decide(key, decision, change = null) {
     if (!DECISIONS.includes(decision)) return { error: 'bad_decision' };
     if (typeof key === 'string' && key.startsWith(WORD_KEY)) return this.decideWord(key.slice(WORD_KEY.length), decision, change);
     const exerciseId = key;
     const exercise = typeof exerciseId === 'string' && exerciseId ? await Exercise.findById(exerciseId) : null;
     if (!exercise) return { error: 'exercise_not_found' };
+    if (!(await QuestionReport.hasOpen(exerciseId))) return { error: 'already_decided' };
     if (decision === 'change') {
       const reason = invalidChange(change);
       if (reason) return { error: 'invalid_change', reason };
@@ -188,10 +193,16 @@ class ReviewService {
   static async decideWord(wordId, decision, change) {
     const word = wordId ? await VocabularyWord.findById(wordId) : null;
     if (!word) return { error: 'word_not_found' };
+    if (!(await WordReport.hasOpen(wordId))) return { error: 'already_decided' };
     if (decision === 'change') {
       const reason = invalidWordChange(change);
       if (reason) return { error: 'invalid_change', reason };
-      await WordOverride.decide(wordId, 'change', pickWord(change, word));
+      const fields = pickWord(change, word);
+      // A Hebrew sentence dropped by an earlier change stays dropped: the new
+      // change replaces the whole earlier one.
+      const previous = (await WordOverride.get(wordId) || {}).change;
+      if (previous && previous.sentence_he === null && !('sentence_he' in fields)) fields.sentence_he = null;
+      await WordOverride.decide(wordId, 'change', fields);
     } else {
       await WordOverride.decide(wordId, decision);
     }

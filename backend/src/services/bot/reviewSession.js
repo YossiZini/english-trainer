@@ -78,8 +78,12 @@ class ReviewSession {
       change = session.proposal.change || null;
     }
     const result = await ReviewService.decide(session.current, decision, change);
+    if (result.error === 'already_decided') {
+      // Another reviewer decided it meanwhile: nothing is changed; go on to the next item.
+      return moveOn(session, { alreadyDecided: session.current });
+    }
     if (result.error) {
-      // An invalid change stays pending: the admin can correct it or decide otherwise.
+      // An invalid change stays pending: the reviewer can correct it or decide otherwise.
       const { item, remaining } = await nextItem(session);
       return view(session, item, remaining, { rejected: result.reason || result.error });
     }

@@ -1,4 +1,5 @@
 """The coach: caps and the fast path never call the agent."""
+import json
 from datetime import date
 
 import httpx
@@ -148,3 +149,20 @@ async def test_summary_button_repeats_the_same_words_the_other_way_round():
     assert again.text == "אותן מילים, מעברית לאנגלית. תרגמו לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול"
     assert (await c.handle("7", "/switch")).text == replies.NO_WORDS_TO_SWITCH
     assert switch.call_count == 2
+
+
+@respx.mock
+async def test_in_a_words_exam_a_bare_command_word_is_the_answer():
+    # "review", "report", "help" and "math" are words of the list: typed bare, they are answers.
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok(
+        {"active": True, "kind": "vocab", "word": {"id": "w", "direction": "he-en", "prompt": "סקירה"}, "progress": progress(3)}))
+    answer = respx.post(f"{API}/bot/session/answer").mock(return_value=ok(
+        {"correct": True, "points": 1, "done": False, "word": {"id": "w2", "direction": "he-en", "prompt": "לדווח"},
+         "progress": progress(4)}))
+    review = respx.post(f"{API}/bot/review/start")
+    c = coach()
+    for word in ("review", "report", "help", "math"):
+        reply = await c.handle("7", word)
+        assert reply.text.startswith("✅ נכון!")
+        assert json.loads(answer.calls.last.request.content)["text"] == word
+    assert not review.called

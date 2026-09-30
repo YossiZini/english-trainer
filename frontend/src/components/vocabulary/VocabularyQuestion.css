@@ -14,12 +14,12 @@
   margin-bottom: 0.5rem;
 }
 
-.question-header .report-question {
+.vocabulary-question .question-header .report-question {
   margin-top: 0.25rem;
   text-align: center;
 }
 
-.question-header .report-question-panel {
+.vocabulary-question .question-header .report-question-panel {
   text-align: start;
 }
 

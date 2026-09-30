@@ -114,11 +114,14 @@ class Coach:
             return await self.run_command(chat_id, *command) if command else None
         status = await self.api.status(chat_id)
         active = status["ok"] and status["data"].get("active")
-        # A bare word is an answer only while a typed (fill-in) question is
-        # open, where it may be "help" or "english"; a multiple-choice answer
-        # is a number, so there a bare command still works. "/help" always does.
+        # A bare word is an answer while the student types one: a fill-in
+        # question, or a word of the words exam (where "review", "report",
+        # "help" and "math" are real words to translate). A multiple-choice
+        # answer is a number, so there a bare command still works. "/help"
+        # always does.
         question = status["data"].get("question") if active else None
-        typed = bool(question) and question.get("type") != "multiple_choice"
+        words_exam = active and status["data"].get("kind") == "vocab" and bool(status["data"].get("word"))
+        typed = words_exam or (bool(question) and question.get("type") != "multiple_choice")
         if command and not typed:
             return await self.run_command(chat_id, *command)
         if active and status["data"].get("kind") == "review":
@@ -226,15 +229,29 @@ class Coach:
             after = result["data"]
             if after.get("rejected"):
                 return rr.review_reply(after, None, f"⚠️ ההצעה לא תקינה: {after['rejected']}. כתבו תיקון או החליטו בכפתורים.")
+            if after.get("alreadyDecided"):
+                return await self.review_show(chat_id, after, rr.ALREADY_DECIDED)
             return await self.review_show(chat_id, after, "✔️ נשמר.")
         # Anything else is the reviewer's correction: the agent revises its proposal.
         return await self.review_show(chat_id, data, instruction=text)
 
     async def review_auto(self, chat_id: str, data: dict) -> Reply:
-        """Apply the agent's valid proposals for as long as Telegram's webhook allows, then report."""
+        """Apply the agent's valid proposals for as long as the request limit allows, then report.
+
+        An agent call starts only if it can end inside the round, and any
+        failed API call ends the round with what was done so far."""
         results = []
         deadline = time.monotonic() + config.REVIEW_AUTO_BUDGET_SECONDS
-        while data.get("item") and not data.get("done") and time.monotonic() < deadline:
+
+        async def act(action: str) -> dict | None:
+            result = await self.api.review_act(chat_id, action)
+            if not result["ok"]:
+                results.append(replies.error_reply(result))
+                return None
+            return result["data"]
+
+        while (data.get("item") and not data.get("done")
+               and time.monotonic() + config.REVIEW_TIMEOUT_SECONDS <= deadline):
             item = data["item"]
             title = rr.item_title(item)
             proposal, error = await self._propose(chat_id, item)
@@ -244,13 +261,25 @@ class Coach:
                 break
             if not proposal:
                 results.append(f"⏭ {title}: {error}")
-                data = (await self.api.review_act(chat_id, "skip"))["data"]
+                after = await act("skip")
+                if after is None:
+                    break
+                data = after
                 continue
-            await self.api.review_propose(chat_id, proposal)
-            after = (await self.api.review_act(chat_id, "approve"))["data"]
-            if after.get("rejected"):
+            stored = await self.api.review_propose(chat_id, proposal)
+            if not stored["ok"]:
+                results.append(replies.error_reply(stored))
+                break
+            after = await act("approve")
+            if after is None:
+                break
+            if after.get("alreadyDecided"):
+                results.append(f"↪️ {title}: {rr.ALREADY_DECIDED.split(',')[0]}.")
+            elif after.get("rejected"):
                 results.append(f"⏭ {title}: ההצעה לא תקינה ({after['rejected']})")
-                after = (await self.api.review_act(chat_id, "skip"))["data"]
+                after = await act("skip")
+                if after is None:
+                    break
             else:
                 results.append(f"{'✏️' if proposal['decision'] == 'change' else '🗑' if proposal['decision'] == 'remove' else '↩️'} "
                                f"{title}: {rr.DECISION_NAME[proposal['decision']]}. {proposal.get('reason', '')}")

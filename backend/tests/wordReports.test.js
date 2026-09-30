@@ -194,4 +194,40 @@ describe('Word reports', () => {
     const picked = await VocabularyWord.findByDifficultyRange(1, 10, [], Infinity);
     expect(picked.some(w => w.id === word.id)).toBe(false);
   });
+
+  test('a second word change keeps the dropped Hebrew sentence dropped', async () => {
+    const word = words().find(w => w.difficulty_level === 2 && /^[a-z]+$/.test(w.english_word));
+    await webReport({ wordId: word.id, reason: 'other', note: 'again' });
+    const served = await VocabularyWord.findById(word.id);
+    const change = { hebrew_translation: `${word.hebrew_translation} / חלופה`, sentence_en: served.sentence_en };
+    const res = await bot(adminChat).post('/api/bot/review/decide', { key: `word:${word.id}`, decision: 'change', change });
+    expect(res.body.data).toMatchObject({ decided: true });
+    expect(await VocabularyWord.findById(word.id)).toMatchObject({ sentence_en: 'A brand new sentence.', sentence_he: null });
+  });
+
+  test('a decision on an item no longer under review changes nothing', async () => {
+    const word = words()[10]; // removed above
+    const res = await bot(adminChat).post('/api/bot/review/decide', { key: `word:${word.id}`, decision: 'keep' });
+    expect(res.status).toBe(409);
+    expect(res.body.code).toBe('already_decided');
+    expect((await db.findById('word_overrides', word.id)).removed).toBe(true);
+  });
+
+  test('two reviewers on one item: the second decision is not applied', async () => {
+    const word = words()[20];
+    await webReport({ wordId: word.id, reason: 'wrong_translation' });
+    const a = (await bot(adminChat).post('/api/bot/review/start', { mode: 'manual' })).body.data;
+    const b = (await bot(studentChat).post('/api/bot/review/start', { mode: 'manual' })).body.data;
+    expect(a.item.key).toBe(b.item.key);
+    const key = a.item.key;
+    const removed = (await bot(studentChat).post('/api/bot/review/act', { action: 'remove' })).body.data;
+    expect(removed.decided).toMatchObject({ key, decision: 'remove' });
+    const late = (await bot(adminChat).post('/api/bot/review/act', { action: 'keep' })).body.data;
+    expect(late.alreadyDecided).toBe(key);
+    expect(late.decided).toBeUndefined();
+    const [collection, id] = key.startsWith('word:') ? ['word_overrides', key.slice(5)] : ['question_overrides', key];
+    expect((await db.findById(collection, id)).removed).toBe(true);
+    await bot(adminChat).post('/api/bot/session/end');
+    await bot(studentChat).post('/api/bot/session/end');
+  });
 });

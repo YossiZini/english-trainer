@@ -37,6 +37,11 @@ class WordReport {
     return db.findOne('word_reports', { user_id: userId, word_id: wordId, status: 'open' });
   }
 
+  /** Whether any report on the word is still open (under review). */
+  static async hasOpen(wordId) {
+    return !!(await db.findOne('word_reports', { word_id: wordId, status: 'open' }));
+  }
+
   /** Word reports the student filed today. */
   static async countToday(userId) {
     return (await db.find('word_reports', { user_id: userId, date: today() })).length;

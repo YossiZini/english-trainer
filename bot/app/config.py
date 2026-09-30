@@ -28,9 +28,11 @@ GOOGLE_CLOUD_PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", "")
 # newer model needs no code change.
 REVIEW_MODEL = os.environ.get("REVIEW_MODEL", "gemini-3.1-pro-preview")
 REVIEW_LOCATION = os.environ.get("REVIEW_LOCATION", "global")
-REVIEW_TIMEOUT_SECONDS = _int("REVIEW_TIMEOUT_SECONDS", 40)
-# /review auto works in rounds that fit Telegram's webhook wait.
-REVIEW_AUTO_BUDGET_SECONDS = _int("REVIEW_AUTO_BUDGET_SECONDS", 40)
+# Every reply must be sent inside Cloud Run's 30 s request limit
+# (infra/cloudrun-bot.yaml, timeoutSeconds): one agent call gets 20 s, and a
+# /review auto round starts a call only if it can end within 25 s.
+REVIEW_TIMEOUT_SECONDS = _int("REVIEW_TIMEOUT_SECONDS", 20)
+REVIEW_AUTO_BUDGET_SECONDS = _int("REVIEW_AUTO_BUDGET_SECONDS", 25)
 APP_NAME = "english-trainer-bot"
 
 # Budget caps (see docs/telegram-bot.md).
