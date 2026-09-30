@@ -68,7 +68,7 @@ const FillInBlank = ({ question, userAnswer, onAnswerChange, feedback, subject }
         />
         {feedback && (
           <div className="input-indicator">
-            {feedback.isCorrect ? '✓' : '✗'}
+            {feedback.isCorrect ? '✓' : '💡'}
           </div>
         )}
       </div>

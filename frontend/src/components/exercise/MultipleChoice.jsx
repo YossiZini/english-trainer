@@ -94,7 +94,7 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, su
             >
               <div className="option-indicator">
                 {feedback ? (
-                  isCorrect ? '✓' : isWrong ? '✗' : ''
+                  isCorrect ? '✓' : isWrong ? '💡' : ''
                 ) : (
                   isSelected ? '●' : '○'
                 )}

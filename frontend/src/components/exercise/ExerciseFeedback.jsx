@@ -35,7 +35,7 @@ const ExerciseFeedback = ({ feedback, feedbackKey }) => {
   return (
     <div className={`feedback ${feedback.isCorrect ? 'correct' : 'incorrect'}`}>
       <div className="feedback-icon">
-        {feedback.isCorrect ? '✅' : '❌'}
+        {feedback.isCorrect ? '✅' : '💡'}
       </div>
       <div className="feedback-content">
         {feedback.isCorrect ? (

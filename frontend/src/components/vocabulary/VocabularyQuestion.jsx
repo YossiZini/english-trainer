@@ -92,7 +92,7 @@ const VocabularyQuestion = ({
                 <span className="option-icon">✓</span>
               )}
               {feedback && option.id === selectedAnswer && !feedback.isCorrect && (
-                <span className="option-icon">✗</span>
+                <span className="option-icon">💡</span>
               )}
             </button>
           ))}
@@ -102,7 +102,7 @@ const VocabularyQuestion = ({
         {feedback && (
           <div className={`feedback-message ${feedback.isCorrect ? 'correct' : 'incorrect'}`}>
             <div className="feedback-icon">
-              {feedback.isCorrect ? '✓' : '✗'}
+              {feedback.isCorrect ? '✓' : '💡'}
             </div>
             <div className="feedback-content">
               {feedback.isCorrect ? (

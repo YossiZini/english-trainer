@@ -40,7 +40,7 @@ async def test_answer_wrong_shows_expected_and_round_start_and_done():
             "summary": {"words": 20, "rounds": 2, "correct": 20, "wrong": 3, "remainingFailed": 0, "points": 20, "totalPoints": 57}}}),
     ])
     first = (await tools.answer_word("שולחן", Ctx()))["reply"]
-    assert first.startswith("❌ לא בדיוק. התרגום: תפוח")
+    assert first.startswith("💡 לא בדיוק. התרגום: תפוח")
     assert "חוזרים על 3 המילים" in first and first.endswith("(1/3) dog")
     done = (await tools.answer_word("כלב", Ctx()))["reply"]
     assert done.startswith("✅ נכון! +1") and "כל הכבוד" in done and "20 מילים" in done

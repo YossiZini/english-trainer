@@ -103,7 +103,7 @@ def verdict_text(verdict: dict) -> str:
     answer = verdict["correctAnswer"]
     if verdict.get("correctOption"):
         answer = f"{verdict['correctOption']}) {answer}"
-    text = f"❌ לא נכון. התשובה: {answer}"
+    text = f"💡 לא נכון. התשובה: {answer}"
     if verdict.get("explanation"):
         text += f"\n💡 {verdict['explanation']}"
     return text

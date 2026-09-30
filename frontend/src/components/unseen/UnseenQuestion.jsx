@@ -124,7 +124,7 @@ const UnseenQuestion = ({ question, selectedAnswer, onAnswerSelect, feedback, on
             >
               <div className="option-indicator">
                 {feedback ? (
-                  isCorrect ? '✓' : isWrong ? '✗' : ''
+                  isCorrect ? '✓' : isWrong ? '💡' : ''
                 ) : (
                   isSelected ? '●' : '○'
                 )}
@@ -141,7 +141,7 @@ const UnseenQuestion = ({ question, selectedAnswer, onAnswerSelect, feedback, on
       {feedback && (
         <div className={`feedback-section ${feedback.isCorrect ? 'correct-feedback' : 'wrong-feedback'}`}>
           <div className="feedback-status">
-            {feedback.isCorrect ? '✓ תשובה נכונה!' : '✗ תשובה שגויה'}
+            {feedback.isCorrect ? '✓ תשובה נכונה!' : '💡 תשובה שגויה'}
           </div>
           {feedback.explanation && (
             <div className="feedback-explanation">

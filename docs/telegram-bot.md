@@ -2,7 +2,7 @@
 
 A student practises from Telegram in two ways: vocabulary (below) and a
 lesson's exercises, English or Math (see "Lesson exercises"). For vocabulary, the bot sends a word,
-English or Hebrew as the student chose, the student types the translation, the bot says ✅ or ❌ (with the translation)
+English or Hebrew as the student chose, the student types the translation, the bot says ✅ or 💡 (with the translation)
 and sends the next word. After 20 words the failed ones come back, shuffled,
 round after round, until none are left. `/end` ends the session.
 
@@ -15,7 +15,7 @@ round after round, until none are left. `/end` ends the session.
    too. Words always come from the whole vocabulary. The choices are stored
    on the API session (`status: setup`, then `level` and `direction`), so
    the bot keeps no state of its own.
-2. 20 words, one per message. ✅ נכון! +1 or ❌ with the translation, then
+2. 20 words, one per message. ✅ נכון! +1 or 💡 with the translation, then
    the next word. Every correct answer is 1 point (`User.addPoints`, the
    same points as the web quiz), in either direction.
    Hebrew answers are matched by `utils/hebrewAnswer.js`; English answers by
@@ -157,7 +157,7 @@ picked number go through `/api/bot/session/answer` like any answer.
    options). Only an option number is an answer; anything else repeats the
    question and records nothing. The fill-in path (typed text, keyboard
    removed) remains only for a question type the content no longer uses.
-3. Each answer gets ✅ or ❌ with the right answer and the explanation.
+3. Each answer gets ✅ or 💡 with the right answer and the explanation.
 4. After the last answer all answers go to `ExerciseService.submitExercise`:
    score, points (+1 right, −2 wrong, +3 at 70 or more), mistakes, progress
    and the next lesson are exactly the web's. The summary shows them with
