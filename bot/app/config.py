@@ -53,6 +53,7 @@ START_WORDS = {"words"}
 END_WORDS = {"end", "stop", "quit"}
 SWITCH_WORDS = {"switch"}
 REPORT_WORDS = {"report"}
+USAGE_WORDS = {"usage"}
 REVIEW_WORD = "review"
 REVIEW_MODES = {"manual", "auto"}
 SUBJECTS = {"english", "math"}

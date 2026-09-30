@@ -45,6 +45,10 @@ class TrainerApi:
     async def answer(self, chat_id: str, text: str) -> dict:
         return await self._call("POST", "/bot/session/answer", chat_id, text=text)
 
+    async def usage(self, chat_id: str) -> dict:
+        """Every student's participation in the last 7 and 30 days (/usage)."""
+        return await self._call("GET", "/bot/usage", chat_id)
+
     async def switch(self, chat_id: str) -> dict:
         return await self._call("POST", "/bot/session/switch", chat_id)
 
