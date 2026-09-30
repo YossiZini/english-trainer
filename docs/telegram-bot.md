@@ -57,6 +57,7 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/help` (also `/start`, Telegram's first message) | explains in Hebrew how the bot works and lists the commands; needs no API call |
 | `/words` | vocabulary practice (below) |
 | `/switch` (also the 🔄 button under a words summary) | the same words again, the other way round |
+| `/usage` | who practised in the last 7 and 30 days (see "Usage") |
 | `/english`, `/math`, `/lessons_english`, `/lessons_math` | lesson exercises (see "Lesson exercises") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
 | `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | review of reported questions and words, open to every linked student (see "Reported questions and review") |
@@ -68,6 +69,25 @@ be the answer (it may be "help" or "english"); no exercise is fill-in any
 more, the rule only guards the fill-in path. The "/" form is always the
 command, and `end` always ends the session. A free-form message (for example "איך זה
 עובד?") goes to the agent, whose `show_help` tool sends the same help text.
+
+## Usage
+
+`/usage` shows every student's participation in the last 7 and the last 30
+days, one line per student, most active first: active days, lessons done,
+words practised and reading texts done (week|month), and the last active
+day. There are no scores, points or right/wrong counts. Days are Israel
+dates and each window includes today.
+
+It is open to every linked student (the owner's decision), so **every
+linked student sees every active student's account name and activity**.
+Students with no activity in 30 days are only counted. The reply shows at
+most 30 students and stays inside one Telegram message.
+
+The API (`GET /api/bot/usage`, `backend/src/services/usage.service.js`)
+reads each source through its model with one date-range query: lesson
+results (web and bot), web vocabulary-quiz answers, bot words exams (their
+answers, dated by the exam's start) and completed reading texts. The
+summary is cached for 10 minutes per API instance.
 
 ## Reported questions, words and review
 

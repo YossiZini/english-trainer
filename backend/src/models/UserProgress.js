@@ -316,6 +316,11 @@ class UserProgress {
       percentage
     };
   }
+
+  /** Every student's lesson results completed at or after `since` (ISO), for the usage summary. */
+  static async resultsSince(since) {
+    return db.findSince('exercise_results', 'completed_at', since);
+  }
 }
 
 module.exports = UserProgress;

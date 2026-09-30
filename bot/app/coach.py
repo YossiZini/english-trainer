@@ -22,6 +22,7 @@ from .api_client import TrainerApi
 from .limits import DailyTurnCounter
 from . import tools
 from . import review_replies as rr
+from .usage_replies import usage_reply
 
 log = logging.getLogger("bot")
 CODE = re.compile(r"^\d{6}$")
@@ -31,7 +32,7 @@ LIST_NUMBER = re.compile(r"^\d{1,3}$")
 def parse_command(text: str) -> tuple[str, dict] | None:
     """An English command, with or without "/" (and "@bot" in groups), else None.
 
-    help | words | end | switch | report | review [manual|auto] |
+    help | words | end | switch | report | usage | review [manual|auto] |
     english|math [N] [easy|medium|hard] |
     lessons english|math (also lessons_english) | lessons"""
     words = text.lower().split()
@@ -51,6 +52,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "switch", {}
     if not rest and first in config.REPORT_WORDS:
         return "report", {}
+    if not rest and first in config.USAGE_WORDS:
+        return "usage", {}
     if first.startswith(config.REVIEW_WORD + "_") and not rest:
         first, rest = config.REVIEW_WORD, [first.split("_", 1)[1]]
     if first == config.REVIEW_WORD and len(rest) <= 1:
@@ -144,6 +147,8 @@ class Coach:
             return replies.end_reply(await self.api.end(chat_id))
         if action == "switch":
             return replies.switch_reply(await self.api.switch(chat_id))
+        if action == "usage":
+            return usage_reply(await self.api.usage(chat_id))
         if action == "report":
             # The API knows what is in front of the student: a word or a question.
             result = await self.api.report(chat_id)

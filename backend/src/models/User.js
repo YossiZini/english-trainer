@@ -346,6 +346,20 @@ class User {
       lastActivityDate: user.last_activity_date
     };
   }
+
+  /** Display names of the given users (id → name), for the usage summary. */
+  static async namesOf(ids) {
+    const names = new Map();
+    for (const id of ids) {
+      const user = await db.findById('users', id);
+      if (user) names.set(id, user.name);
+    }
+    return names;
+  }
+
+  static async count() {
+    return db.count('users');
+  }
 }
 
 module.exports = User;

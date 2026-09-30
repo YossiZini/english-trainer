@@ -66,6 +66,13 @@ router.post('/report', [
 ], BotController.report);
 
 /**
+ * GET /api/bot/usage — /usage: every student's participation (active days,
+ * lessons, words, reading; no scores) in the last 7 and 30 days, for any
+ * linked chat. Cached for 10 minutes.
+ */
+router.get('/usage', BotController.usage);
+
+/**
  * Review of reported questions and words, for every linked student:
  * GET /api/bot/review/queue — questions under review with their reports;
  * POST /api/bot/review/decide { chatId, key (or exerciseId), decision: keep|change|remove, change? };

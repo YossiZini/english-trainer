@@ -18,6 +18,7 @@ async function resetDatabase() {
   await db.clearCollections(DYNAMIC_COLLECTIONS);
   require('../src/models/QuestionOverride').clearCache();
   require('../src/models/WordOverride').clearCache();
+  require('../src/services/usage.service').clearCache();
 }
 
 module.exports = { db, DYNAMIC_COLLECTIONS, initializeDatabase, shutdownDatabase, resetDatabase };

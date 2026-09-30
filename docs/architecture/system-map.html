@@ -175,6 +175,7 @@ flowchart LR
             <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
             <li>Bot API: vocabulary and lesson-exercise sessions, chat linking, service key, rate and daily caps</li>
             <li>Question and word reports: a reported question or word is hidden until a student reviews it in Telegram; review decisions are applied live as a layer over the bundled questions and words</li>
+            <li>Usage summary: participation per student across lessons, words and reading, read with date-range queries and cached for 10 minutes</li>
           </ul></dd></div>
           <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Node 22</span><span class="chip">Express 5</span><span class="chip">Firestore SDK</span><span class="chip">Google Gen AI SDK</span><span class="chip">Cloud Run</span><span class="chip">Jest + emulator</span></dd></div>
         </dl>
@@ -188,6 +189,7 @@ flowchart LR
             <li>Verifies the Telegram webhook secret; sets its Telegram command menu at startup</li>
             <li>Link code, commands, level and direction choice, lesson pick, reports and answers go straight to the API</li>
             <li>/review, open to every linked student within a daily cap: a review agent on Gemini Pro proposes keep, change or remove for each reported question or word</li>
+            <li>/usage: every student's participation (active days, lessons, words, reading; no scores) over 7 and 30 days, visible to every linked student</li>
             <li>Other messages go to an ADK agent whose tools call the API</li>
             <li>Turn, token and call caps before any model use</li>
           </ul></dd></div>
