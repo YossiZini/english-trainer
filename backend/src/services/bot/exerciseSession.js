@@ -202,13 +202,20 @@ class ExerciseSession {
         : null,
       explanation: correct ? null : capped(exercise.explanation_he)
     };
+    // Wrong answers in this lesson and in a row, for the bot's encouraging line.
+    const wrongCount = (session.wrong_count || 0) + (correct ? 0 : 1);
+    const wrongStreak = correct ? 0 : (session.wrong_streak || 0) + 1;
+    verdict.wrongCount = wrongCount;
+    verdict.wrongStreak = wrongStreak;
 
     const answers = [...(session.answers || []), { exerciseId: current.id, userAnswer: given }];
     const index = session.index + 1;
     const correctCount = (session.correct_count || 0) + (correct ? 1 : 0);
 
     if (index < session.exercises.length) {
-      const next = await BotSession.update(session.id, { answers, index, correct_count: correctCount });
+      const next = await BotSession.update(session.id, {
+        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak
+      });
       return { kind: 'exercise', verdict, lesson: lessonView(next), question: questionView(next), done: false };
     }
 

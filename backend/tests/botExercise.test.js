@@ -90,6 +90,8 @@ describe('Bot lesson exercises', () => {
       const text = i === 0 ? wrongAnswer(question, exerciseId) : rightAnswer(question, exerciseId);
       reply = (await bot('/api/bot/session/answer', { text })).body.data;
       expect(reply.verdict.correct).toBe(i !== 0);
+      // The bot's encouragement: wrong answers so far and in a row (a right answer resets the streak).
+      expect(reply.verdict).toMatchObject({ wrongCount: 1, wrongStreak: i === 0 ? 1 : 0 });
       if (i === 0) {
         expect(reply.verdict.correctAnswer).toBe(bundled.get(exerciseId).correct_answer);
         if (question.type === 'multiple_choice') expect(reply.verdict.correctOption).toBe(Number(rightAnswer(question, exerciseId)));

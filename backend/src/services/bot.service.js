@@ -191,6 +191,8 @@ class BotService {
       asked_in_round: session.asked_in_round + 1,
       correct_count: session.correct_count + (correct ? 1 : 0),
       wrong_count: session.wrong_count + (correct ? 0 : 1),
+      // Wrong answers in a row, for the bot's encouragement (a right answer resets it).
+      wrong_streak: correct ? 0 : (session.wrong_streak || 0) + 1,
       points_earned: (session.points_earned || 0) + (correct ? POINTS_PER_CORRECT : 0),
       failed_word_ids: correct ? session.failed_word_ids : [...session.failed_word_ids, word.id],
       // What /report refers to: the word answered last, and the answer.
@@ -210,7 +212,9 @@ class BotService {
     const next = await BotSession.update(session.id, updates);
     const reply = {
       correct, judged, expected: matched ? null : expected, points: correct ? POINTS_PER_CORRECT : 0,
-      roundStarted, done: false
+      roundStarted, done: false,
+      // For the bot's encouraging line: which one (a new one each wrong answer) and whether to cheer harder.
+      wrongCount: updates.wrong_count, wrongStreak: updates.wrong_streak
     };
     if (next.queue.length === 0) {
       const ended = await BotSession.end(next.id, 'completed');

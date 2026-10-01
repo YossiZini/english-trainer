@@ -202,7 +202,8 @@ describe('Bot API', () => {
 
     // The model saying no, or failing, both count as wrong.
     answerJudge.setClient(fakeGemini(false));
-    expect((await bot('/api/bot/session/answer', { text: 'לא זה' })).body.data).toMatchObject({ correct: false, judged: false });
+    const second = (await bot('/api/bot/session/answer', { text: 'לא זה' })).body.data;
+    expect(second).toMatchObject({ correct: false, judged: false, wrongStreak: latin.wrongStreak + 1, wrongCount: latin.wrongCount + 1 });
     answerJudge.setClient(fakeGemini(new Error('quota')));
     expect((await bot('/api/bot/session/answer', { text: 'גם לא זה' })).body.data.correct).toBe(false);
 
