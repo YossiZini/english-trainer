@@ -74,7 +74,8 @@ async def test_answers_go_to_the_open_exercise_and_show_the_verdict():
     again = await c.handle("7", "goes")
     assert again.text.startswith("ענו במספר בין 1 ל-4:") and again.buttons == ["1", "2", "3", "4"]
     wrong = await c.handle("7", "2")
-    assert wrong.text.startswith("💡 לא נכון. התשובה: 1) Noun\n💡 book הוא שם עצם.")
+    from app.encouragement import LINES
+    assert wrong.text.startswith(f"{LINES[0]}\nהתשובה: 1) Noun\n📖 book הוא שם עצם.")
     assert wrong.text.endswith("כתבו את התשובה (? לרמז):") and wrong.buttons == []  # fill-in: keyboard removed
     right = await c.handle("7", "1")
     assert right.text.startswith("✅ נכון!") and right.buttons == ["1", "2", "3", "4"]

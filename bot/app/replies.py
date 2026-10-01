@@ -155,7 +155,8 @@ def answer_reply(result: dict) -> Reply:
         if data.get("judged") and data.get("expected"):
             verdict += f"\nבמילון: {data['expected']}"
     else:
-        verdict = f"💡 לא בדיוק. התרגום: {data['expected']}"
+        from .encouragement import wrong_line
+        verdict = f"{wrong_line(data)}\nהתרגום: {data['expected']}"
     if data.get("done"):
         return _summary_reply(verdict + "\n", data["summary"])
     lines = [verdict]
