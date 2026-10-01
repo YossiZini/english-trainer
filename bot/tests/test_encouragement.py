@@ -20,7 +20,7 @@ def test_a_streak_gets_more_cheer_and_a_right_answer_resets_it():
 
 def test_the_lines_are_short_kind_and_never_say_wrong():
     for line in LINES + STREAK_LINES:
-        assert len(line) <= 60, line
+        assert len(line) <= 28, line
         assert "לא נכון" not in line and "טעיתם" not in line, line
 
 
