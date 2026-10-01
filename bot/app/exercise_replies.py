@@ -5,6 +5,7 @@ buttons 1..n; a fill-in question removes the keyboard. The lesson list is
 numbered across pages; the student sends a lesson's number. The verdict, the
 right option and the score always come from the API."""
 from .replies import Reply
+from .encouragement import wrong_line
 
 SUBJECT_COMMAND = {"english": "/english", "math": "/math", "arabic": "/arabic"}
 SUBJECT_NAME = {"english": "אנגלית", "math": "חשבון", "arabic": "ערבית"}
@@ -103,9 +104,9 @@ def verdict_text(verdict: dict) -> str:
     answer = verdict["correctAnswer"]
     if verdict.get("correctOption"):
         answer = f"{verdict['correctOption']}) {answer}"
-    text = f"💡 לא נכון. התשובה: {answer}"
+    text = f"{wrong_line(verdict)}\nהתשובה: {answer}"
     if verdict.get("explanation"):
-        text += f"\n💡 {verdict['explanation']}"
+        text += f"\n📖 {verdict['explanation']}"
     return text
 
 

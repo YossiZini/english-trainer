@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ReportQuestion from '../exercise/ReportQuestion';
 import './VocabularyQuestion.css';
+import { encouragementFor } from '../../content/encouragement';
 
 const VocabularyQuestion = ({
   question,
@@ -99,10 +100,12 @@ const VocabularyQuestion = ({
         </div>
 
         {/* Feedback Message */}
-        {feedback && (
+        {feedback && (() => {
+          const cheer = encouragementFor(`vocab:${question.questionNumber}:${question.word.id}`, feedback.isCorrect);
+          return (
           <div className={`feedback-message ${feedback.isCorrect ? 'correct' : 'incorrect'}`}>
             <div className="feedback-icon">
-              {feedback.isCorrect ? '✓' : '💡'}
+              {feedback.isCorrect ? '✓' : cheer.icon}
             </div>
             <div className="feedback-content">
               {feedback.isCorrect ? (
@@ -114,7 +117,7 @@ const VocabularyQuestion = ({
                 </>
               ) : (
                 <>
-                  <div className="feedback-title">לא נכון</div>
+                  <div className="feedback-title">{cheer.text}</div>
                   <div className="feedback-text">
                     התשובה הנכונה: <strong>{feedback.correctAnswer.hebrew}</strong>
                   </div>
@@ -122,7 +125,8 @@ const VocabularyQuestion = ({
               )}
             </div>
           </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );

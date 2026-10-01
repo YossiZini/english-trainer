@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './UnseenQuestion.css';
+import { encouragementFor } from '../../content/encouragement';
 
 const UnseenQuestion = ({ question, selectedAnswer, onAnswerSelect, feedback, onSubmit, onNext }) => {
   const [hoveredOption, setHoveredOption] = useState(null);
@@ -141,7 +142,9 @@ const UnseenQuestion = ({ question, selectedAnswer, onAnswerSelect, feedback, on
       {feedback && (
         <div className={`feedback-section ${feedback.isCorrect ? 'correct-feedback' : 'wrong-feedback'}`}>
           <div className="feedback-status">
-            {feedback.isCorrect ? '✓ תשובה נכונה!' : '💡 תשובה שגויה'}
+            {(({ cheer }) => (cheer ? `${cheer.icon} ${cheer.text}` : '✓ תשובה נכונה!'))({
+              cheer: encouragementFor(`unseen:${question.paragraph_id || ''}:${question.question_number}`, feedback.isCorrect)
+            })}
           </div>
           {feedback.explanation && (
             <div className="feedback-explanation">

@@ -127,7 +127,8 @@ async def test_direction_buttons_start_a_hebrew_to_english_exam():
     started = await c.handle("7", "מעברית לאנגלית")
     assert started.text == "רמה קל, מעברית לאנגלית. תרגמו לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול"
     assert __import__("json").loads(route.calls[1].request.content)["text"] == "מעברית לאנגלית"
-    assert (await c.handle("7", "dgo")).text == "💡 לא בדיוק. התרגום: cat\n(2/20) כלב"
+    from app.encouragement import LINES
+    assert (await c.handle("7", "dgo")).text == f"{LINES[0]}\nהתרגום: cat\n(2/20) כלב"
 
 
 @respx.mock
