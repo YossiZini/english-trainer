@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { hasArabic } from '../../utils/bidi';
 import MathText from '../common/MathText';
 import './ExerciseFeedback.css';
+import { encouragementFor } from '../../content/encouragement';
 
 /**
  * Result of a checked answer: icon, message, correct answer and explanation.
@@ -33,18 +34,20 @@ const ExerciseFeedback = ({ feedback, feedbackKey }) => {
 
   if (!feedback) return null;
 
+  const cheer = encouragementFor(`exercise:${feedbackKey}`, feedback.isCorrect);
+
   return (
     <div className={`feedback ${feedback.isCorrect ? 'correct' : 'incorrect'}${
       hasArabic(feedback.correctAnswer) || hasArabic(feedback.explanationHe) ? ' arabic' : ''}`}>
       <div className="feedback-icon">
-        {feedback.isCorrect ? '✅' : '💡'}
+        {feedback.isCorrect ? '✅' : cheer.icon}
       </div>
       <div className="feedback-content">
         {feedback.isCorrect ? (
           <p className="feedback-message">כל הכבוד! התשובה נכונה!</p>
         ) : (
           <>
-            <p className="feedback-message">התשובה שגויה</p>
+            <p className="feedback-message">{cheer.text}</p>
             {/* bdi: an English answer keeps its own direction inside the Hebrew line
                 ("She said, "Say 'hi' to Dan."" would otherwise show its end quotes on the wrong side) */}
             <p className="feedback-correct">התשובה הנכונה: <MathText as="bdi" text={feedback.correctAnswer} /></p>

@@ -4,6 +4,7 @@ import exerciseService from '../../services/exerciseService';
 import LevelUpModal from '../gamification/LevelUpModal';
 import './ResultsPage.css';
 import MathText from '../common/MathText';
+import Assessment from '../common/Assessment';
 
 const ResultsPage = () => {
   const { resultId } = useParams();
@@ -37,7 +38,16 @@ const ResultsPage = () => {
     try {
       setLoading(true);
       const data = await exerciseService.getResult(resultId);
-      setResult(data);
+      // A saved result comes back with the stored (snake_case) field names;
+      // the page reads the names the submit reply uses.
+      setResult({
+        ...data,
+        lessonId: data.lesson_id,
+        correctAnswers: data.correct_answers,
+        wrongAnswers: data.wrong_answers,
+        totalQuestions: data.total_questions,
+        timeSpent: data.time_spent
+      });
       setLessonTitle(data.title_he || '');
       setLoading(false);
     } catch (err) {
@@ -51,20 +61,6 @@ const ResultsPage = () => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const getScoreColor = (score) => {
-    if (score >= 90) return '#28a745';
-    if (score >= 70) return '#20c997';
-    if (score >= 50) return '#ffc107';
-    return '#dc3545';
-  };
-
-  const getScoreMessage = (score) => {
-    if (score >= 90) return 'מעולה! 🎉';
-    if (score >= 70) return 'כל הכבוד! ✨';
-    if (score >= 50) return 'יפה, אבל אפשר לשפר 💪';
-    return 'כדאי לנסות שוב 📚';
   };
 
   if (loading) {
@@ -86,40 +82,24 @@ const ResultsPage = () => {
     );
   }
 
-  const scoreColor = getScoreColor(result.score);
-  const scoreMessage = getScoreMessage(result.score);
   const isPassed = result.isPassed || result.score >= 70;
 
   return (
     <div className="results-page">
       <div className="results-container">
-        {/* Score Card */}
-        <div className="score-card" style={{ borderColor: scoreColor }}>
+        {/* Words instead of a score */}
+        <div className="score-card">
           <div className="score-header">
             <h1 className="results-title">תוצאות התרגיל</h1>
             {lessonTitle && <p className="lesson-title">{lessonTitle}</p>}
           </div>
 
-          <div className="score-circle" style={{ borderColor: scoreColor }}>
-            <div className="score-value" style={{ color: scoreColor }}>
-              {result.score}%
-            </div>
-            <div className="score-label">ציון</div>
-          </div>
+          <Assessment correct={result.correctAnswers} total={result.totalQuestions} />
 
-          <div className="score-message" style={{ color: scoreColor }}>
-            {scoreMessage}
-          </div>
-
-          {isPassed ? (
+          {isPassed && (
             <div className="pass-badge">
               <span className="pass-icon">✅</span>
               <span className="pass-text">עברת בהצלחה!</span>
-            </div>
-          ) : (
-            <div className="fail-badge">
-              <span className="fail-icon">📚</span>
-              <span className="fail-text">נדרש 70% לעבור</span>
             </div>
           )}
         </div>
@@ -132,10 +112,10 @@ const ResultsPage = () => {
             <div className="stat-label">תשובות נכונות</div>
           </div>
 
-          <div className="stat-card wrong">
-            <div className="stat-icon">✗</div>
+          <div className="stat-card review">
+            <div className="stat-icon">💡</div>
             <div className="stat-value">{result.wrongAnswers}</div>
-            <div className="stat-label">תשובות שגויות</div>
+            <div className="stat-label">שאלות לחזרה</div>
           </div>
 
           <div className="stat-card total">
@@ -172,7 +152,7 @@ const ResultsPage = () => {
                     <span className="breakdown-value">+{result.gamification.pointsBreakdown.correctPoints}</span>
                   </div>
                   <div className="breakdown-item wrong">
-                    <span className="breakdown-icon">✗</span>
+                    <span className="breakdown-icon">💡</span>
                     <span className="breakdown-label">תשובות שגויות</span>
                     <span className="breakdown-value">{result.gamification.pointsBreakdown.wrongPoints}</span>
                   </div>
@@ -216,7 +196,7 @@ const ResultsPage = () => {
                 >
                   <div className="result-number">
                     <span className="result-icon">
-                      {item.isCorrect ? '✓' : '✗'}
+                      {item.isCorrect ? '✓' : '💡'}
                     </span>
                     שאלה {index + 1}
                   </div>
@@ -281,7 +261,7 @@ const ResultsPage = () => {
               </button>
             )}
 
-            {!result.nextLesson && (
+            {isPassed && !result.nextLesson && (
               <div className="completion-message">
                 🎓 סיימת את כל השיעורים! 🎓
               </div>

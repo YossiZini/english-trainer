@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import vocabularyService from '../../services/vocabularyService';
+import Assessment from '../common/Assessment';
 import './VocabularyQuizResults.css';
 
 const VocabularyQuizResults = () => {
@@ -55,25 +56,11 @@ const VocabularyQuizResults = () => {
     );
   }
 
-  const score = Math.round((results.correct_answers / results.total_questions) * 100);
-  const isPassed = score >= 70;
-
   return (
     <div className="vocabulary-results-page">
       <div className="results-container">
-        {/* Results Header */}
-        <div className={`results-header ${isPassed ? 'passed' : 'failed'}`}>
-          <div className="results-icon">
-            {isPassed ? '🎉' : '📚'}
-          </div>
-          <h1 className="results-title">
-            {isPassed ? 'כל הכבוד!' : 'נסה שוב!'}
-          </h1>
-          <div className="score-circle">
-            <div className="score-value">{score}%</div>
-            <div className="score-label">ציון</div>
-          </div>
-        </div>
+        {/* Words instead of a score */}
+        <Assessment correct={results.correct_answers} total={results.total_questions} />
 
         {/* Stats Grid */}
         <div className="results-stats">
@@ -86,10 +73,10 @@ const VocabularyQuizResults = () => {
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon">✗</div>
+            <div className="stat-icon">💡</div>
             <div className="stat-content">
               <div className="stat-value">{results.wrong_answers}</div>
-              <div className="stat-label">תשובות שגויות</div>
+              <div className="stat-label">מילים לחזרה</div>
             </div>
           </div>
 

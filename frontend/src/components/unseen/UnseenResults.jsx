@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import unseenService from '../../services/unseenService';
+import Assessment from '../common/Assessment';
 import './UnseenResults.css';
 
 const UnseenResults = () => {
@@ -31,14 +32,6 @@ const UnseenResults = () => {
       setError('שגיאה בטעינת התוצאות');
       setLoading(false);
     }
-  };
-
-  const getScoreMessage = (score) => {
-    if (score >= 90) return { text: '🏆 מצוין! ביצוע מושלם!', color: 'excellent' };
-    if (score >= 80) return { text: '⭐ כל הכבוד! ביצוע נהדר!', color: 'great' };
-    if (score >= 70) return { text: '✅ יופי! ביצוע טוב!', color: 'good' };
-    if (score >= 60) return { text: '📖 לא רע, אבל יש מקום לשיפור', color: 'okay' };
-    return { text: '💪 אל תוותר! נסה שוב', color: 'needs-work' };
   };
 
   const handleRetry = () => {
@@ -75,22 +68,16 @@ const UnseenResults = () => {
     );
   }
 
-  const scoreMessage = getScoreMessage(session.score);
   const correctCount = session.correct_answers;
   const totalCount = session.total_questions;
 
   return (
     <div className="unseen-results">
       <div className="results-container">
-        {/* Score Card */}
-        <div className={`score-card ${scoreMessage.color}`}>
-          <div className="score-icon">{scoreMessage.text.split(' ')[0]}</div>
-          <div className="score-value">{session.score}%</div>
-          <div className="score-message">{scoreMessage.text}</div>
-          <div className="score-details">
-            ענית נכון על {correctCount} מתוך {totalCount} שאלות
-          </div>
-        </div>
+        {/* Words instead of a score */}
+        <Assessment correct={correctCount} total={totalCount}>
+          ענית נכון על {correctCount} מתוך {totalCount} שאלות
+        </Assessment>
 
         {/* Paragraph Info */}
         <div className="paragraph-info">
@@ -109,10 +96,10 @@ const UnseenResults = () => {
               >
                 <div className="answer-header">
                   <div className="answer-number">
-                    {answer.is_correct ? '✓' : '✗'} שאלה {answer.question_number}
+                    {answer.is_correct ? '✓' : '💡'} שאלה {answer.question_number}
                   </div>
                   <div className={`answer-status ${answer.is_correct ? 'correct' : 'incorrect'}`}>
-                    {answer.is_correct ? 'נכון' : 'שגוי'}
+                    {answer.is_correct ? 'נכון' : 'לחזרה'}
                   </div>
                 </div>
 
