@@ -121,12 +121,25 @@ class UserProgress {
     return result;
   }
 
+  /** The student's progress rows, one per lesson tried. */
+  static progressRows(userId) {
+    return db.findByIndex('user_progress', 'user_id', userId);
+  }
+
+  /** The student's lesson results. */
+  static resultRows(userId) {
+    return db.find('exercise_results', { user_id: userId });
+  }
+
   /**
    * Get overall statistics for a user
    */
   static async getOverallStats(userId) {
-    const progress = await db.findByIndex('user_progress', 'user_id', userId);
+    return UserProgress.overallStatsFrom(await UserProgress.progressRows(userId));
+  }
 
+  /** getOverallStats on progress rows already read. */
+  static overallStatsFrom(progress) {
     const stats = {
       total_lessons_attempted: progress.length,
       lessons_completed: 0,
@@ -224,15 +237,15 @@ class UserProgress {
   }
 
   /**
-   * Get recent activity (last N attempts)
-   */
-  /**
    * Latest exercise results with their lesson, newest first. `subject`
    * ('english' | 'math' | 'arabic') keeps one subject; no subject keeps all.
    */
   static async getRecentActivity(userId, limit = 10, { subject } = {}) {
-    const results = await db.find('exercise_results', { user_id: userId });
+    return UserProgress.recentActivityFrom(await UserProgress.resultRows(userId), limit, { subject });
+  }
 
+  /** getRecentActivity on results already read. */
+  static recentActivityFrom(results, limit = 10, { subject } = {}) {
     // Get lessons for joining
     const lessons = db.getCollection('lessons', true);
     const lessonMap = new Map(lessons.map(l => [l.id, l]));
@@ -272,8 +285,12 @@ class UserProgress {
    * Get next lesson to study (first incomplete or not started)
    */
   static async getNextLesson(userId, { subject } = {}) {
+    return UserProgress.nextLessonFrom(await UserProgress.progressRows(userId), { subject });
+  }
+
+  /** getNextLesson on progress rows already read. */
+  static nextLessonFrom(progress, { subject } = {}) {
     const lessons = lessonsOf(subject);
-    const progress = await db.findByIndex('user_progress', 'user_id', userId);
     const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
     // Curriculum order (topic, subtopic); order_index alone interleaves English topics.
@@ -301,9 +318,13 @@ class UserProgress {
    * Get lesson completion percentage
    */
   static async getCompletionPercentage(userId, { subject } = {}) {
+    return UserProgress.completionFrom(await UserProgress.progressRows(userId), { subject });
+  }
+
+  /** getCompletionPercentage on progress rows already read. */
+  static completionFrom(progress, { subject } = {}) {
     const lessons = lessonsOf(subject);
     const ids = new Set(lessons.map(l => l.id));
-    const progress = await db.findByIndex('user_progress', 'user_id', userId);
 
     const completedLessons = progress.filter(p => p.status === 'completed' && ids.has(p.lesson_id)).length;
     const totalLessons = lessons.length;

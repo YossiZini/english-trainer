@@ -14,17 +14,16 @@ class ProgressService {
    * are kept for sites deployed before the per-subject home page.
    */
   static async getDashboardData(userId) {
-    // Get overall stats
-    const stats = await UserProgress.getOverallStats(userId);
-
-    // Get completion percentage
-    const completion = await UserProgress.getCompletionPercentage(userId);
-
-    // Get next lesson
-    const nextLesson = await UserProgress.getNextLesson(userId);
-
-    // Get recent activity
-    const recentActivity = await UserProgress.getRecentActivity(userId, 5);
+    // The student's progress and results are read once; the overall figures
+    // and each subject's are worked out from them.
+    const [progress, results] = await Promise.all([
+      UserProgress.progressRows(userId),
+      UserProgress.resultRows(userId)
+    ]);
+    const stats = UserProgress.overallStatsFrom(progress);
+    const completion = UserProgress.completionFrom(progress);
+    const nextLesson = UserProgress.nextLessonFrom(progress);
+    const recentActivity = UserProgress.recentActivityFrom(results, 5);
 
     // Get mistake statistics
     const mistakeStats = await WrongAnswer.getStatistics(userId);
@@ -38,12 +37,11 @@ class ProgressService {
     // Per subject: where to continue and how far along the student is
     const subjects = {};
     for (const subject of SUBJECTS) {
-      const [subjectNext, subjectCompletion, [lastActivity = null]] = await Promise.all([
-        UserProgress.getNextLesson(userId, { subject }),
-        UserProgress.getCompletionPercentage(userId, { subject }),
-        UserProgress.getRecentActivity(userId, 1, { subject })
-      ]);
-      subjects[subject] = { nextLesson: subjectNext, completion: subjectCompletion, lastActivity };
+      subjects[subject] = {
+        nextLesson: UserProgress.nextLessonFrom(progress, { subject }),
+        completion: UserProgress.completionFrom(progress, { subject }),
+        lastActivity: UserProgress.recentActivityFrom(results, 1, { subject })[0] || null
+      };
     }
 
     return {
