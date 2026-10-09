@@ -11,6 +11,7 @@ import ExerciseFeedback from './ExerciseFeedback';
 import ReportQuestion from './ReportQuestion';
 import useScrollToQuestion from './useScrollToQuestion';
 import { metaOf } from '../../content/topicMeta';
+import { assessmentFor } from '../../content/assessment';
 import './ExercisePage.css';
 
 const ExercisePage = () => {
@@ -186,8 +187,10 @@ const ExercisePage = () => {
         // Submit retry
         const result = await mistakesService.submitRetry(lessonId, answers);
 
-        // Show retry results
-        const message = `תיקנת ${result.correctedCount} טעויות!\n\nציון: ${result.score}%\nנכונות: ${result.correctAnswers}/${result.totalQuestions}`;
+        // Show retry results: words, not a score
+        const words = assessmentFor(result.correctAnswers, result.totalQuestions);
+        const fixed = result.correctedCount > 0 ? `\n\nתיקנת ${result.correctedCount} טעויות!` : '';
+        const message = `${words.icon} ${words.title}\n${words.text}${fixed}`;
 
         if (result.hasMoreMistakes) {
           if (window.confirm(message + '\n\nיש עוד טעויות לתקן. האם תרצה לתרגל אותן עכשיו?')) {

@@ -18,7 +18,7 @@
   margin-bottom: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   text-align: center;
-  border: 4px solid;
+  border: 4px solid #e9e4fb;
   animation: slideDown 0.5s ease;
 }
 
@@ -49,21 +49,6 @@
   font-weight: 500;
 }
 
-.score-circle {
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  border: 8px solid;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 2rem auto;
-  background: white;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  animation: scaleIn 0.5s ease 0.2s backwards;
-}
-
 @keyframes scaleIn {
   from {
     transform: scale(0);
@@ -73,26 +58,7 @@
   }
 }
 
-.score-value {
-  font-size: 4rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.score-label {
-  font-size: 1.2rem;
-  color: #666;
-  margin-top: 0.5rem;
-}
-
-.score-message {
-  font-size: 1.8rem;
-  font-weight: 600;
-  margin: 1.5rem 0;
-}
-
-.pass-badge,
-.fail-badge {
+.pass-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -100,19 +66,9 @@
   border-radius: 25px;
   font-size: 1.2rem;
   font-weight: 600;
-  margin-top: 1rem;
-}
-
-.pass-badge {
   background: #d4edda;
   color: #28a745;
   border: 2px solid #28a745;
-}
-
-.fail-badge {
-  background: #fff3cd;
-  color: #856404;
-  border: 2px solid #ffc107;
 }
 
 /* Statistics */
@@ -155,8 +111,8 @@
   filter: drop-shadow(0 0 5px rgba(40, 167, 69, 0.5));
 }
 
-.stat-card.wrong .stat-icon {
-  filter: drop-shadow(0 0 5px rgba(220, 53, 69, 0.5));
+.stat-card.review .stat-icon {
+  filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5));
 }
 
 .stat-value {
@@ -255,7 +211,7 @@
 }
 
 .breakdown-item.wrong {
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid #94a3b8;
 }
 
 .breakdown-item.bonus {
@@ -364,8 +320,8 @@
 }
 
 .result-item.incorrect {
-  background: #f8d7da;
-  border-color: #dc3545;
+  background: #fff8e1;
+  border-color: #f59e0b;
 }
 
 .result-number {
@@ -387,7 +343,7 @@
 }
 
 .result-item.incorrect .result-icon {
-  color: #dc3545;
+  color: #f59e0b;
 }
 
 .result-content {
@@ -709,17 +665,23 @@
     font-size: 3rem;
   }
 
-  .score-circle {
-    width: 150px;
-    height: 150px;
-  }
-
-  .score-value {
-    font-size: 3rem;
-  }
-
   .statistics {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* .stat-card is also styled by other pages (all CSS is global, some lay
+     it out as a row); stack each box here so two fit side by side. The
+     mixed test's boxes (.stats-grid/.stat-item) borrow other pages' rules
+     the same way. */
+  .statistics .stat-card,
+  .score-overview .stat-item {
+    display: block;
+    min-width: 0;
+    padding: 1rem 0.5rem;
+  }
+
+  .score-overview .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .result-item {

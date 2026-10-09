@@ -2,11 +2,13 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../results/ResultsPage.css';
 import MathText from '../common/MathText';
+import Assessment from '../common/Assessment';
+import { assessmentFor } from '../../content/assessment';
 
 const CrossTestResultsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { score, correctAnswers, totalQuestions, timeSpent, results, mistakeCount } = location.state || {};
+  const { correctAnswers, totalQuestions, timeSpent, results, mistakeCount } = location.state || {};
 
   if (!location.state) {
     navigate('/dashboard');
@@ -17,22 +19,6 @@ const CrossTestResultsPage = () => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const getScoreEmoji = (score) => {
-    if (score >= 90) return '🌟';
-    if (score >= 80) return '🎉';
-    if (score >= 70) return '👍';
-    if (score >= 60) return '📚';
-    return '💪';
-  };
-
-  const getScoreMessage = (score) => {
-    if (score >= 90) return 'מצוין! עבודה נהדרת!';
-    if (score >= 80) return 'יפה מאוד! כל הכבוד!';
-    if (score >= 70) return 'טוב! תמשיך כך!';
-    if (score >= 60) return 'לא רע! תמשיך להתאמן!';
-    return 'תמשיך להתאמן ותשתפר!';
   };
 
   // Group results by topic
@@ -60,19 +46,13 @@ const CrossTestResultsPage = () => {
       <div className="results-container">
         {/* Header */}
         <div className="results-header">
-          <h1 className="results-title">
-            {getScoreEmoji(score)} תוצאות מבחן משולב
-          </h1>
-          <p className="results-subtitle">{getScoreMessage(score)}</p>
+          <h1 className="results-title">תוצאות מבחן משולב</h1>
         </div>
 
-        {/* Score Overview */}
-        <div className="score-overview">
-          <div className="score-circle">
-            <div className="score-value">{score}%</div>
-            <div className="score-label">ציון סופי</div>
-          </div>
+        {/* Words instead of a score */}
+        <Assessment correct={correctAnswers} total={totalQuestions} />
 
+        <div className="score-overview">
           <div className="stats-grid">
             <div className="stat-item">
               <div className="stat-icon">✅</div>
@@ -81,9 +61,9 @@ const CrossTestResultsPage = () => {
             </div>
 
             <div className="stat-item">
-              <div className="stat-icon">❌</div>
+              <div className="stat-icon">💡</div>
               <div className="stat-value">{totalQuestions - correctAnswers}</div>
-              <div className="stat-label">שגויות</div>
+              <div className="stat-label">לחזרה</div>
             </div>
 
             <div className="stat-item">
@@ -112,23 +92,14 @@ const CrossTestResultsPage = () => {
           <h2 className="section-title">פירוט לפי נושאים</h2>
           <div className="topic-cards">
             {Object.entries(resultsByTopic).map(([topic, data]) => {
-              const topicScore = Math.round((data.correct / data.total) * 100);
+              const words = assessmentFor(data.correct, data.total);
               return (
                 <div key={topic} className="topic-card">
                   <div className="topic-header">
                     <h3 className="topic-name">📚 {topic}</h3>
                     <div className="topic-score">
-                      {topicScore}% ({data.correct}/{data.total})
+                      {words.icon} {words.title}
                     </div>
-                  </div>
-                  <div className="topic-progress-bar">
-                    <div
-                      className="topic-progress-fill"
-                      style={{
-                        width: `${topicScore}%`,
-                        backgroundColor: topicScore >= 70 ? '#22c55e' : topicScore >= 50 ? '#f59e0b' : '#ef4444'
-                      }}
-                    ></div>
                   </div>
                 </div>
               );
@@ -139,7 +110,7 @@ const CrossTestResultsPage = () => {
         {/* Mistakes Review */}
         {results && results.some(r => !r.feedback?.isCorrect) && (
           <div className="mistakes-section">
-            <h2 className="section-title">שאלות שנענו בצורה שגויה</h2>
+            <h2 className="section-title">שאלות לחזרה</h2>
             <div className="mistakes-list">
               {results
                 .filter(r => !r.feedback?.isCorrect)
@@ -147,7 +118,7 @@ const CrossTestResultsPage = () => {
                   <div key={idx} className="mistake-item">
                     <div className="mistake-header">
                       <span className="mistake-topic">📚 {result.exercise.lesson_title}</span>
-                      <span className="mistake-icon">❌</span>
+                      <span className="mistake-icon">💡</span>
                     </div>
                     <MathText as="div" className="mistake-question" dir="ltr" text={result.exercise.question_text_he} />
                     <div className="mistake-answers">
