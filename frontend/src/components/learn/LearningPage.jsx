@@ -107,7 +107,7 @@ const LearningPage = () => {
     <div className="learning-container">
       <nav className="learning-nav">
         <Link to={metaOf(lesson.subject).route} className="btn-nav-back">
-          ← {lesson.subject === 'english' || !lesson.subject ? 'חזור לנושאים' : `חזור ל${metaOf(lesson.subject).title}`}
+          ← חזור ל{metaOf(lesson.subject).indexLabel}
         </Link>
         <div className="lesson-breadcrumb">
           <span>נושא {displayTopic(lesson.topicNumber)}</span>
