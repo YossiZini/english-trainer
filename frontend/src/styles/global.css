@@ -155,7 +155,14 @@ input:focus, textarea:focus, select:focus {
 .feedback.arabic .feedback-content *,
 .mistake-content.arabic,
 .mistake-content.arabic *,
-.theory-html.arabic,
+.mistake-item.arabic .mistake-question,
+.mistake-item.arabic .answer-value,
+.theory-html.arabic {
+  font-family: 'Noto Naskh Arabic', var(--font-family-primary);
+}
+/* A rule of its own: :not() with a complex selector inside is newer CSS, and
+   a browser without it drops the whole selector list it sits in. Drawings
+   (svg) keep their own font. */
 .theory-html.arabic *:not(svg):not(svg *) {
   font-family: 'Noto Naskh Arabic', var(--font-family-primary);
 }
