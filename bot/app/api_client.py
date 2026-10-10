@@ -85,5 +85,9 @@ class TrainerApi:
     async def exercise_lessons(self, chat_id: str, subject: str) -> dict:
         return await self._call("POST", "/bot/exercise/lessons", chat_id, subject=subject)
 
+    async def mistakes_start(self, chat_id: str, subject: str) -> dict:
+        """A subject's mistakes exam: up to 20 unfixed mistakes, asked like a lesson."""
+        return await self._call("POST", "/bot/mistakes/start", chat_id, subject=subject)
+
     async def status(self, chat_id: str) -> dict:
         return await self._call("GET", "/bot/session/status", chat_id)

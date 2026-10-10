@@ -16,7 +16,7 @@ from google.genai import types
 from . import config, replies
 from .replies import Reply
 from .exercise_replies import (exercise_start_reply, exercise_status_reply, lesson_list_reply,
-                               report_ask_reply, report_reason, report_reply)
+                               mistakes_start_reply, report_ask_reply, report_reason, report_reply)
 from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
@@ -34,13 +34,16 @@ def parse_command(text: str) -> tuple[str, dict] | None:
 
     help | words | end | switch | report | usage | review [manual|auto] |
     english|math|arabic [N] [easy|medium|hard] |
-    lessons english|math|arabic (also lessons_english) | lessons"""
+    lessons english|math|arabic (also lessons_english) | lessons |
+    mistakes english|math|arabic (also mistakes_english) | mistakes"""
     words = text.lower().split()
     if not words or len(words) > 3:
         return None
     first = words[0].lstrip("/").split("@")[0]
     if first.startswith(config.LESSONS_WORD + "_"):
         first, words = config.LESSONS_WORD, [first, first.split("_", 1)[1], *words[1:]]
+    if first.startswith(config.MISTAKES_WORD + "_"):
+        first, words = config.MISTAKES_WORD, [first, first.split("_", 1)[1], *words[1:]]
     rest = words[1:]
     if not rest and first in config.HELP_WORDS:
         return "help", {}
@@ -64,6 +67,12 @@ def parse_command(text: str) -> tuple[str, dict] | None:
             return "lessons", {}
         if len(rest) == 1 and rest[0] in config.SUBJECTS:
             return "lessons", {"subject": rest[0]}
+        return None
+    if first == config.MISTAKES_WORD:
+        if not rest:
+            return "mistakes", {}
+        if len(rest) == 1 and rest[0] in config.SUBJECTS:
+            return "mistakes", {"subject": rest[0]}
         return None
     if first in config.SUBJECTS:
         number = difficulty = None
@@ -166,6 +175,10 @@ class Coach:
             return Reply(replies.WHICH_LESSONS, list(replies.LESSONS_BUTTONS))
         if action == "lessons":
             return lesson_list_reply(await self.api.exercise_lessons(chat_id, args["subject"]))
+        if action == "mistakes" and not args:
+            return Reply(replies.WHICH_MISTAKES, list(replies.MISTAKES_BUTTONS))
+        if action == "mistakes":
+            return mistakes_start_reply(await self.api.mistakes_start(chat_id, args["subject"]))
         return exercise_start_reply(await self.api.exercise_start(chat_id, **args))
 
     async def report(self, chat_id: str, reason: str) -> Reply:

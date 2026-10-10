@@ -58,4 +58,5 @@ REVIEW_WORD = "review"
 REVIEW_MODES = {"manual", "auto"}
 SUBJECTS = {"english", "math", "arabic"}
 LESSONS_WORD = "lessons"
+MISTAKES_WORD = "mistakes"
 DIFFICULTIES = {"easy", "medium", "hard"}
