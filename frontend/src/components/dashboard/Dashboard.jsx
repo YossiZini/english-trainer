@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import progressService from '../../services/progressService';
 import DailyChallenge from '../challenges/DailyChallenge';
 import achievementService from '../../services/achievementService';
+import mistakesService from '../../services/mistakesService';
 import { continueTarget, DIFFICULTY_LABELS } from './continueTarget';
 import './Dashboard.css';
 
@@ -60,6 +61,8 @@ const Dashboard = () => {
 
   const [dashboardData, setDashboardData] = useState(null);
   const [recentAchievements, setRecentAchievements] = useState([]);
+  // Mistakes waiting for each subject's mistakes exam (null if they could not be counted).
+  const [waiting, setWaiting] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -71,12 +74,14 @@ const Dashboard = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-      const [dashData, achievementsData] = await Promise.all([
+      const [dashData, achievementsData, waitingData] = await Promise.all([
         progressService.getDashboard(),
-        achievementService.getRecentlyUnlocked(3).catch(() => ({ data: [] }))
+        achievementService.getRecentlyUnlocked(3).catch(() => ({ data: [] })),
+        mistakesService.getWaiting().catch(() => null)
       ]);
       setDashboardData(dashData);
       setRecentAchievements(achievementsData.data || []);
+      setWaiting(waitingData);
       setLoading(false);
     } catch (err) {
       console.error('Failed to load dashboard:', err);
@@ -242,6 +247,21 @@ const Dashboard = () => {
               <div className="action-title">התקדמות מפורטת</div>
               <div className="action-subtitle">סטטיסטיקות וגרפים</div>
             </button>
+
+            {/* A subject's mistakes exam, for each subject with mistakes waiting */}
+            {SUBJECTS.filter(s => waiting?.[s.key] > 0).map(s => (
+              <button
+                key={s.key}
+                className="action-card mistakes-exam-card"
+                onClick={() => navigate(`/mistakes-exam/${s.key}`)}
+              >
+                <div className="action-icon">🎯</div>
+                <div className="action-title">מבחן טעויות ב{s.label}</div>
+                <div className="action-subtitle">
+                  {waiting[s.key] === 1 ? 'שאלה אחת מחכה' : `${waiting[s.key]} שאלות מחכות`}
+                </div>
+              </button>
+            ))}
 
             <button
               className="action-card cross-test-card"

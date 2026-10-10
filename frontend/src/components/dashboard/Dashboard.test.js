@@ -2,12 +2,14 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import Dashboard from './Dashboard';
 import progressService from '../../services/progressService';
 import achievementService from '../../services/achievementService';
+import mistakesService from '../../services/mistakesService';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({ useNavigate: () => mockNavigate }), { virtual: true });
 jest.mock('../../context/AuthContext', () => ({ useAuth: () => ({ user: { name: 'dana' } }) }));
 jest.mock('../../services/progressService', () => ({ getDashboard: jest.fn() }));
 jest.mock('../../services/achievementService', () => ({ getRecentlyUnlocked: jest.fn() }));
+jest.mock('../../services/mistakesService', () => ({ getWaiting: jest.fn() }));
 jest.mock('../challenges/DailyChallenge', () => () => null);
 
 const completion = (done, total) => ({ completed_lessons: done, total_lessons: total, percentage: Math.round((done / total) * 100) });
@@ -34,6 +36,26 @@ describe('Dashboard', () => {
     // CRA resets mock implementations before each test; set them here.
     progressService.getDashboard.mockResolvedValue(data);
     achievementService.getRecentlyUnlocked.mockResolvedValue({ data: [] });
+    mistakesService.getWaiting.mockResolvedValue({ english: 0, math: 0, arabic: 0 });
+  });
+
+  test("a mistakes-exam card for each subject with mistakes waiting", async () => {
+    mistakesService.getWaiting.mockResolvedValue({ english: 5, math: 0, arabic: 1 });
+    render(<Dashboard />);
+    const english = await screen.findByText('מבחן טעויות באנגלית');
+    expect(screen.getByText('5 שאלות מחכות')).toBeInTheDocument();
+    expect(screen.getByText('מבחן טעויות בערבית')).toBeInTheDocument();
+    expect(screen.getByText('שאלה אחת מחכה')).toBeInTheDocument();
+    expect(screen.queryByText('מבחן טעויות במתמטיקה')).toBeNull();
+    fireEvent.click(english.closest('button'));
+    expect(mockNavigate).toHaveBeenLastCalledWith('/mistakes-exam/english');
+  });
+
+  test('no mistakes-exam card when nothing waits or the count fails', async () => {
+    mistakesService.getWaiting.mockRejectedValue(new Error('offline'));
+    render(<Dashboard />);
+    await screen.findByText('המשך אנגלית');
+    expect(screen.queryByText(/מבחן טעויות ב/)).toBeNull();
   });
 
   test('shows one continue card per subject, each going to its own next step', async () => {
