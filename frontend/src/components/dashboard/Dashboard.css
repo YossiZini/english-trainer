@@ -391,6 +391,11 @@
   color: white;
 }
 
+.action-card.mistakes-exam-card {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
 .action-card.cross-test-card {
   background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
   color: white;
