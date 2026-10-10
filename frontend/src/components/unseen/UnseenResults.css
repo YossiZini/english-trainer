@@ -13,13 +13,6 @@
 }
 
 /* Score Card */
-.score-card {
-  text-align: center;
-  padding: 2rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-}
-
 /* Paragraph Info */
 .paragraph-info {
   text-align: center;
@@ -251,10 +244,6 @@
 
   .results-container {
     padding: 1rem;
-  }
-
-  .score-card {
-    padding: 1.5rem;
   }
 
   .paragraph-info h2 {
