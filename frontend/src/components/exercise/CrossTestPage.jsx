@@ -8,6 +8,7 @@ import ExerciseActionBar from './ExerciseActionBar';
 import ExerciseFeedback from './ExerciseFeedback';
 import ReportQuestion from './ReportQuestion';
 import useScrollToQuestion from './useScrollToQuestion';
+import { startEncouragement } from '../../content/encouragement';
 import './ExercisePage.css';
 
 const CrossTestPage = () => {
@@ -69,6 +70,7 @@ const CrossTestPage = () => {
   }, [showRecap, exercises, currentIndex, userAnswers, feedback, isSubmitting]);
 
   const loadCrossTest = async () => {
+    startEncouragement();
     try {
       setLoading(true);
       const data = await mistakesService.getCrossTopicTest(20);

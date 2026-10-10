@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import unseenService from '../../services/unseenService';
 import UnseenQuestion from './UnseenQuestion';
+import { startEncouragement } from '../../content/encouragement';
 import HardWordsPopup from './HardWordsPopup';
 import './UnseenReadingPage.css';
 
@@ -26,6 +27,7 @@ const UnseenReadingPage = () => {
   }, [paragraphId]);
 
   const loadParagraphAndStartSession = async () => {
+    startEncouragement();
     try {
       setLoading(true);
       setError('');
