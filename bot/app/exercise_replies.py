@@ -9,6 +9,8 @@ from .encouragement import wrong_line
 
 SUBJECT_COMMAND = {"english": "/english", "math": "/math", "arabic": "/arabic"}
 SUBJECT_NAME = {"english": "אנגלית", "math": "חשבון", "arabic": "ערבית"}
+SUBJECT_IN = {"english": "באנגלית", "math": "בחשבון", "arabic": "בערבית"}
+MISTAKES_COMMAND = {"english": "/mistakes_english", "math": "/mistakes_math", "arabic": "/mistakes_arabic"}
 LEVEL_NAME = {"easy": "קל", "medium": "בינוני", "hard": "קשה"}
 MARKS = {"done": "✅ ", "next": "▶️ ", "open": ""}
 MORE, BACK = "more", "back"
@@ -87,7 +89,8 @@ def question_reply(data: dict, intro: str = "") -> Reply:
     lesson, q = data["lesson"], data["question"]
     lines = [intro] if intro else []
     level = LEVEL_NAME.get(lesson.get("difficulty"))
-    lines.append(f"📘 {lesson['title']}" + (f" · {level}" if level and q["number"] == 1 else "") + f" · שאלה {q['number']}/{q['total']}")
+    icon = "🎯" if lesson.get("mistakes") else "📘"
+    lines.append(f"{icon} {lesson['title']}" + (f" · {level}" if level and q["number"] == 1 else "") + f" · שאלה {q['number']}/{q['total']}")
     lines.append(q["text"])
     if q.get("textEn"):
         lines.append(q["textEn"])
@@ -110,8 +113,43 @@ def verdict_text(verdict: dict) -> str:
     return text
 
 
+def mistakes_start_reply(result: dict) -> Reply:
+    """A mistakes exam's first question, or kind words when nothing waits."""
+    if not result["ok"]:
+        return Reply(_error(result))
+    data = result["data"]
+    subject = data.get("subject") or data["lesson"].get("subject")
+    if data.get("nothingWaiting"):
+        return Reply(f"🎉 אין טעויות לתקן {SUBJECT_IN.get(subject, '')}! כל הכבוד. "
+                     f"ממשיכים בשיעור הבא: {SUBJECT_COMMAND.get(subject, '/english')}.")
+    total, waiting = data["question"]["total"], data["lesson"].get("waiting") or 0
+    count = "שאלה אחת" if total == 1 else f"{total} שאלות"
+    of = f" מתוך {waiting} שמחכות" if waiting > total else ""
+    return question_reply(data, f"🎯 מבחן הטעויות {SUBJECT_IN.get(subject, '')}: {count}{of}. "
+                                "תשובה נכונה מתקנת את הטעות. ענו במספר התשובה, או /end כדי לעצור.")
+
+
+def mistakes_result_text(r: dict) -> str:
+    """The end of a mistakes exam: what was fixed and what still waits, kindly; no score."""
+    subject = r["subject"]
+    lines = [f"🏁 סיימתם את מבחן הטעויות {SUBJECT_IN.get(subject, '')}!"]
+    fixed, waiting = r["fixed"], r["waiting"]
+    if fixed:
+        lines.append("✅ תיקנתם טעות אחת." if fixed == 1 else f"✅ תיקנתם {fixed} טעויות.")
+    else:
+        lines.append("💪 עכשיו אתם מכירים את התשובות – בסיבוב הבא זה ילך!")
+    if waiting:
+        more = "עוד טעות אחת מחכה" if waiting == 1 else f"עוד {waiting} טעויות מחכות"
+        lines.append(f"{more}. כתבו {MISTAKES_COMMAND.get(subject, '/mistakes')} לסיבוב הבא.")
+    else:
+        lines.append(f"כל הטעויות {SUBJECT_IN.get(subject, '')} תוקנו! 🎉")
+    return "\n".join(lines)
+
+
 def result_text(data: dict) -> str:
     lesson, r = data["lesson"], data["result"]
+    if r.get("mistakes"):
+        return mistakes_result_text(r)
     level = LEVEL_NAME.get(lesson.get("difficulty"))
     at_level = f" (רמה: {level})" if level else ""
     lines = [f"🏁 סיימתם את \"{lesson['title']}\"{at_level}: {r['correct']}/{r['total']} נכונות, ציון {r['score']}."]
@@ -175,6 +213,11 @@ def exercise_end_reply(data: dict) -> Reply:
     if data.get("pickClosed"):
         return Reply(PICK_CLOSED)
     lesson = data["lesson"]
+    if lesson.get("mistakes"):
+        return Reply(
+            f"עצרנו את מבחן הטעויות ({data['answered']}/{data['total']} שאלות). "
+            f"מה שתיקנתם נשמר; כתבו {MISTAKES_COMMAND.get(lesson.get('subject'), '/mistakes')} כדי להמשיך."
+        )
     return Reply(
         f"עצרנו באמצע \"{lesson['title']}\" ({data['answered']}/{data['total']} שאלות, {data['correct']} נכונות). "
         "הציון לא נשמר; אפשר להתחיל מחדש מתי שתרצו."

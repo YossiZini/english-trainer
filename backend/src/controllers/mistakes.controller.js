@@ -1,4 +1,11 @@
+const { validationResult } = require('express-validator');
 const MistakesService = require('../services/mistakes.service');
+
+/** 400 with the validation errors, or null when the request is valid. */
+function invalid(req, res) {
+  const errors = validationResult(req);
+  return errors.isEmpty() ? null : res.status(400).json({ success: false, errors: errors.array() });
+}
 
 class MistakesController {
   /**
@@ -175,6 +182,48 @@ class MistakesController {
         success: false,
         message: error.message || 'Failed to get cross-topic test'
       });
+    }
+  }
+
+  /**
+   * How many different questions wait to be fixed, per subject
+   * GET /api/mistakes/waiting
+   */
+  static async getWaiting(req, res) {
+    try {
+      res.status(200).json({ success: true, data: await MistakesService.waitingBySubject(req.userId) });
+    } catch (error) {
+      console.error('Get waiting mistakes error:', error);
+      res.status(500).json({ success: false, message: 'Failed to count mistakes' });
+    }
+  }
+
+  /**
+   * A mistakes exam for one subject
+   * GET /api/mistakes/exam?subject=english|math|arabic
+   */
+  static async getSubjectExam(req, res) {
+    if (invalid(req, res)) return;
+    try {
+      res.status(200).json({ success: true, data: await MistakesService.subjectExam(req.userId, req.query.subject) });
+    } catch (error) {
+      console.error('Get mistakes exam error:', error);
+      res.status(500).json({ success: false, message: 'Failed to get the mistakes exam' });
+    }
+  }
+
+  /**
+   * Grade a mistakes exam; right answers fix their mistakes
+   * POST /api/mistakes/exam { subject, answers: [{ exerciseId, userAnswer }] }
+   */
+  static async submitSubjectExam(req, res) {
+    if (invalid(req, res)) return;
+    try {
+      const { subject, answers } = req.body;
+      res.status(200).json({ success: true, data: await MistakesService.submitSubjectExam(req.userId, subject, answers) });
+    } catch (error) {
+      console.error('Submit mistakes exam error:', error);
+      res.status(500).json({ success: false, message: 'Failed to submit the mistakes exam' });
     }
   }
 }

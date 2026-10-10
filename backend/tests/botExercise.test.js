@@ -235,4 +235,54 @@ describe('Bot lesson exercises', () => {
     await db.updateById('bot_sessions', lesson.id, { ended_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() });
     expect((await bot('/api/bot/exercise/report', { reason: 'unclear' })).status).toBe(404);
   });
+
+  test("a subject's mistakes exam: right answers fix at once; a summary, no score", async () => {
+    const jwt = { Authorization: `Bearer ${token}` };
+    const waiting = async () => (await request(app).get('/api/mistakes/waiting').set(jwt)).body.data;
+    // Three fresh English mistakes, from a lesson these tests do not use.
+    const third = [...lessons].filter(l => (l.subject || 'english') === 'english').sort(compareLessons)[2];
+    const easy = [...bundled.values()].filter(e => e.lesson_id === third.id && e.difficulty === 'easy').slice(0, 3);
+    await request(app).post('/api/exercises/submit').set(jwt).send({
+      lessonId: third.id, timeSpent: 30, difficulty: 'easy',
+      answers: easy.map(e => ({ exerciseId: e.id, userAnswer: (e.options || []).find(o => o !== e.correct_answer) || 'zzz' }))
+    });
+    const before = (await waiting()).english;
+    expect(before).toBeGreaterThanOrEqual(3);
+
+    // Nothing waiting in Arabic: no session starts. A subject must be known.
+    expect((await bot('/api/bot/mistakes/start', { subject: 'arabic' })).body.data).toMatchObject({ nothingWaiting: true, subject: 'arabic' });
+    expect((await status()).body.data.active).toBe(false);
+    expect((await bot('/api/bot/mistakes/start', { subject: 'history' })).status).toBe(400);
+
+    const start = (await bot('/api/bot/mistakes/start', { subject: 'english' })).body.data;
+    expect(start).toMatchObject({ kind: 'exercise', mistakes: true, lesson: { title: 'מבחן טעויות', subject: 'english', mistakes: true, waiting: before } });
+    const total = start.question.total;
+    expect(total).toBe(Math.min(before, 20));
+    expect((await status()).body.data).toMatchObject({ active: true, kind: 'exercise', lesson: { mistakes: true } });
+
+    // The first answer wrong, the rest right; a right answer is fixed at once.
+    let question = start.question;
+    let reply;
+    for (let i = 0; i < total; i++) {
+      const exerciseId = await currentExerciseId();
+      reply = (await bot('/api/bot/session/answer', { text: i === 0 ? wrongAnswer(question, exerciseId) : rightAnswer(question, exerciseId) })).body.data;
+      expect(reply.verdict.correct).toBe(i !== 0);
+      expect(reply.verdict.wrongCount).toBe(1);
+      const records = await db.find('wrong_answers', { user_id: userId, exercise_id: exerciseId });
+      expect(records.every(r => r.is_corrected)).toBe(i !== 0);
+      if (i < total - 1) question = reply.question;
+    }
+    expect(reply.done).toBe(true);
+    expect(reply.result).toEqual({ mistakes: true, subject: 'english', fixed: total - 1, total, waiting: before - (total - 1) });
+    expect((await waiting()).english).toBe(before - (total - 1));
+    expect((await status()).body.data.active).toBe(false);
+    // No lesson result is recorded for a mistakes exam.
+    expect((await db.find('exercise_results', { user_id: userId })).filter(r => !r.lesson_id)).toHaveLength(0);
+
+    // Stopping early keeps what was fixed: the next exam asks only what is left.
+    const again = (await bot('/api/bot/mistakes/start', { subject: 'english' })).body.data;
+    expect(again.question.total).toBe(Math.min(before - (total - 1), 20));
+    const ended = (await bot('/api/bot/session/end')).body.data;
+    expect(ended).toMatchObject({ ended: true, lesson: { mistakes: true }, answered: 0 });
+  });
 });

@@ -239,6 +239,29 @@ class WrongAnswer {
   }
 
   /**
+   * The student's unfixed mistakes, one per question however many times it
+   * was answered wrong: the question as it is now (review corrections
+   * applied) and its lesson. Questions hidden after a report, removed in
+   * review or no longer in the content are left out.
+   */
+  static async unfixedQuestions(userId) {
+    const [records, { visible, apply }] = await Promise.all([
+      db.find('wrong_answers', { user_id: userId, is_corrected: false }),
+      Exercise.overlay()
+    ]);
+    const exercises = new Map(db.getCollection('exercises', true).map(e => [e.id, e]));
+    const lessons = new Map(db.getCollection('lessons', true).map(l => [l.id, l]));
+    const questions = new Map();
+    for (const record of records) {
+      const exercise = exercises.get(record.exercise_id);
+      const lesson = exercise && lessons.get(exercise.lesson_id);
+      if (!lesson || questions.has(exercise.id) || !visible(exercise.id)) continue;
+      questions.set(exercise.id, { exercise: apply(exercise), lesson });
+    }
+    return [...questions.values()];
+  }
+
+  /**
    * Check if a user has any uncorrected mistakes for a lesson
    */
   static async hasUncorrectedMistakes(userId, lessonId) {

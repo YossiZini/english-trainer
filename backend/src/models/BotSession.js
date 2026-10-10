@@ -59,6 +59,34 @@ class BotSession {
     });
   }
 
+  /**
+   * A subject's mistakes exam: an exercise session (same answers, report and
+   * end) whose questions are the student's unfixed mistakes in the subject,
+   * frozen at start. Each right answer fixes its mistake at once.
+   */
+  static async createMistakes({ userId, chatId, subject, waiting, exercises }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'exercise',
+      source: 'mistakes',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'active',
+      lesson_id: null,
+      lesson_title: null,
+      lesson_number: null,
+      subject,
+      difficulty: null,
+      waiting,
+      exercises,
+      index: 0,
+      answers: [],
+      correct_count: 0,
+      started_at: now,
+      ended_at: null
+    });
+  }
+
   /** An exercise session waiting for the student to pick a lesson from a list. */
   static async createLessonPick({ userId, chatId, subject }) {
     const now = new Date().toISOString();

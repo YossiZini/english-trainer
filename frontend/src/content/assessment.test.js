@@ -1,4 +1,4 @@
-import { TIERS, assessmentFor } from './assessment';
+import { TIERS, assessmentFor, fixedSummary } from './assessment';
 
 describe('words instead of a score at the end of a test', () => {
   test('the top line is kept for a test with every answer right', () => {
@@ -38,5 +38,18 @@ describe('words instead of a score at the end of a test', () => {
       expect(`${title} ${text}`).not.toMatch(/ציון|שגוי|נכשל|לא נכון|טעיתם|גרוע|חלש/);
     });
     expect(new Set(TIERS.map((tier) => tier.title)).size).toBe(TIERS.length);
+  });
+});
+
+describe('what a mistakes exam fixed', () => {
+  test('fixed now and still waiting, singular for one', () => {
+    expect(fixedSummary(3, 5)).toBe('תיקנתם 3 טעויות; עוד 5 טעויות מחכות לסיבוב הבא.');
+    expect(fixedSummary(1, 1)).toBe('תיקנתם טעות אחת; עוד טעות אחת מחכה לסיבוב הבא.');
+    expect(fixedSummary(0, 4)).toBe('עוד 4 טעויות מחכות לסיבוב הבא.');
+  });
+
+  test('nothing left: all fixed', () => {
+    expect(fixedSummary(2, 0)).toBe('תיקנתם 2 טעויות – כל הטעויות תוקנו! 🎉');
+    expect(fixedSummary(1, 0)).toBe('תיקנתם טעות אחת – כל הטעויות תוקנו! 🎉');
   });
 });

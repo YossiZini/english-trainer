@@ -7,6 +7,8 @@ const ExerciseService = require('../exercise.service');
 const { isCorrectAnswer, choiceMatches } = require('../../utils/answers');
 const { END_WORDS } = require('../../config/bot');
 const ReportService = require('../report.service');
+const MistakesService = require('../mistakes.service');
+const { shuffleArray } = require('../../utils/shuffle');
 const { SUBJECTS } = require('../../config/subjects');
 
 /** A finished lesson's questions can be reported for this long after it ended. */
@@ -61,6 +63,9 @@ function questionView(session) {
 }
 
 function lessonView(session) {
+  if (session.source === 'mistakes') {
+    return { id: null, title: 'מבחן טעויות', subject: session.subject, number: null, difficulty: null, mistakes: true, waiting: session.waiting || 0 };
+  }
   return {
     id: session.lesson_id,
     title: session.lesson_title,
@@ -139,6 +144,30 @@ class ExerciseSession {
     return { kind: 'exercise', sessionId: session.id, lesson: lessonView(session), question: questionView(session) };
   }
 
+  /**
+   * A subject's mistakes exam: up to 20 of the student's unfixed mistakes in
+   * the subject (MistakesService, the website's rule), asked like a lesson.
+   * Each right answer fixes its mistake at once, so ending early keeps what
+   * was fixed. With none waiting nothing starts. Replaces any open session.
+   */
+  static async startMistakes(user, chatId, { subject }) {
+    if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
+    const { waiting, questions } = await MistakesService.pickSubjectExam(user.id, subject);
+    if (!questions.length) return { kind: 'exercise', mistakes: true, nothingWaiting: true, subject };
+    const exercises = questions.map(({ exercise }) => ({
+      id: exercise.id,
+      type: exercise.type,
+      text: exercise.question_text_he || exercise.question_text_en,
+      textEn: exercise.question_text_he ? exercise.question_text_en || null : null,
+      options: exercise.type === 'multiple_choice' ? shuffleArray(exercise.options) : null,
+      hint: exercise.hint_he || null
+    }));
+    const open = await BotSession.findOpenByChat(chatId);
+    if (open) await BotSession.end(open.id, 'replaced');
+    const session = await BotSession.createMistakes({ userId: user.id, chatId, subject, waiting, exercises });
+    return { kind: 'exercise', mistakes: true, sessionId: session.id, lesson: lessonView(session), question: questionView(session) };
+  }
+
   /** Open the lesson list of a subject; the student answers with a lesson number. */
   static async listLessons(user, chatId, { subject }) {
     if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
@@ -190,9 +219,12 @@ class ExerciseSession {
     }
 
     const exercise = await Exercise.findById(current.id);
-    // Graded as the session froze the question (a typed question open
-    // during a content change keeps its lenient check).
-    const correct = isCorrectAnswer({ type: current.type, correct_answer: exercise.correct_answer }, given);
+    const correct = session.source === 'mistakes'
+      // A mistakes exam: the website's rule, and a right answer fixes the mistake now.
+      ? (await MistakesService.gradeMistake(user.id, { exercise }, given)).isCorrect
+      // Graded as the session froze the question (a typed question open
+      // during a content change keeps its lenient check).
+      : isCorrectAnswer({ type: current.type, correct_answer: exercise.correct_answer }, given);
     const verdict = {
       correct,
       given,
@@ -217,6 +249,23 @@ class ExerciseSession {
         answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak
       });
       return { kind: 'exercise', verdict, lesson: lessonView(next), question: questionView(next), done: false };
+    }
+
+    if (session.source === 'mistakes') {
+      // Last answer of a mistakes exam: the mistakes were fixed as they were
+      // answered; say how many, and how many still wait. No score.
+      await BotSession.update(session.id, {
+        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak
+      });
+      await BotSession.end(session.id, 'completed');
+      const waiting = (await MistakesService.waitingBySubject(user.id))[session.subject] || 0;
+      return {
+        kind: 'exercise',
+        verdict,
+        lesson: lessonView(session),
+        done: true,
+        result: { mistakes: true, subject: session.subject, fixed: correctCount, total: session.exercises.length, waiting }
+      };
     }
 
     // Last answer: grade the whole lesson exactly like the web.

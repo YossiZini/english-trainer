@@ -40,6 +40,17 @@ router.post('/exercise/start', [
 ], BotController.startExercise);
 
 /**
+ * POST /api/bot/mistakes/start { chatId, subject } — the subject's mistakes
+ * exam: up to 20 of the student's unfixed mistakes there, asked like a
+ * lesson (answers and the end through /session/answer and /session/end).
+ * A right answer fixes its mistake at once; the last one returns how many
+ * were fixed and how many still wait. With none waiting: nothingWaiting.
+ */
+router.post('/mistakes/start', [
+  body('subject').isIn(SUBJECTS).withMessage(`subject must be one of ${SUBJECTS.join(', ')}`)
+], BotController.startMistakes);
+
+/**
  * POST /api/bot/exercise/lessons { chatId, subject } — the subject's lessons,
  * numbered, 10 per page; the student answers with a number ('עוד' / 'הקודם'
  * turn the page) through /session/answer.

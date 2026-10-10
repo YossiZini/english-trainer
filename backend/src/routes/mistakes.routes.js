@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 const MistakesController = require('../controllers/mistakes.controller');
 const { authenticate } = require('../middleware/auth.middleware');
+const { SUBJECTS } = require('../config/subjects');
+const { EXAM_SIZE } = require('../services/mistakes.service');
 
 // All mistake routes require authentication
 router.use(authenticate);
@@ -29,6 +31,35 @@ router.get('/stats', MistakesController.getStatistics);
  * @access  Private
  */
 router.get('/cross-test', MistakesController.getCrossTopicTest);
+
+/**
+ * @route   GET /api/mistakes/waiting
+ * @desc    How many different questions wait to be fixed, per subject
+ * @access  Private
+ */
+router.get('/waiting', MistakesController.getWaiting);
+
+/**
+ * @route   GET /api/mistakes/exam?subject=english|math|arabic
+ * @desc    A mistakes exam: up to 20 of the subject's unfixed mistakes, no other questions
+ * @access  Private
+ */
+router.get('/exam', [
+  query('subject').isIn(SUBJECTS).withMessage(`subject must be one of ${SUBJECTS.join(', ')}`)
+], MistakesController.getSubjectExam);
+
+/**
+ * @route   POST /api/mistakes/exam
+ * @desc    Grade a mistakes exam; a right answer fixes its mistake
+ * @body    { subject, answers: [{ exerciseId, userAnswer }] }
+ * @access  Private
+ */
+router.post('/exam', [
+  body('subject').isIn(SUBJECTS).withMessage(`subject must be one of ${SUBJECTS.join(', ')}`),
+  body('answers').isArray({ min: 1, max: EXAM_SIZE }).withMessage(`answers must be a list of 1 to ${EXAM_SIZE}`),
+  body('answers.*.exerciseId').isString().isLength({ min: 1, max: 64 }),
+  body('answers.*.userAnswer').isString().isLength({ max: 500 })
+], MistakesController.submitSubjectExam);
 
 /**
  * @route   GET /api/mistakes/lesson/:lessonId

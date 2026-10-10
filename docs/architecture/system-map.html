@@ -158,6 +158,7 @@ flowchart LR
             <li>Login and registration</li>
             <li>English, Math and Arabic topics (numbered 1+, 101+, 201+), lessons with animated explanations</li>
             <li>Exercises with feedback, mistakes review, progress and points</li>
+            <li>Mistakes exam per subject: the student's unfixed mistakes; a right answer fixes one</li>
             <li>Vocabulary quiz and history</li>
             <li>Telegram page: issue a link code, unlink</li>
           </ul></dd></div>
@@ -173,6 +174,7 @@ flowchart LR
             <li>Accounts and JWT authentication</li>
             <li>Lessons and exercises from bundled content (all multiple choice), answer checking</li>
             <li>Progress, points, achievements, daily challenges</li>
+            <li>Mistakes exam per subject: up to 20 of a student's unfixed mistakes in one subject, and fixing the ones answered right; one rule for the web and the bot</li>
             <li>Vocabulary quiz, word scores, failed words, review mode</li>
             <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
             <li>Bot API: vocabulary and lesson-exercise sessions, chat linking, service key, rate and daily caps</li>
@@ -191,6 +193,7 @@ flowchart LR
             <li>Verifies the Telegram webhook secret; sets its Telegram command menu at startup</li>
             <li>Link code, commands, level and direction choice, lesson pick, reports and answers go straight to the API</li>
             <li>/review, open to every linked student within a daily cap: a review agent on Gemini Pro proposes keep, change or remove for each reported question or word</li>
+            <li>/mistakes_english, /mistakes_math, /mistakes_arabic: the subject's mistakes exam, asked like a lesson, by the API's rule</li>
             <li>/usage: every student's participation (active days, lessons, words, reading; no scores) over 7 and 30 days, visible to every linked student</li>
             <li>Other messages go to an ADK agent whose tools call the API</li>
             <li>Turn, token and call caps before any model use</li>
@@ -340,7 +343,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Telegram bot</span>
         <h3>A lesson's exercises in Telegram</h3>
-        <p>English, Math or Arabic: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved.</p>
+        <p>English, Math or Arabic: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved. A subject's mistakes exam (/mistakes_…) runs the same way with up to 20 of the student's unfixed mistakes: each right answer fixes one at once, and the end says what was fixed instead of a score.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">

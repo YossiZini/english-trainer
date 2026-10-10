@@ -292,3 +292,61 @@ async def test_arabic_is_a_subject_of_its_own():
     reply = await coach().handle("7", "/arabic")
     assert json.loads(route.calls.last.request.content)["subject"] == "arabic"
     assert "📘 אותיות" in reply.text and reply.buttons == ["1", "2", "3", "4"]
+
+
+MISTAKES = {"id": None, "title": "מבחן טעויות", "subject": "arabic", "number": None, "difficulty": None, "mistakes": True, "waiting": 9}
+
+
+def test_mistakes_commands_parse():
+    assert parse_command("/mistakes_arabic") == ("mistakes", {"subject": "arabic"})
+    assert parse_command("mistakes english") == ("mistakes", {"subject": "english"})
+    assert parse_command("/mistakes_math@Yzteacher_bot") == ("mistakes", {"subject": "math"})
+    assert parse_command("/mistakes") == ("mistakes", {})
+    assert parse_command("mistakes history") is None
+
+
+@respx.mock
+async def test_mistakes_command_starts_the_subject_exam():
+    no_session()
+    route = respx.post(f"{API}/bot/mistakes/start").mock(return_value=ok(
+        {"kind": "exercise", "mistakes": True, "sessionId": "s", "lesson": MISTAKES,
+         "question": {**mc(1, ["ו", "ד", "ז", "ר"]), "total": 6}}))
+    reply = await coach().handle("7", "/mistakes_arabic")
+    assert json.loads(route.calls.last.request.content) == {"chatId": "7", "subject": "arabic"}
+    lines = reply.text.splitlines()
+    assert lines[0].startswith("🎯 מבחן הטעויות בערבית: 6 שאלות מתוך 9 שמחכות. תשובה נכונה מתקנת את הטעות.")
+    assert lines[1] == "🎯 מבחן טעויות · שאלה 1/6"
+    assert reply.buttons == ["1", "2", "3", "4"]
+
+
+@respx.mock
+async def test_mistakes_with_nothing_waiting_or_no_subject():
+    no_session()
+    respx.post(f"{API}/bot/mistakes/start").mock(return_value=ok({"kind": "exercise", "mistakes": True, "nothingWaiting": True, "subject": "math"}))
+    reply = await coach().handle("7", "/mistakes_math")
+    assert reply.text == "🎉 אין טעויות לתקן בחשבון! כל הכבוד. ממשיכים בשיעור הבא: /math."
+    which = await coach().handle("7", "/mistakes")
+    assert which.text == replies.WHICH_MISTAKES and which.buttons == ["mistakes english", "mistakes math", "mistakes arabic"]
+
+
+def test_mistakes_summary_and_early_end_have_no_score():
+    done = er.exercise_answer_reply({
+        "kind": "exercise", "done": True, "lesson": MISTAKES, "verdict": {"correct": True, "correctAnswer": "ז"},
+        "result": {"mistakes": True, "subject": "arabic", "fixed": 4, "total": 6, "waiting": 5}})
+    assert done.text.splitlines()[2:] == [
+        "🏁 סיימתם את מבחן הטעויות בערבית!", "✅ תיקנתם 4 טעויות.", "עוד 5 טעויות מחכות. כתבו /mistakes_arabic לסיבוב הבא."]
+    assert "ציון" not in done.text
+    one = er.mistakes_result_text({"subject": "english", "fixed": 1, "waiting": 0})
+    assert one.splitlines()[1:] == ["✅ תיקנתם טעות אחת.", "כל הטעויות באנגלית תוקנו! 🎉"]
+    none = er.mistakes_result_text({"subject": "math", "fixed": 0, "waiting": 1})
+    assert none.splitlines()[1:] == ["💪 עכשיו אתם מכירים את התשובות – בסיבוב הבא זה ילך!",
+                                     "עוד טעות אחת מחכה. כתבו /mistakes_math לסיבוב הבא."]
+    ended = er.exercise_answer_reply({"kind": "exercise", "done": True, "ended": True, "lesson": MISTAKES,
+                                      "answered": 2, "correct": 1, "total": 6})
+    assert ended.text == "עצרנו את מבחן הטעויות (2/6 שאלות). מה שתיקנתם נשמר; כתבו /mistakes_arabic כדי להמשיך."
+
+
+def test_help_and_the_agent_know_the_mistakes_exam():
+    from app import tools
+    assert "/mistakes_english" in replies.HELP and "/mistakes" in replies.NO_SESSION and "/mistakes" in replies.LINKED
+    assert tools.start_mistakes_exam in tools.TOOLS

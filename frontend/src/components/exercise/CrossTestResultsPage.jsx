@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import '../results/ResultsPage.css';
 import MathText from '../common/MathText';
 import Assessment from '../common/Assessment';
-import { assessmentFor } from '../../content/assessment';
+import { assessmentFor, fixedSummary } from '../../content/assessment';
+import { metaOf } from '../../content/topicMeta';
 import { textDirection } from '../../utils/bidi';
 
 // Each question carries its subject, as in MultipleChoice: an English question
@@ -22,7 +23,9 @@ const layoutOf = (exercise) => {
 const CrossTestResultsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { correctAnswers, totalQuestions, timeSpent, results, mistakeCount } = location.state || {};
+  // `subject` (with fixed and waiting) marks a subject's mistakes exam; without it, the mixed test.
+  const { correctAnswers, totalQuestions, timeSpent, results, mistakeCount, subject, fixed, waiting } = location.state || {};
+  const meta = metaOf(subject);
 
   if (!location.state) {
     navigate('/dashboard');
@@ -60,11 +63,13 @@ const CrossTestResultsPage = () => {
       <div className="results-container">
         {/* Header */}
         <div className="results-header">
-          <h1 className="results-title">תוצאות מבחן משולב</h1>
+          <h1 className="results-title">{subject ? `תוצאות מבחן הטעויות – ${meta.title}` : 'תוצאות מבחן משולב'}</h1>
         </div>
 
-        {/* Words instead of a score */}
-        <Assessment correct={correctAnswers} total={totalQuestions} />
+        {/* Words instead of a score; a mistakes exam also says what it fixed */}
+        <Assessment correct={correctAnswers} total={totalQuestions}>
+          {subject && fixedSummary(fixed, waiting)}
+        </Assessment>
 
         <div className="score-overview">
           <div className="stats-grid">
@@ -161,19 +166,40 @@ const CrossTestResultsPage = () => {
 
         {/* Action Buttons */}
         <div className="results-actions">
-          <button
-            className="action-button primary"
-            onClick={() => navigate('/cross-test')}
-          >
-            🔄 נסה שוב
-          </button>
+          {subject ? (
+            <>
+              {waiting > 0 && (
+                <button
+                  className="action-button primary"
+                  onClick={() => navigate(`/mistakes-exam/${subject}`)}
+                >
+                  🎯 לסיבוב הבא
+                </button>
+              )}
+              <button
+                className="action-button secondary"
+                onClick={() => navigate(meta.route)}
+              >
+                📚 חזרה ל{meta.indexLabel}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="action-button primary"
+                onClick={() => navigate('/cross-test')}
+              >
+                🔄 נסה שוב
+              </button>
 
-          <button
-            className="action-button secondary"
-            onClick={() => navigate('/topics')}
-          >
-            📚 חזור לנושאים
-          </button>
+              <button
+                className="action-button secondary"
+                onClick={() => navigate('/topics')}
+              >
+                📚 חזור לנושאים
+              </button>
+            </>
+          )}
 
           <button
             className="action-button secondary"

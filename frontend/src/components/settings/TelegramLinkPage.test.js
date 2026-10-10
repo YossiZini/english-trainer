@@ -33,7 +33,7 @@ describe('TelegramLinkPage', () => {
     telegramService.getLink.mockResolvedValue({ linked: false });
     render(<TelegramLinkPage />);
     await screen.findByText('הטלגרם עדיין לא מחובר');
-    ['/words', '/english', '/math', '/arabic', '/end', '/help'].forEach((command) =>
+    ['/words', '/english', '/math', '/arabic', '/mistakes', '/end', '/help'].forEach((command) =>
       expect(screen.getByText(command)).toBeInTheDocument());
   });
 });

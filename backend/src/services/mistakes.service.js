@@ -4,6 +4,11 @@ const Lesson = require('../models/Lesson');
 const { db, withTransaction } = require('../config/database');
 const { shuffleArray } = require('../utils/shuffle');
 const { isCorrectAnswer } = require('../utils/answers');
+const { SUBJECTS } = require('../config/subjects');
+
+/** At most this many questions in one mistakes exam. */
+const EXAM_SIZE = 20;
+const subjectOf = (lesson) => lesson.subject || 'english';
 
 class MistakesService {
   /**
@@ -100,6 +105,88 @@ class MistakesService {
     return {
       overall: stats,
       byLesson
+    };
+  }
+
+  /** How many different questions wait to be fixed, per subject. */
+  static async waitingBySubject(userId) {
+    const waiting = Object.fromEntries(SUBJECTS.map(subject => [subject, 0]));
+    for (const { lesson } of await WrongAnswer.unfixedQuestions(userId)) {
+      waiting[subjectOf(lesson)] = (waiting[subjectOf(lesson)] || 0) + 1;
+    }
+    return waiting;
+  }
+
+  /**
+   * A mistakes exam: up to EXAM_SIZE of the subject's unfixed mistakes, in
+   * random order, with no other questions. `waiting` counts all of the
+   * subject's. The website's exam and the bot's session both start here.
+   */
+  static async pickSubjectExam(userId, subject) {
+    const all = (await WrongAnswer.unfixedQuestions(userId)).filter(q => subjectOf(q.lesson) === subject);
+    return { subject, waiting: all.length, questions: shuffleArray(all).slice(0, EXAM_SIZE) };
+  }
+
+  /** The website's mistakes exam: the questions without answers, options shuffled. */
+  static async subjectExam(userId, subject) {
+    const { waiting, questions } = await this.pickSubjectExam(userId, subject);
+    return {
+      subject,
+      waiting,
+      exercises: questions.map(({ exercise, lesson }, index) => ({
+        id: exercise.id,
+        question_number: index + 1,
+        type: exercise.type,
+        question_text_he: exercise.question_text_he,
+        options: exercise.type === 'multiple_choice' && exercise.options ? shuffleArray(exercise.options) : exercise.options,
+        difficulty: exercise.difficulty || 'medium',
+        lesson_title: lesson.title_he,
+        subject
+      }))
+    };
+  }
+
+  /**
+   * One answer to a mistake, graded with the question as it is now. A right
+   * answer fixes the mistake: every unfixed record of that question.
+   */
+  static async gradeMistake(userId, { exercise }, userAnswer) {
+    const isCorrect = isCorrectAnswer(exercise, userAnswer);
+    if (isCorrect) await WrongAnswer.markAsCorrected(exercise.id, userId);
+    return { isCorrect, correctAnswer: exercise.correct_answer, explanationHe: exercise.explanation_he || null };
+  }
+
+  /**
+   * A finished mistakes exam from the website. Only answers to the student's
+   * unfixed mistakes in the subject are graded, each question once; anything
+   * else is ignored. Returns the graded answers and how many still wait.
+   */
+  static async submitSubjectExam(userId, subject, answers) {
+    const unfixed = new Map((await WrongAnswer.unfixedQuestions(userId))
+      .filter(q => subjectOf(q.lesson) === subject)
+      .map(q => [q.exercise.id, q]));
+    const results = [];
+    for (const { exerciseId, userAnswer } of answers.slice(0, EXAM_SIZE)) {
+      const question = unfixed.get(exerciseId);
+      if (!question) continue;
+      unfixed.delete(exerciseId);
+      const graded = await this.gradeMistake(userId, question, userAnswer);
+      results.push({
+        exerciseId,
+        userAnswer,
+        questionTextHe: question.exercise.question_text_he,
+        lessonTitle: question.lesson.title_he,
+        ...graded
+      });
+    }
+    const correct = results.filter(r => r.isCorrect).length;
+    return {
+      subject,
+      total: results.length,
+      correct,
+      fixed: correct,
+      waiting: unfixed.size + results.length - correct,
+      results
     };
   }
 
@@ -373,3 +460,4 @@ class MistakesService {
 }
 
 module.exports = MistakesService;
+module.exports.EXAM_SIZE = EXAM_SIZE;

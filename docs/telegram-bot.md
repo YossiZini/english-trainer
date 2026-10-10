@@ -59,6 +59,7 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/switch` (also the 🔄 button under a words summary) | the same words again, the other way round |
 | `/usage` | who practised in the last 7 and 30 days (see "Usage") |
 | `/english`, `/math`, `/arabic`, `/lessons_english`, `/lessons_math`, `/lessons_arabic` | lesson exercises (see "Lesson exercises") |
+| `/mistakes_english`, `/mistakes_math`, `/mistakes_arabic` (also `mistakes english`; `/mistakes` alone offers all three) | the subject's mistakes exam (see "Mistakes exam") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
 | `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | review of reported questions and words, open to every linked student (see "Reported questions and review") |
 | `/end` (also `stop`) | ends any open session |
@@ -193,6 +194,28 @@ round; `/api/bot/session/answer`, `end` and `status` route to the open
 session's kind (`services/bot/sessionKinds.js`). Exercise answers never
 touch the model.
 
+## Mistakes exam
+
+Up to 20 questions the student got wrong in one subject and has not fixed
+yet: on the website (the "מבחן טעויות" button on each subject's page) or
+here with `/mistakes_english`, `/mistakes_math` or `/mistakes_arabic`.
+
+The bot calls `POST /api/bot/mistakes/start` (a subject). The questions
+come from `MistakesService.pickSubjectExam`, the same rule as the
+website's `GET /api/mistakes/exam`: the student's unfixed mistakes in that
+subject, one per question however many times it was answered wrong,
+without questions hidden after a report, removed in review or gone from
+the content, and no other questions. The session is an exercise session
+(`source: 'mistakes'`), so answers, "?", `/report`, status and `/end` work
+as in a lesson, with the same kind wrong-answer lines.
+
+- A right answer fixes the mistake at once (`MistakesService.gradeMistake`
+  marks every record of that question), so `/end` keeps what was fixed.
+- After the last answer: how many were fixed and how many still wait, with
+  the command for the next round. No score, points or lesson result.
+- With nothing waiting: a kind reply ("🎉 אין טעויות לתקן בחשבון!…") and
+  no session.
+
 ## Architecture
 
 ```
@@ -240,11 +263,11 @@ service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 
 | Piece | Where |
 |---|---|
-| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/sessionKinds.js`, `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
+| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
 | Student side of linking | `backend/src/routes/telegram.routes.js`, web page `/settings/telegram` |
 | Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `coach.py`, `main.py`) |
 | Cloud Run spec, secrets | `infra/cloudrun-bot.yaml`, `infra/setup-bot.sh`, `infra/set-webhook.sh` |
-| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
+| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/mistakesExam.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
 | Local end-to-end | `bot/scripts/smoke.py` |
 
 ## Security
