@@ -70,7 +70,8 @@ const TelegramLinkPage = () => {
           <li>שלחו לבוט את הקוד בן 6 הספרות.</li>
           <li>
             הפקודות באנגלית: <strong dir="ltr">/words</strong> לאוצר מילים, <strong dir="ltr">/english</strong>,{' '}
-            <strong dir="ltr">/math</strong> או <strong dir="ltr">/arabic</strong> לתרגילי השיעור הבא, <strong dir="ltr">/end</strong> כדי לעצור,
+            <strong dir="ltr">/math</strong> או <strong dir="ltr">/arabic</strong> לתרגילי השיעור הבא,{' '}
+            <strong dir="ltr">/mistakes</strong> למבחן הטעויות, <strong dir="ltr">/end</strong> כדי לעצור,
             ו<strong dir="ltr">/help</strong> להסבר מלא.
           </li>
         </ol>
