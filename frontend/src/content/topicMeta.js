@@ -311,10 +311,12 @@ const topicMeta = {
     route: '/topics',
     // What a link back to the subject's page calls it ("חזור לנושאים").
     indexLabel: 'נושאים',
-    // Header actions: a route, or 'next-lesson' (the first lesson not completed).
+    // Header actions: a route, 'next-lesson' (the first lesson not completed)
+    // or 'mistakes-exam' (the subject's mistakes exam, with how many wait).
     actions: [
       { icon: '📝', label: 'לימוד מילים', to: '/vocabulary' },
-      { icon: '📖', label: 'פסקאות באנגלית', to: '/unseen' }
+      { icon: '📖', label: 'פסקאות באנגלית', to: '/unseen' },
+      { icon: '🎯', label: 'מבחן טעויות', to: 'mistakes-exam' }
     ],
     nameKey: 'en',
     numberOffset: 0,
@@ -329,6 +331,7 @@ const topicMeta = {
     indexLabel: 'מתמטיקה',
     actions: [
       { icon: '▶️', label: 'השיעור הבא', to: 'next-lesson' },
+      { icon: '🎯', label: 'מבחן טעויות', to: 'mistakes-exam' },
       { icon: '🔄', label: 'תיקון טעויות', to: '/mistakes' }
     ],
     nameKey: 'he',
@@ -344,6 +347,7 @@ const topicMeta = {
     indexLabel: 'ערבית',
     actions: [
       { icon: '▶️', label: 'השיעור הבא', to: 'next-lesson' },
+      { icon: '🎯', label: 'מבחן טעויות', to: 'mistakes-exam' },
       { icon: '🔄', label: 'תיקון טעויות', to: '/mistakes' }
     ],
     nameKey: 'he',

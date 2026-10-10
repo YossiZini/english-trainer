@@ -129,6 +129,14 @@ function App() {
               }
             />
             <Route
+              path="/mistakes-exam/:subject"
+              element={
+                <PrivateRoute>
+                  <CrossTestPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/cross-test/results"
               element={
                 <PrivateRoute>

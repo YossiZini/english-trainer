@@ -23,3 +23,14 @@ export function assessmentFor(correct, total) {
   const score = all > 0 ? Math.round((right / all) * 100) : 0;
   return TIERS.slice(1).find((tier) => score >= tier.min);
 }
+
+/**
+ * The line under a mistakes exam's words: what was fixed now and what still
+ * waits for the next round (singular for one).
+ */
+export function fixedSummary(fixed, waiting) {
+  const fixedText = fixed === 1 ? 'טעות אחת' : `${fixed} טעויות`;
+  if (!waiting) return fixed > 0 ? `תיקנתם ${fixedText} – כל הטעויות תוקנו! 🎉` : 'כל הטעויות תוקנו! 🎉';
+  const waitingText = waiting === 1 ? 'עוד טעות אחת מחכה' : `עוד ${waiting} טעויות מחכות`;
+  return fixed > 0 ? `תיקנתם ${fixedText}; ${waitingText} לסיבוב הבא.` : `${waitingText} לסיבוב הבא.`;
+}

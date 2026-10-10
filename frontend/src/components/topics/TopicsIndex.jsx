@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
+import mistakesService from '../../services/mistakesService';
 import { getSubtopicExamples, displayTopic, displaySubtopic, metaOf } from '../../content/topicMeta';
 import './TopicsIndex.css';
 
@@ -10,6 +11,8 @@ const TopicsIndex = ({ subject = 'english' }) => {
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Mistakes waiting to be fixed, per subject (null if they could not be counted).
+  const [waiting, setWaiting] = useState(null);
   const meta = metaOf(subject);
   const [expandedTopics, setExpandedTopics] = useState([meta.numberOffset + 1]); // Expand first topic by default
   const [videoModal, setVideoModal] = useState({ isOpen: false, video: null });
@@ -51,8 +54,12 @@ const TopicsIndex = ({ subject = 'english' }) => {
   const loadLessons = async () => {
     try {
       setLoading(true);
-      const data = await lessonService.getAllLessons({ subject });
+      const [data, counts] = await Promise.all([
+        lessonService.getAllLessons({ subject }),
+        mistakesService.getWaiting().catch(() => null)
+      ]);
       setTopics(data);
+      setWaiting(counts);
     } catch (error) {
       setError(error.message || 'Failed to load lessons');
     } finally {
@@ -68,10 +75,16 @@ const TopicsIndex = ({ subject = 'english' }) => {
     );
   };
 
-  // Header actions from topicMeta; 'next-lesson' is the first lesson not completed.
+  // Header actions from topicMeta: 'next-lesson' is the first lesson not
+  // completed; 'mistakes-exam' is this subject's exam, with how many wait.
   const nextLesson = topics.flatMap(t => t.lessons || []).find(l => l.progress?.status !== 'completed');
+  const pathOf = (to) => {
+    if (to === 'next-lesson') return nextLesson ? `/learn/${nextLesson.id}` : null;
+    if (to === 'mistakes-exam') return `/mistakes-exam/${subject}`;
+    return to;
+  };
   const actions = (meta.actions || [])
-    .map(a => ({ ...a, path: a.to === 'next-lesson' ? (nextLesson ? `/learn/${nextLesson.id}` : null) : a.to }))
+    .map(a => ({ ...a, path: pathOf(a.to), count: a.to === 'mistakes-exam' ? waiting?.[subject] : 0 }))
     .filter(a => a.path);
 
   if (loading) {
@@ -109,6 +122,7 @@ const TopicsIndex = ({ subject = 'english' }) => {
                 <Link key={action.label} to={action.path} className="subject-action">
                   <span className="subject-action-icon" aria-hidden="true">{action.icon}</span>
                   {action.label}
+                  {action.count > 0 && <span className="subject-action-count">{action.count}</span>}
                 </Link>
               ))}
             </nav>

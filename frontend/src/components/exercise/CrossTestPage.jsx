@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import mistakesService from '../../services/mistakesService';
 import exerciseService from '../../services/exerciseService';
 import MultipleChoice from './MultipleChoice';
@@ -9,10 +9,17 @@ import ExerciseFeedback from './ExerciseFeedback';
 import ReportQuestion from './ReportQuestion';
 import useScrollToQuestion from './useScrollToQuestion';
 import { startEncouragement } from '../../content/encouragement';
+import { metaOf } from '../../content/topicMeta';
 import './ExercisePage.css';
 
+// Two tests on one page: the mixed test (/cross-test: mistakes across the
+// subjects, topped up with other questions) and, on /mistakes-exam/:subject,
+// a subject's mistakes exam (only its unfixed mistakes; the API grades the
+// answers at the end and fixes the right ones).
 const CrossTestPage = () => {
   const navigate = useNavigate();
+  const { subject } = useParams();
+  const meta = metaOf(subject);
 
   const [exercises, setExercises] = useState([]);
   const [testInfo, setTestInfo] = useState(null);
@@ -29,7 +36,8 @@ const CrossTestPage = () => {
 
   useEffect(() => {
     loadCrossTest();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subject]);
 
   // Handle Enter key press to submit answer or navigate
   useEffect(() => {
@@ -73,7 +81,9 @@ const CrossTestPage = () => {
     startEncouragement();
     try {
       setLoading(true);
-      const data = await mistakesService.getCrossTopicTest(20);
+      const data = subject
+        ? await mistakesService.getSubjectExam(subject)
+        : await mistakesService.getCrossTopicTest(20);
       setExercises(data.exercises || []);
       setTestInfo(data);
       setTopicsWithTheory(data.topicsWithTheory || []);
@@ -81,8 +91,8 @@ const CrossTestPage = () => {
       setShowRecap(data.topicsWithTheory && data.topicsWithTheory.length > 0);
       setLoading(false);
     } catch (err) {
-      console.error('Failed to load cross-topic test:', err);
-      setError('שגיאה בטעינת המבחן המשולב');
+      console.error('Failed to load the test:', err);
+      setError(subject ? 'שגיאה בטעינת מבחן הטעויות' : 'שגיאה בטעינת המבחן המשולב');
       setLoading(false);
     }
   };
@@ -145,6 +155,35 @@ const CrossTestPage = () => {
     setIsSubmitting(true);
 
     try {
+      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+      if (subject) {
+        // The API grades every answer and fixes the right ones; the results
+        // page shows its grading, which is what was fixed.
+        const answers = exercises.map(ex => ({ exerciseId: ex.id, userAnswer: userAnswers[ex.id] || '' }));
+        const graded = await mistakesService.submitSubjectExam(subject, answers);
+        const byId = new Map(graded.results.map(r => [r.exerciseId, r]));
+        const results = exercises.map(exercise => {
+          const r = byId.get(exercise.id);
+          return {
+            exercise,
+            userAnswer: userAnswers[exercise.id] || '',
+            feedback: r ? { isCorrect: r.isCorrect, correctAnswer: r.correctAnswer, explanationHe: r.explanationHe } : feedback[exercise.id]
+          };
+        });
+        navigate('/cross-test/results', {
+          state: {
+            subject,
+            correctAnswers: results.filter(r => r.feedback?.isCorrect).length,
+            totalQuestions: exercises.length,
+            timeSpent,
+            results,
+            fixed: graded.fixed,
+            waiting: graded.waiting
+          }
+        });
+        return;
+      }
+
       // Calculate results locally
       const totalQuestions = exercises.length;
       let correctAnswers = 0;
@@ -163,7 +202,6 @@ const CrossTestPage = () => {
       }
 
       const score = Math.round((correctAnswers / totalQuestions) * 100);
-      const timeSpent = Math.floor((Date.now() - startTime) / 1000);
 
       // Navigate to results page with cross-test results
       navigate('/cross-test/results', {
@@ -186,7 +224,7 @@ const CrossTestPage = () => {
   if (loading) {
     return (
       <div className="exercise-page">
-        <div className="loading">טוען מבחן משולב...</div>
+        <div className="loading">{subject ? 'טוען מבחן טעויות...' : 'טוען מבחן משולב...'}</div>
       </div>
     );
   }
@@ -195,6 +233,20 @@ const CrossTestPage = () => {
     return (
       <div className="exercise-page">
         <div className="error">{error}</div>
+      </div>
+    );
+  }
+
+  if (subject && (!exercises || exercises.length === 0)) {
+    return (
+      <div className="exercise-page">
+        <div className="no-exercises">
+          <p>🎉 אין טעויות לתקן ב{meta.title}!</p>
+          <p>כל הכבוד – אין כרגע מה לתקן. ממשיכים ללמוד!</p>
+          <button onClick={() => navigate(meta.route)} className="btn-primary">
+            חזרה ל{meta.indexLabel}
+          </button>
+        </div>
       </div>
     );
   }
@@ -293,6 +345,10 @@ const CrossTestPage = () => {
   const currentFeedback = feedback[currentExercise.id];
   const currentAnswer = userAnswers[currentExercise.id];
   const progress = ((currentIndex + 1) / exercises.length) * 100;
+  // A line under the title only when there is something to say.
+  let badge = null;
+  if (subject && testInfo?.waiting > exercises.length) badge = `🔄 ${exercises.length} מתוך ${testInfo.waiting} הטעויות שמחכות לתיקון`;
+  if (!subject && testInfo?.mistakeCount > 0) badge = `🔄 כולל ${testInfo.mistakeCount} טעויות קודמות`;
 
   return (
     <div className="exercise-page exercise-page--pinned">
@@ -300,21 +356,21 @@ const CrossTestPage = () => {
         {/* Header */}
         <div className="exercise-header">
           <div className="breadcrumb">
-            <span onClick={() => navigate('/dashboard')} className="breadcrumb-link">
-              דשבורד
+            <span onClick={() => navigate(subject ? meta.route : '/dashboard')} className="breadcrumb-link">
+              {subject ? meta.indexLabel : 'דשבורד'}
             </span>
             <span className="breadcrumb-separator"> &gt; </span>
-            <span className="breadcrumb-current">מבחן משולב</span>
+            <span className="breadcrumb-current">{subject ? 'מבחן טעויות' : 'מבחן משולב'}</span>
           </div>
 
           <h1 className="exercise-title">
-            🎯 מבחן משולב - שאלות מכל הנושאים
+            {subject ? `🎯 מבחן טעויות – ${meta.title}` : '🎯 מבחן משולב - שאלות מכל הנושאים'}
           </h1>
-          <div className="cross-test-badge">
-            {testInfo?.mistakeCount > 0 && (
-              <span>🔄 כולל {testInfo.mistakeCount} טעויות קודמות</span>
-            )}
-          </div>
+          {badge && (
+            <div className="cross-test-badge">
+              <span>{badge}</span>
+            </div>
+          )}
 
           {/* Progress Bar */}
           <div className="progress-container">

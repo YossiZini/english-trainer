@@ -92,6 +92,24 @@ const mistakesService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  /** How many different questions wait to be fixed, per subject: { english, math, arabic }. */
+  async getWaiting() {
+    const response = await api.get('/mistakes/waiting');
+    return response.data;
+  },
+
+  /** A mistakes exam: up to 20 of the subject's unfixed mistakes ({ subject, waiting, exercises }). */
+  async getSubjectExam(subject) {
+    const response = await api.get('/mistakes/exam', { params: { subject } });
+    return response.data;
+  },
+
+  /** Grade a mistakes exam; a right answer fixes its mistake ({ total, correct, fixed, waiting, results }). */
+  async submitSubjectExam(subject, answers) {
+    const response = await api.post('/mistakes/exam', { subject, answers });
+    return response.data;
   }
 };
 
