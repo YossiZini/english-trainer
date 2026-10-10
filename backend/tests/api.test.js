@@ -224,13 +224,19 @@ describe('API', () => {
     expect(subjects.arabic.lastActivity).toBeNull();
   });
 
-  test("the dashboard reads the student's progress and results once, for every subject", async () => {
+  test("the dashboard and the progress page read the student's progress (and results) once", async () => {
     const find = jest.spyOn(db, 'find');
+    const reads = (collection) => find.mock.calls.filter(([c]) => c === collection).length;
     try {
-      const res = await request(app).get('/api/progress/dashboard').set(auth());
-      expect(res.status).toBe(200);
-      const reads = (collection) => find.mock.calls.filter(([c]) => c === collection).length;
+      const dashboard = await request(app).get('/api/progress/dashboard').set(auth());
+      expect(dashboard.status).toBe(200);
       expect([reads('user_progress'), reads('exercise_results')]).toEqual([1, 1]);
+
+      find.mockClear();
+      const progress = await request(app).get('/api/progress').set(auth());
+      expect(progress.status).toBe(200);
+      expect(progress.body.data.allProgress.length).toBeGreaterThan(0);
+      expect(reads('user_progress')).toBe(1);
     } finally {
       find.mockRestore();
     }

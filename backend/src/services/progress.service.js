@@ -14,25 +14,20 @@ class ProgressService {
    * are kept for sites deployed before the per-subject home page.
    */
   static async getDashboardData(userId) {
-    // The student's progress and results are read once; the overall figures
-    // and each subject's are worked out from them.
-    const [progress, results] = await Promise.all([
+    // Independent reads, all at once: the student's progress and results
+    // (read once; the overall figures and each subject's are worked out from
+    // them), mistake statistics, points and level, today's streak and points.
+    const [progress, results, mistakeStats, gamification, dailyStats] = await Promise.all([
       UserProgress.progressRows(userId),
-      UserProgress.resultRows(userId)
+      UserProgress.resultRows(userId),
+      WrongAnswer.getStatistics(userId),
+      GamificationService.getUserGamificationStatus(userId),
+      User.getDailyStats(userId)
     ]);
     const stats = UserProgress.overallStatsFrom(progress);
     const completion = UserProgress.completionFrom(progress);
     const nextLesson = UserProgress.nextLessonFrom(progress);
     const recentActivity = UserProgress.recentActivityFrom(results, 5);
-
-    // Get mistake statistics
-    const mistakeStats = await WrongAnswer.getStatistics(userId);
-
-    // Get gamification data
-    const gamification = await GamificationService.getUserGamificationStatus(userId);
-
-    // Get daily stats (streak and points today)
-    const dailyStats = await User.getDailyStats(userId);
 
     // Per subject: where to continue and how far along the student is
     const subjects = {};
@@ -63,17 +58,12 @@ class ProgressService {
    * Get detailed progress data
    */
   static async getDetailedProgress(userId) {
-    // Get all progress
-    const allProgress = await UserProgress.getAllProgress(userId);
-
-    // Get progress by topic
-    const byTopic = await UserProgress.getProgressByTopic(userId);
-
-    // Get overall stats
-    const stats = await UserProgress.getOverallStats(userId);
-
-    // Get completion percentage
-    const completion = await UserProgress.getCompletionPercentage(userId);
+    // The student's progress is read once; every figure is worked out from it.
+    const progress = await UserProgress.progressRows(userId);
+    const allProgress = UserProgress.allProgressFrom(progress);
+    const byTopic = UserProgress.progressByTopicFrom(progress);
+    const stats = UserProgress.overallStatsFrom(progress);
+    const completion = UserProgress.completionFrom(progress);
 
     return {
       allProgress,
