@@ -125,6 +125,7 @@ flowchart LR
     secrets["Secret Manager"]
     gcs["Cloud Storage<br/>lesson videos"]
   end
+  fonts["Google Fonts<br/>Arabic font"]
   student --> browser
   student --> tg
   browser -- "/api via Hosting rewrite, JWT" --> api
@@ -135,6 +136,7 @@ flowchart LR
   api --> fs
   api --> content
   browser --> gcs
+  browser -. "Arabic font, not blocking" .-> fonts
   secrets -. "keys at startup" .-> api
   secrets -. "keys at startup" .-> bot
 </pre>
@@ -207,6 +209,7 @@ flowchart LR
           <tr><td>Secret Manager</td><td>Keys injected into the services at start</td><td>JWT secret, bot API key, Telegram token, webhook secret</td></tr>
           <tr><td>Vertex AI</td><td>Gemini Flash for the bot's free-form messages and the API's answer checks; Gemini Pro for the review agent</td><td>Nothing; billed per call, capped by the bot and a daily review cap per student</td></tr>
           <tr><td>Cloud Storage</td><td>Public lesson videos</td><td>Video files</td></tr>
+          <tr><td>Google Fonts</td><td>The Arabic font (Noto Naskh Arabic), loaded by the browser without holding up the page; if it is blocked, Arabic shows in the device's own font</td><td>Nothing</td></tr>
           <tr><td>GitHub Actions</td><td>Tests, then deploys on every merge to main</td><td>No keys: signs in through Workload Identity</td></tr>
         </tbody>
       </table>
@@ -245,7 +248,7 @@ sequenceDiagram
   A->>A: Check answers, count score
   A->>D: Save result, mistakes, points
   A-->>W: Score, feedback, explanations
-  W-->>S: Results page
+  W-->>S: Results in words, always encouraging (no score shown)
 </pre>
       </div>
     </div>
