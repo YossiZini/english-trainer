@@ -278,7 +278,7 @@ const ExercisePage = () => {
               onClick={() => navigate(metaOf(lesson?.subject).route)}
               className="breadcrumb-link"
             >
-              {!lesson?.subject || lesson.subject === 'english' ? 'נושאים' : metaOf(lesson.subject).title}
+              {metaOf(lesson?.subject).indexLabel}
             </span>
             <span className="breadcrumb-separator"> &gt; </span>
             <span className="breadcrumb-current">{lesson?.title_he}</span>

@@ -242,6 +242,11 @@ Track changes per topic with dates and descriptions.
   without hamza, 201.3 vowels, 201.4 the eight words, 201.5 review; each a
   Hebrew teaching page and 30 multiple-choice questions (10 per level) built
   from `seeds/arabic/facts.js` and checked by an independent review. Sprint 12.
+- 2026-10-09: Display fixes from the Sprint 12 review: the mixed-test results
+  and the mistakes page show Arabic questions right-to-left and in the Arabic
+  font; the font rule survives older browsers; the font stylesheet no longer
+  delays the first paint of every page; the Telegram link page lists `/arabic`.
+  Content unchanged. Sprint 13.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises

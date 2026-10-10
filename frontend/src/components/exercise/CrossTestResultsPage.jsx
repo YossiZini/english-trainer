@@ -4,6 +4,20 @@ import '../results/ResultsPage.css';
 import MathText from '../common/MathText';
 import Assessment from '../common/Assessment';
 import { assessmentFor } from '../../content/assessment';
+import { textDirection } from '../../utils/bidi';
+
+// Each question carries its subject, as in MultipleChoice: an English question
+// reads by its first letter, the other subjects are written in Hebrew (RTL);
+// answers are LTR (English words, math expressions) except Arabic ones, which
+// also get the Arabic font.
+const layoutOf = (exercise) => {
+  const subject = exercise.subject || 'english';
+  return {
+    arabic: subject === 'arabic',
+    questionDir: subject === 'english' ? textDirection(exercise.question_text_he) : 'rtl',
+    answerDir: subject === 'arabic' ? 'rtl' : 'ltr'
+  };
+};
 
 const CrossTestResultsPage = () => {
   const navigate = useNavigate();
@@ -114,30 +128,33 @@ const CrossTestResultsPage = () => {
             <div className="mistakes-list">
               {results
                 .filter(r => !r.feedback?.isCorrect)
-                .map((result, idx) => (
-                  <div key={idx} className="mistake-item">
-                    <div className="mistake-header">
-                      <span className="mistake-topic">📚 {result.exercise.lesson_title}</span>
-                      <span className="mistake-icon">💡</span>
+                .map((result, idx) => {
+                  const layout = layoutOf(result.exercise);
+                  return (
+                    <div key={idx} className={`mistake-item${layout.arabic ? ' arabic' : ''}`}>
+                      <div className="mistake-header">
+                        <span className="mistake-topic">📚 {result.exercise.lesson_title}</span>
+                        <span className="mistake-icon">💡</span>
+                      </div>
+                      <MathText as="div" className="mistake-question" dir={layout.questionDir} text={result.exercise.question_text_he} />
+                      <div className="mistake-answers">
+                        <div className="mistake-answer wrong">
+                          <span className="answer-label">תשובתך:</span>
+                          <MathText className="answer-value" dir={layout.answerDir} text={result.userAnswer || '(לא נענתה)'} />
+                        </div>
+                        <div className="mistake-answer correct">
+                          <span className="answer-label">תשובה נכונה:</span>
+                          <MathText className="answer-value" dir={layout.answerDir} text={result.feedback?.correctAnswer} />
+                        </div>
+                      </div>
+                      {result.feedback?.explanationHe && (
+                        <div className="mistake-explanation">
+                          <strong>הסבר:</strong> <MathText text={result.feedback.explanationHe} />
+                        </div>
+                      )}
                     </div>
-                    <MathText as="div" className="mistake-question" dir="ltr" text={result.exercise.question_text_he} />
-                    <div className="mistake-answers">
-                      <div className="mistake-answer wrong">
-                        <span className="answer-label">תשובתך:</span>
-                        <MathText className="answer-value" dir="ltr" text={result.userAnswer || '(לא נענתה)'} />
-                      </div>
-                      <div className="mistake-answer correct">
-                        <span className="answer-label">תשובה נכונה:</span>
-                        <MathText className="answer-value" dir="ltr" text={result.feedback?.correctAnswer} />
-                      </div>
-                    </div>
-                    {result.feedback?.explanationHe && (
-                      <div className="mistake-explanation">
-                        <strong>הסבר:</strong> <MathText text={result.feedback.explanationHe} />
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           </div>
         )}

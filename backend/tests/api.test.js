@@ -1,6 +1,7 @@
 const request = require('supertest');
 const { resetDatabase, shutdownDatabase } = require('./helpers');
 const app = require('../src/app');
+const { db } = require('../src/config/database');
 
 /**
  * End-to-end smoke tests through the HTTP API against the Firestore emulator:
@@ -212,13 +213,27 @@ describe('API', () => {
     // Each subject continues in its own lessons, even though Math comes after every English lesson.
     expect(Number(subjects.english.nextLesson.subtopic_number)).toBeLessThan(101);
     expect(subjects.math.nextLesson.subtopic_number).toBe('101.1');
+    expect(subjects.arabic.nextLesson.subtopic_number).toBe('201.1');
 
     // Last activity per subject: the Math exercise submitted above, and the English one before it.
     expect(subjects.math.lastActivity).toMatchObject({ subject: 'math', lesson_id: mathLessons[6].id, difficulty: 'easy' });
     expect(subjects.english.lastActivity.subject).toBe('english');
     expect(recentActivity.map(a => a.subject).sort()).toEqual(['english', 'math']);
-    // A subject still without lessons (Arabic before its first unit) is listed with nothing to continue.
+    // Every subject is listed, in display order; Arabic, not tried yet, has no last activity.
     expect(Object.keys(subjects)).toEqual(['english', 'math', 'arabic']);
+    expect(subjects.arabic.lastActivity).toBeNull();
+  });
+
+  test("the dashboard reads the student's progress and results once, for every subject", async () => {
+    const find = jest.spyOn(db, 'find');
+    try {
+      const res = await request(app).get('/api/progress/dashboard').set(auth());
+      expect(res.status).toBe(200);
+      const reads = (collection) => find.mock.calls.filter(([c]) => c === collection).length;
+      expect([reads('user_progress'), reads('exercise_results')]).toEqual([1, 1]);
+    } finally {
+      find.mockRestore();
+    }
   });
 
   test('reading passages, achievements, challenges and dashboard respond', async () => {

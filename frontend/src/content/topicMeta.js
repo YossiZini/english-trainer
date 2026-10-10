@@ -309,6 +309,8 @@ const topicMeta = {
   english: {
     title: 'אנגלית',
     route: '/topics',
+    // What a link back to the subject's page calls it ("חזור לנושאים").
+    indexLabel: 'נושאים',
     // Header actions: a route, or 'next-lesson' (the first lesson not completed).
     actions: [
       { icon: '📝', label: 'לימוד מילים', to: '/vocabulary' },
@@ -324,6 +326,7 @@ const topicMeta = {
   math: {
     title: 'מתמטיקה',
     route: '/math',
+    indexLabel: 'מתמטיקה',
     actions: [
       { icon: '▶️', label: 'השיעור הבא', to: 'next-lesson' },
       { icon: '🔄', label: 'תיקון טעויות', to: '/mistakes' }
@@ -338,6 +341,7 @@ const topicMeta = {
   arabic: {
     title: 'ערבית',
     route: '/arabic',
+    indexLabel: 'ערבית',
     actions: [
       { icon: '▶️', label: 'השיעור הבא', to: 'next-lesson' },
       { icon: '🔄', label: 'תיקון טעויות', to: '/mistakes' }

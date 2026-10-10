@@ -28,4 +28,12 @@ describe('TelegramLinkPage', () => {
     await waitFor(() => expect(telegramService.unlink).toHaveBeenCalled());
     expect(await screen.findByText('הטלגרם עדיין לא מחובר')).toBeInTheDocument();
   });
+
+  test('lists the bot commands, a lesson command for every subject', async () => {
+    telegramService.getLink.mockResolvedValue({ linked: false });
+    render(<TelegramLinkPage />);
+    await screen.findByText('הטלגרם עדיין לא מחובר');
+    ['/words', '/english', '/math', '/arabic', '/end', '/help'].forEach((command) =>
+      expect(screen.getByText(command)).toBeInTheDocument());
+  });
 });

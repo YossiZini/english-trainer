@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { hasArabic } from '../../utils/bidi';
+import { hasArabic, textDirection } from '../../utils/bidi';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import mistakesService from '../../services/mistakesService';
 import lessonService from '../../services/lessonService';
 import './ReviewMistakesPage.css';
 import MathText from '../common/MathText';
-
-// Arabic reads right-to-left; English sentences and math expressions left-to-right.
-const dirOf = (text) => (hasArabic(text) ? 'rtl' : 'ltr');
 
 const ReviewMistakesPage = () => {
   const { lessonId } = useParams();
@@ -160,7 +157,7 @@ const ReviewMistakesPage = () => {
               </div>
 
               <div className={`mistake-content${hasArabic(mistake.question_text_he) || hasArabic(mistake.correct_answer) ? ' arabic' : ''}`}>
-                <MathText as="div" className="question-text" dir={dirOf(mistake.question_text_he)} text={mistake.question_text_he} />
+                <MathText as="div" className="question-text" dir={textDirection(mistake.question_text_he)} text={mistake.question_text_he} />
 
                 {mistake.type === 'multiple_choice' && mistake.options && (
                   <div className="options-display">
@@ -183,7 +180,7 @@ const ReviewMistakesPage = () => {
                           } ${
                             option === mistake.correct_answer ? 'correct-choice' : ''
                           }`}
-                          dir={dirOf(option)}
+                          dir={textDirection(option)}
                         >
                           <MathText text={option} />
                         </div>
@@ -195,12 +192,12 @@ const ReviewMistakesPage = () => {
                 <div className="answers-section">
                   <div className="answer-row wrong-answer">
                     <span className="answer-label">התשובה שלך:</span>
-                    <span className="answer-value" dir={dirOf(mistake.user_answer)}>{mistake.user_answer}</span>
+                    <span className="answer-value" dir={textDirection(mistake.user_answer)}>{mistake.user_answer}</span>
                   </div>
 
                   <div className="answer-row correct-answer">
                     <span className="answer-label">התשובה הנכונה:</span>
-                    <MathText className="answer-value" dir={dirOf(mistake.correct_answer)} text={mistake.correct_answer} />
+                    <MathText className="answer-value" dir={textDirection(mistake.correct_answer)} text={mistake.correct_answer} />
                   </div>
                 </div>
 
