@@ -69,6 +69,11 @@ class BotController {
     send(res, await ExerciseSession.start(req.user, req.chatId, { subject, lessonId, number, difficulty }));
   }
 
+  static async startMistakes(req, res) {
+    if (invalid(req, res)) return;
+    send(res, await ExerciseSession.startMistakes(req.user, req.chatId, { subject: req.body.subject }));
+  }
+
   static async reportQuestion(req, res) {
     if (invalid(req, res)) return;
     send(res, await ExerciseSession.report(req.user, req.chatId, req.body.reason));
