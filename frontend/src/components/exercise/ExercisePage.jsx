@@ -12,6 +12,7 @@ import ReportQuestion from './ReportQuestion';
 import useScrollToQuestion from './useScrollToQuestion';
 import { metaOf } from '../../content/topicMeta';
 import { assessmentFor } from '../../content/assessment';
+import { startEncouragement } from '../../content/encouragement';
 import './ExercisePage.css';
 
 const ExercisePage = () => {
@@ -75,6 +76,8 @@ const ExercisePage = () => {
   }, [exercises, currentIndex, userAnswers, feedback, isSubmitting]);
 
   const loadExercises = async () => {
+    // A new test (or a new retry round): the wrong-answer lines start fresh.
+    startEncouragement();
     try {
       setLoading(true);
       const lessonData = await lessonService.getLessonById(lessonId);

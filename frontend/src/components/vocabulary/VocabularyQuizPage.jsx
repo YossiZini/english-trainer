@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import vocabularyService from '../../services/vocabularyService';
 import VocabularyQuestion from './VocabularyQuestion';
+import { startEncouragement } from '../../content/encouragement';
 import './VocabularyQuizPage.css';
 
 const VocabularyQuizPage = () => {
@@ -16,6 +17,7 @@ const VocabularyQuizPage = () => {
   const [isAnswering, setIsAnswering] = useState(false);
 
   useEffect(() => {
+    startEncouragement();
     loadNextQuestion();
   }, [sessionId]);
 

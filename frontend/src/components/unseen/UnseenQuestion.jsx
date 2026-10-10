@@ -73,6 +73,8 @@ const UnseenQuestion = ({ question, selectedAnswer, onAnswerSelect, feedback, on
     onAnswerSelect(index);
   };
 
+  const cheer = feedback ? encouragementFor(`unseen:${question.id}`, feedback.isCorrect) : null;
+
   return (
     <div className="unseen-question">
       <div className="question-header">
@@ -142,9 +144,7 @@ const UnseenQuestion = ({ question, selectedAnswer, onAnswerSelect, feedback, on
       {feedback && (
         <div className={`feedback-section ${feedback.isCorrect ? 'correct-feedback' : 'wrong-feedback'}`}>
           <div className="feedback-status">
-            {(({ cheer }) => (cheer ? `${cheer.icon} ${cheer.text}` : '✓ תשובה נכונה!'))({
-              cheer: encouragementFor(`unseen:${question.paragraph_id || ''}:${question.question_number}`, feedback.isCorrect)
-            })}
+            {cheer ? `${cheer.icon} ${cheer.text}` : '✓ תשובה נכונה!'}
           </div>
           {feedback.explanation && (
             <div className="feedback-explanation">

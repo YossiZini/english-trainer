@@ -87,11 +87,13 @@ describe('Bot lesson exercises', () => {
         expect(retry.question.number).toBe(i + 1);
         expect((await bot('/api/bot/session/answer', { text: String(question.options.length + 1) })).body.data.chooseNumber).toBe(true);
       }
-      const text = i === 0 ? wrongAnswer(question, exerciseId) : rightAnswer(question, exerciseId);
+      // The first and the last answers are wrong.
+      const wrong = i === 0 || i === 9;
+      const text = wrong ? wrongAnswer(question, exerciseId) : rightAnswer(question, exerciseId);
       reply = (await bot('/api/bot/session/answer', { text })).body.data;
-      expect(reply.verdict.correct).toBe(i !== 0);
+      expect(reply.verdict.correct).toBe(!wrong);
       // The bot's encouragement: wrong answers so far and in a row (a right answer resets the streak).
-      expect(reply.verdict).toMatchObject({ wrongCount: 1, wrongStreak: i === 0 ? 1 : 0 });
+      expect(reply.verdict).toMatchObject(i === 9 ? { wrongCount: 2, wrongStreak: 1 } : { wrongCount: 1, wrongStreak: i === 0 ? 1 : 0 });
       if (i === 0) {
         expect(reply.verdict.correctAnswer).toBe(bundled.get(exerciseId).correct_answer);
         if (question.type === 'multiple_choice') expect(reply.verdict.correctOption).toBe(Number(rightAnswer(question, exerciseId)));
@@ -102,14 +104,17 @@ describe('Bot lesson exercises', () => {
       }
     }
 
-    // Graded by ExerciseService.submitExercise: 9 of 10, +1 each, -2 for the wrong one, +3 pass bonus.
+    // Graded by ExerciseService.submitExercise: 8 of 10, +1 each, -2 for each wrong one, +3 pass bonus.
     expect(reply.done).toBe(true);
-    expect(reply.result).toMatchObject({ score: 90, passed: true, correct: 9, total: 10, pointsEarned: 10 });
-    expect(reply.result.totalPoints).toBe(pointsBefore + 10);
+    expect(reply.result).toMatchObject({ score: 80, passed: true, correct: 8, total: 10, pointsEarned: 7 });
+    expect(reply.result.totalPoints).toBe(pointsBefore + 7);
     const results = await db.find('exercise_results', { user_id: userId });
     expect(results.length).toBe(resultsBefore + 1);
-    expect(results.find(r => r.lesson_id === first.id)).toMatchObject({ score: 90, difficulty: 'easy', total_questions: 10 });
-    expect((await db.find('wrong_answers', { user_id: userId })).length).toBe(1);
+    expect(results.find(r => r.lesson_id === first.id)).toMatchObject({ score: 80, difficulty: 'easy', total_questions: 10 });
+    expect((await db.find('wrong_answers', { user_id: userId })).length).toBe(2);
+    // The stored session counts the last answer too.
+    const ended = (await db.find('bot_sessions', { chat_id: chatId })).find(s => s.kind === 'exercise' && s.result_id);
+    expect(ended).toMatchObject({ correct_count: 8, wrong_count: 2, wrong_streak: 1 });
     expect(reply.result.nextLesson.id).toBe([...lessons].filter(l => (l.subject || 'english') === 'english').sort(compareLessons)[1].id);
     expect((await status()).body.data.active).toBe(false);
   });

@@ -68,6 +68,8 @@ const VocabularyQuestion = ({
     return classes.join(' ');
   };
 
+  const cheer = feedback ? encouragementFor(`vocab:${question.questionNumber}:${question.word.id}`, feedback.isCorrect) : null;
+
   return (
     <div className="vocabulary-question">
       <div className="question-card">
@@ -100,33 +102,30 @@ const VocabularyQuestion = ({
         </div>
 
         {/* Feedback Message */}
-        {feedback && (() => {
-          const cheer = encouragementFor(`vocab:${question.questionNumber}:${question.word.id}`, feedback.isCorrect);
-          return (
+        {feedback && (
           <div className={`feedback-message ${feedback.isCorrect ? 'correct' : 'incorrect'}`}>
             <div className="feedback-icon">
-              {feedback.isCorrect ? '✓' : cheer.icon}
+              {cheer ? cheer.icon : '✓'}
             </div>
             <div className="feedback-content">
-              {feedback.isCorrect ? (
-                <>
-                  <div className="feedback-title">נכון! 🎉</div>
-                  <div className="feedback-text">
-                    +{feedback.pointsEarned} נקודות
-                  </div>
-                </>
-              ) : (
+              {cheer ? (
                 <>
                   <div className="feedback-title">{cheer.text}</div>
                   <div className="feedback-text">
                     התשובה הנכונה: <strong>{feedback.correctAnswer.hebrew}</strong>
                   </div>
                 </>
+              ) : (
+                <>
+                  <div className="feedback-title">נכון! 🎉</div>
+                  <div className="feedback-text">
+                    +{feedback.pointsEarned} נקודות
+                  </div>
+                </>
               )}
             </div>
           </div>
-          );
-        })()}
+        )}
       </div>
     </div>
   );

@@ -85,8 +85,11 @@ class UserProgress {
    * Get all progress for a user
    */
   static async getAllProgress(userId) {
-    const progress = await db.findByIndex('user_progress', 'user_id', userId);
+    return UserProgress.allProgressFrom(await UserProgress.progressRows(userId));
+  }
 
+  /** getAllProgress on progress rows already read. */
+  static allProgressFrom(progress) {
     // Get lessons for joining
     const lessons = db.getCollection('lessons', true);
     const lessonMap = new Map(lessons.map(l => [l.id, l]));
@@ -182,8 +185,12 @@ class UserProgress {
    * Get progress grouped by topic
    */
   static async getProgressByTopic(userId) {
+    return UserProgress.progressByTopicFrom(await UserProgress.progressRows(userId));
+  }
+
+  /** getProgressByTopic on progress rows already read. */
+  static progressByTopicFrom(progress) {
     const lessons = db.getCollection('lessons', true);
-    const progress = await db.findByIndex('user_progress', 'user_id', userId);
     const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
 
     // Group by topic
