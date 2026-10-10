@@ -222,7 +222,9 @@ class ExerciseSession {
     // Last answer: grade the whole lesson exactly like the web.
     const seconds = Math.max(1, Math.round((Date.now() - new Date(session.started_at).getTime()) / 1000));
     const result = await ExerciseService.submitExercise(user.id, session.lesson_id, answers, seconds, session.difficulty);
-    await BotSession.update(session.id, { answers, index, correct_count: correctCount, result_id: result.resultId });
+    await BotSession.update(session.id, {
+      answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak, result_id: result.resultId
+    });
     await BotSession.end(session.id, 'completed');
     return {
       kind: 'exercise',
