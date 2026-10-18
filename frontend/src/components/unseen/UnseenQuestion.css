@@ -30,7 +30,7 @@
 }
 
 .question-text-en {
-  font-size: 1.1rem;
+  font-size: var(--font-size-question);
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 0.5rem;
@@ -38,7 +38,7 @@
 }
 
 .question-text-he {
-  font-size: 0.95rem;
+  font-size: var(--font-size-answer);
   color: #6b7280;
   text-align: right;
   margin-top: 0.75rem;
@@ -142,9 +142,12 @@
 
 .option-text {
   flex: 1;
-  font-size: 1rem;
   color: #374151;
   text-align: left;
+}
+
+.unseen-question .option-text {
+  font-size: var(--font-size-answer);
 }
 
 .option-card.selected .option-text {
@@ -256,10 +259,6 @@
     padding: 0.75rem;
   }
 
-  .question-text-en {
-    font-size: 1rem;
-  }
-
   .translation-toggle-btn {
     font-size: 0.85rem;
     padding: 0.4rem 0.6rem;
@@ -273,9 +272,5 @@
 
   .option-card {
     padding: 0.75rem;
-  }
-
-  .option-text {
-    font-size: 0.95rem;
   }
 }

@@ -247,6 +247,10 @@ Track changes per topic with dates and descriptions.
   font; the font rule survives older browsers; the font stylesheet no longer
   delays the first paint of every page; the Telegram link page lists `/arabic`.
   Content unchanged. Sprint 13.
+- 2026-10-18: Questions and answers are larger on every quiz page of every
+  subject (one size per device in `styles/variables.css`: computer, phone,
+  narrow phone). Arabic quiz text is 1.2 times the answer size, never smaller
+  than before. Content unchanged. Sprint 14.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises

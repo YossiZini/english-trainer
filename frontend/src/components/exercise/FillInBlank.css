@@ -7,7 +7,7 @@
   padding: 0;
   background: none;
   border-radius: 0;
-  font-size: 1.2rem;
+  font-size: var(--font-size-question);
   color: #333;
   margin-bottom: 0.75rem;
   line-height: 1.6;
@@ -28,7 +28,7 @@
   flex: 1;
   max-width: 500px;
   padding: 0.7rem 1.2rem;
-  font-size: 1.1rem;
+  font-size: var(--font-size-answer);
   border: 2px solid #e0e0e0;
   border-radius: 15px;
   outline: none;
@@ -100,12 +100,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .fill-in-blank .question-text {
-    font-size: 1.1rem;
-  }
-
   .fill-in-blank .answer-input {
-    font-size: 1rem;
     padding: 0.8rem 1rem;
   }
 
