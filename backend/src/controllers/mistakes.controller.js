@@ -213,17 +213,21 @@ class MistakesController {
   }
 
   /**
-   * Grade a mistakes exam; right answers fix their mistakes
-   * POST /api/mistakes/exam { subject, answers: [{ exerciseId, userAnswer }] }
+   * One answer of a mistakes exam; a right answer fixes its mistake at once
+   * POST /api/mistakes/exam/answer { subject, exerciseId, userAnswer }
    */
-  static async submitSubjectExam(req, res) {
+  static async answerSubjectExam(req, res) {
     if (invalid(req, res)) return;
     try {
-      const { subject, answers } = req.body;
-      res.status(200).json({ success: true, data: await MistakesService.submitSubjectExam(req.userId, subject, answers) });
+      const { subject, exerciseId, userAnswer } = req.body;
+      const graded = await MistakesService.answerSubjectExam(req.userId, subject, exerciseId, userAnswer);
+      if (!graded) {
+        return res.status(404).json({ success: false, code: 'not_waiting', message: 'Not one of your mistakes waiting in this subject' });
+      }
+      res.status(200).json({ success: true, data: graded });
     } catch (error) {
-      console.error('Submit mistakes exam error:', error);
-      res.status(500).json({ success: false, message: 'Failed to submit the mistakes exam' });
+      console.error('Answer mistakes exam error:', error);
+      res.status(500).json({ success: false, message: 'Failed to grade the answer' });
     }
   }
 }

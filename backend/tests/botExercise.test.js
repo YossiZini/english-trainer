@@ -261,10 +261,17 @@ describe('Bot lesson exercises', () => {
     expect((await status()).body.data).toMatchObject({ active: true, kind: 'exercise', lesson: { mistakes: true } });
 
     // The first answer wrong, the rest right; a right answer is fixed at once.
+    // The second is fixed meanwhile on the website: right here too, but the
+    // summary does not count it again.
     let question = start.question;
     let reply;
     for (let i = 0; i < total; i++) {
       const exerciseId = await currentExerciseId();
+      if (i === 1) {
+        const web = await request(app).post('/api/mistakes/exam/answer').set(jwt)
+          .send({ subject: 'english', exerciseId, userAnswer: bundled.get(exerciseId).correct_answer });
+        expect(web.body.data).toMatchObject({ isCorrect: true, fixed: true });
+      }
       reply = (await bot('/api/bot/session/answer', { text: i === 0 ? wrongAnswer(question, exerciseId) : rightAnswer(question, exerciseId) })).body.data;
       expect(reply.verdict.correct).toBe(i !== 0);
       expect(reply.verdict.wrongCount).toBe(1);
@@ -273,7 +280,7 @@ describe('Bot lesson exercises', () => {
       if (i < total - 1) question = reply.question;
     }
     expect(reply.done).toBe(true);
-    expect(reply.result).toEqual({ mistakes: true, subject: 'english', fixed: total - 1, total, waiting: before - (total - 1) });
+    expect(reply.result).toEqual({ mistakes: true, subject: 'english', fixed: total - 2, total, waiting: before - (total - 1) });
     expect((await waiting()).english).toBe(before - (total - 1));
     expect((await status()).body.data.active).toBe(false);
     // No lesson result is recorded for a mistakes exam.

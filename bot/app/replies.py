@@ -63,9 +63,10 @@ HELP = """🤖 איך זה עובד
 
 עוד לא מחוברים? באתר, בכפתור "טלגרם" למעלה, קבלו קוד בן 6 ספרות ושלחו אותו לכאן."""
 WHICH_LESSONS = "רשימת השיעורים של איזה מקצוע?"
-LESSONS_BUTTONS = ("lessons english", "lessons math", "lessons arabic")
+# Commands, not bare words: during a words exam a bare word is a translation.
+LESSONS_BUTTONS = ("/lessons_english", "/lessons_math", "/lessons_arabic")
 WHICH_MISTAKES = "מבחן הטעויות של איזה מקצוע?"
-MISTAKES_BUTTONS = ("mistakes english", "mistakes math", "mistakes arabic")
+MISTAKES_BUTTONS = ("/mistakes_english", "/mistakes_math", "/mistakes_arabic")
 NO_EXAMPLE = "אין משפט לדוגמה למילה הזו."
 NO_WORDS_TO_SWITCH = "אין עדיין מבחן מילים לחזור עליו. כתבו /words כדי להתחיל."
 

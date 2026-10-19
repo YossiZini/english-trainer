@@ -3,7 +3,7 @@
 }
 
 .fill-in-blank .question-text {
-  /* explicit resets: ReviewMistakesPage.css styles this class name globally */
+  /* explicit resets: other pages style this class name too, under their own roots */
   padding: 0;
   background: none;
   border-radius: 0;
