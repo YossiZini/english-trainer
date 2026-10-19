@@ -71,6 +71,11 @@
   --font-size-3xl: 1.875rem;
   --font-size-4xl: 2.25rem;
 
+  /* Question and answer text on every quiz page (lessons, tests,
+     vocabulary, reading); a phone gets smaller sizes, below */
+  --font-size-question: 1.5rem;
+  --font-size-answer: 1.3rem;
+
   /* Transitions */
   --transition-fast: 150ms ease-in-out;
   --transition-base: 300ms ease-in-out;
@@ -80,4 +85,20 @@
   --z-dropdown: 1000;
   --z-modal: 1050;
   --z-tooltip: 1100;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --font-size-question: 1.2rem;
+    --font-size-answer: 1.1rem;
+  }
+}
+
+/* Narrow phones (360px): a long question would push the answer's feedback
+   below the pinned buttons */
+@media (max-width: 380px) {
+  :root {
+    --font-size-question: 1.1rem;
+    --font-size-answer: 1.05rem;
+  }
 }

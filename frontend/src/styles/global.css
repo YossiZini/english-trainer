@@ -166,8 +166,13 @@ input:focus, textarea:focus, select:focus {
 .theory-html.arabic *:not(svg):not(svg *) {
   font-family: 'Noto Naskh Arabic', var(--font-family-primary);
 }
+/* Arabic quiz text: 1.2 times the answer size, lines tall enough for the
+   vowel marks but not so tall that the feedback drops below the pinned bar */
 .multiple-choice.arabic .option-text,
-.multiple-choice.arabic .question-text,
+.multiple-choice.arabic .question-text {
+  font-size: calc(1.2 * var(--font-size-answer));
+  line-height: 1.6;
+}
 .theory-html.arabic .ar {
   font-size: 1.2em;
   line-height: 2;

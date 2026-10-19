@@ -8,7 +8,7 @@
   background: none;
   border-radius: 0;
   font-family: inherit;
-  font-size: 1.2rem;
+  font-size: var(--font-size-question);
   color: #333;
   margin-bottom: 0.75rem;
   line-height: 1.5;
@@ -112,7 +112,8 @@
 
 .multiple-choice .option-text {
   flex: 1;
-  font-size: 1.05rem;
+  font-size: var(--font-size-answer);
+  line-height: 1.3; /* the larger text keeps the options' height (pinned bar) */
   color: #333;
   font-weight: 500;
 }
@@ -145,7 +146,6 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .multiple-choice .question-text {
-    font-size: 1.05rem;
     line-height: 1.45;
     margin-bottom: 0.5rem;
   }
@@ -156,12 +156,8 @@
   }
 
   .multiple-choice .option {
-    padding: 0.55rem 0.8rem;
+    padding: 0.45rem 0.8rem; /* answers with fractions grew with the text */
     min-height: 44px; /* touch target */
-  }
-
-  .multiple-choice .option-text {
-    font-size: 1rem;
   }
 }
 

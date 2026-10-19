@@ -647,6 +647,10 @@
     font-size: 1.05rem;
   }
 
+  .exercise-page .feedback {
+    margin-top: 0.5rem;
+  }
+
   /* Long explanations fold to two lines behind a tap */
   .exercise-page .feedback-explanation.clamped {
     display: -webkit-box;

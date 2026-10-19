@@ -62,7 +62,7 @@
 }
 
 .content-text {
-  font-size: 1.1rem;
+  font-size: var(--font-size-answer);
   line-height: 1.8;
   color: #1f2937;
   text-align: left;
@@ -307,10 +307,6 @@
 
   .paragraph-content {
     padding: 1rem;
-  }
-
-  .content-text {
-    font-size: 1rem;
   }
 
   .hard-words-btn {
