@@ -29,7 +29,7 @@
   border-right: 4px solid #667eea;
 }
 
-.question-text-en {
+.unseen-question .question-text-en {
   font-size: var(--font-size-question);
   font-weight: 600;
   color: #1f2937;
@@ -37,7 +37,7 @@
   text-align: left;
 }
 
-.question-text-he {
+.unseen-question .question-text-he {
   font-size: var(--font-size-answer);
   color: #6b7280;
   text-align: right;

@@ -179,7 +179,7 @@
   gap: 1.5rem;
 }
 
-.question-text {
+.review-mistakes-page .question-text {
   font-size: var(--font-size-question);
   color: #333;
   font-weight: 500;
@@ -189,13 +189,13 @@
 }
 
 /* Options Display (for multiple choice) */
-.options-display {
+.review-mistakes-page .options-display {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.option-item {
+.review-mistakes-page .option-item {
   padding: 0.8rem 1rem;
   border: 2px solid #e0e0e0;
   border-radius: 10px;
@@ -203,13 +203,13 @@
   font-size: var(--font-size-answer);
 }
 
-.option-item.wrong-choice {
+.review-mistakes-page .option-item.wrong-choice {
   border-color: #dc3545;
   background: #f8d7da;
   font-weight: 600;
 }
 
-.option-item.correct-choice {
+.review-mistakes-page .option-item.correct-choice {
   border-color: #28a745;
   background: #d4edda;
   font-weight: 600;
