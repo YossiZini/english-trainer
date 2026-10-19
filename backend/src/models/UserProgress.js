@@ -114,11 +114,12 @@ class UserProgress {
       };
     });
 
-    // Sort by lesson order_index
+    // Curriculum order (topic, then subtopic); a lesson gone from the content goes last.
     result.sort((a, b) => {
       const lessonA = lessonMap.get(a.lesson_id);
       const lessonB = lessonMap.get(b.lesson_id);
-      return (lessonA?.order_index || 0) - (lessonB?.order_index || 0);
+      if (!lessonA || !lessonB) return Number(!lessonA) - Number(!lessonB);
+      return compareLessons(lessonA, lessonB);
     });
 
     return result;
@@ -134,14 +135,7 @@ class UserProgress {
     return db.find('exercise_results', { user_id: userId });
   }
 
-  /**
-   * Get overall statistics for a user
-   */
-  static async getOverallStats(userId) {
-    return UserProgress.overallStatsFrom(await UserProgress.progressRows(userId));
-  }
-
-  /** getOverallStats on progress rows already read. */
+  /** Overall statistics from the student's progress rows. */
   static overallStatsFrom(progress) {
     const stats = {
       total_lessons_attempted: progress.length,
@@ -181,14 +175,7 @@ class UserProgress {
     return stats;
   }
 
-  /**
-   * Get progress grouped by topic
-   */
-  static async getProgressByTopic(userId) {
-    return UserProgress.progressByTopicFrom(await UserProgress.progressRows(userId));
-  }
-
-  /** getProgressByTopic on progress rows already read. */
+  /** Progress grouped by topic, from the student's progress rows. */
   static progressByTopicFrom(progress) {
     const lessons = db.getCollection('lessons', true);
     const progressMap = new Map(progress.map(p => [p.lesson_id, p]));
@@ -321,14 +308,7 @@ class UserProgress {
     return null;
   }
 
-  /**
-   * Get lesson completion percentage
-   */
-  static async getCompletionPercentage(userId, { subject } = {}) {
-    return UserProgress.completionFrom(await UserProgress.progressRows(userId), { subject });
-  }
-
-  /** getCompletionPercentage on progress rows already read. */
+  /** Lesson completion (of one subject, or all), from the student's progress rows. */
   static completionFrom(progress, { subject } = {}) {
     const lessons = lessonsOf(subject);
     const ids = new Set(lessons.map(l => l.id));
