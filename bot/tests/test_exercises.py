@@ -213,7 +213,7 @@ async def test_bare_command_works_during_a_multiple_choice_question():
 async def test_lessons_without_a_subject_offers_both():
     no_session()
     reply = await coach().handle("7", "lessons")
-    assert reply.text == replies.WHICH_LESSONS and reply.buttons == ["lessons english", "lessons math", "lessons arabic"]
+    assert reply.text == replies.WHICH_LESSONS and reply.buttons == ["/lessons_english", "/lessons_math", "/lessons_arabic"]
 
 
 @respx.mock
@@ -326,7 +326,26 @@ async def test_mistakes_with_nothing_waiting_or_no_subject():
     reply = await coach().handle("7", "/mistakes_math")
     assert reply.text == "🎉 אין טעויות לתקן בחשבון! כל הכבוד. ממשיכים בשיעור הבא: /math."
     which = await coach().handle("7", "/mistakes")
-    assert which.text == replies.WHICH_MISTAKES and which.buttons == ["mistakes english", "mistakes math", "mistakes arabic"]
+    assert which.text == replies.WHICH_MISTAKES and which.buttons == ["/mistakes_english", "/mistakes_math", "/mistakes_arabic"]
+
+
+@respx.mock
+async def test_subject_buttons_work_during_a_words_exam():
+    # A bare word would be graded as the translation; the buttons are commands.
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok(
+        {"active": True, "kind": "vocab", "word": {"id": "w", "direction": "he-en", "prompt": "בית", "english": "house"},
+         "progress": {"round": 1, "index": 3, "total": 20, "failedInRound": 0}}))
+    answer = respx.post(f"{API}/bot/session/answer")
+    mistakes = respx.post(f"{API}/bot/mistakes/start").mock(return_value=ok({"kind": "exercise", "mistakes": True, "nothingWaiting": True, "subject": "math"}))
+    lessons = respx.post(f"{API}/bot/exercise/lessons").mock(return_value=httpx.Response(404, json={"success": False, "code": "no_session"}))
+    c = coach()
+    which = await c.handle("7", "/mistakes")
+    await c.handle("7", which.buttons[1])
+    assert json.loads(mistakes.calls.last.request.content) == {"chatId": "7", "subject": "math"}
+    which = await c.handle("7", "/lessons")
+    await c.handle("7", which.buttons[2])
+    assert json.loads(lessons.calls.last.request.content) == {"chatId": "7", "subject": "arabic"}
+    assert not answer.called
 
 
 def test_mistakes_summary_and_early_end_have_no_score():
