@@ -211,8 +211,11 @@ as in a lesson, with the same kind wrong-answer lines.
 
 - A right answer fixes the mistake at once (`MistakesService.gradeMistake`
   marks every record of that question), so `/end` keeps what was fixed.
-- After the last answer: how many were fixed and how many still wait, with
-  the command for the next round. No score, points or lesson result.
+  The website does the same: each checked answer goes to
+  `POST /api/mistakes/exam/answer`, and the end of the exam sends nothing.
+- After the last answer: how many this exam fixed (not a mistake fixed
+  meanwhile on the website) and how many still wait, with the command for
+  the next round. No score, points or lesson result.
 - With nothing waiting: a kind reply ("🎉 אין טעויות לתקן בחשבון!…") and
   no session.
 

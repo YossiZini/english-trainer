@@ -2,7 +2,7 @@ const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db } = require('./helpers');
 const app = require('../src/app');
 
-/** A mistakes exam per subject: the student's unfixed mistakes only (/api/mistakes/exam). */
+/** A mistakes exam per subject: the student's unfixed mistakes only (/api/mistakes/exam), graded one answer at a time. */
 describe('Mistakes exam per subject', () => {
   let token;
   let userId;
@@ -18,7 +18,8 @@ describe('Mistakes exam per subject', () => {
   });
   const waiting = async () => (await request(app).get('/api/mistakes/waiting').set(auth())).body.data;
   const exam = (subject) => request(app).get(`/api/mistakes/exam?subject=${subject}`).set(auth());
-  const answerExam = (subject, answers) => request(app).post('/api/mistakes/exam').set(auth()).send({ subject, answers });
+  const answer = (subject, exerciseId, userAnswer) =>
+    request(app).post('/api/mistakes/exam/answer').set(auth()).send({ subject, exerciseId, userAnswer });
 
   beforeAll(async () => {
     await resetDatabase();
@@ -66,33 +67,38 @@ describe('Mistakes exam per subject', () => {
     expect(new Set(englishExam.map(e => e.id)).size).toBe(englishExam.length);
   });
 
-  test('bad requests: an unknown or missing subject, no answers, too many, not text', async () => {
+  test('bad requests: an unknown or missing subject, no question, no answer, not text, too long', async () => {
     expect((await exam('history')).status).toBe(400);
     expect((await request(app).get('/api/mistakes/exam').set(auth())).status).toBe(400);
-    expect((await answerExam('math', [])).status).toBe(400);
-    const many = Array.from({ length: 21 }, (_, i) => ({ exerciseId: `x${i}`, userAnswer: 'a' }));
-    expect((await answerExam('math', many)).status).toBe(400);
-    expect((await answerExam('math', [{ exerciseId: 'x', userAnswer: 5 }])).status).toBe(400);
-    expect((await answerExam('history', [{ exerciseId: 'x', userAnswer: 'a' }])).status).toBe(400);
+    expect((await answer('history', 'x', 'a')).status).toBe(400);
+    expect((await answer('math', '', 'a')).status).toBe(400);
+    expect((await answer('math', 'x', '')).status).toBe(400);
+    expect((await answer('math', 'x', 5)).status).toBe(400);
+    expect((await answer('math', 'x'.repeat(65), 'a')).status).toBe(400);
+    expect((await answer('math', 'x', 'a'.repeat(501))).status).toBe(400);
+    expect((await request(app).post('/api/mistakes/exam/answer').send({ subject: 'math', exerciseId: 'x', userAnswer: 'a' })).status).toBe(401);
   });
 
-  test('a right answer fixes every record of its question; anything else is ignored', async () => {
+  test('a right answer fixes every record of its question at once; anything else is refused', async () => {
     const questions = easy(english);
     const [a, b, c] = questions;
     const [mathQuestion] = easy(math);
-    const res = await answerExam('english', [
-      { exerciseId: a.id, userAnswer: a.correct_answer },
-      { exerciseId: b.id, userAnswer: b.correct_answer },
-      { exerciseId: c.id, userAnswer: wrong(c) },
-      { exerciseId: a.id, userAnswer: wrong(a) }, // the same question again: graded once
-      { exerciseId: mathQuestion.id, userAnswer: mathQuestion.correct_answer }, // another subject's mistake
-      { exerciseId: 'no-such-question', userAnswer: 'x' }
-    ]);
-    expect(res.status).toBe(200);
-    const data = res.body.data;
-    expect(data).toMatchObject({ subject: 'english', total: 3, correct: 2, fixed: 2, waiting: questions.length - 2 });
-    expect(data.results.map(r => [r.exerciseId, r.isCorrect])).toEqual([[a.id, true], [b.id, true], [c.id, false]]);
-    expect(data.results[2]).toMatchObject({ correctAnswer: c.correct_answer, questionTextHe: c.question_text_he });
+    const right = await answer('english', a.id, a.correct_answer);
+    expect(right.status).toBe(200);
+    expect(right.body.data).toEqual({
+      exerciseId: a.id, isCorrect: true, fixed: true, correctAnswer: a.correct_answer,
+      explanationHe: a.explanation_he || null, explanationPicture: a.explanation_picture || null, waiting: questions.length - 1
+    });
+    expect((await answer('english', b.id, b.correct_answer)).body.data).toMatchObject({ isCorrect: true, fixed: true, waiting: questions.length - 2 });
+    const missed = await answer('english', c.id, wrong(c));
+    expect(missed.body.data).toMatchObject({ isCorrect: false, fixed: false, correctAnswer: c.correct_answer, waiting: questions.length - 2 });
+    expect((await db.find('wrong_answers', { user_id: userId, exercise_id: c.id })).some(r => r.is_corrected)).toBe(false);
+
+    // Fixed already, another subject's mistake, or no mistake at all: refused, nothing written.
+    for (const [subject, exerciseId] of [['english', a.id], ['english', mathQuestion.id], ['math', a.id], ['english', 'no-such-question']]) {
+      const refused = await answer(subject, exerciseId, 'anything');
+      expect([refused.status, refused.body.code]).toEqual([404, 'not_waiting']);
+    }
 
     const records = await db.find('wrong_answers', { user_id: userId, exercise_id: a.id });
     expect(records).toHaveLength(2);
@@ -120,10 +126,16 @@ describe('Mistakes exam per subject', () => {
   });
 
   test('with nothing left to fix, the exam is empty', async () => {
-    const { exercises } = (await exam('math')).body.data;
+    // The expected numbers come from this exam, not from the tests before it.
+    const { waiting: before, exercises } = (await exam('math')).body.data;
+    expect(exercises.length).toBe(before);
     const answerOf = new Map(easy(math).map(e => [e.id, e.correct_answer]));
-    const res = await answerExam('math', exercises.map(e => ({ exerciseId: e.id, userAnswer: answerOf.get(e.id) })));
-    expect(res.body.data).toMatchObject({ total: 2, correct: 2, waiting: 0 });
+    let last;
+    for (const e of exercises) {
+      last = (await answer('math', e.id, answerOf.get(e.id))).body.data;
+      expect(last).toMatchObject({ isCorrect: true, fixed: true });
+    }
+    expect(last.waiting).toBe(0);
     expect((await exam('math')).body.data).toEqual({ subject: 'math', waiting: 0, exercises: [] });
   });
 });

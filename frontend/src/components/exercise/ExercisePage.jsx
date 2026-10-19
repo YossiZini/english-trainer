@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
 import exerciseService from '../../services/exerciseService';
@@ -31,6 +31,7 @@ const ExercisePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitting = useRef(false);
   const [startTime] = useState(Date.now());
   const [feedback, setFeedback] = useState({});
   const [loading, setLoading] = useState(true);
@@ -169,6 +170,8 @@ const ExercisePage = () => {
   };
 
   const handleSubmit = async () => {
+    // One submit at a time: a second Enter while the first is saving does nothing.
+    if (submitting.current) return;
     // Check if all questions are answered
     const unansweredCount = exercises.filter(ex => !userAnswers[ex.id]).length;
 
@@ -178,6 +181,7 @@ const ExercisePage = () => {
       }
     }
 
+    submitting.current = true;
     setIsSubmitting(true);
 
     try {
@@ -198,6 +202,7 @@ const ExercisePage = () => {
         if (result.hasMoreMistakes) {
           if (window.confirm(message + '\n\nיש עוד טעויות לתקן. האם תרצה לתרגל אותן עכשיו?')) {
             // Reload retry exercises
+            submitting.current = false;
             setIsSubmitting(false);
             setCurrentIndex(0);
             setUserAnswers({});
@@ -230,6 +235,7 @@ const ExercisePage = () => {
     } catch (err) {
       console.error('Failed to submit exercise:', err);
       alert('שגיאה בשליחת התרגיל');
+      submitting.current = false;
       setIsSubmitting(false);
     }
   };

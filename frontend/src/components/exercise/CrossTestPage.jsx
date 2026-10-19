@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import mistakesService from '../../services/mistakesService';
 import exerciseService from '../../services/exerciseService';
@@ -14,8 +14,8 @@ import './ExercisePage.css';
 
 // Two tests on one page: the mixed test (/cross-test: mistakes across the
 // subjects, topped up with other questions) and, on /mistakes-exam/:subject,
-// a subject's mistakes exam (only its unfixed mistakes; the API grades the
-// answers at the end and fixes the right ones).
+// a subject's mistakes exam (only its unfixed mistakes; the API grades each
+// answer when it is checked and fixes a right one at once, as in the bot).
 const CrossTestPage = () => {
   const navigate = useNavigate();
   const { subject } = useParams();
@@ -27,12 +27,15 @@ const CrossTestPage = () => {
   const questionRef = useScrollToQuestion(currentIndex);
   const [userAnswers, setUserAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitting = useRef(false);
   const [startTime] = useState(Date.now());
   const [feedback, setFeedback] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showRecap, setShowRecap] = useState(true);
   const [topicsWithTheory, setTopicsWithTheory] = useState([]);
+  // How many of the subject's mistakes still wait, as of the last graded answer.
+  const [waitingNow, setWaitingNow] = useState(null);
 
   useEffect(() => {
     loadCrossTest();
@@ -109,6 +112,20 @@ const CrossTestPage = () => {
     }));
   };
 
+  // A mistakes exam grades the checked answer through the API, which fixes a
+  // right one at once. A question that no longer waits (fixed elsewhere, or
+  // hidden after a report) is only checked.
+  const checkMistake = async (exerciseId, userAnswer) => {
+    try {
+      const graded = await mistakesService.answerSubjectExam(subject, exerciseId, userAnswer);
+      setWaitingNow(graded.waiting);
+      return graded;
+    } catch (err) {
+      if (err?.code !== 'not_waiting') throw err;
+      return { ...(await exerciseService.checkAnswer(exerciseId, userAnswer)), fixed: false };
+    }
+  };
+
   const handleCheckAnswer = async () => {
     const currentExercise = exercises[currentIndex];
     const userAnswer = userAnswers[currentExercise.id];
@@ -119,7 +136,9 @@ const CrossTestPage = () => {
     }
 
     try {
-      const result = await exerciseService.checkAnswer(currentExercise.id, userAnswer);
+      const result = subject
+        ? await checkMistake(currentExercise.id, userAnswer)
+        : await exerciseService.checkAnswer(currentExercise.id, userAnswer);
       setFeedback(prev => ({
         ...prev,
         [currentExercise.id]: result
@@ -143,8 +162,11 @@ const CrossTestPage = () => {
   };
 
   const handleSubmit = async () => {
-    // Check if all questions are answered
-    const unansweredCount = exercises.filter(ex => !userAnswers[ex.id]).length;
+    // One submit at a time: a second Enter while the first runs does nothing.
+    if (submitting.current) return;
+    // A question counts as answered once it was checked: every question shows
+    // its first option selected.
+    const unansweredCount = exercises.filter(ex => !feedback[ex.id]).length;
 
     if (unansweredCount > 0) {
       if (!window.confirm(`יש ${unansweredCount} שאלות שלא נענו. האם אתה בטוח שברצונך לשלוח?`)) {
@@ -152,33 +174,26 @@ const CrossTestPage = () => {
       }
     }
 
+    submitting.current = true;
     setIsSubmitting(true);
 
     try {
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       if (subject) {
-        // The API grades every answer and fixes the right ones; the results
-        // page shows its grading, which is what was fixed.
-        const answers = exercises.map(ex => ({ exerciseId: ex.id, userAnswer: userAnswers[ex.id] || '' }));
-        const graded = await mistakesService.submitSubjectExam(subject, answers);
-        const byId = new Map(graded.results.map(r => [r.exerciseId, r]));
-        const results = exercises.map(exercise => {
-          const r = byId.get(exercise.id);
-          return {
-            exercise,
-            userAnswer: userAnswers[exercise.id] || '',
-            feedback: r ? { isCorrect: r.isCorrect, correctAnswer: r.correctAnswer, explanationHe: r.explanationHe } : feedback[exercise.id]
-          };
-        });
+        // Each checked answer was graded, and a right one fixed, when it was
+        // checked: the results are those gradings, and nothing is sent now.
+        const results = exercises.filter(ex => feedback[ex.id])
+          .map(exercise => ({ exercise, userAnswer: userAnswers[exercise.id] || '', feedback: feedback[exercise.id] }));
+        const fixed = results.filter(r => r.feedback.fixed).length;
         navigate('/cross-test/results', {
           state: {
             subject,
-            correctAnswers: results.filter(r => r.feedback?.isCorrect).length,
+            correctAnswers: results.filter(r => r.feedback.isCorrect).length,
             totalQuestions: exercises.length,
             timeSpent,
             results,
-            fixed: graded.fixed,
-            waiting: graded.waiting
+            fixed,
+            waiting: waitingNow ?? Math.max(0, (testInfo?.waiting || 0) - fixed)
           }
         });
         return;
@@ -217,6 +232,7 @@ const CrossTestPage = () => {
     } catch (err) {
       console.error('Failed to submit cross-test:', err);
       alert('שגיאה בשליחת המבחן');
+      submitting.current = false;
       setIsSubmitting(false);
     }
   };

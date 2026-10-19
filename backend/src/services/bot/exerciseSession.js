@@ -219,9 +219,10 @@ class ExerciseSession {
     }
 
     const exercise = await Exercise.findById(current.id);
-    const correct = session.source === 'mistakes'
-      // A mistakes exam: the website's rule, and a right answer fixes the mistake now.
-      ? (await MistakesService.gradeMistake(user.id, { exercise }, given)).isCorrect
+    // A mistakes exam: the website's rule, and a right answer fixes the mistake now.
+    const graded = session.source === 'mistakes' ? await MistakesService.gradeMistake(user.id, { exercise }, given) : null;
+    const correct = graded
+      ? graded.isCorrect
       // Graded as the session froze the question (a typed question open
       // during a content change keeps its lenient check).
       : isCorrectAnswer({ type: current.type, correct_answer: exercise.correct_answer }, given);
@@ -243,10 +244,12 @@ class ExerciseSession {
     const answers = [...(session.answers || []), { exerciseId: current.id, userAnswer: given }];
     const index = session.index + 1;
     const correctCount = (session.correct_count || 0) + (correct ? 1 : 0);
+    // What this exam really fixed: not a mistake fixed meanwhile elsewhere.
+    const fixed = graded ? { fixed_count: (session.fixed_count || 0) + (graded.fixed ? 1 : 0) } : {};
 
     if (index < session.exercises.length) {
       const next = await BotSession.update(session.id, {
-        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak
+        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak, ...fixed
       });
       return { kind: 'exercise', verdict, lesson: lessonView(next), question: questionView(next), done: false };
     }
@@ -255,7 +258,7 @@ class ExerciseSession {
       // Last answer of a mistakes exam: the mistakes were fixed as they were
       // answered; say how many, and how many still wait. No score.
       await BotSession.update(session.id, {
-        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak
+        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak, ...fixed
       });
       await BotSession.end(session.id, 'completed');
       const waiting = (await MistakesService.waitingBySubject(user.id))[session.subject] || 0;
@@ -264,7 +267,7 @@ class ExerciseSession {
         verdict,
         lesson: lessonView(session),
         done: true,
-        result: { mistakes: true, subject: session.subject, fixed: correctCount, total: session.exercises.length, waiting }
+        result: { mistakes: true, subject: session.subject, fixed: fixed.fixed_count, total: session.exercises.length, waiting }
       };
     }
 
