@@ -50,6 +50,16 @@ const capped = (text) => {
   return s.length > EXPLANATION_MAX ? `${s.slice(0, EXPLANATION_MAX - 1)}…` : s;
 };
 
+/** A question as a session keeps it from the start: what the chat shows, and the hint. */
+const frozenQuestion = (ex, { shuffle = false } = {}) => ({
+  id: ex.id,
+  type: ex.type,
+  text: ex.question_text_he || ex.question_text_en,
+  textEn: ex.question_text_he ? ex.question_text_en || null : null,
+  options: ex.type === 'multiple_choice' ? (shuffle ? shuffleArray(ex.options) : ex.options) : null,
+  hint: ex.hint_he || null
+});
+
 function questionView(session) {
   const ex = session.exercises[session.index];
   return {
@@ -127,14 +137,7 @@ class ExerciseSession {
     const position = list.findIndex(l => l.id === lesson.id) + 1 || null;
     const set = await LessonService.getExercises(lesson.id, user.id, DIFFICULTIES.includes(difficulty) ? difficulty : null);
     if (!set.exercises.length) return { error: 'no_exercises' };
-    const exercises = set.exercises.map(ex => ({
-      id: ex.id,
-      type: ex.type,
-      text: ex.question_text_he || ex.question_text_en,
-      textEn: ex.question_text_he ? ex.question_text_en || null : null,
-      options: ex.type === 'multiple_choice' ? ex.options : null,
-      hint: ex.hint_he || null
-    }));
+    const exercises = set.exercises.map(ex => frozenQuestion(ex));
 
     const open = await BotSession.findOpenByChat(chatId);
     if (open) await BotSession.end(open.id, 'replaced');
@@ -154,14 +157,7 @@ class ExerciseSession {
     if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
     const { waiting, questions } = await MistakesService.pickSubjectExam(user.id, subject);
     if (!questions.length) return { kind: 'exercise', mistakes: true, nothingWaiting: true, subject };
-    const exercises = questions.map(({ exercise }) => ({
-      id: exercise.id,
-      type: exercise.type,
-      text: exercise.question_text_he || exercise.question_text_en,
-      textEn: exercise.question_text_he ? exercise.question_text_en || null : null,
-      options: exercise.type === 'multiple_choice' ? shuffleArray(exercise.options) : null,
-      hint: exercise.hint_he || null
-    }));
+    const exercises = questions.map(({ exercise }) => frozenQuestion(exercise, { shuffle: true }));
     const open = await BotSession.findOpenByChat(chatId);
     if (open) await BotSession.end(open.id, 'replaced');
     const session = await BotSession.createMistakes({ userId: user.id, chatId, subject, waiting, exercises });
