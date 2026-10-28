@@ -776,3 +776,100 @@ answer in the bot and on the site. `/sprint review` was not run; a
   Sprint 9 range still pending.
 - Carried over: 511 words whose sentence cannot be blanked, the option
   position content rule, the English-only web quiz, and the Sprint 8 items.
+
+## Sprint 14 — A mistakes exam per subject (2026-10-10 → 2026-10-28)
+
+Goal: let a student take an exam per subject (English, math, Arabic) built
+from the mistakes they have not fixed yet, on the website and in Telegram,
+so that every mistake is practised until it is fixed.
+Result: 9 stories in PRs #59–#63, all merged. The API picks up to 20 unfixed
+mistakes of a subject (`MistakesService.pickSubjectExam`) and a right answer
+fixes its mistake at once, on the website (each subject's page and the home
+page) and in the bot (`/mistakes_english`, `/mistakes_math`,
+`/mistakes_arabic`). Also in the sprint: the Sprint 13 review fixes (s1),
+home-page cards after the owner could not find the exam (s7), larger
+question and answer text at the owner's request (s8) and the fixes from
+this sprint's review (s9). No retros were written for Sprints 11–13.
+
+### What went well
+- **One rule in one service.** Picking and fixing live in
+  `MistakesService`; the website and the bot call the same functions, so the
+  review's fix (grade each answer when it is checked) was one endpoint and
+  one page.
+- **Measured, not eyeballed.** The larger text was checked on 24 lessons at
+  3 sizes against the old CSS injected into the same build (72 cases): no
+  lesson that fit before overflows, five that overflowed now fit.
+- **Tests shown to fail on the old code.** Every review fix came with a test
+  run against the old code first (the exam page, the bot buttons, the lesson
+  order).
+- **The review earned its keep.** `/sprint review` found three bugs a
+  student could hit (an unchecked question fixed by chance, a double submit
+  that wiped the result, bot buttons graded as a translation) and two
+  breaks of binding rules.
+
+### What hurt
+- **The owner could not find the exam.** It shipped behind a button in each
+  subject page's header; the home page got cards only after the owner asked
+  twice (s7). The stories said what the exam does, not where a student
+  starts.
+- **The website and the bot fixed at different times.** The bot fixed per
+  answer; the website reused the lesson page's submit at the end, which
+  also sends the first option the page selects on its own. "One rule"
+  covered which questions, not when an answer counts.
+- **A binding CSS rule broken by a small change.** The font change edited
+  values in global rules on generic classes (`.question-text`,
+  `.option-item`, `.content-text`); only the review caught it.
+- **Binding rules broken in new code.** A test that relied on the test
+  before it, and a progress helper extracted with its old `order_index`
+  sort, passed their own PRs.
+- **Measuring slips.** A CSS variant measured the options' padding in the
+  middle of a transition (`transition: all 0.3s`) and showed no effect; a
+  6-question viewport sample changed between runs (a session's questions
+  come in a random order), so one run passed and the next failed.
+- **Old overflow found late.** Math explanations with drawings and Arabic on
+  a laptop already ended below the pinned bar; the default viewport check
+  (the first English lesson) never shows them.
+- **Long local runs.** The emulator job hit its background time limit twice
+  during checks, and two scripts serving on :3000 collided.
+
+### Lessons → rules
+- A feature's acceptance names where the student finds it (home page,
+  subject page, bot menu and `/help`) and checks it from there.
+- A question counts as answered only once it was checked; never grade or
+  count an option the page selected on its own.
+- "One rule for the website and the bot" covers timing too: both grade and
+  write per answer, or both at the end.
+- Before changing a CSS value, check its selector: a rule on a bare generic
+  class is scoped under its component root in the same change (refines the
+  Sprint 1 rule).
+- Code that is moved or extracted leaves without binding-rule breaks; fix
+  them in the same change.
+- When text or spacing changes, run `check:viewport` with `QUESTIONS=10` on
+  the first English lesson, every Arabic and math lesson and the heaviest
+  English lessons, and compare with the old CSS before calling a change a
+  regression.
+- Measure layout after transitions settle: wait longer than the transition,
+  or turn transitions off in the measuring CSS.
+- Every submit that Enter can trigger has a re-entry guard (a ref), not only
+  a disabled button.
+
+### Follow-ups
+- Home page: take the waiting counts from `/progress/dashboard` instead of a
+  second read of the mistakes (`/mistakes/waiting`).
+- Curriculum reads go through `Lesson` / `Exercise`; `WrongAnswer`,
+  `UserProgress` and `MistakesService` read the bundled collections
+  directly.
+- Split `CrossTestPage` (two tests, about ten `subject ?` branches).
+- On a 768px-tall laptop, lessons with drawings or long explanations end
+  below the pinned bar (before the larger text, and a little more after):
+  a compact laptop layout or folded explanations.
+- The global `.option-text` rule in `UnseenQuestion.css` still sets
+  `text-align: left` on every page's options (Arabic options sit on the
+  left): scope it and check Arabic.
+- The lesson page still grades every question at submit, unchecked ones
+  with their first option: decide what an unchecked question counts as.
+- Retros for Sprints 11–13 were never written.
+- Owner: Alona's math reports (check `question_reports` in the Firestore
+  console); proposed fixes: show recent decisions when the review queue is
+  empty, and `/review_auto` for the owner only.
+- Carried over: `App.test.js` under jest.
