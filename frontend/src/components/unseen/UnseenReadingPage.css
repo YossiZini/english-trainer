@@ -61,18 +61,18 @@
   border-left: 4px solid #667eea;
 }
 
-.content-text {
+.unseen-reading-page .content-text {
   font-size: var(--font-size-answer);
   line-height: 1.8;
   color: #1f2937;
   text-align: left;
 }
 
-.content-text p {
+.unseen-reading-page .content-text p {
   margin-bottom: 1.5rem;
 }
 
-.content-text p:last-child {
+.unseen-reading-page .content-text p:last-child {
   margin-bottom: 0;
 }
 

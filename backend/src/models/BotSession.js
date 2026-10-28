@@ -82,6 +82,7 @@ class BotSession {
       index: 0,
       answers: [],
       correct_count: 0,
+      fixed_count: 0,
       started_at: now,
       ended_at: null
     });

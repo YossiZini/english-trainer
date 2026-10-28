@@ -2,6 +2,7 @@ const request = require('supertest');
 const { resetDatabase, shutdownDatabase } = require('./helpers');
 const app = require('../src/app');
 const { db } = require('../src/config/database');
+const { compareLessons } = require('../src/utils/lessonOrder');
 
 /**
  * End-to-end smoke tests through the HTTP API against the Firestore emulator:
@@ -240,6 +241,25 @@ describe('API', () => {
     } finally {
       find.mockRestore();
     }
+  });
+
+  test('the progress page lists lessons in curriculum order: topic, then subtopic', async () => {
+    // A student of its own, so the order does not depend on the tests before.
+    const reg = await request(app).post('/api/auth/register').send({ name: 'order-check', password: 'secret123', age: 12 });
+    const jwt = { Authorization: `Bearer ${reg.body.data.token}` };
+    const english = db.getCollection('lessons', true).filter(l => (l.subject || 'english') === 'english').sort(compareLessons);
+    const [first, second] = english.filter(l => l.topic_number === english[0].topic_number);
+    const nextTopic = english.find(l => l.topic_number > english[0].topic_number);
+    // order_index restarts in every topic, so it alone would put the next topic's first lesson second.
+    for (const lesson of [nextTopic, second, first]) {
+      const exercises = db.getCollection('exercises', true).filter(e => e.lesson_id === lesson.id && e.difficulty === 'easy');
+      const res = await request(app).post('/api/exercises/submit').set(jwt).send({
+        lessonId: lesson.id, timeSpent: 30, difficulty: 'easy', answers: exercises.map(e => ({ exerciseId: e.id, userAnswer: e.correct_answer }))
+      });
+      expect(res.status).toBeLessThan(300);
+    }
+    const { allProgress } = (await request(app).get('/api/progress').set(jwt)).body.data;
+    expect(allProgress.map(p => p.lesson_id)).toEqual([first.id, second.id, nextTopic.id]);
   });
 
   test('reading passages, achievements, challenges and dashboard respond', async () => {

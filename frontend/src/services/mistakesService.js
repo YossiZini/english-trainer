@@ -106,9 +106,14 @@ const mistakesService = {
     return response.data;
   },
 
-  /** Grade a mistakes exam; a right answer fixes its mistake ({ total, correct, fixed, waiting, results }). */
-  async submitSubjectExam(subject, answers) {
-    const response = await api.post('/mistakes/exam', { subject, answers });
+  /**
+   * One checked answer of a mistakes exam; a right answer fixes its mistake at
+   * once ({ exerciseId, isCorrect, fixed, correctAnswer, explanationHe,
+   * explanationPicture, waiting }). Rejects with code 'not_waiting' when the
+   * question no longer waits to be fixed.
+   */
+  async answerSubjectExam(subject, exerciseId, userAnswer) {
+    const response = await api.post('/mistakes/exam/answer', { subject, exerciseId, userAnswer });
     return response.data;
   }
 };

@@ -148,46 +148,34 @@ class MistakesService {
 
   /**
    * One answer to a mistake, graded with the question as it is now. A right
-   * answer fixes the mistake: every unfixed record of that question.
+   * answer fixes the mistake: every unfixed record of that question. `fixed`
+   * says whether this answer fixed it (not when it was fixed meanwhile, for
+   * example on the website during the bot's exam).
    */
   static async gradeMistake(userId, { exercise }, userAnswer) {
     const isCorrect = isCorrectAnswer(exercise, userAnswer);
-    if (isCorrect) await WrongAnswer.markAsCorrected(exercise.id, userId);
-    return { isCorrect, correctAnswer: exercise.correct_answer, explanationHe: exercise.explanation_he || null };
+    const fixed = isCorrect && await WrongAnswer.markAsCorrected(exercise.id, userId);
+    return {
+      isCorrect,
+      fixed,
+      correctAnswer: exercise.correct_answer,
+      explanationHe: exercise.explanation_he || null,
+      explanationPicture: exercise.explanation_picture || null
+    };
   }
 
   /**
-   * A finished mistakes exam from the website. Only answers to the student's
-   * unfixed mistakes in the subject are graded, each question once; anything
-   * else is ignored. Returns the graded answers and how many still wait.
+   * One answer of the website's mistakes exam, graded when it is checked, as
+   * in the bot: a right answer fixes the mistake at once. Only the student's
+   * unfixed mistakes in the subject are graded (null otherwise), so each
+   * mistake is written at most once. `waiting` counts what still waits.
    */
-  static async submitSubjectExam(userId, subject, answers) {
-    const unfixed = new Map((await WrongAnswer.unfixedQuestions(userId))
-      .filter(q => subjectOf(q.lesson) === subject)
-      .map(q => [q.exercise.id, q]));
-    const results = [];
-    for (const { exerciseId, userAnswer } of answers.slice(0, EXAM_SIZE)) {
-      const question = unfixed.get(exerciseId);
-      if (!question) continue;
-      unfixed.delete(exerciseId);
-      const graded = await this.gradeMistake(userId, question, userAnswer);
-      results.push({
-        exerciseId,
-        userAnswer,
-        questionTextHe: question.exercise.question_text_he,
-        lessonTitle: question.lesson.title_he,
-        ...graded
-      });
-    }
-    const correct = results.filter(r => r.isCorrect).length;
-    return {
-      subject,
-      total: results.length,
-      correct,
-      fixed: correct,
-      waiting: unfixed.size + results.length - correct,
-      results
-    };
+  static async answerSubjectExam(userId, subject, exerciseId, userAnswer) {
+    const inSubject = (await WrongAnswer.unfixedQuestions(userId)).filter(q => subjectOf(q.lesson) === subject);
+    const question = inSubject.find(q => q.exercise.id === exerciseId);
+    if (!question) return null;
+    const graded = await this.gradeMistake(userId, question, userAnswer);
+    return { exerciseId, ...graded, waiting: inSubject.length - (graded.fixed ? 1 : 0) };
   }
 
   /**
@@ -460,4 +448,3 @@ class MistakesService {
 }
 
 module.exports = MistakesService;
-module.exports.EXAM_SIZE = EXAM_SIZE;

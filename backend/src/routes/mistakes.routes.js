@@ -4,7 +4,6 @@ const { body, query } = require('express-validator');
 const MistakesController = require('../controllers/mistakes.controller');
 const { authenticate } = require('../middleware/auth.middleware');
 const { SUBJECTS } = require('../config/subjects');
-const { EXAM_SIZE } = require('../services/mistakes.service');
 
 // All mistake routes require authentication
 router.use(authenticate);
@@ -49,17 +48,18 @@ router.get('/exam', [
 ], MistakesController.getSubjectExam);
 
 /**
- * @route   POST /api/mistakes/exam
- * @desc    Grade a mistakes exam; a right answer fixes its mistake
- * @body    { subject, answers: [{ exerciseId, userAnswer }] }
+ * @route   POST /api/mistakes/exam/answer
+ * @desc    Grade one answer of a mistakes exam; a right answer fixes its mistake
+ *          at once. Only the student's unfixed mistakes in the subject (else
+ *          404), so each mistake is written at most once.
+ * @body    { subject, exerciseId, userAnswer }
  * @access  Private
  */
-router.post('/exam', [
+router.post('/exam/answer', [
   body('subject').isIn(SUBJECTS).withMessage(`subject must be one of ${SUBJECTS.join(', ')}`),
-  body('answers').isArray({ min: 1, max: EXAM_SIZE }).withMessage(`answers must be a list of 1 to ${EXAM_SIZE}`),
-  body('answers.*.exerciseId').isString().isLength({ min: 1, max: 64 }),
-  body('answers.*.userAnswer').isString().isLength({ max: 500 })
-], MistakesController.submitSubjectExam);
+  body('exerciseId').isString().isLength({ min: 1, max: 64 }),
+  body('userAnswer').isString().isLength({ min: 1, max: 500 })
+], MistakesController.answerSubjectExam);
 
 /**
  * @route   GET /api/mistakes/lesson/:lessonId

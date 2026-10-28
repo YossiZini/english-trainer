@@ -3,7 +3,7 @@
 }
 
 .multiple-choice .question-text {
-  /* explicit resets: ReviewMistakesPage.css and FillInBlank.css style this class name too */
+  /* explicit resets: other pages style this class name too, under their own roots */
   padding: 0;
   background: none;
   border-radius: 0;

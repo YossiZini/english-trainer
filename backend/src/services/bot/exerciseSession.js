@@ -50,6 +50,16 @@ const capped = (text) => {
   return s.length > EXPLANATION_MAX ? `${s.slice(0, EXPLANATION_MAX - 1)}…` : s;
 };
 
+/** A question as a session keeps it from the start: what the chat shows, and the hint. */
+const frozenQuestion = (ex, { shuffle = false } = {}) => ({
+  id: ex.id,
+  type: ex.type,
+  text: ex.question_text_he || ex.question_text_en,
+  textEn: ex.question_text_he ? ex.question_text_en || null : null,
+  options: ex.type === 'multiple_choice' ? (shuffle ? shuffleArray(ex.options) : ex.options) : null,
+  hint: ex.hint_he || null
+});
+
 function questionView(session) {
   const ex = session.exercises[session.index];
   return {
@@ -127,14 +137,7 @@ class ExerciseSession {
     const position = list.findIndex(l => l.id === lesson.id) + 1 || null;
     const set = await LessonService.getExercises(lesson.id, user.id, DIFFICULTIES.includes(difficulty) ? difficulty : null);
     if (!set.exercises.length) return { error: 'no_exercises' };
-    const exercises = set.exercises.map(ex => ({
-      id: ex.id,
-      type: ex.type,
-      text: ex.question_text_he || ex.question_text_en,
-      textEn: ex.question_text_he ? ex.question_text_en || null : null,
-      options: ex.type === 'multiple_choice' ? ex.options : null,
-      hint: ex.hint_he || null
-    }));
+    const exercises = set.exercises.map(ex => frozenQuestion(ex));
 
     const open = await BotSession.findOpenByChat(chatId);
     if (open) await BotSession.end(open.id, 'replaced');
@@ -154,14 +157,7 @@ class ExerciseSession {
     if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
     const { waiting, questions } = await MistakesService.pickSubjectExam(user.id, subject);
     if (!questions.length) return { kind: 'exercise', mistakes: true, nothingWaiting: true, subject };
-    const exercises = questions.map(({ exercise }) => ({
-      id: exercise.id,
-      type: exercise.type,
-      text: exercise.question_text_he || exercise.question_text_en,
-      textEn: exercise.question_text_he ? exercise.question_text_en || null : null,
-      options: exercise.type === 'multiple_choice' ? shuffleArray(exercise.options) : null,
-      hint: exercise.hint_he || null
-    }));
+    const exercises = questions.map(({ exercise }) => frozenQuestion(exercise, { shuffle: true }));
     const open = await BotSession.findOpenByChat(chatId);
     if (open) await BotSession.end(open.id, 'replaced');
     const session = await BotSession.createMistakes({ userId: user.id, chatId, subject, waiting, exercises });
@@ -219,9 +215,10 @@ class ExerciseSession {
     }
 
     const exercise = await Exercise.findById(current.id);
-    const correct = session.source === 'mistakes'
-      // A mistakes exam: the website's rule, and a right answer fixes the mistake now.
-      ? (await MistakesService.gradeMistake(user.id, { exercise }, given)).isCorrect
+    // A mistakes exam: the website's rule, and a right answer fixes the mistake now.
+    const graded = session.source === 'mistakes' ? await MistakesService.gradeMistake(user.id, { exercise }, given) : null;
+    const correct = graded
+      ? graded.isCorrect
       // Graded as the session froze the question (a typed question open
       // during a content change keeps its lenient check).
       : isCorrectAnswer({ type: current.type, correct_answer: exercise.correct_answer }, given);
@@ -243,10 +240,12 @@ class ExerciseSession {
     const answers = [...(session.answers || []), { exerciseId: current.id, userAnswer: given }];
     const index = session.index + 1;
     const correctCount = (session.correct_count || 0) + (correct ? 1 : 0);
+    // What this exam really fixed: not a mistake fixed meanwhile elsewhere.
+    const fixed = graded ? { fixed_count: (session.fixed_count || 0) + (graded.fixed ? 1 : 0) } : {};
 
     if (index < session.exercises.length) {
       const next = await BotSession.update(session.id, {
-        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak
+        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak, ...fixed
       });
       return { kind: 'exercise', verdict, lesson: lessonView(next), question: questionView(next), done: false };
     }
@@ -255,7 +254,7 @@ class ExerciseSession {
       // Last answer of a mistakes exam: the mistakes were fixed as they were
       // answered; say how many, and how many still wait. No score.
       await BotSession.update(session.id, {
-        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak
+        answers, index, correct_count: correctCount, wrong_count: wrongCount, wrong_streak: wrongStreak, ...fixed
       });
       await BotSession.end(session.id, 'completed');
       const waiting = (await MistakesService.waitingBySubject(user.id))[session.subject] || 0;
@@ -264,7 +263,7 @@ class ExerciseSession {
         verdict,
         lesson: lessonView(session),
         done: true,
-        result: { mistakes: true, subject: session.subject, fixed: correctCount, total: session.exercises.length, waiting }
+        result: { mistakes: true, subject: session.subject, fixed: fixed.fixed_count, total: session.exercises.length, waiting }
       };
     }
 
