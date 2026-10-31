@@ -10,14 +10,16 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `grid`, `row`, `figure`, `figures` |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `grid`, `array` (dots in rows × columns), `groups` (equal groups), `row`, `figure`, `figures` |
 | Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`) |
 | Names, TOC line, descriptions, subtopic examples | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
 
-Numbering: topics `101+` (shown as `1+`), subtopics `'101.3'`, `orderIndex`
-`1000 + topic offset` (Fractions 1001–1006, Order of operations 1021, …).
+Numbering: topics `100+` (shown as `1+`: the multiplication table, 100, is
+chapter 1, Fractions, 101, chapter 2), subtopics `'101.3'`, `orderIndex`
+`1000 + topic offset` (Fractions 1001–1006, Order of operations 1021, …; the
+multiplication table, before them, 991–993).
 Lesson ids are preserved by `topic/subtopic`, so renaming a subtopic key
 creates a new lesson and orphans progress.
 

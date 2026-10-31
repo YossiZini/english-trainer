@@ -799,3 +799,31 @@
   justify-content: center;
   gap: 0.5rem;
 }
+
+/* The multiplication table in the Math theory (topic 100): compact, the
+   numbers centred, the squares on the diagonal marked */
+.theory-html .times-table-wrap {
+  overflow-x: auto;
+}
+.theory-html table.times-table {
+  width: auto;
+  margin: 1rem auto;
+}
+.theory-html table.times-table th,
+.theory-html table.times-table td {
+  padding: 0.35rem 0.5rem;
+  min-width: 2.2rem;
+  text-align: center;
+}
+.theory-html table.times-table td.square {
+  background: #fff3cd;
+  font-weight: 700;
+}
+@media (max-width: 480px) {
+  .theory-html table.times-table th,
+  .theory-html table.times-table td {
+    padding: 0.2rem 0.1rem;
+    min-width: 1.6rem;
+    font-size: 0.8rem;
+  }
+}

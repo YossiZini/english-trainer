@@ -181,12 +181,14 @@ For each topic, these assets must exist:
 ### Math Topics (Hebrew, grades 7–8)
 
 Math lessons live in the same content files with `subject: "math"` and are
-numbered 101+ (shown as 1+ on the `/math` page). A topic with several
-subtopics keeps them in a folder (`seeds/fractions/`) and composes them in
-`topic1NN-*.js`; write fractions as `a/b` in text and theory, the app shows
-them stacked (`MathText` for exercise text, `stackFractions` for theory HTML).
-Pictures for theory come from `seeds/math-svg.js` (`circle`, `bar`,
-`numberLine`, `grid`, `figure`). Seeds are plain modules
+numbered 100+ (shown as 1+ on the `/math` page: the multiplication table, 100,
+is chapter 1 and Fractions, 101, chapter 2). A topic with several
+subtopics keeps them in a folder (`seeds/fractions/`, `seeds/multiplication/`)
+and composes them in `topic1NN-*.js`; write fractions as `a/b` in text and
+theory, the app shows them stacked (`MathText` for exercise text,
+`stackFractions` for theory HTML). Pictures for theory come from
+`seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `grid`, `array`, `groups`,
+`figure`). Seeds are plain modules
 (`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
 topic has one teaching document and 10 exercises per level (easy/medium/hard),
 because an exercise session is 10 questions. Regenerate with
@@ -195,6 +197,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 
 | # | Topic Name (EN) | Topic Name (HE) | Seed File | Registered | Frontend | Status |
 |---|-----------------|-----------------|-----------|------------|----------|--------|
+| 100 | Multiplication Table (3 subtopics 100.1–100.3) | לוח הכפל | topic100-multiplication.js + multiplication/*.js | Yes | Yes | Complete |
 | 101 | Fractions (6 subtopics 101.1–101.6) | שברים | topic101-fractions.js + fractions/*.js | Yes | Yes | Complete |
 | 102 | Order of Operations | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
 | 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
@@ -226,7 +229,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 4 math topics (101–104), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 5 math topics (100–104), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -251,6 +254,19 @@ Track changes per topic with dates and descriptions.
   subject (one size per device in `styles/variables.css`: computer, phone,
   narrow phone). Arabic quiz text is 1.2 times the answer size, never smaller
   than before. Content unchanged. Sprint 14.
+
+### Topic 100: Multiplication Table (Math)
+- 2026-10-31: New topic, first in Math (before Fractions): 100.1 multiplication
+  up to 10×10 (equal groups, order, ×1 ×10 ×2 ×5, ×9, doubling, squares, the
+  full table), 100.2 division as the inverse of multiplication (sharing, fact
+  families, special cases, checking), 100.3 review with word problems. Each
+  a Hebrew teaching document with a picture for every rule (`array`, `groups`
+  in `math-svg.js`) and 30 multiple-choice questions (10 per level) whose
+  answers and wrong options (neighbouring facts, adding instead of
+  multiplying, subtracting instead of dividing) are computed in
+  `seeds/multiplication/common.js`; an independent script re-computed all 90.
+  Math chapters on screen now count from it (Fractions is chapter 2), and it
+  is the next math lesson for a student who has not passed it. Sprint 15.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises

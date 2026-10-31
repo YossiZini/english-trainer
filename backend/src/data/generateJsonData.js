@@ -76,6 +76,7 @@ async function generateLessonsAndExercises(subjects = ['math', 'arabic']) {
       'topic15-past-simple.js'
     ],
     math: [
+      'topic100-multiplication.js',
       'topic101-fractions.js',
       'topic102-order-of-operations.js',
       'topic103-average.js',

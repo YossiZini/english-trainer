@@ -81,7 +81,7 @@ describe('API', () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
     expect(math.status).toBe(200);
     expect(math.body.data.every(t => t.subject === 'math')).toBe(true);
-    expect(math.body.data.every(t => t.topicNumber >= 101)).toBe(true);
+    expect(math.body.data.every(t => t.topicNumber >= 100)).toBe(true);
 
     // Arabic is a subject of its own: only its lessons, never the others'.
     const arabic = await request(app).get('/api/lessons?subject=arabic').set(auth());
@@ -137,20 +137,25 @@ describe('API', () => {
   test('Math lessons are ordered by subtopic and navigate across topics', async () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
     const numbers = math.body.data.flatMap(t => t.lessons.map(l => l.subtopicNumber));
-    expect(numbers.slice(0, 7)).toEqual(['101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
+    // The multiplication table (topic 100) comes first, then Fractions.
+    expect(numbers.slice(0, 10)).toEqual(['100.1', '100.2', '100.3', '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
 
-    const last = math.body.data[0].lessons[5];
+    const [table, fractions, order] = math.body.data;
+    const last = fractions.lessons[5];
     const detail = await request(app).get(`/api/lessons/${last.id}`).set(auth());
     expect(detail.status).toBe(200);
-    const first102 = math.body.data[1].lessons[0];
-    expect(detail.body.data.navigation.next.id).toBe(first102.id);
-    expect(detail.body.data.navigation.previous.id).toBe(math.body.data[0].lessons[4].id);
+    expect(detail.body.data.navigation.next.id).toBe(order.lessons[0].id);
+    expect(detail.body.data.navigation.previous.id).toBe(fractions.lessons[4].id);
+
+    // From the last multiplication-table lesson on to the first Fractions lesson.
+    const tableEnd = await request(app).get(`/api/lessons/${table.lessons[2].id}`).set(auth());
+    expect(tableEnd.body.data.navigation.next.id).toBe(fractions.lessons[0].id);
   });
 
   test('next and previous lesson after a Math exercise stay in Math', async () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
-    // The second Math lesson has a Math neighbour on each side.
-    const mathLesson = math.body.data[1].lessons[0];
+    // Order of operations (102.1) has a Math neighbour on each side.
+    const mathLesson = math.body.data[2].lessons[0];
     const ex = await request(app).get(`/api/lessons/${mathLesson.id}/exercises?difficulty=easy`).set(auth());
     const exercises = ex.body.data.exercises || ex.body.data;
     // Correct answers are not sent to the client; take them from the bundled content.
@@ -160,7 +165,7 @@ describe('API', () => {
     const submit = await request(app).post('/api/exercises/submit').set(auth())
       .send({ lessonId: mathLesson.id, answers, timeSpent: 60, difficulty: 'easy' });
     expect(submit.status).toBe(200);
-    const isMath = (l) => l && l.topic_number >= 101;
+    const isMath = (l) => l && l.topic_number >= 100 && l.topic_number < 200;
     expect(isMath(submit.body.data.nextLesson)).toBe(true);
     expect(isMath(submit.body.data.previousLesson)).toBe(true);
 
@@ -213,11 +218,12 @@ describe('API', () => {
 
     // Each subject continues in its own lessons, even though Math comes after every English lesson.
     expect(Number(subjects.english.nextLesson.subtopic_number)).toBeLessThan(101);
-    expect(subjects.math.nextLesson.subtopic_number).toBe('101.1');
+    expect(subjects.math.nextLesson.subtopic_number).toBe('100.1');
     expect(subjects.arabic.nextLesson.subtopic_number).toBe('201.1');
 
     // Last activity per subject: the Math exercise submitted above, and the English one before it.
-    expect(subjects.math.lastActivity).toMatchObject({ subject: 'math', lesson_id: mathLessons[6].id, difficulty: 'easy' });
+    const orderOfOperations = mathLessons.find(l => l.subtopicNumber === '102.1');
+    expect(subjects.math.lastActivity).toMatchObject({ subject: 'math', lesson_id: orderOfOperations.id, difficulty: 'easy' });
     expect(subjects.english.lastActivity.subject).toBe('english');
     expect(recentActivity.map(a => a.subject).sort()).toEqual(['english', 'math']);
     // Every subject is listed, in display order; Arabic, not tried yet, has no last activity.
