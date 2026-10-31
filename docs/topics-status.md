@@ -267,6 +267,17 @@ Track changes per topic with dates and descriptions.
   `seeds/multiplication/common.js`; an independent script re-computed all 90.
   Math chapters on screen now count from it (Fractions is chapter 2), and it
   is the next math lesson for a student who has not passed it. Sprint 15.
+- 2026-10-31: Every equation stays on one line on a phone (non-breaking spaces
+  inside `ltr()` and `<span dir="ltr">`; before, 26 theory equations and many
+  explanations split at 360px), the 100.1 formula box shows `3 × 4 = 12`,
+  explanation pictures are at most 110px tall, 100.3 q16 is shorter; the phone
+  multiplication table fits 280px. `check:viewport` (10 questions, 3 lessons):
+  easy and medium fit at every size; hard questions with a picture end below
+  the pinned bar on a 768px laptop (up to 162px) and a 360px phone (up to
+  85px), like the Fractions questions with pictures; a 390px phone fits.
+  The math page's example badges (topics 100 and 101) are wrapped in `ltr()`:
+  they showed reversed in the right-to-left page ("7 = 8 ÷ 56",
+  "1/4 = 3/4 − 1").
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
@@ -280,6 +291,10 @@ Track changes per topic with dates and descriptions.
 - 2026-09-28: Animated explanations above the theory of all six subtopics
   (`frontend/src/content/animations/fractions/`), one scene per rule, played by
   `LessonAnimation`. Sprint 4.
+- 2026-10-31: Shown as math chapter 2 (the multiplication table is chapter 1).
+  The example badges on the math page are wrapped in `ltr()`: they showed
+  reversed in the right-to-left page ("1/4 = 3/4 − 1" for `1 − 3/4 = 1/4`).
+  Sprint 15.
 
 ### Topic 102: Order of Operations (Math)
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
