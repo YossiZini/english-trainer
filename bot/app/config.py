@@ -59,4 +59,6 @@ REVIEW_MODES = {"manual", "auto"}
 SUBJECTS = {"english", "math", "arabic"}
 LESSONS_WORD = "lessons"
 MISTAKES_WORD = "mistakes"
+# The multiplication-table drill (Hebrew "כפל", written in English letters).
+DRILL_WORDS = {"kefel"}
 DIFFICULTIES = {"easy", "medium", "hard"}

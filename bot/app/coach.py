@@ -17,6 +17,7 @@ from . import config, replies
 from .replies import Reply
 from .exercise_replies import (exercise_start_reply, exercise_status_reply, lesson_list_reply,
                                mistakes_start_reply, report_ask_reply, report_reason, report_reply)
+from .drill_replies import drill_start_reply
 from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
@@ -32,7 +33,7 @@ LIST_NUMBER = re.compile(r"^\d{1,3}$")
 def parse_command(text: str) -> tuple[str, dict] | None:
     """An English command, with or without "/" (and "@bot" in groups), else None.
 
-    help | words | end | switch | report | usage | review [manual|auto] |
+    help | words | end | switch | report | usage | kefel | review [manual|auto] |
     english|math|arabic [N] [easy|medium|hard] |
     lessons english|math|arabic (also lessons_english) | lessons |
     mistakes english|math|arabic (also mistakes_english) | mistakes"""
@@ -57,6 +58,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "report", {}
     if not rest and first in config.USAGE_WORDS:
         return "usage", {}
+    if not rest and first in config.DRILL_WORDS:
+        return "drill", {}
     if first.startswith(config.REVIEW_WORD + "_") and not rest:
         first, rest = config.REVIEW_WORD, [first.split("_", 1)[1]]
     if first == config.REVIEW_WORD and len(rest) <= 1:
@@ -158,6 +161,8 @@ class Coach:
             return replies.switch_reply(await self.api.switch(chat_id))
         if action == "usage":
             return usage_reply(await self.api.usage(chat_id))
+        if action == "drill":
+            return drill_start_reply(await self.api.drill_start(chat_id))
         if action == "report":
             # The API knows what is in front of the student: a word or a question.
             result = await self.api.report(chat_id)

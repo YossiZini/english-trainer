@@ -19,12 +19,13 @@ class Reply:
 
 NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באתר, בכפתור \"טלגרם\" למעלה, קבלו קוד בן 6 ספרות "
               "ושלחו אותו לי כאן.")
-NO_SESSION = "אין תרגול פעיל. כתבו /words, /english, /math או /arabic כדי להתחיל, /mistakes למבחן הטעויות, או /help להסבר."
+NO_SESSION = ("אין תרגול פעיל. כתבו /words, /english, /math או /arabic כדי להתחיל, /kefel ללוח הכפל, "
+              "/mistakes למבחן הטעויות, או /help להסבר.")
 RATE_LIMITED = "הגעת למכסת ההודעות להיום. נמשיך מחר!"
 UNREACHABLE = "משהו השתבש אצלנו. נסו שוב בעוד רגע."
 BAD_CODE = "הקוד לא נכון או שפג תוקפו. קבלו קוד חדש באתר ושלחו אותו שוב."
 LINKED = ("מעולה, החשבון מחובר! כתבו /words לתרגול של 20 מילים, /english, /math או /arabic לתרגילי השיעור הבא, "
-          "/mistakes למבחן הטעויות, או /help להסבר מלא.")
+          "/kefel ללוח הכפל, /mistakes למבחן הטעויות, או /help להסבר מלא.")
 SETUP_QUESTIONS = {"level": "איזו רמה?", "direction": "באיזה כיוון?"}
 # The button under a words summary; the coach knows it by this sign (no
 # translation starts with it), so it works without a session.
@@ -51,6 +52,11 @@ HELP = """🤖 איך זה עובד
 • בסוף: ציון, נקודות והשיעור הבא. מ-70 ומעלה עברתם את השיעור.
 • /lessons_english, /lessons_math או /lessons_arabic: רשימת השיעורים (✅ עברתם, ▶️ הבא בתור). שולחים את מספר השיעור; more ו-back מדפדפים.
 • english 12 מתחיל ישר את שיעור 12. math 3 hard מתחיל את שיעור 3 ברמה קשה (easy / medium / hard). arabic מתחיל את שיעור הערבית הבא.
+
+🔢 לוח הכפל: /kefel
+10 תרגילים חדשים בכל פעם: 5 כפל ו-5 חילוק עד 10×10. כותבים את התשובה בספרות.
+• אחרי כל תשובה תראו אם צדקתם, ואם לא, את התרגיל המלא עם התשובה.
+• בסוף: כמה צדקתם ואילו תרגילים כדאי לחזור עליהם. התרגול הזה לא נשמר: בלי ציון, נקודות או טעויות.
 
 🎯 מבחן טעויות: /mistakes_english, /mistakes_math או /mistakes_arabic
 עד 20 מהשאלות שטעיתם בהן במקצוע ועוד לא תיקנתם, באתר או כאן. תשובה נכונה מתקנת את הטעות מיד, ולכן כל סיבוב שואל רק את מה שנשאר. בסוף: כמה תיקנתם וכמה עוד מחכות.
@@ -150,6 +156,9 @@ def answer_reply(result: dict) -> Reply:
     if data.get("kind") == "exercise":
         from .exercise_replies import exercise_answer_reply
         return exercise_answer_reply(data)
+    if data.get("kind") == "drill":
+        from .drill_replies import drill_answer_reply
+        return drill_answer_reply(data)
     if data.get("setup"):
         intro = NOT_ENOUGH_FOR_CHOICE if data.get("notEnoughWords") else INVALID_CHOICE if data.get("invalid") else ""
         return setup_reply(data, intro)
@@ -182,6 +191,9 @@ def end_reply(result: dict) -> Reply:
     if result["data"].get("kind") == "review":
         from .review_replies import summary_reply
         return summary_reply(result["data"])
+    if result["data"].get("kind") == "drill":
+        from .drill_replies import drill_end_reply
+        return drill_end_reply(result["data"])
     return _summary_reply("סיימנו להיום.\n", result["data"]["summary"])
 
 
@@ -194,6 +206,9 @@ def status_reply(result: dict) -> Reply:
     if data.get("kind") == "exercise":
         from .exercise_replies import exercise_status_reply
         return exercise_status_reply(data)
+    if data.get("kind") == "drill":
+        from .drill_replies import drill_status_reply
+        return drill_status_reply(data)
     if data.get("setup"):
         return setup_reply(data)
     return Reply("התרגול ממשיך. המילה הנוכחית:\n" + _word_line(data["word"], data["progress"]))

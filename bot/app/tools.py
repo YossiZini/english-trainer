@@ -6,6 +6,7 @@ from google.adk.tools import ToolContext
 from . import replies
 from .api_client import TrainerApi
 from .exercise_replies import exercise_start_reply, lesson_list_reply, mistakes_start_reply
+from .drill_replies import drill_start_reply
 
 _api: TrainerApi | None = None
 
@@ -76,10 +77,16 @@ async def start_mistakes_exam(subject: str, tool_context: ToolContext) -> dict:
     return {"reply": str(mistakes_start_reply(await _api.mistakes_start(_chat(tool_context), _subject(subject))))}
 
 
+async def start_kefel_drill(tool_context: ToolContext) -> dict:
+    """Start a quick multiplication-table drill (לוח הכפל): 10 new multiplication and division questions
+    up to 10×10, answered by typing the number. Nothing is saved as a score."""
+    return {"reply": str(drill_start_reply(await _api.drill_start(_chat(tool_context))))}
+
+
 async def show_help(tool_context: ToolContext) -> dict:
     """Explain in Hebrew how the bot works and list its English commands."""
     return {"reply": replies.HELP}
 
 
 TOOLS = [show_help, link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise, list_lessons,
-         start_mistakes_exam]
+         start_mistakes_exam, start_kefel_drill]
