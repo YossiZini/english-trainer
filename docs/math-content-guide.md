@@ -10,14 +10,16 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `grid`, `row`, `figure`, `figures` |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `grid`, `array` (dots in rows × columns), `groups` (equal groups), `row`, `figure`, `figures` |
 | Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`) |
-| Names, TOC line, descriptions, subtopic examples | `frontend/src/content/topicMeta.js` |
+| Names, TOC line, descriptions, subtopic examples (an equation is wrapped in `ltr()`) | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
 
-Numbering: topics `101+` (shown as `1+`), subtopics `'101.3'`, `orderIndex`
-`1000 + topic offset` (Fractions 1001–1006, Order of operations 1021, …).
+Numbering: topics `100+` (shown as `1+`: the multiplication table, 100, is
+chapter 1, Fractions, 101, chapter 2), subtopics `'101.3'`, `orderIndex`
+`1000 + topic offset` (Fractions 1001–1006, Order of operations 1021, …; the
+multiplication table, before them, 991–993).
 Lesson ids are preserved by `topic/subtopic`, so renaming a subtopic key
 creates a new lesson and orphans progress.
 
@@ -53,6 +55,12 @@ creates a new lesson and orphans progress.
 - Question text is plain Hebrew. A bare computation uses `expr('3/4 + 1/6')`
   (renders as `… = ?`); an expression inside a sentence uses `ltr('3/4')`.
   Fractions in any text field render stacked by the app.
+- **One equation, one line.** A phone may break `5 × 2 = 10` into `5 ×` and
+  `2 = 10`, which reads backwards in right-to-left text. The multiplication
+  chapter glues the spaces of every `ltr()` and `<span dir="ltr">` with
+  U+00A0 (`seeds/multiplication/common.js`, `glue`), so each equation must fit
+  a 360px phone line (about 30 characters in text, 15 in a formula box).
+  Not for fractions: a mixed number `1 1/2` needs its plain space to stack.
 - **Compute answers, never type them**: `fibR(n, level, text, R.add('1/2','1/3'), explanation)`,
   `mcq(n, level, text, R.str(...), [wrong, wrong, wrong], explanation)`.
   `mcq` places the answer at a varying position and rejects duplicate options.
@@ -78,7 +86,10 @@ creates a new lesson and orphans progress.
   explicitly as the last argument of `mcq`/`fibR`/`fib`, built with
   `seeds/fractions/pictures.js` (`ofQuantity`, `compare`, `mixed`, `addSub`,
   `mul`, `div`) or `math-svg.js` directly. Keep it to one row of figures: on
-  phones they are laid side by side and must fit above the action bar.
+  phones they are laid side by side and must fit above the action bar. Keep
+  it low (the multiplication chapter's `pic` scales a picture to at most
+  110px): on a 768px laptop a hard question with a picture already ends
+  below the pinned bar.
 
 ## Animated lesson (optional, above the theory)
 

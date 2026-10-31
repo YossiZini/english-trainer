@@ -16,7 +16,7 @@ describe('compareLessons', () => {
     const l = (topic, sub, idx = 0) => ({ topic_number: topic, subtopic_number: sub, order_index: idx });
     expect([l(1, '1.10'), l(1, '1.2')].sort(compareLessons).map(x => x.subtopic_number)).toEqual(['1.2', '1.10']);
     const math = lessons.filter(x => x.subject === 'math').sort(compareLessons).map(x => String(x.subtopic_number));
-    expect(math.slice(0, 7)).toEqual(['101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
+    expect(math.slice(0, 10)).toEqual(['100.1', '100.2', '100.3', '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
   });
 });
 

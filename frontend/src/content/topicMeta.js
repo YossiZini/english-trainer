@@ -1,6 +1,6 @@
 /**
  * Topic metadata shown on the topics pages, per subject. Keys are topic
- * numbers (English 1-18, Math 101-104). Lessons and exercises come from the
+ * numbers (English 1-18, Math 100-104, Arabic 201). Lessons and exercises come from the
  * API; this file only holds display text and videos.
  */
 
@@ -218,13 +218,20 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     '18.1': ['tall → taller → tallest', 'fast → faster → fastest'],
     '18.2': ['beautiful → more beautiful → most beautiful', 'good → better → best'],
 
+    // Math badges are equations inside a right-to-left page: ltr() keeps
+    // "56 ÷ 8 = 7" from showing as "7 = 8 ÷ 56".
+    // Topic 100: The multiplication table (Math)
+    '100.1': [ltr('3 × 4 = 4 + 4 + 4 = 12'), ltr('9 × 6 = 60 − 6 = 54')],
+    '100.2': [ltr('56 ÷ 8 = 7'), ltr('12 ÷ 3 = 4')],
+    '100.3': [ltr('? × 8 = 48'), ltr('4 × 6 × 2 = 48')],
+
     // Topic 101: Fractions (Math)
     '101.1': ['מונה ומכנה', 'שבר מתוך כמות: 1/4 מ-20'],
-    '101.2': ['6/8 = 3/4', '2/3 = 8/12'],
-    '101.3': ['2/3 > 3/5', 'השוואה לחצי'],
-    '101.4': ['1/2 + 1/3 = 5/6', '1 − 3/4 = 1/4'],
-    '101.5': ['2/3 × 3/4 = 1/2', '3/4 ÷ 1/2 = 3/2'],
-    '101.6': ['2 1/3 = 7/3', '1 1/2 + 2 3/4 = 4 1/4']
+    '101.2': [ltr('6/8 = 3/4'), ltr('2/3 = 8/12')],
+    '101.3': [ltr('2/3 > 3/5'), 'השוואה לחצי'],
+    '101.4': [ltr('1/2 + 1/3 = 5/6'), ltr('1 − 3/4 = 1/4')],
+    '101.5': [ltr('2/3 × 3/4 = 1/2'), ltr('3/4 ÷ 1/2 = 3/2')],
+    '101.6': [ltr('2 1/3 = 7/3'), ltr('1 1/2 + 2 3/4 = 4 1/4')]
   };
 
   return subtopicExamples[key] || [];
@@ -251,6 +258,7 @@ const topicVideos = {
 
 // ===================== Math (grades 7-8) =====================
 const mathTopicNames = {
+  100: { en: 'Multiplication Table', he: 'לוח הכפל' },
   101: { en: 'Fractions', he: 'שברים' },
   102: { en: 'Order of Operations', he: 'סדר פעולות חשבון' },
   103: { en: 'Average', he: 'ממוצע' },
@@ -258,6 +266,7 @@ const mathTopicNames = {
 };
 
 const mathTocExamples = {
+  100: '(כפל וחילוק עד 10×10, ובעיות מילוליות)',
   101: '(שישה שיעורים: ממה זה שבר ועד מספרים מעורבים)',
   102: '(סוגריים, כפל וחילוק, חיבור וחיסור)',
   103: '(סכום חלקי מספר האיברים)',
@@ -269,6 +278,10 @@ const mathTocExamples = {
 const ltr = (s) => `\u2066${s}\u2069`;
 
 const mathTopicDescriptions = {
+  100: {
+    description: 'כפל וחילוק עד 10×10: כפל כקבוצות שוות, דרכים קלות לזכור את הלוח, חילוק כפעולה ההפוכה לכפל, ובעיות מילוליות.',
+    examples: [ltr('7 × 8 = 56'), ltr('56 ÷ 8 = 7'), ltr('9 × 6 = 60 − 6 = 54')]
+  },
   101: {
     description: 'מה זה שבר, שברים שווים וצמצום, מכנה משותף, ארבע פעולות החשבון בשברים ומספרים מעורבים.',
     examples: [ltr('1/2 + 1/4 = 3/4'), ltr('2/3 × 3/5 = 2/5'), ltr('1 1/2 = 3/2')]
@@ -335,7 +348,7 @@ const topicMeta = {
       { icon: '🔄', label: 'תיקון טעויות', to: '/mistakes' }
     ],
     nameKey: 'he',
-    numberOffset: 100,
+    numberOffset: 99,
     topicNames: mathTopicNames,
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,
@@ -360,10 +373,11 @@ const topicMeta = {
 };
 
 // Topic numbers keep the subjects apart (backend/src/config/subjects.js):
-// English 1-99, math 101-199, Arabic 201-299, each shown from 1 (201.1 -> 1.1).
+// English 1-99, math 100-199 (the multiplication table, 100, first), Arabic
+// 201-299, each shown from 1 (100.1 -> 1.1, 101.3 -> 2.3, 201.1 -> 1.1).
 // The subject is inferred from the number so pages that only have a lesson
 // can use it too.
-const subjectOfTopic = (topicNumber) => (topicNumber > 200 ? 'arabic' : topicNumber > 100 ? 'math' : 'english');
+const subjectOfTopic = (topicNumber) => (topicNumber > 200 ? 'arabic' : topicNumber >= 100 ? 'math' : 'english');
 /** The subject's page and display text; unknown subjects fall back to English. */
 const metaOf = (subject) => topicMeta[subject] || topicMeta.english;
 const displayTopic = (topicNumber) => topicNumber - topicMeta[subjectOfTopic(topicNumber)].numberOffset;
