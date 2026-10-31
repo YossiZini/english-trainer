@@ -1,9 +1,20 @@
 // Shared bits for the three multiplication-table lessons (topic 100, shown
 // first in Math): computed answers, wrong options from the common mistakes,
 // explanations by the easiest rule, and the full table.
-const { ltr, expr } = require('../math-helpers');
+const helpers = require('../math-helpers');
 const P = require('../math-svg');
 const { mcq } = require('../fractions/common');
+
+// Every equation stays on one line. A phone may otherwise break "5 × 2 = 10"
+// into "5 ×" at the end of a line and "2 = 10" at the start of the next,
+// which reads backwards in right-to-left text. Non-breaking spaces inside
+// the isolate (exercise text) and inside <span dir="ltr"> (theory, captions)
+// prevent that; keep each equation short enough for a phone line.
+const glue = (s) => s.replace(/ /g, '\u00a0');
+const ltr = (s) => helpers.ltr(glue(s));
+const expr = (e) => ltr(`${e} = ?`);
+const glueEquations = (html) =>
+  html.replace(/<span dir="ltr">([^<]*)<\/span>/g, (m, eq) => `<span dir="ltr">${glue(eq)}</span>`);
 
 /** The first three different positive values of `candidates` that are not `answer`. */
 function firstWrongs(answer, candidates) {
@@ -94,8 +105,16 @@ const divide = (n, level, c, a) =>
 const numberQuestion = (n, level, text, answer, wrongs, explanation, picture = null) =>
   mcq(n, level, text, String(answer), wrongs.map(String), explanation, picture);
 
-/** One picture under an explanation. */
-const pic = (picture, caption) => P.figures(P.figure(picture, caption));
+/**
+ * One picture under an explanation, at most 110px tall: a tall dot array
+ * (10 rows) would otherwise push the feedback far below the pinned bar on a
+ * laptop. Phones scale it down further (ExerciseFeedback.css).
+ */
+const PIC_MAX_HEIGHT = 110;
+const fitHeight = (svg) => svg.replace(/<svg([^>]*?) width="([\d.]+)" height="([\d.]+)"/g, (m, attrs, w, h) =>
+  (Number(h) <= PIC_MAX_HEIGHT ? m
+    : `<svg${attrs} width="${Math.round((Number(w) * PIC_MAX_HEIGHT) / Number(h))}" height="${PIC_MAX_HEIGHT}"`));
+const pic = (picture, caption) => P.figures(P.figure(fitHeight(picture), caption));
 
 /** The multiplication table 1–10 (row × column), the squares marked. */
 function timesTable() {
@@ -118,8 +137,9 @@ function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
     titleHe,
     level: 'beginner',
     orderIndex: 990 + index,
-    theoryContentHe,
-    exercises
+    theoryContentHe: glueEquations(theoryContentHe),
+    exercises: exercises.map((e) =>
+      (e.explanationPicture ? { ...e, explanationPicture: glueEquations(e.explanationPicture) } : e))
   };
 }
 

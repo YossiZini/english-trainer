@@ -8,8 +8,8 @@ const theory = `
 
 <div class="formula">
   <div class="formula-title">כפל הוא חיבור חוזר</div>
-  <div class="formula-content"><span dir="ltr">3 × 4 = 4 + 4 + 4 = 12</span></div>
-  <div class="formula-explanation">3 קבוצות של 4 הן 12. המספרים שכופלים נקראים <strong>גורמים</strong>, והתוצאה נקראת <strong>מכפלה</strong>.</div>
+  <div class="formula-content"><span dir="ltr">3 × 4 = 12</span></div>
+  <div class="formula-explanation">כמו <span dir="ltr">4 + 4 + 4 = 12</span>: שלוש קבוצות של 4. המספרים שכופלים נקראים <strong>גורמים</strong>, והתוצאה נקראת <strong>מכפלה</strong>.</div>
 </div>
 
 <h3>כלל 1: כפל הוא קבוצות שוות</h3>
