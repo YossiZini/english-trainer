@@ -86,6 +86,46 @@ function grid(rows, cols, shadeRows, shadeCols, { size = 120 } = {}) {
   return svg(size, size, cells.join(''), `${shadeRows} מתוך ${rows} שורות ו-${shadeCols} מתוך ${cols} עמודות`, `-1 -1 ${size + 2} ${size + 2}`);
 }
 
+/**
+ * An array of dots: `rows` rows of `cols` (a product rows × cols). Options:
+ * the last `fadeCols` columns faded (taken away, as in ×9 = ×10 − ×1), and
+ * the rows from `split` on in the second colour (a product cut in two).
+ */
+function array(rows, cols, { fadeCols = 0, split = 0 } = {}) {
+  const gap = 20, r = 7;
+  const dots = [];
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      const faded = j >= cols - fadeCols;
+      const fill = faded ? LIGHT : split && i >= split ? SHADE_2 : SHADE;
+      dots.push(`<circle cx="${gap / 2 + j * gap}" cy="${gap / 2 + i * gap}" r="${r}" fill="${fill}" stroke="${faded ? '#999' : LINE}" stroke-width="1.2"${faded ? ' stroke-dasharray="2 2"' : ''}/>`);
+    }
+  }
+  return svg(cols * gap, rows * gap, dots.join(''), `${rows} שורות של ${cols} נקודות`, `-1 -1 ${cols * gap + 2} ${rows * gap + 2}`);
+}
+
+/**
+ * `count` equal groups (rounded boxes) with `each` dots in every one, five
+ * dots to a line and five groups to a row: count × each, or a sharing.
+ */
+function groups(count, each) {
+  const dot = 14, pad = 6, between = 10;
+  const lineDots = Math.min(each, 5), lines = Math.ceil(each / 5);
+  const w = lineDots * dot + 2 * pad, h = lines * dot + 2 * pad;
+  const perRow = Math.min(count, 5), rowsOfGroups = Math.ceil(count / 5);
+  const parts = [];
+  for (let g = 0; g < count; g++) {
+    const x = (g % 5) * (w + between), y = Math.floor(g / 5) * (h + between);
+    parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#f4f5ff" stroke="${LINE}" stroke-width="1.2"/>`);
+    for (let k = 0; k < each; k++) {
+      const cx = x + pad + dot / 2 + (k % 5) * dot, cy = y + pad + dot / 2 + Math.floor(k / 5) * dot;
+      parts.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="${SHADE}" stroke="${LINE}" stroke-width="1"/>`);
+    }
+  }
+  const width = perRow * w + (perRow - 1) * between, height = rowsOfGroups * h + (rowsOfGroups - 1) * between;
+  return svg(width, height, parts.join(''), `${count} קבוצות של ${each}`, `-1 -1 ${width + 2} ${height + 2}`);
+}
+
 /** Several shapes in a row (e.g. two whole circles and a part). */
 function row(...svgs) {
   return `<span class="math-row">${svgs.join('')}</span>`;
@@ -101,4 +141,4 @@ function figures(...figs) {
   return `<div class="math-figures">${figs.join('')}</div>`;
 }
 
-module.exports = { circle, bar, numberLine, grid, row, figure, figures };
+module.exports = { circle, bar, numberLine, grid, array, groups, row, figure, figures };
