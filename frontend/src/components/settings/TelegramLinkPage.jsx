@@ -71,6 +71,7 @@ const TelegramLinkPage = () => {
           <li>
             הפקודות באנגלית: <strong dir="ltr">/words</strong> לאוצר מילים, <strong dir="ltr">/english</strong>,{' '}
             <strong dir="ltr">/math</strong> או <strong dir="ltr">/arabic</strong> לתרגילי השיעור הבא,{' '}
+            <strong dir="ltr">/kefel</strong> ללוח הכפל,{' '}
             <strong dir="ltr">/mistakes</strong> למבחן הטעויות, <strong dir="ltr">/end</strong> כדי לעצור,
             ו<strong dir="ltr">/help</strong> להסבר מלא.
           </li>

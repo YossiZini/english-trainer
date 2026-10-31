@@ -29,11 +29,11 @@ describe('TelegramLinkPage', () => {
     expect(await screen.findByText('הטלגרם עדיין לא מחובר')).toBeInTheDocument();
   });
 
-  test('lists the bot commands, a lesson command for every subject', async () => {
+  test('lists the bot commands, a lesson command for every subject and the multiplication drill', async () => {
     telegramService.getLink.mockResolvedValue({ linked: false });
     render(<TelegramLinkPage />);
     await screen.findByText('הטלגרם עדיין לא מחובר');
-    ['/words', '/english', '/math', '/arabic', '/mistakes', '/end', '/help'].forEach((command) =>
+    ['/words', '/english', '/math', '/arabic', '/kefel', '/mistakes', '/end', '/help'].forEach((command) =>
       expect(screen.getByText(command)).toBeInTheDocument());
   });
 });
