@@ -3,7 +3,9 @@ verdict, the expected translation and the next word never come from the
 model, and the same text serves the fast path and the agent's tools.
 
 A reply is a `Reply(text, buttons)`; `buttons` (a list of strings) becomes
-a Telegram reply keyboard for the setup questions."""
+a Telegram reply keyboard for the setup questions. `before` holds messages
+sent ahead of it, in order (an /unseen text before its first question); the
+buttons ride on the last message."""
 from dataclasses import dataclass, field
 
 from .encouragement import wrong_line
@@ -13,9 +15,15 @@ from .encouragement import wrong_line
 class Reply:
     text: str
     buttons: list[str] = field(default_factory=list)
+    before: list[str] = field(default_factory=list)
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def messages(self) -> list[str]:
+        """Every message of the reply, in the order they are sent."""
+        return [*self.before, self.text]
 
 NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באתר, בכפתור \"טלגרם\" למעלה, קבלו קוד בן 6 ספרות "
               "ושלחו אותו לי כאן.")
