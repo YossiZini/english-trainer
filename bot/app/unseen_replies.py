@@ -4,9 +4,10 @@ score always come from the API.
 
 The text is its own message, sent before the first question (Reply.before),
 so it stands on its own above the questions. A question lists its options as
-"1) …" with buttons 1..n and "?" (the text's hard words and the question in
-Hebrew); an option without letters ("30%") is isolated left to right. List
-lines start with Hebrew, so each line keeps one direction."""
+"1) …" with buttons 1..n, "?" (the text's hard words and the question in
+Hebrew) and 📄 (the text again); an option without letters ("30%") is
+isolated left to right. List lines start with Hebrew, so each line keeps one
+direction."""
 from .encouragement import wrong_line
 from .exercise_replies import keep_ltr
 from .replies import Reply
@@ -14,7 +15,11 @@ from .replies import Reply
 COMMAND = "/unseen"
 LIST_COMMAND = "/unseen_list"
 HINT = "?"
-START_INTRO = "קראו את הקטע שלמעלה וענו על השאלות. ענו במספר התשובה, ? למילים קשות ולשאלה בעברית, או /end כדי לעצור."
+# The button that sends the text again; the API knows it by this sign (no option number starts with it).
+TEXT_AGAIN = "📄"
+START_INTRO = ("קראו את הקטע שלמעלה וענו על השאלות. ענו במספר התשובה, ? למילים קשות ולשאלה בעברית, "
+               "📄 לקטע שוב, או /end כדי לעצור.")
+TEXT_AGAIN_INTRO = "📄 הקטע שוב, למעלה. ממשיכים בשאלה:"
 NO_HARD_WORDS = "אין מילים קשות לקטע הזה."
 ALREADY_ANSWERED = "על השאלה הזו כבר עניתם. ממשיכים:"
 PICK_INVALID = "שלחו מספר של קטע מהרשימה:"
@@ -43,13 +48,13 @@ def passage_text(data: dict) -> str:
 
 
 def question_reply(data: dict, intro: str = "") -> Reply:
-    """A question with its options; buttons for the options and for "?"."""
+    """A question with its options; buttons for the options, "?" and 📄."""
     r, q = data["reading"], data["question"]
     lines = [intro] if intro else []
     lines.append(f"❓ שאלה {q['number']}/{q['total']} · {r['title']}")
     lines.append(q["text"])
     lines += [f"{i}) {keep_ltr(option)}" for i, option in enumerate(q["options"], start=1)]
-    return Reply("\n".join(lines), [str(i) for i in range(1, len(q["options"]) + 1)] + [HINT])
+    return Reply("\n".join(lines), [str(i) for i in range(1, len(q["options"]) + 1)] + [HINT, TEXT_AGAIN])
 
 
 def verdict_text(verdict: dict) -> str:
@@ -127,6 +132,10 @@ def unseen_answer_reply(data: dict) -> Reply:
         return unseen_end_reply(data)
     if data.get("pick"):
         return list_text(data)
+    if data.get("passageAgain"):
+        # 📄: the text again as its own message, then the same question.
+        again = question_reply(data, TEXT_AGAIN_INTRO)
+        return Reply(again.text, again.buttons, before=[passage_text(data)])
     if "passage" in data:
         # A text picked from the list: the text, then its first question.
         return unseen_start_reply({"ok": True, "data": data})

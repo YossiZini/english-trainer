@@ -14,7 +14,8 @@ const { isEndCommand, isHintCommand } = require('../../utils/botWords');
  * the list itself is a session in setup, answered with a text's number.
  *
  * An answer is an option's number; "?" shows the text's hard words and the
- * question in Hebrew and is not an answer. The reading is recorded exactly
+ * question in Hebrew, and 📄 the text again; neither is an answer. The
+ * reading is recorded exactly
  * like one on the website (UnseenSession, UnseenUserProgress): each answer
  * when it is checked, the score and the text's progress at the end, so the
  * website's Unseen page and /usage see it. No points and no mistakes, as on
@@ -24,6 +25,10 @@ const { isEndCommand, isHintCommand } = require('../../utils/botWords');
 
 /** Every text in the website's order (level, then English title); a text's number is its place here, from 1. */
 const allTexts = () => UnseenParagraph.findAll();
+
+/** The bot's button that sends the text again starts with this sign; no option number does. */
+const TEXT_AGAIN_SIGN = '📄';
+const asksForTheText = (text) => String(text || '').trim().startsWith(TEXT_AGAIN_SIGN);
 
 /** Ids of the texts the student finished: a completed reading, on the website or here. */
 async function finishedIds(userId) {
@@ -202,6 +207,11 @@ class UnseenBotSession {
     if (session.status === 'setup') return this.pick(user, chatId, session, text);
     const shown = { reading: readingView(session), question: questionView(session) };
     if (isHintCommand(text)) return { kind: 'unseen', hintAsked: true, hint: await hintFor(session), ...shown };
+    if (asksForTheText(text)) {
+      // Not an answer either: the text again, then the same question.
+      const paragraph = await UnseenParagraph.findById(session.paragraph_id);
+      return { kind: 'unseen', passageAgain: true, passage: paragraph ? paragraph.content : '', ...shown };
+    }
 
     const current = session.questions[session.index];
     const n = parseOptionNumber(text, current.options.length);

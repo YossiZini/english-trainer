@@ -46,7 +46,7 @@ def question_text(number, text="Where did the family go?", options=OPTIONS):
     return "\n".join(lines)
 
 
-BUTTONS = ["1", "2", "3", "4", "?"]
+BUTTONS = ["1", "2", "3", "4", "?", "📄"]
 START = {"kind": "unseen", "sessionId": "u", "reading": READING, "passage": PASSAGE, "question": question(1)}
 
 
@@ -99,6 +99,17 @@ async def test_during_a_reading_numbers_and_question_marks_are_answers_and_bare_
     # A multiple-choice question: a bare command word is still the command.
     assert (await c.handle("7", "help")).text == replies.HELP
     assert answer.call_count == 2
+
+
+@respx.mock
+async def test_the_text_again_button_sends_the_text_then_the_same_question():
+    reading_status(3)
+    answer = respx.post(f"{API}/bot/session/answer").mock(return_value=ok(
+        {"kind": "unseen", "passageAgain": True, "passage": PASSAGE, "reading": READING, "question": question(3)}))
+    again = await coach().handle("7", ur.TEXT_AGAIN)
+    assert json.loads(answer.calls.last.request.content) == {"chatId": "7", "text": "📄"}
+    assert again.before == [f"📖 A Day at the Zoo\nיום בגן החיות · קטע 1 מתוך 15 · רמה 1\n\n{PASSAGE}"]
+    assert again.text == f"{ur.TEXT_AGAIN_INTRO}\n{question_text(3)}" and again.buttons == BUTTONS
 
 
 def test_verdicts_right_and_wrong_with_the_explanation_then_the_next_question():

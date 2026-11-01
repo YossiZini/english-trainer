@@ -124,6 +124,11 @@ describe('Bot unseen reading', () => {
         question: { number: 1 }
       });
     }
+    // 📄 (the bot's button) sends the text again, then the same question: not an answer either.
+    for (const text of ['📄', '📄 הקטע']) {
+      expect((await answer(text)).body.data)
+        .toMatchObject({ kind: 'unseen', passageAgain: true, passage: first.content, question: { number: 1 } });
+    }
     expect(first.hard_words.length).toBeGreaterThan(0);
     expect(await recorded()).toBe(0);
 
