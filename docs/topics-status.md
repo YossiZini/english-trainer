@@ -284,6 +284,9 @@ Track changes per topic with dates and descriptions.
   or mistakes (`docs/telegram-bot.md`, "Multiplication drill").
 - 2026-11-01: `/usage` counts the drill: answered `/kefel` questions show as
   "כפל" (week|month) and a drill day is an active day.
+- 2026-11-01: 100.2 rule 5 draws `7 × 6 = 42` as 7 rows of 6, the rows ×
+  columns rule of 100.1 (it showed 6 rows of 7). The independent check now
+  matches every dot array against its caption.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
