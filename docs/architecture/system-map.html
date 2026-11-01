@@ -179,7 +179,7 @@ flowchart LR
             <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
             <li>Bot API: vocabulary, lesson-exercise, reading-text and multiplication-drill sessions, chat linking, service key, rate and daily caps</li>
             <li>Multiplication drill: ten new multiplication and division questions per round, made and graded by the API inside the bot session; nothing goes to results, points, progress or mistakes, and the usage summary counts the answered questions</li>
-            <li>Reading texts in the bot: the student's next English text (or one picked from the list) with its five questions; the reading is recorded in the website's own reading records (answers, score, the text's progress), so the website and the usage summary count it, with no points or mistakes; each answer is taken once, in a transaction, so a double message never counts twice</li>
+            <li>Reading texts in the bot: the student's next English text (or one picked from the list) with its five questions; the reading is recorded in the website's own reading records (answers, score, the text's progress), so the website and the usage summary count it, with no points or mistakes; each answer is taken once, in a transaction, so two answers to one question never both count; a reading's end is safe to repeat, and an end that failed to reach the website is saved by the next /unseen</li>
             <li>Question and word reports: a reported question or word is hidden until a student reviews it in Telegram; review decisions are applied live as a layer over the bundled questions and words</li>
             <li>Usage summary: participation per student across lessons, words, reading and multiplication drills, read with date-range queries and cached for 10 minutes</li>
           </ul></dd></div>
@@ -199,6 +199,7 @@ flowchart LR
             <li>/kefel: a quick multiplication-table drill from the API; the student types each number, and the end shows the count and the facts to review</li>
             <li>/unseen: an English reading text, sent as its own message, then its five questions; ? shows the hard words and the question in Hebrew, 📄 the text again; /unseen_list picks a text</li>
             <li>/usage: every student's participation (active days, lessons, words, reading, multiplication drills; no scores) over 7 and 30 days, visible to every linked student</li>
+            <li>A number, ? or 📄 right after a session ended with its last answer is a double tap: "already answered", with no model call</li>
             <li>Other messages go to an ADK agent whose tools call the API; a reply longer than the model may write (the help, a reading text) is sent as the tool built it</li>
             <li>Turn, token and call caps before any model use</li>
           </ul></dd></div>

@@ -279,10 +279,17 @@ session kind `unseen`) picks the text and freezes its questions. Answers,
   page then shows the text as done with its score, and `/usage` counts it as
   a reading text. No points and no mistakes, as on the website. `/end`
   abandons the reading: nothing is completed.
-- A double tap never counts twice: each answer is claimed in a Firestore
-  transaction on the bot session (`BotSession.claimAnswer`), the website's
-  rows have a fixed id per reading and question, and the end writes all five
-  before the score is counted. `UnseenSession.complete` counts each question
+- Two answers to one question never both count: each answer is claimed in
+  a Firestore transaction on the bot session (`BotSession.claimAnswer`), and
+  the other one gets the reading as it is now. A second message that arrives
+  after the next question is shown answers that question (the keyboard hides
+  after a tap, so this is rare). For a minute after a session's last answer
+  (any kind), `/session/status` says `justEnded`, and the bot answers a
+  number, "?" or 📄 with "already answered" instead of "no active practice".
+- The end is safe to repeat: the website's rows have a fixed id per reading
+  and question, progress counts a reading once, and the website's reading is
+  completed last. If those writes fail, the next `/unseen` (or the list)
+  saves the reading first. `UnseenSession.complete` counts each question
   once, by its first answer.
 - A reading question cannot be reported (`/report` covers words and lesson
   questions). The daily message cap applies as everywhere.
