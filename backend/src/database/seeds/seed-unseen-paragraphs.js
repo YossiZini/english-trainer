@@ -966,6 +966,654 @@ Despite these fascinating ideas, most scientists believe practical time travel i
           explanationHe: 'הטקסט מסכם: "thinking about time travel helps us understand the nature of the universe better" - חשיבה על מסע בזמן עוזרת לנו להבין את טבע היקום טוב יותר.'
         }
       ]
+    },
+
+    // Paragraph 16: The Great Bird Migration (Complexity 3)
+    {
+      titleEn: 'The Great Bird Migration',
+      titleHe: 'המסע הגדול של הציפורים',
+      complexityLevel: 3,
+      topic: 'Animals',
+      content: `Twice a year, the sky above Israel becomes a busy highway. In autumn, hundreds of millions of birds fly through it from Europe and Asia to Africa, and in spring they fly back. This journey is called migration. Israel is on one of the main routes because it is a narrow land bridge between Africa and Asia. Some birds stop here: every winter, tens of thousands of cranes stay in the Hula Valley.
+
+Why do birds travel so far? The main reason is food. In the cold northern winter, insects and seeds are hard to find, while Africa is warmer and has more food. In spring, the birds return north to build nests and raise their chicks. But how do they find their way? Scientists believe they use the sun, the stars, the Earth's magnetic field and landmarks such as rivers and mountains.
+
+The journey is also full of dangers. Before they leave, many birds eat more than usual and store fat as fuel. But some still become exhausted over deserts and seas, where there is little food or water. Storms can push them off their route, and bright city lights at night can confuse them. Many birds are also losing the wetlands where they rest, so people in many countries try to protect these places.`,
+      hardWords: [
+        { word: 'migration', translation: 'נדידה' },
+        { word: 'land bridge', translation: 'גשר יבשתי (רצועת יבשה שמחברת בין יבשות)' },
+        { word: 'cranes', translation: 'עגורים' },
+        { word: 'chicks', translation: 'גוזלים' },
+        { word: 'landmarks', translation: 'ציוני דרך' },
+        { word: 'exhausted', translation: 'מותשים, עייפים מאוד' },
+        { word: 'wetlands', translation: 'אזורי ביצות, שטחים לחים' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'What do tens of thousands of cranes do every winter?',
+          questionTextHe: 'מה עושים עשרות אלפי עגורים בכל חורף?',
+          options: ['They fly on to Africa', 'They stay in the Hula Valley', 'They fly back north to Europe', 'They build nests in Israel'],
+          correctAnswer: 1,
+          explanationHe: 'הטקסט אומר: "every winter, tens of thousands of cranes stay in the Hula Valley" - העגורים לא ממשיכים לאפריקה, אלא נשארים בעמק החולה כל החורף.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'According to the text, what is the main reason that birds migrate?',
+          questionTextHe: 'לפי הטקסט, מהי הסיבה העיקרית לכך שציפורים נודדות?',
+          options: ['To build nests in Africa', 'To get away from storms', 'To find wetlands to rest in', 'To find enough food to eat'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט אומר: "The main reason is food" - בחורף הקר קשה למצוא בצפון חרקים וזרעים, ובאפריקה חם יותר ויש יותר מזון.'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'In paragraph 2, the word "raise" is closest in meaning to:',
+          questionTextHe: 'בפסקה 2, מהי המשמעות הקרובה ביותר של המילה "raise"?',
+          options: ['take care of', 'lift up', 'look for', 'leave behind'],
+          correctAnswer: 0,
+          explanationHe: 'הטקסט אומר: "to build nests and raise their chicks" - הציפורים בונות קנים ומגדלות את הגוזלים, כלומר דואגות להם עד שיגדלו. כאן raise אינו במובן של להרים.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'What can we infer about birds that fly over deserts and seas?',
+          questionTextHe: 'מה אפשר להסיק על ציפורים שעפות מעל מדבריות וימים?',
+          options: ['They need the fat they stored before the trip', 'They find a lot of food and water there', 'They stop there to build their nests', 'They follow bright city lights to find their way'],
+          correctAnswer: 0,
+          explanationHe: 'לפני המסע הציפורים "store fat as fuel", ומעל מדבריות וימים יש "little food or water" - לכן הן זקוקות לשומן שאגרו כדי להמשיך לעוף.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the text mainly about?',
+          questionTextHe: 'במה עוסק הטקסט בעיקר?',
+          options: ['The cranes that spend the winter in the Hula Valley', 'The way birds build nests and raise chicks', 'The long journeys that many birds make every year', 'The dangers of bright lights in big cities'],
+          correctAnswer: 2,
+          explanationHe: 'הטקסט מתאר את המסע הארוך של הציפורים - "This journey is called migration" - ומסביר למה הן נודדות, איך הן מוצאות את הדרך ואילו סכנות יש בדרך. העגורים והאורות הם רק דוגמאות.'
+        }
+      ]
+    },
+
+    // Paragraph 17: Music in Every Culture (Complexity 3)
+    {
+      titleEn: 'Music in Every Culture',
+      titleHe: 'מוזיקה בכל תרבות ותרבות',
+      complexityLevel: 3,
+      topic: 'Music',
+      content: `Every known culture in the world makes music. Scientists have studied hundreds of cultures and have never found one without songs. Music is also very old. Some of the oldest instruments ever found are flutes made from bird bones, and they are more than 35,000 years old. Today, each place has its own instruments and songs, but people everywhere sing and play.
+
+People use music for many things. We sing and dance to celebrate weddings, birthdays and holidays. Music also helps us remember. Long before people could write, they passed on their stories and history through songs. Even today, many children learn the alphabet with a song. Music can also help people work together. In the past, sailors sang while they pulled heavy ropes, and the steady beat helped everyone pull at the same moment.
+
+Music also passes from older people to younger ones. All over the world, children learn songs from their families, and many learn to play an instrument. This takes time and patience. At first, a beginner's fingers may hurt, and the sounds may not be beautiful. Many music teachers say that practicing a little every day is better than practicing for hours once a week. It is hard work, but every new player helps keep a very old tradition alive.`,
+      hardWords: [
+        { word: 'instruments', translation: 'כלי נגינה' },
+        { word: 'flutes', translation: 'חלילים' },
+        { word: 'passed on', translation: 'העבירו הלאה (לדורות הבאים)' },
+        { word: 'sailors', translation: 'מלחים' },
+        { word: 'ropes', translation: 'חבלים' },
+        { word: 'beat', translation: 'קצב, פעימה (במוזיקה)' },
+        { word: 'patience', translation: 'סבלנות' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'According to the text, what have scientists found?',
+          questionTextHe: 'לפי הטקסט, מה גילו המדענים?',
+          options: ['Every culture they studied has songs', 'One culture they studied has no songs', 'Some songs are more than 35,000 years old', 'Music began about 3,500 years ago'],
+          correctAnswer: 0,
+          explanationHe: 'הטקסט אומר: "Scientists have studied hundreds of cultures and have never found one without songs" - לא נמצאה אף תרבות בלי שירים, כלומר בכל תרבות שנחקרה יש שירים. ו-35,000 השנים הן הגיל של החלילים, לא של שירים.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'Before people could write, how did they pass on their history?',
+          questionTextHe: 'לפני שבני האדם ידעו לכתוב, איך הם העבירו את ההיסטוריה שלהם?',
+          options: ['By playing flutes', 'By dancing at weddings', 'By singing songs', 'By clapping a beat'],
+          correctAnswer: 2,
+          explanationHe: 'הטקסט אומר: "Long before people could write, they passed on their stories and history through songs" - הם העבירו את הסיפורים וההיסטוריה שלהם בשירים.'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'In paragraph 2, the word "steady" is closest in meaning to:',
+          questionTextHe: 'בפסקה 2, מהי המשמעות הקרובה ביותר של המילה "steady"?',
+          options: ['loud', 'fast', 'powerful', 'regular'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט אומר: "the steady beat helped everyone pull at the same moment" - כדי שכל המלחים ימשכו בדיוק באותו רגע, הקצב צריך להיות קבוע וסדיר.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'What can we infer from the last sentence of the text?',
+          questionTextHe: 'מה אפשר להסיק מהמשפט האחרון בטקסט?',
+          options: ['Old instruments are easier to play', 'Learning music links people to the past', 'Most new players give up after a few weeks', 'Music was more important in the past'],
+          correctAnswer: 1,
+          explanationHe: 'במשפט האחרון כתוב: "every new player helps keep a very old tradition alive" - מי שלומד לנגן ממשיך מסורת עתיקה מאוד, ולכן לימוד מוזיקה מחבר אנשים לעבר.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the main idea of the text?',
+          questionTextHe: 'מהו הרעיון המרכזי של הטקסט?',
+          options: ['Music is mainly used to celebrate holidays', 'Learning an instrument is too hard for most people', 'Every culture makes, uses and passes on music', 'The first instruments were made from bird bones'],
+          correctAnswer: 2,
+          explanationHe: 'הטקסט מראה ש-"Every known culture in the world makes music", שאנשים משתמשים בה כדי לחגוג, לזכור ולעבוד יחד, ושהמוזיקה "passes from older people to younger ones". הרעיון הזה מחבר את שלוש הפסקאות.'
+        }
+      ]
+    },
+
+    // Paragraph 18: Street Food Around the World (Complexity 3)
+    {
+      titleEn: 'Street Food Around the World',
+      titleHe: 'אוכל רחוב ברחבי העולם',
+      complexityLevel: 3,
+      topic: 'Food and Culture',
+      content: `In cities and towns all over the world, people buy food on the street. In the Middle East, many people eat falafel: small fried balls made from chickpeas or beans, often served in a warm pita with salad. In Mexico, tacos are a favorite: soft corn tortillas filled with meat, beans or vegetables. And in many countries, from India to Egypt, sellers roast corn over hot coals.
+
+Why is street food so popular? First, it is usually cheap, so almost everyone can buy it. It is also quick: the food is ready in a few minutes, and you can eat it while you walk. Often, it is cooked right in front of you, so it is hot and fresh. Many people also love the busy, friendly feeling of eating outside with other customers.
+
+Street food also tells the story of a place and its people. It is often made from what grows nearby, like corn in Mexico or chickpeas in the Middle East. Many recipes are passed down from parents to children, so a dish may be cooked the same way for generations. When people move to a new country, they often bring their recipes with them. That is why, in many big cities, you can taste food from many countries on a single street.`,
+      hardWords: [
+        { word: 'chickpeas', translation: 'גרגרי חומוס' },
+        { word: 'tortillas', translation: 'טורטיות (לחם שטוח ודק)' },
+        { word: 'roast', translation: 'צולים (על האש)' },
+        { word: 'coals', translation: 'גחלים' },
+        { word: 'customers', translation: 'לקוחות' },
+        { word: 'recipes', translation: 'מתכונים' },
+        { word: 'generations', translation: 'דורות' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'According to the text, what do sellers in many countries roast over hot coals?',
+          questionTextHe: 'לפי הטקסט, מה המוכרים בארצות רבות צולים על גחלים לוחשות?',
+          options: ['Meat', 'Chickpeas', 'Corn', 'Beans'],
+          correctAnswer: 2,
+          explanationHe: 'הטקסט אומר: "from India to Egypt, sellers roast corn over hot coals" - בארצות רבות המוכרים צולים תירס על גחלים.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'Why can almost everyone buy street food?',
+          questionTextHe: 'למה כמעט כל אחד יכול לקנות אוכל רחוב?',
+          options: ['It does not cost much money', 'It is cooked right in front of you', 'Customers share it with others', 'You can eat it while you walk'],
+          correctAnswer: 0,
+          explanationHe: 'הטקסט אומר: "it is usually cheap, so almost everyone can buy it" - אוכל רחוב בדרך כלל זול, ולכן כמעט כל אחד יכול לקנות אותו. הבישול מול הלקוח והאכילה תוך כדי הליכה מסבירים למה אוהבים אותו, לא למה כולם יכולים לקנות אותו.'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'In paragraph 3, the word "dish" is closest in meaning to:',
+          questionTextHe: 'בפסקה 3, מהי המשמעות הקרובה ביותר של המילה "dish"?',
+          options: ['a kind of food', 'a plate for food', 'a cooking pot', 'a food seller'],
+          correctAnswer: 0,
+          explanationHe: 'הטקסט אומר: "a dish may be cooked the same way for generations" - את ה-dish מבשלים, כלומר זו מנה, סוג של אוכל. כאן המילה אינה במובן של צלחת.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'What can we infer from paragraph 3 about many big cities?',
+          questionTextHe: 'מה אפשר להסיק מפסקה 3 על ערים גדולות רבות?',
+          options: ['Their sellers use only food that grows nearby', 'Their dishes are cooked the same way as long ago', 'People there no longer use old recipes', 'Many people there grew up in another country'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט אומר: "When people move to a new country, they often bring their recipes with them", ולכן בערים גדולות אפשר לטעום אוכל מארצות רבות - כלומר גרים בהן אנשים רבים שגדלו בארץ אחרת.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the main purpose of the text?',
+          questionTextHe: 'מהי המטרה העיקרית של הטקסט?',
+          options: ['To teach readers how to cook falafel at home', 'To describe street food and the stories it tells', 'To warn readers that street food is unhealthy', 'To compare the prices of food in different countries'],
+          correctAnswer: 1,
+          explanationHe: 'הטקסט מסביר "Why is street food so popular?" ואיך אוכל רחוב "tells the story of a place and its people" - כלומר הוא מתאר אוכל רחוב ומה הוא מספר על מקומות ועל אנשים.'
+        }
+      ]
+    },
+
+    // Paragraph 19: The Dead Sea (Complexity 4)
+    {
+      titleEn: 'The Dead Sea',
+      titleHe: 'ים המלח',
+      complexityLevel: 4,
+      topic: 'Geography',
+      content: `The Dead Sea lies in a deep valley in the Middle East. Its shore, more than 400 meters below sea level, is the lowest place on land in the world. Although it is called a sea, it is really a lake, because land surrounds it on every side. Its water is almost ten times saltier than ocean water. This is because the Jordan River and several streams flow into the lake, but no river flows out. In the hot desert air, the water evaporates, but the salt it brought stays behind.
+
+All this salt makes the water very dense: a cup of it weighs about a quarter more than a cup of ordinary water. Such dense water pushes up strongly on anything in it, so people float without any effort. The salt also explains the lake's name: apart from microorganisms, nothing can live in it. Yet the lake is rich in minerals such as magnesium and potassium. Factories collect some of them to make fertilizers, and many visitors cover themselves in the black mud, believing it is good for the skin.
+
+Sadly, the Dead Sea is shrinking: its water level drops by about one meter every year. The main reason is that people now use most of the Jordan River's water for drinking and farming before it reaches the lake. The mineral factories also take water from the lake, pumping it into large ponds where it evaporates and the minerals are collected. As the level falls, dangerous holes called sinkholes open suddenly near the shore. Scientists are now looking for ways to save the lake.`,
+      hardWords: [
+        { word: 'surrounds', translation: 'מקיפה (מכל הצדדים)' },
+        { word: 'evaporates', translation: 'מתאדה, הופך לאדים' },
+        { word: 'dense', translation: 'צפוף, בעל צפיפות גבוהה' },
+        { word: 'effort', translation: 'מאמץ' },
+        { word: 'potassium', translation: 'אשלגן' },
+        { word: 'fertilizers', translation: 'דשנים' },
+        { word: 'sinkholes', translation: 'בולענים' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'According to paragraph 1, why is the water of the Dead Sea so salty?',
+          questionTextHe: 'לפי פסקה 1, מדוע המים של ים המלח מלוחים כל כך?',
+          options: ['Several small streams bring salty water from the ocean', 'The hot desert air carries salt from the land into it', 'Its water escapes into the air, but its salt cannot', 'No plants or fish live in it to use up the salt'],
+          correctAnswer: 2,
+          explanationHe: 'בפסקה 1 כתוב: "no river flows out" וגם "the water evaporates, but the salt it brought stays behind" - המים מתאדים ועולים לאוויר, אבל המלח לא יכול לצאת מהאגם ולכן מצטבר בו.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'In paragraph 2, what does the writer compare to show how dense the water is?',
+          questionTextHe: 'בפסקה 2, מה משווה הכותב כדי להראות עד כמה המים צפופים?',
+          options: ['The weight of equal amounts of lake water and plain water', 'The saltiness of the lake water and of ocean water', 'The way people float in the lake and in a swimming pool', 'The color of the black mud and of the lake water'],
+          correctAnswer: 0,
+          explanationHe: 'הכותב כותב: "a cup of it weighs about a quarter more than a cup of ordinary water" - הוא משווה את המשקל של כמות שווה ממי האגם וממים רגילים. ההשוואה למי האוקיינוס, בפסקה 1, מראה כמה המים מלוחים, לא כמה הם צפופים.'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'In paragraph 3, the word "shrinking" is closest in meaning to:',
+          questionTextHe: 'בפסקה 3, מהי המשמעות הקרובה ביותר של המילה "shrinking"?',
+          options: ['becoming deeper', 'becoming hotter', 'becoming cleaner', 'becoming smaller'],
+          correctAnswer: 3,
+          explanationHe: 'מיד אחרי המילה כתוב: "its water level drops by about one meter every year" - מפלס המים יורד כל שנה, ולכן shrinking פירושו הולך וקטן, מתכווץ.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'What can we infer from paragraph 3?',
+          questionTextHe: 'מה אפשר להסיק מפסקה 3?',
+          options: ['The sinkholes near the shore are the main reason the lake is shrinking', 'Farmers water their crops with the salty water of the lake', 'The lake would stop shrinking if the factories built more ponds', 'The lake would shrink more slowly if more river water reached it'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט מסביר: "The main reason is that people now use most of the Jordan River\'s water for drinking and farming before it reaches the lake" - לכן אם יותר מי נהר יגיעו לאגם, הוא יתכווץ לאט יותר.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the main idea of the text?',
+          questionTextHe: 'מהו הרעיון המרכזי של הטקסט?',
+          options: ['The Dead Sea is a salty lake that is shrinking mainly because of the heat', 'The Dead Sea is a salty lake that is unusual and now in danger', 'The Dead Sea is a salty lake that is famous mainly for its black mud', 'The Dead Sea is a salty lake where nothing at all is able to live'],
+          correctAnswer: 1,
+          explanationHe: 'הטקסט מסביר מה מיוחד בים המלח, ובפסקה האחרונה כתוב: "Sadly, the Dead Sea is shrinking" ושמדענים מחפשים "ways to save the lake" - אגם מיוחד שנמצא בסכנה. הוא לא מתכווץ בעיקר בגלל החום: "The main reason is that people now use most of the Jordan River\'s water".'
+        }
+      ]
+    },
+
+    // Paragraph 20: The Story of Money (Complexity 4)
+    {
+      titleEn: 'The Story of Money',
+      titleHe: 'סיפורו של הכסף',
+      complexityLevel: 4,
+      topic: 'Economics',
+      content: `For a long time, many people got what they needed by trading one thing for another. A farmer, for example, might trade some wheat for shoes. This kind of trade is called barter, and it had serious problems. The farmer could get shoes only if the shoemaker wanted wheat at that moment. It was also hard to agree on prices: how many bags of wheat is one goat worth? And a large animal could not be divided to pay for something small.
+
+One common explanation is that, to solve these problems, societies began to use objects that everyone agreed had value. In parts of Africa and Asia, for example, people paid with small shells, which were light, strong and easy to count. More than 2,500 years ago, the first metal coins appeared. Each coin had a fixed weight and an official stamp, so traders knew its value without weighing it. Coins lasted a long time, but large amounts of them were heavy to carry. That is why, about a thousand years ago, China began to use paper money, which was much lighter. People trusted it because it could be exchanged for coins.
+
+Today, money is changing again. Many people rarely use coins or paper money; instead, they pay with a bank card or by holding their phone near a machine. Most money today exists only as numbers in bank computers. These digital payments are fast and convenient, and they let people buy things from other countries without leaving home. However, the basic idea of money has not changed since the days of shells: it works only because people trust that others will accept it.`,
+      hardWords: [
+        { word: 'barter', translation: 'סחר חליפין' },
+        { word: 'wheat', translation: 'חיטה' },
+        { word: 'divided', translation: 'מחולק, חולק לחלקים' },
+        { word: 'societies', translation: 'חברות אנושיות, קהילות' },
+        { word: 'weighing', translation: 'שקילה (במאזניים); לשקול' },
+        { word: 'exchanged', translation: 'הוחלף, הומר' },
+        { word: 'convenient', translation: 'נוח' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'According to paragraph 1, what was one problem with barter?',
+          questionTextHe: 'לפי פסקה 1, מה הייתה אחת הבעיות של סחר חליפין?',
+          options: ['Farmers were not allowed to trade their wheat', 'Animals could be traded only for other animals', 'Shoemakers did not want to work for farmers', 'Each trader had to want what the other offered'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט מסביר: "The farmer could get shoes only if the shoemaker wanted wheat at that moment" - כל צד היה צריך לרצות בדיוק את מה שהצד השני הציע.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'Why did China begin to use paper money?',
+          questionTextHe: 'מדוע התחילו בסין להשתמש בכסף נייר?',
+          options: ['Coins did not last for a long time', 'Many coins together weighed too much', 'Traders had to weigh every single coin', 'People had stopped trusting metal coins'],
+          correctAnswer: 1,
+          explanationHe: 'כתוב: "large amounts of them were heavy to carry. That is why, about a thousand years ago, China began to use paper money" - הרבה מטבעות יחד שקלו יותר מדי, וכסף נייר קל הרבה יותר.'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'In paragraph 3, the word "rarely" is closest in meaning to:',
+          questionTextHe: 'בפסקה 3, מהי המשמעות הקרובה ביותר של המילה "rarely"?',
+          options: ['very often', 'almost never', 'really, truly', 'for a short time'],
+          correctAnswer: 1,
+          explanationHe: 'כתוב: "Many people rarely use coins or paper money; instead, they pay with a bank card" - המילה instead מראה שהם משלמים בדרך אחרת, ולכן rarely פירושו כמעט אף פעם, לעיתים רחוקות. שימו לב: rarely אינה really (באמת).'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'Why does the writer mention "the days of shells" in paragraph 3?',
+          questionTextHe: 'מדוע הכותב מזכיר בפסקה 3 את "the days of shells" (ימי הצדפים)?',
+          options: ['To show that money has always depended on trust', 'To show that people still pay with shells today', 'To show that shells were safer than digital money', 'To explain why people stopped using shells long ago'],
+          correctAnswer: 0,
+          explanationHe: 'הכותב אומר: "the basic idea of money has not changed since the days of shells: it works only because people trust that others will accept it" - מימי הצדפים ועד היום, הכסף תלוי באמון.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the main idea of the text?',
+          questionTextHe: 'מהו הרעיון המרכזי של הטקסט?',
+          options: ['Money keeps changing, so trust in it no longer matters', 'Paper money was invented before metal coins', 'Money has changed form over time to meet new needs', 'Digital payments have made money much less important'],
+          correctAnswer: 2,
+          explanationHe: 'הטקסט מתאר צורות שונות של כסף לאורך הזמן: צדפים, מטבעות, כסף נייר ותשלום בכרטיס ובטלפון. כל צורה חדשה ענתה על צורך, למשל: "That is why, about a thousand years ago, China began to use paper money". והאמון עדיין חשוב: "it works only because people trust that others will accept it".'
+        }
+      ]
+    },
+
+    // Paragraph 21: The Printing Revolution (Complexity 4)
+    {
+      titleEn: 'The Printing Revolution',
+      titleHe: 'מהפכת הדפוס',
+      complexityLevel: 4,
+      topic: 'History',
+      content: `About six hundred years ago, almost every book in Europe was copied by hand. Skilled writers called scribes copied each page slowly and carefully with a pen, so a single long book could take months or even more than a year. As a result, books were rare and very expensive. Usually only rich families, churches and universities could afford them, and most ordinary people never owned a single book.
+
+Around 1450, a German craftsman named Johannes Gutenberg found a faster way. In Mainz, he built a printing press that used movable type: small metal blocks, each with one letter. Workers arranged the letters into words and lines, inked them, and pressed paper against them. After a page was printed, the same letters could be used again for the next one. Movable type had been used earlier in China, and metal type in Korea. Gutenberg's achievement was combining a strong press and a suitable ink with metal letters that could be cast quickly. This made printing fast and cheap in Europe. One press could print hundreds of pages a day, while a scribe could copy only a few.
+
+The effects were enormous. Because printed books cost far less than handwritten ones, many more people could buy them, and over time more people learned to read. By 1500, presses were working in more than two hundred European cities, and millions of books had been printed. Since the copies of a book were almost identical, scholars in different countries could read the same text and build on each other's discoveries. New ideas could now spread faster and farther than ever before.`,
+      hardWords: [
+        { word: 'scribes', translation: 'מעתיקים (שהעתיקו ספרים בכתב יד)' },
+        { word: 'craftsman', translation: 'בעל מלאכה, אומן' },
+        { word: 'movable type', translation: 'אותיות דפוס מטלטלות' },
+        { word: 'achievement', translation: 'הישג' },
+        { word: 'cast', translation: 'לָצֶקֶת, ליצוק (מתכת בתבנית)' },
+        { word: 'identical', translation: 'זהה' },
+        { word: 'scholars', translation: 'מלומדים, חוקרים' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'In paragraph 1, the word "afford" is closest in meaning to:',
+          questionTextHe: 'בפסקה 1, מהי המשמעות הקרובה ביותר של המילה "afford"?',
+          options: ['copy quickly by hand', 'have the money to pay for', 'carry from one place to another', 'write neatly with a pen'],
+          correctAnswer: 1,
+          explanationHe: 'לפני כן כתוב: "books were rare and very expensive", ולכן רק העשירים יכלו "afford them" - כלומר היה להם מספיק כסף כדי לקנות ספרים.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'According to paragraph 2, what was Gutenberg\'s achievement?',
+          questionTextHe: 'לפי פסקה 2, מה היה ההישג של גוטנברג?',
+          options: ['Making the first movable type that was ever used', 'Being the very first person to make letters out of metal', 'Using quickly made metal type with a press and ink', 'Teaching scribes to copy pages much more quickly'],
+          correctAnswer: 2,
+          explanationHe: 'כתוב: "Gutenberg\'s achievement was combining a strong press and a suitable ink with metal letters that could be cast quickly" - אותיות נפרדות ואותיות מתכת היו קיימות כבר בסין ובקוריאה, וההישג שלו היה השילוב.'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'Why does the writer mention that a scribe could copy only a few pages a day?',
+          questionTextHe: 'מדוע הכותב מזכיר שמעתיק יכול היה להעתיק רק דפים ספורים ביום?',
+          options: ['To show how much faster printing was than copying', 'To show that scribes did not work hard enough', 'To explain why handwritten books were more beautiful', 'To explain why Gutenberg had once worked as a scribe'],
+          correctAnswer: 0,
+          explanationHe: 'הכותב משווה: "One press could print hundreds of pages a day, while a scribe could copy only a few" - ההשוואה מראה כמה מהירה הייתה ההדפסה לעומת העתקה ביד.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'According to paragraph 3, how did printing help scholars?',
+          questionTextHe: 'לפי פסקה 3, איך הדפוס עזר למלומדים?',
+          options: ['They could study matching copies in faraway places', 'They could buy handwritten books for much less money', 'They could copy books by hand much more quickly', 'They could set up presses in two hundred cities'],
+          correctAnswer: 0,
+          explanationHe: 'הטקסט מסביר: "Since the copies of a book were almost identical, scholars in different countries could read the same text" - העותקים היו כמעט זהים, ולכן חוקרים במקומות רחוקים למדו מאותו טקסט בדיוק.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the main idea of the text?',
+          questionTextHe: 'מהו הרעיון המרכזי של הטקסט?',
+          options: ['Books in Europe were copied by hand until the year 1500', 'Scribes made far fewer mistakes than the first printing presses', 'Handwritten books stayed more popular than printed ones', 'The printing press made books cheaper and helped ideas spread'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט מתאר את המעבר מהעתקה ביד למכונת הדפוס של גוטנברג ואת התוצאות: "printed books cost far less" ו-"New ideas could now spread faster" - זה הרעיון המרכזי.'
+        }
+      ]
+    },
+
+    // Paragraph 22: The Return of Spoken Hebrew (Complexity 5)
+    {
+      titleEn: 'The Return of Spoken Hebrew',
+      titleHe: 'תחייתה של העברית המדוברת',
+      complexityLevel: 5,
+      topic: 'Language',
+      content: `For more than 1,500 years, Hebrew led a strange double life. Jews in many countries prayed in it, studied its ancient books and even wrote letters and poems in it, yet hardly anyone spoke it at home or with friends. Everyday conversation took place in other languages. Hebrew, in other words, was not dead; it was dormant, alive on the page but silent in the kitchen and the playground.
+
+The person most often linked to its return is Eliezer Ben-Yehuda, who settled in Jerusalem in 1881. He created new words for modern objects and ideas, began an enormous dictionary and, most famously, insisted that his family speak only Hebrew at home. His son is often described as the first native speaker of modern Hebrew. Ben-Yehuda's determination was remarkable. However, a single household cannot turn a language into a living one, and for years his was one of very few homes where only Hebrew was heard.
+
+The real turning point came in schools. From the late 1880s, teachers in some of the new villages began teaching every subject in Hebrew, even though proper textbooks hardly existed and teachers often had to invent words as they went along. Children who studied in Hebrew also played in Hebrew, and they carried the language home, where some parents learned it from their own sons and daughters. Within a few decades, a new generation was growing up with Hebrew as its mother tongue.
+
+None of this makes Ben-Yehuda unimportant. His new words and his dictionary gave speakers useful tools. Yet a dictionary cannot make anyone speak, and his own was completed by others long after his death. Hebrew became a mother tongue again because ordinary families, teachers and children chose to use it every day, not because of one man's will alone. Its revival was, in the end, a shared achievement.`,
+      hardWords: [
+        { word: 'insisted', translation: 'התעקש, עמד על כך' },
+        { word: 'native speaker', translation: 'דובר ילידי (מי שזו שפת אמו)' },
+        { word: 'determination', translation: 'נחישות' },
+        { word: 'household', translation: 'בית, משפחה (בני הבית)' },
+        { word: 'turning point', translation: 'נקודת מפנה' },
+        { word: 'mother tongue', translation: 'שפת אם' },
+        { word: 'revival', translation: 'תחייה, חזרה לחיים' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'In paragraph 1, the word "dormant" is closest in meaning to:',
+          questionTextHe: 'בפסקה 1, מהי המשמעות הקרובה ביותר של המילה "dormant"?',
+          options: ['asleep, and unlikely to wake up again', 'inactive for a time, but able to wake up', 'slowly being forgotten by almost everyone', 'used mostly by a small group of scholars'],
+          correctAnswer: 1,
+          explanationHe: 'הכותב מסביר: "not dead; it was dormant, alive on the page but silent" - לא פעילה לזמן מה, אבל מסוגלת להתעורר, וכך אכן קרה. האפשרות "asleep, and unlikely to wake up again" מתחילה נכון, אבל לפי הכותב העברית "not dead", והטקסט כולו מספר איך היא חזרה.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'What does the text say about Ben-Yehuda\'s son?',
+          questionTextHe: 'מה הטקסט אומר על בנו של בן-יהודה?',
+          options: ['He is widely seen as the boy whose example made Hebrew a spoken language again', 'He is often described as the first child to learn Hebrew at a village school', 'He grew up hearing several different languages spoken at home every day', 'He is widely seen as the first child in centuries to be raised speaking Hebrew'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט אומר שבנו "is often described as the first native speaker of modern Hebrew" - הוא גדל בבית שבו דיברו רק עברית, ולא למד אותה בבית ספר. אבל הדוגמה שלו לא החזירה לבדה את העברית: "a single household cannot turn a language into a living one".'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'According to the text, what made teaching in Hebrew difficult at first?',
+          questionTextHe: 'לפי הטקסט, מה הקשה בהתחלה על ההוראה בעברית?',
+          options: ['Teachers often lacked the words they needed', 'Hardly any books had ever been written in Hebrew', 'Parents did not allow Hebrew to be spoken at home', 'Children refused to use Hebrew outside the classroom'],
+          correctAnswer: 0,
+          explanationHe: 'הטקסט אומר: "teachers often had to invent words as they went along" - חסרו להם מילים. התשובה שכמעט לא נכתבו ספרים בעברית כללית מדי: רק "proper textbooks hardly existed", ובפסקה 1 מסופר שלמדו בספרים עתיקים בעברית.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'What can we infer about the children described in paragraph 3?',
+          questionTextHe: 'מה אפשר להסיק על הילדים המתוארים בפסקה 3?',
+          options: ['They taught Hebrew to most of the adults in their villages', 'They had learned Hebrew from their parents before school', 'Hebrew became part of their daily life, not just lessons', 'They made up many of the new words that teachers needed'],
+          correctAnswer: 2,
+          explanationHe: 'הילדים "also played in Hebrew" ו-"carried the language home", כלומר העברית נכנסה לחייהם היומיומיים ולא נשארה בכיתה. התשובה שלימדו עברית את רוב המבוגרים בכפר מגזימה: לפי הטקסט רק "some parents learned it" מילדיהם.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'Which statement best expresses the main point of the text?',
+          questionTextHe: 'איזה משפט מבטא בצורה הטובה ביותר את הרעיון המרכזי של הטקסט?',
+          options: ['Ben-Yehuda\'s new words brought spoken Hebrew back to life', 'Schools brought Hebrew back, and Ben-Yehuda\'s part was minor', 'Hebrew was never truly dead, so bringing it back was easy', 'Ben-Yehuda helped, but a whole community revived Hebrew'],
+          correctAnswer: 3,
+          explanationHe: 'הכותב מסכם שהעברית חזרה בזכות "ordinary families, teachers and children" - "a shared achievement", ובן-יהודה עזר במילים ובמילון. התשובה שבתי הספר החזירו אותה ותפקידו של בן-יהודה היה שולי נשמעת קרובה, אבל הכותב קובע: "None of this makes Ben-Yehuda unimportant".'
+        }
+      ]
+    },
+
+    // Paragraph 23: The Mold That Changed Medicine (Complexity 5)
+    {
+      titleEn: 'The Mold That Changed Medicine',
+      titleHe: 'העובש ששינה את פני הרפואה',
+      complexityLevel: 5,
+      topic: 'Science',
+      content: `In September 1928, the Scottish scientist Alexander Fleming returned to his London laboratory after a summer vacation and began sorting through dishes of bacteria that he had left on a bench. On one of them, a patch of mold had grown, and around it there was a clear ring where no bacteria could be seen. A stray spore, perhaps carried in from another laboratory, had landed on the dish.
+
+It is tempting to call this pure luck, and luck certainly played its part. Yet mold often spoiled experiments, and many scientists would simply have thrown such a dish away. Fleming paused because he had spent years studying substances that kill germs; earlier, he had even found one in human tears. The French scientist Louis Pasteur once remarked that chance favors only the prepared mind, and Fleming's curiosity turned an accident into a question worth asking.
+
+However, noticing the effect was not the same as making a medicine. Fleming called the substance penicillin and described it, but it was hard to extract and broke down quickly, so he could not produce it in a pure, usable form. For about a decade, progress was slow. Then, from 1939, a team at the University of Oxford led by Howard Florey, with the biochemist Ernst Chain, took up the challenge. Testing it first on mice and then on patients, they showed that penicillin could cure deadly infections, and in the 1940s factories began producing it on a large scale.
+
+In 1945, Fleming, Florey and Chain shared the Nobel Prize, a fitting sign that the discovery belonged to more than one moment and more than one person. Penicillin needed a lucky accident, but it also needed an observer ready to recognize it and years of patient work by others. Without a prepared observer, the dish might have been thrown away; without the Oxford team, penicillin might never have become a medicine.`,
+      hardWords: [
+        { word: 'spore', translation: 'נבג (תא זעיר שממנו צומח עובש)' },
+        { word: 'tempting', translation: 'מפתה' },
+        { word: 'substances', translation: 'חומרים' },
+        { word: 'germs', translation: 'חיידקים, מחוללי מחלות' },
+        { word: 'remarked', translation: 'העיר, ציין' },
+        { word: 'extract', translation: 'להפיק, לחלץ' },
+        { word: 'decade', translation: 'עשור' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'What did Fleming find on one of the dishes in 1928?',
+          questionTextHe: 'מה מצא פלמינג באחת הצלחות בשנת 1928?',
+          options: ['Mold that had killed most of the bacteria on the dish', 'Bacteria that grew faster wherever the mold was', 'An area all around the mold with no visible bacteria', 'Mold that had grown where the bacteria had already died'],
+          correctAnswer: 2,
+          explanationHe: 'הטקסט מתאר: "around it there was a clear ring where no bacteria could be seen" - אזור נקי מחיידקים סביב העובש. התשובה שהעובש הרג את רוב החיידקים בצלחת מגזימה: הטבעת הנקייה הייתה רק סביבו, והטקסט לא אומר דבר על שאר הצלחת.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'What does paragraph 2 suggest about why Fleming paid attention to the dish?',
+          questionTextHe: 'מה אפשר להבין מפסקה 2 על הסיבה שפלמינג שם לב לצלחת?',
+          options: ['His past research helped him see why the dish mattered', 'He realized at once that he had found a new medicine', 'Mold almost never appeared on dishes in his laboratory', 'He had been searching for a mold that kills bacteria'],
+          correctAnswer: 0,
+          explanationHe: 'פלמינג עצר כי "he had spent years studying substances that kill germs" - המחקר הקודם הכין אותו להבחין בתופעה. הוא לא חיפש עובש כזה: הנבג נחת בצלחת במקרה. וגם לא הבין מיד שמצא תרופה: התאונה הפכה רק ל-"a question worth asking".'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'According to paragraph 3, why could Fleming not turn penicillin into a medicine?',
+          questionTextHe: 'לפי פסקה 3, מדוע פלמינג לא הצליח להפוך את הפניצילין לתרופה?',
+          options: ['Progress was so slow that he could not make it pure or stable', 'He lost interest in it and turned to other kinds of work', 'It could not be extracted from the mold in any way at all', 'It was difficult to get out of the mold and did not last long'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט אומר: "it was hard to extract and broke down quickly, so he could not produce it in a pure, usable form" - הבעיה הייתה בחומר עצמו. התשובה שההתקדמות האיטית מנעה ממנו לטהר אותו הופכת סיבה ותוצאה: הקושי בחומר הוא שגרם להתקדמות האיטית.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'In paragraph 4, the word "fitting" is closest in meaning to:',
+          questionTextHe: 'בפסקה 4, מהי המשמעות הקרובה ביותר של המילה "fitting"?',
+          options: ['healthy and in good shape', 'right for the situation', 'of exactly the right size', 'sudden and unexpected'],
+          correctAnswer: 1,
+          explanationHe: 'הכותב רואה בפרס המשותף "a fitting sign that the discovery belonged to... more than one person" - סימן הולם ומתאים. האפשרות "of exactly the right size" היא המשמעות של fit בבגדים, אבל כאן מדובר בסימן שמתאים למצב, לא בגודל.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the writer\'s main argument?',
+          questionTextHe: 'מהי הטענה המרכזית של הכותב?',
+          options: ['Penicillin required chance, a ready mind and years of effort', 'Penicillin was discovered mainly thanks to one lucky accident', 'Florey and Chain deserve more of the credit than Fleming', 'Great discoveries come from hard work rather than luck'],
+          correctAnswer: 0,
+          explanationHe: 'הכותב מסכם: "Penicillin needed a lucky accident, but it also needed an observer ready to recognize it and years of patient work". התשובה שהתגלית נבעה בעיקר ממזל חלקית מדי: לפי הכותב, בלי מוח מוכן ובלי צוות אוקספורד הפניצילין לא היה הופך לתרופה.'
+        }
+      ]
+    },
+
+    // Paragraph 24: Why Crowds Hesitate to Help (Complexity 5)
+    {
+      titleEn: 'Why Crowds Hesitate to Help',
+      titleHe: 'כשכולם מחכים למישהו אחר',
+      complexityLevel: 5,
+      topic: 'Psychology',
+      content: `Picture a woman who slips and falls on a crowded street. Dozens of people see her, yet for a long moment nobody moves. Each passer-by seems to assume that someone else will deal with it, and so help arrives slowly, if at all. Psychologists call this the bystander effect: when many people witness a situation, each of them is less likely to step in than a person who is alone.
+
+It would be easy to conclude that people in crowds simply do not care. However, research points mainly to two other causes. First, responsibility feels shared: with fifty people watching, each one feels only a small part of the duty to act. Second, we take our cue from the people around us. If everyone seems calm, we assume there is no real emergency, while they, in turn, are watching us and drawing the same conclusion.
+
+A well-known experiment from the 1960s showed how powerful this second cause can be. Students filling out a questionnaire saw smoke drifting into the room through a vent. Most of those who were alone soon left to report it. However, when students sat with two strangers who were secretly working for the researchers and calmly ignored the smoke, most of them stayed in their seats and kept writing.
+
+Fortunately, the effect can be weakened. If you need help in a crowd, point to one particular person, such as the man in the blue shirt, and ask him directly to call for help. The responsibility is then no longer shared, and he is far more likely to act. Once one person steps forward, others often follow, and some studies suggest that people who have learned about the bystander effect are more likely to help. The effect, in the end, reveals less about how much people care than about how they read a situation and divide up responsibility.`,
+      hardWords: [
+        { word: 'passer-by', translation: 'עובר אורח' },
+        { word: 'bystander', translation: 'צופה מהצד, עומד מן הצד' },
+        { word: 'witness', translation: 'לראות במו עיניו, להיות עד ל-' },
+        { word: 'assume', translation: 'להניח (בלי לבדוק)' },
+        { word: 'questionnaire', translation: 'שאלון' },
+        { word: 'drifting', translation: 'נישא לאט (באוויר)' },
+        { word: 'reveals', translation: 'חושף, מגלה' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'According to the text, what is the bystander effect?',
+          questionTextHe: 'לפי הטקסט, מהו אפקט הצופה מהצד (bystander effect)?',
+          options: ['People in a crowd care less about a stranger who is in trouble', 'People in a crowd often fail to notice that someone has fallen', 'Help tends to arrive faster when more people are watching', 'The bigger the crowd, the less each person in it tends to help'],
+          correctAnswer: 3,
+          explanationHe: 'הטקסט מגדיר: "each of them is less likely to step in than a person who is alone" - ככל שהקהל גדול יותר, כל אחד בו נוטה פחות לעזור. התשובה שאנשים בקהל פחות אכפתיים נשמעת נכונה, אבל הכותב דוחה אותה: "It would be easy to conclude that people in crowds simply do not care. However..."'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'In paragraph 2, the word "cue" is closest in meaning to:',
+          questionTextHe: 'בפסקה 2, מהי המשמעות הקרובה ביותר של המילה "cue"?',
+          options: ['a reason to feel afraid', 'a signal for how to behave', 'an order that we have to obey', 'a feeling of shared duty'],
+          correctAnswer: 1,
+          explanationHe: 'המשפט הבא מסביר: "If everyone seems calm, we assume there is no real emergency" - אנחנו לומדים מהתנהגות האחרים איך לנהוג, כלומר אות או סימן. האפשרות "an order that we have to obey" חזקה מדי: איש לא מצווה עלינו דבר, אנחנו רק מסיקים מהם.'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'What can we infer from the smoke experiment?',
+          questionTextHe: 'מה אפשר להסיק מניסוי העשן?',
+          options: ['The strangers\' calm made the smoke seem less serious', 'Students sitting with others did not see the smoke', 'Students who were alone were simply braver than others', 'The strangers told the students to ignore the smoke'],
+          correctAnswer: 0,
+          explanationHe: 'הניסוי מדגים ש-"we take our cue from the people around us": הרוגע של הזרים גרם לעשן להיראות לא מסוכן. התשובה שהזרים אמרו לסטודנטים להתעלם מהעשן מגזימה: לפי הטקסט הם רק "calmly ignored the smoke", ולא נאמר שדיברו עם הסטודנטים.'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'According to paragraph 4, how can a person who needs help weaken the bystander effect?',
+          questionTextHe: 'לפי פסקה 4, איך אדם שזקוק לעזרה יכול להחליש את אפקט הצופה מהצד?',
+          options: ['Ask the people nearby to call for help', 'Stay calm so that nobody nearby starts to panic', 'Single out one person and give them a clear task', 'Wait quietly until someone decides to step forward'],
+          correctAnswer: 2,
+          explanationHe: 'הכותב ממליץ "point to one particular person... and ask him directly", כי אז "The responsibility is then no longer shared". הבקשה מהאנשים שמסביב להזעיק עזרה נשמעת קרובה, אבל היא פונה לכולם, ולכן האחריות נשארת מתחלקת.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'Which statement best sums up the writer\'s view?',
+          questionTextHe: 'איזה משפט מסכם בצורה הטובה ביותר את עמדת הכותב?',
+          options: ['People fail to help in crowds mainly because they do not really care', 'Crowds help less mainly because duty feels shared and others seem calm', 'Pointing to one person and asking directly makes help much more likely', 'Crowds help less mainly because people are afraid of looking foolish'],
+          correctAnswer: 1,
+          explanationHe: 'לפי הכותב "research points mainly to two other causes": האחריות מתחלקת, ואנחנו מסיקים מהרוגע של האחרים שאין סכנה. הפחד להיראות מגוחך לא מוזכר בטקסט, ואת חוסר האכפתיות הכותב דוחה: "It would be easy to conclude... However". הפנייה לאדם אחד היא רק עצה מפסקה 4.'
+        }
+      ]
+    },
+
+    // Paragraph 25: Why Cities Run Hot (Complexity 5)
+    {
+      titleEn: 'Why Cities Run Hot',
+      titleHe: 'למה בעיר חם יותר',
+      complexityLevel: 5,
+      topic: 'Environment',
+      content: `On a summer evening, the center of a large city can be several degrees warmer than the fields and villages around it. Scientists call this an urban heat island. Surprisingly, the difference is often greatest after sunset: the countryside cools quickly once the sun goes down, while the city stays warm long into the night. This is more than a matter of comfort, because during heatwaves, hot nights give people's bodies little chance to recover.
+
+One of the main reasons lies in the materials that cities are made of. Asphalt roads, concrete walls and dark roofs absorb much of the sunlight that falls on them and store it as heat during the day. At night, they slowly release that heat into the air, and this keeps the streets warm. In the countryside, by contrast, plants and moist soil hold water, and as that water evaporates it carries heat away, much as sweat cools our skin. City centers, meanwhile, often have few trees to provide shade and cooling.
+
+It is often assumed that cities are hot simply because they are so crowded. Cars, factories and air conditioners do add some extra heat; an air conditioner, for example, cools a room by pumping heat out of it and into the street. However, the number of people alone does not explain the effect. A busy street lined with tall trees can be noticeably cooler than an empty parking lot nearby, which suggests that surfaces and greenery matter more than crowds.
+
+Fortunately, the same understanding points to solutions. Planting trees and creating parks bring back shade and moisture. Roofs painted in light colors reflect much of the sunlight instead of absorbing it, and green roofs, covered with plants, protect buildings from the sun and cool the air around them. Cities cannot simply move their people elsewhere, but they can change what lies under their feet and over their heads.`,
+      hardWords: [
+        { word: 'urban', translation: 'עירוני' },
+        { word: 'concrete', translation: 'בטון' },
+        { word: 'release', translation: 'פולטים, משחררים' },
+        { word: 'moist', translation: 'לח' },
+        { word: 'evaporates', translation: 'מתאדה' },
+        { word: 'noticeably', translation: 'באופן מורגש' },
+        { word: 'greenery', translation: 'צמחייה, עצים וצמחים' }
+      ],
+      questions: [
+        {
+          questionNumber: 1,
+          questionTextEn: 'According to the text, when is the temperature gap between a city and its surroundings often largest?',
+          questionTextHe: 'לפי הטקסט, מתי ההבדל בטמפרטורה בין העיר לסביבתה הוא לרוב הגדול ביותר?',
+          options: ['At midday, when the sunshine is at its very strongest', 'At night, once the fields have lost their daytime heat', 'In the late afternoon, after the city has stored the most heat', 'During heatwaves, when air conditioners are running all day'],
+          correctAnswer: 1,
+          explanationHe: 'הטקסט אומר שהפער "is often greatest after sunset", כשהכפר מתקרר מהר והעיר "stays warm long into the night". התשובה על שעות אחר הצהריים, כשהעיר כבר אגרה חום, נשמעת הגיונית, אבל לפי הטקסט השיא מגיע רק אחרי השקיעה.'
+        },
+        {
+          questionNumber: 2,
+          questionTextEn: 'In paragraph 2, the word "absorb" is closest in meaning to:',
+          questionTextHe: 'בפסקה 2, מהי המשמעות הקרובה ביותר של המילה "absorb"?',
+          options: ['send back', 'soak up water', 'take in', 'give off'],
+          correctAnswer: 2,
+          explanationHe: 'המשטחים "absorb much of the sunlight that falls on them and store it as heat" - קולטים את אור השמש לתוכם. absorb יכולה לתאר ספוג שסופג מים, אבל כאן נקלט אור ולא מים. ו-send back הוא ההפך: גגות בהירים "reflect ... instead of absorbing it".'
+        },
+        {
+          questionNumber: 3,
+          questionTextEn: 'What does the text say about air conditioners?',
+          questionTextHe: 'מה הטקסט אומר על מזגנים?',
+          options: ['They cool rooms but add heat to the air outside', 'They are the main cause of urban heat islands', 'They help the city cool down during the night', 'They cool a room by bringing in cooler air from outside'],
+          correctAnswer: 0,
+          explanationHe: 'הטקסט אומר שמזגן מקרר חדר "by pumping heat out of it and into the street", כלומר מוסיף חום בחוץ. התשובה שהמזגנים הם הגורם העיקרי מגזימה: הם מוסיפים רק "some extra heat", ו-"the number of people alone does not explain the effect".'
+        },
+        {
+          questionNumber: 4,
+          questionTextEn: 'Why does the writer mention a busy street lined with tall trees?',
+          questionTextHe: 'מדוע הכותב מזכיר רחוב הומה שלאורכו נטועים עצים גבוהים?',
+          options: ['To suggest that parking lots should be turned into parks', 'To show that busy streets are cooler than quiet ones', 'To show that people prefer to walk in the shade', 'To show that crowding is not what mainly makes cities hot'],
+          correctAnswer: 3,
+          explanationHe: 'הכותב מסיק מהדוגמה ש-"surfaces and greenery matter more than crowds" - כלומר הצפיפות אינה הסיבה העיקרית לחום. התשובה שרחובות הומים קרירים יותר משקטים מפספסת את הנקודה: הרחוב קריר בזכות העצים, למרות ההמון, וההשוואה היא למגרש חניה ריק.'
+        },
+        {
+          questionNumber: 5,
+          questionTextEn: 'What is the writer\'s main purpose in this text?',
+          questionTextHe: 'מהי המטרה העיקרית של הכותב בטקסט?',
+          options: ['To warn readers about the dangers of summer heatwaves', 'To explain why city centers stay warmer than the countryside at night', 'To explain what makes cities hotter and what can be done about it', 'To argue that cities should plant trees instead of painting roofs'],
+          correctAnswer: 2,
+          explanationHe: 'הטקסט מסביר מה מחמם את העיר ("One of the main reasons lies in the materials") ואז מציע פתרונות ("the same understanding points to solutions"). התשובה על החום בלילה צרה מדי: היא מתאימה לפסקאות 1–2 ומשמיטה את הפתרונות. וגלי החום מוזכרים רק במשפט אחד.'
+        }
+      ]
     }
   ];
 }
