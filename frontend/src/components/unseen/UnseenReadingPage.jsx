@@ -84,7 +84,7 @@ const UnseenReadingPage = () => {
         [currentQuestion.id]: {
           isCorrect,
           correctAnswer: currentQuestion.correct_answer,
-          explanation: currentQuestion.explanation ||
+          explanation: currentQuestion.explanation_he ||
             (isCorrect
               ? 'כל הכבוד! התשובה נכונה.'
               : `התשובה הנכונה היא: ${currentQuestion.options[currentQuestion.correct_answer]}`)
