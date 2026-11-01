@@ -93,7 +93,7 @@
   <header>
     <span class="eyebrow">Architecture overview</span>
     <h1>English Trainer System Map</h1>
-    <p class="lede">A practice app for Hebrew-speaking students: English grammar and vocabulary, a Math tab and an Arabic tab (reading and recognition), used in the browser and from Telegram (vocabulary, lesson exercises and a multiplication-table drill). Three services on Google Cloud share one API and one student database.</p>
+    <p class="lede">A practice app for Hebrew-speaking students: English grammar and vocabulary, a Math tab and an Arabic tab (reading and recognition), used in the browser and from Telegram (vocabulary, lesson exercises, English reading texts and a multiplication-table drill). Three services on Google Cloud share one API and one student database.</p>
     <div class="facts">
       <span>GCP project teacher-509909</span>
       <span>Region europe-west1</span>
@@ -177,8 +177,9 @@ flowchart LR
             <li>Mistakes exam per subject: up to 20 of a student's unfixed mistakes in one subject; each answer is graded as it comes and a right one fixes its mistake at once; one rule for the web and the bot</li>
             <li>Vocabulary quiz, word scores, failed words, review mode</li>
             <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
-            <li>Bot API: vocabulary, lesson-exercise and multiplication-drill sessions, chat linking, service key, rate and daily caps</li>
+            <li>Bot API: vocabulary, lesson-exercise, reading-text and multiplication-drill sessions, chat linking, service key, rate and daily caps</li>
             <li>Multiplication drill: ten new multiplication and division questions per round, made and graded by the API inside the bot session; nothing goes to results, points, progress or mistakes, and the usage summary counts the answered questions</li>
+            <li>Reading texts in the bot: the student's next English text (or one picked from the list) with its five questions; the reading is recorded in the website's own reading records (answers, score, the text's progress), so the website and the usage summary count it, with no points or mistakes; each answer is taken once, in a transaction, so a double message never counts twice</li>
             <li>Question and word reports: a reported question or word is hidden until a student reviews it in Telegram; review decisions are applied live as a layer over the bundled questions and words</li>
             <li>Usage summary: participation per student across lessons, words, reading and multiplication drills, read with date-range queries and cached for 10 minutes</li>
           </ul></dd></div>
@@ -196,8 +197,9 @@ flowchart LR
             <li>/review, open to every linked student within a daily cap: a review agent on Gemini Pro proposes keep, change or remove for each reported question or word</li>
             <li>/mistakes_english, /mistakes_math, /mistakes_arabic: the subject's mistakes exam, asked like a lesson, by the API's rule</li>
             <li>/kefel: a quick multiplication-table drill from the API; the student types each number, and the end shows the count and the facts to review</li>
+            <li>/unseen: an English reading text, sent as its own message, then its five questions; ? shows the hard words and the question in Hebrew, 📄 the text again; /unseen_list picks a text</li>
             <li>/usage: every student's participation (active days, lessons, words, reading, multiplication drills; no scores) over 7 and 30 days, visible to every linked student</li>
-            <li>Other messages go to an ADK agent whose tools call the API</li>
+            <li>Other messages go to an ADK agent whose tools call the API; a reply longer than the model may write (the help, a reading text) is sent as the tool built it</li>
             <li>Turn, token and call caps before any model use</li>
           </ul></dd></div>
           <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Python 3.12</span><span class="chip">FastAPI</span><span class="chip">Google ADK</span><span class="chip">Gemini 2.5 Flash</span><span class="chip">Cloud Run</span></dd></div>
@@ -377,6 +379,45 @@ sequenceDiagram
   end
   A->>D: Result, points, mistakes, progress
   A-->>B: Score, points, next lesson
+  B-->>S: Summary
+</pre>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-head">
+        <span class="tag bot">Telegram bot</span>
+        <h3>An English reading text in Telegram</h3>
+        <p>/unseen gives the student's next text not finished, in the website's order, or one picked from the list. The text comes first as its own message, then its five questions one by one, answered with the option number. The API records the reading in the same records as the website's reading page, so the website shows the text as done and the usage summary counts it; there are no points or mistakes. No model is involved.</p>
+      </div>
+      <div class="diagram">
+<pre class="mermaid">
+sequenceDiagram
+  actor S as Student
+  participant B as Bot service
+  participant A as Trainer API
+  participant D as Firestore
+  S->>B: /unseen
+  B->>A: Start a reading
+  A->>A: Next text not finished, its five questions
+  A->>D: Reading session, as the website opens one
+  A-->>B: The text, then the first question
+  B-->>S: The text as its own message, then question 1 with buttons
+  loop Each question
+    opt Help or the text again
+      S->>B: ? or 📄
+      B->>A: Answer
+      A-->>B: Hard words and the question in Hebrew, or the text
+      B-->>S: Help, then the same question
+    end
+    S->>B: Option number
+    B->>A: Answer
+    A->>D: Answer taken once, recorded for the website
+    A-->>B: Right or wrong, explanation, next question
+    B-->>S: Verdict, next question
+  end
+  A->>D: Score and the text's progress, as on the website
+  A-->>B: Count, score, next text
   B-->>S: Summary
 </pre>
       </div>

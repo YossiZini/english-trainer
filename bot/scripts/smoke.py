@@ -1,11 +1,11 @@
 """End-to-end check without Telegram or a model: registers a student on the
 local API, links a fake chat with a real code, and walks a short vocabulary
-session, a lesson's exercises and the lesson list through the coach's fast
-path. Run with the emulator-backed API on :5000:
+session, a lesson's exercises, the lesson list and an /unseen reading through
+the coach's fast path. Run with the emulator-backed API on :5000:
 
     API_URL=http://127.0.0.1:5000/api BOT_API_KEY=dev_bot_key .venv/bin/python scripts/smoke.py
 
-It sends about 30 messages from one chat; start the API with
+It sends about 50 messages from one chat; start the API with
 BOT_CHAT_RATE_PER_MINUTE=1000 to run it more than once a minute.
 """
 import asyncio
@@ -52,6 +52,20 @@ async def main() -> int:
     for text in ["lessons english", "more", "500", "12", "1", "end"]:
         print(f"> {text}\n<", await say(text))
     for text in ["math 3 hard", "?", "end"]:
+        print(f"> {text}\n<", await say(text))
+    # A reading text: the text first (its own message), "?", 📄, five answers,
+    # then the website's progress and /usage; the list, a pick, and the end.
+    for text in ["/unseen", "?", "📄", "1", "2", "3", "4", "1"]:
+        reply = await say(text)
+        for message in reply.before:
+            print(f"> {text}\n<< (first) {message}")
+        print(f"> {text}\n<", reply, reply.buttons)
+    async with httpx.AsyncClient(timeout=10) as http:
+        texts = (await http.get(f"{API}/unseen/paragraphs", headers={"Authorization": f"Bearer {token}"})).json()["data"]
+    done = [(t["title_en"], t["userProgress"]) for t in texts if t["userProgress"]]
+    print("website progress:", done)
+    print("> /usage\n<", await say("/usage"))
+    for text in ["unseen list", "abc", "3", "end", "unseen 99"]:
         print(f"> {text}\n<", await say(text))
     print("> שלום\n<", await say("שלום") if coach.runner else "(agent path skipped: no model)")
     return 0
