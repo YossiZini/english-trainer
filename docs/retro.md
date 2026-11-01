@@ -873,3 +873,126 @@ this sprint's review (s9). No retros were written for Sprints 11–13.
   console); proposed fixes: show recent decisions when the review queue is
   empty, and `/review_auto` for the owner only.
 - Carried over: `App.test.js` under jest.
+
+## Sprint 15 — The multiplication table (2026-10-28 → 2026-11-01)
+
+Goal: let a student learn and practise the multiplication table up to
+10×10: a math chapter before fractions on the website, and a `/kefel` drill
+of ten fresh exercises in Telegram.
+Result: 4 PRs (#65–#68), all merged and deployed. Topic 100
+"לוח הכפל" comes first in math: three lessons (multiplication, division,
+review with word problems), a picture for every rule and 90 computed
+questions. `/kefel` gives ten new questions per round (five ×, five ÷,
+factors 2–10, typed answers, the count and the facts to review), records no
+score, points or mistakes, and counts in `/usage` at the owner's request
+(PR #67). PR #68 holds the five fixes from this sprint's review. The
+optional animated lessons (s3) were not started.
+
+### What went well
+- **An independent check, then mutations.** The script re-computed all 90
+  answers with its own evaluator and found two explanations that never
+  stated the answer and a ×3 fact explained by the ×4 rule. Planted errors
+  (a wrong answer, a broken equation, a wrong table cell) were all caught.
+  It later learned to flag unglued equations and pictures that contradict
+  their captions.
+- **Measured, not read.** Glyph positions ended a false alarm about reversed
+  equations. A measuring script found every equation split across two lines
+  at 360, 390 and 1366 px, and another split the overflow into question,
+  options, feedback and picture heights. A build of `main` in a worktree
+  showed the viewport-check failures were not this sprint's.
+- **A new session kind on the existing rails.** `/kefel` is one route and
+  one service; answers ride the fast path as typed text (no model call).
+  It was tested at three levels: the generator's properties over hundreds of
+  rounds, the API with an unchanged-database snapshot, and the bot's
+  replies. One real round ran through the coach against the emulator API.
+- **Quick owner decisions.** Lesson count, placement and the drill's shape
+  were settled in one question round; the picture overflow was shown in
+  screenshots and accepted in one line.
+- **Review to fixes in an hour.** `/sprint review` found five real problems,
+  all fixed in one PR, each with a test that fails on the old code.
+
+### What hurt
+- **A false alarm from a screenshot.** The owner was told that equations
+  looked reversed. They were not: reading a right-to-left screenshot token by
+  token reverses its left-to-right runs.
+- **Equations split across lines on phones.** 26 theory equations and many
+  explanations broke as "5 ×" at the end of a line and "2 = 10" at the start
+  of the next. It was found after the content was written; nothing in the
+  guide or the checks looked at line breaks inside an isolate.
+- **Old reversals found by accident.** The fractions badges on the math page
+  had shown every equation reversed since Sprint 3 ("1/4 = 3/4 − 1"), and
+  the bot's "התשובה: 1) 40 ÷ 5" line reversed in every Telegram app. Both
+  were plain text in a right-to-left context. The website's options are
+  `dir="ltr"`, so nobody had checked the bot's lines or the badges.
+- **A generator that broke its own promise.** The drill's comment said a
+  division never gives away a product's answer, but the test checked only
+  that facts differ. In one round in five a division showed a product
+  ("24 ÷ 3" next to "4 × 6").
+- **A copied two-write ending.** The drill saved its last answer and then
+  ended the session in a second write, like the lesson session. A request
+  in between, or a failed end, found an open drill with no question left.
+- **A picture against the chapter's own rule.** Lesson 1.2 drew 7 × 6 as
+  6 rows of 7, while lesson 1.1 teaches rows × columns. The check covered
+  arithmetic, not pictures.
+- **About an hour spent proving check failures weren't ours.** `check:viewport`
+  failed on every lesson, `main` included: in this container the navbar is
+  69px tall and the layout reserves 68px, so after "next" the page sits 1px
+  down.
+- **Usage was an afterthought.** The plan said what the drill must not
+  record but not where it should show. The owner asked for the `/usage`
+  count after the drill shipped, which cost an extra PR.
+
+### Lessons → rules
+- Check text direction by measuring glyph positions (a `Range`'s client
+  rects); never judge it from a screenshot of right-to-left text.
+- Every equation or other letterless text shown in a right-to-left context
+  is isolated (`ltr()`, `<bdi>`, `dir="ltr"`, LRI…PDI): page text, badges,
+  buttons and bot lines alike, with a test for each new place.
+- Keep each equation on one line (glue its spaces with U+00A0 where no mixed
+  number needs the plain space), and measure line breaks at 360 and 390 px
+  before calling math content done.
+- A generator's tests assert every property its comment promises, over many
+  runs, not one example.
+- A session's last answer and its end are one write; no request may see a
+  state in between.
+- The independent check matches every picture to its caption (rows ×
+  columns, parts, fills), not only the arithmetic. This extends the Sprint 5
+  rule for animation steps to static pictures, as a check.
+- When a check fails, run it on a build of `main` before calling it a
+  regression. A failure on `main` too becomes a follow-up, not part of the
+  feature PR.
+- Every new student activity has a decision in the plan, confirmed by the
+  owner, on where it shows: points, mistakes, progress and `/usage`.
+  "Records nothing" is one such decision.
+
+### Follow-ups
+- Answers arriving together: every bot session kind reads and writes
+  without a condition, so a double message can lose an answer. Use a
+  conditional write or a transaction.
+- `BotSession.findOpenByChat` reads every session the chat ever had, 2–4
+  times per message, and drills add many short sessions. Query only open
+  sessions, or keep the open session's id on the link.
+- Math chapter numbers come from `numberOffset` (topic 100 is chapter 1),
+  which leaves no topic number for a chapter before it. Derive the shown
+  number from the chapter order.
+- `/report` during an open drill cannot reach a lesson that ended minutes
+  before.
+- Hard questions with a picture end below the pinned bar on a 768px laptop
+  (up to 162px) and a 360px phone (up to 85px), as in fractions. The owner
+  accepted this for now. Fix with a compact laptop layout or folded
+  pictures (carried from Sprint 14).
+- Equations in topics 101–104 may still split across lines on phones; only
+  topic 100 glues them. Measure, then glue where no mixed number is
+  involved.
+- `check:viewport`'s laptop "at top" check fails wherever the navbar is
+  taller than 4.25rem. Give the navbar a fixed height, or allow 1px.
+- `fitHeight` resizes pictures by rewriting SVG attributes with a regex
+  (`multiplication/common.js`). A max-height option in `math-svg.js` would
+  be sturdier.
+- The independent check scripts live in the scratchpad, which does not
+  survive a container reset; the earlier topics' scripts are gone. Keep
+  them in the repository, for example `backend/scripts/checks/`.
+- Animated lessons for the multiplication table (s3, not started).
+- Carried over: `App.test.js` under jest; the owner's Firestore check of
+  Alona's math reports and the two proposed review fixes; retros for
+  Sprints 11–13.
