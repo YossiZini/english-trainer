@@ -995,7 +995,7 @@ The journey is also full of dangers. Before they leave, many birds eat more than
           questionTextHe: 'מה עושים עשרות אלפי עגורים בכל חורף?',
           options: ['They fly on to Africa', 'They stay in the Hula Valley', 'They fly back north to Europe', 'They build nests in Israel'],
           correctAnswer: 1,
-          explanationHe: 'הטקסט אומר: "every winter, tens of thousands of cranes stay in the Hula Valley" - העגורים לא ממשיכים לאפריקה, אלא נשארים בעמק החולה כל החורף.'
+          explanationHe: 'הטקסט אומר: "every winter, tens of thousands of cranes stay in the Hula Valley" - עשרות אלפי העגורים האלה לא ממשיכים לאפריקה, אלא נשארים בעמק החולה כל החורף.'
         },
         {
           questionNumber: 2,
@@ -1155,7 +1155,7 @@ Street food also tells the story of a place and its people. It is often made fro
           questionTextHe: 'מהי המטרה העיקרית של הטקסט?',
           options: ['To teach readers how to cook falafel at home', 'To describe street food and the stories it tells', 'To warn readers that street food is unhealthy', 'To compare the prices of food in different countries'],
           correctAnswer: 1,
-          explanationHe: 'הטקסט מסביר "Why is street food so popular?" ואיך אוכל רחוב "tells the story of a place and its people" - כלומר הוא מתאר אוכל רחוב ומה הוא מספר על מקומות ועל אנשים.'
+          explanationHe: 'הטקסט עונה על השאלה "Why is street food so popular?" ומסביר איך אוכל רחוב "tells the story of a place and its people" - כלומר הטקסט מתאר אוכל רחוב ומה האוכל הזה מספר על מקומות ועל אנשים.'
         }
       ]
     },
@@ -1195,7 +1195,7 @@ Sadly, the Dead Sea is shrinking: its water level drops by about one meter every
           questionTextHe: 'בפסקה 2, מה משווה הכותב כדי להראות עד כמה המים צפופים?',
           options: ['The weight of equal amounts of lake water and plain water', 'The saltiness of the lake water and of ocean water', 'The way people float in the lake and in a swimming pool', 'The color of the black mud and of the lake water'],
           correctAnswer: 0,
-          explanationHe: 'הכותב כותב: "a cup of it weighs about a quarter more than a cup of ordinary water" - הוא משווה את המשקל של כמות שווה ממי האגם וממים רגילים. ההשוואה למי האוקיינוס, בפסקה 1, מראה כמה המים מלוחים, לא כמה הם צפופים.'
+          explanationHe: 'בפסקה 2 כתוב: "a cup of it weighs about a quarter more than a cup of ordinary water" - הכותב משווה את המשקל של כמות שווה ממי האגם וממים רגילים. ההשוואה למי האוקיינוס, בפסקה 1, מראה כמה המים מלוחים, לא כמה הם צפופים.'
         },
         {
           questionNumber: 3,
@@ -1267,7 +1267,7 @@ Today, money is changing again. Many people rarely use coins or paper money; ins
           questionTextHe: 'בפסקה 3, מהי המשמעות הקרובה ביותר של המילה "rarely"?',
           options: ['very often', 'almost never', 'really, truly', 'for a short time'],
           correctAnswer: 1,
-          explanationHe: 'כתוב: "Many people rarely use coins or paper money; instead, they pay with a bank card" - המילה instead מראה שהם משלמים בדרך אחרת, ולכן rarely פירושו כמעט אף פעם, לעיתים רחוקות. שימו לב: rarely אינה really (באמת).'
+          explanationHe: 'כתוב: "Many people rarely use coins or paper money; instead, they pay with a bank card" - המילה instead מראה שהם משלמים בדרך אחרת, ולכן המילה rarely פירושה לעיתים רחוקות, כמעט אף פעם לא. שימו לב: rarely אינה really (באמת).'
         },
         {
           questionNumber: 4,
@@ -1283,7 +1283,7 @@ Today, money is changing again. Many people rarely use coins or paper money; ins
           questionTextHe: 'מהו הרעיון המרכזי של הטקסט?',
           options: ['Money keeps changing, so trust in it no longer matters', 'Paper money was invented before metal coins', 'Money has changed form over time to meet new needs', 'Digital payments have made money much less important'],
           correctAnswer: 2,
-          explanationHe: 'הטקסט מתאר צורות שונות של כסף לאורך הזמן: צדפים, מטבעות, כסף נייר ותשלום בכרטיס ובטלפון. כל צורה חדשה ענתה על צורך, למשל: "That is why, about a thousand years ago, China began to use paper money". והאמון עדיין חשוב: "it works only because people trust that others will accept it".'
+          explanationHe: 'הטקסט מתאר צורות שונות של כסף לאורך הזמן: צדפים, מטבעות, כסף נייר ותשלום בכרטיס ובטלפון. כל צורה חדשה ענתה על צורך, למשל מטבעות רבים "were heavy to carry", ולכן בסין עברו לכסף נייר, קל יותר. והאמון עדיין חשוב: "it works only because people trust that others will accept it".'
         }
       ]
     },
@@ -1315,7 +1315,7 @@ The effects were enormous. Because printed books cost far less than handwritten 
           questionTextHe: 'בפסקה 1, מהי המשמעות הקרובה ביותר של המילה "afford"?',
           options: ['copy quickly by hand', 'have the money to pay for', 'carry from one place to another', 'write neatly with a pen'],
           correctAnswer: 1,
-          explanationHe: 'לפני כן כתוב: "books were rare and very expensive", ולכן רק העשירים יכלו "afford them" - כלומר היה להם מספיק כסף כדי לקנות ספרים.'
+          explanationHe: 'לפני כן כתוב: "books were rare and very expensive", ולכן בדרך כלל רק משפחות עשירות, כנסיות ואוניברסיטאות יכלו "afford them" - כלומר היה להן מספיק כסף כדי לקנות ספרים.'
         },
         {
           questionNumber: 2,
@@ -1339,7 +1339,7 @@ The effects were enormous. Because printed books cost far less than handwritten 
           questionTextHe: 'לפי פסקה 3, איך הדפוס עזר למלומדים?',
           options: ['They could study matching copies in faraway places', 'They could buy handwritten books for much less money', 'They could copy books by hand much more quickly', 'They could set up presses in two hundred cities'],
           correctAnswer: 0,
-          explanationHe: 'הטקסט מסביר: "Since the copies of a book were almost identical, scholars in different countries could read the same text" - העותקים היו כמעט זהים, ולכן חוקרים במקומות רחוקים למדו מאותו טקסט בדיוק.'
+          explanationHe: 'הטקסט מסביר: "Since the copies of a book were almost identical, scholars in different countries could read the same text" - העותקים היו כמעט זהים, ולכן חוקרים בארצות שונות ורחוקות יכלו ללמוד מאותו טקסט.'
         },
         {
           questionNumber: 5,
@@ -1381,7 +1381,7 @@ None of this makes Ben-Yehuda unimportant. His new words and his dictionary gave
           questionTextHe: 'בפסקה 1, מהי המשמעות הקרובה ביותר של המילה "dormant"?',
           options: ['asleep, and unlikely to wake up again', 'inactive for a time, but able to wake up', 'slowly being forgotten by almost everyone', 'used mostly by a small group of scholars'],
           correctAnswer: 1,
-          explanationHe: 'הכותב מסביר: "not dead; it was dormant, alive on the page but silent" - לא פעילה לזמן מה, אבל מסוגלת להתעורר, וכך אכן קרה. האפשרות "asleep, and unlikely to wake up again" מתחילה נכון, אבל לפי הכותב העברית "not dead", והטקסט כולו מספר איך היא חזרה.'
+          explanationHe: 'הכותב מסביר: "not dead; it was dormant, alive on the page but silent" - העברית לא הייתה פעילה לזמן מה, אבל יכלה להתעורר, וכך אכן קרה. האפשרות "asleep, and unlikely to wake up again" מתחילה נכון, אבל לפי הכותב העברית הייתה "not dead", והטקסט כולו מספר איך היא חזרה.'
         },
         {
           questionNumber: 2,
@@ -1389,7 +1389,7 @@ None of this makes Ben-Yehuda unimportant. His new words and his dictionary gave
           questionTextHe: 'מה הטקסט אומר על בנו של בן-יהודה?',
           options: ['He is widely seen as the boy whose example made Hebrew a spoken language again', 'He is often described as the first child to learn Hebrew at a village school', 'He grew up hearing several different languages spoken at home every day', 'He is widely seen as the first child in centuries to be raised speaking Hebrew'],
           correctAnswer: 3,
-          explanationHe: 'הטקסט אומר שבנו "is often described as the first native speaker of modern Hebrew" - הוא גדל בבית שבו דיברו רק עברית, ולא למד אותה בבית ספר. אבל הדוגמה שלו לא החזירה לבדה את העברית: "a single household cannot turn a language into a living one".'
+          explanationHe: 'הטקסט אומר שבנו של בן-יהודה "is often described as the first native speaker of modern Hebrew" - הוא למד עברית בבית שבו דיברו רק עברית, ולא בבית ספר בכפר. הטקסט לא אומר שהדוגמה שלו החזירה את העברית לדיבור; להפך: "a single household cannot turn a language into a living one".'
         },
         {
           questionNumber: 3,
@@ -1397,7 +1397,7 @@ None of this makes Ben-Yehuda unimportant. His new words and his dictionary gave
           questionTextHe: 'לפי הטקסט, מה הקשה בהתחלה על ההוראה בעברית?',
           options: ['Teachers often lacked the words they needed', 'Hardly any books had ever been written in Hebrew', 'Parents did not allow Hebrew to be spoken at home', 'Children refused to use Hebrew outside the classroom'],
           correctAnswer: 0,
-          explanationHe: 'הטקסט אומר: "teachers often had to invent words as they went along" - חסרו להם מילים. התשובה שכמעט לא נכתבו ספרים בעברית כללית מדי: רק "proper textbooks hardly existed", ובפסקה 1 מסופר שלמדו בספרים עתיקים בעברית.'
+          explanationHe: 'הטקסט אומר: "teachers often had to invent words as they went along" - חסרו להם מילים. התשובה שכמעט לא נכתבו ספרים בעברית היא הכללה לא נכונה: חסרו רק "proper textbooks", ובפסקה 1 מסופר שיהודים למדו בספרים עתיקים בעברית.'
         },
         {
           questionNumber: 4,
@@ -1455,7 +1455,7 @@ In 1945, Fleming, Florey and Chain shared the Nobel Prize, a fitting sign that t
           questionTextHe: 'מה אפשר להבין מפסקה 2 על הסיבה שפלמינג שם לב לצלחת?',
           options: ['His past research helped him see why the dish mattered', 'He realized at once that he had found a new medicine', 'Mold almost never appeared on dishes in his laboratory', 'He had been searching for a mold that kills bacteria'],
           correctAnswer: 0,
-          explanationHe: 'פלמינג עצר כי "he had spent years studying substances that kill germs" - המחקר הקודם הכין אותו להבחין בתופעה. הוא לא חיפש עובש כזה: הנבג נחת בצלחת במקרה. וגם לא הבין מיד שמצא תרופה: התאונה הפכה רק ל-"a question worth asking".'
+          explanationHe: 'פלמינג עצר כי "he had spent years studying substances that kill germs" - המחקר הקודם הכין אותו להבחין בתופעה. הוא לא חיפש עובש כזה: הנבג נחת בצלחת במקרה. וגם לא הבין מיד שמצא תרופה: הסקרנות שלו הפכה את המקרה רק ל-"a question worth asking".'
         },
         {
           questionNumber: 3,
@@ -1463,7 +1463,7 @@ In 1945, Fleming, Florey and Chain shared the Nobel Prize, a fitting sign that t
           questionTextHe: 'לפי פסקה 3, מדוע פלמינג לא הצליח להפוך את הפניצילין לתרופה?',
           options: ['Progress was so slow that he could not make it pure or stable', 'He lost interest in it and turned to other kinds of work', 'It could not be extracted from the mold in any way at all', 'It was difficult to get out of the mold and did not last long'],
           correctAnswer: 3,
-          explanationHe: 'הטקסט אומר: "it was hard to extract and broke down quickly, so he could not produce it in a pure, usable form" - הבעיה הייתה בחומר עצמו. התשובה שההתקדמות האיטית מנעה ממנו לטהר אותו הופכת סיבה ותוצאה: הקושי בחומר הוא שגרם להתקדמות האיטית.'
+          explanationHe: 'הטקסט אומר: "it was hard to extract and broke down quickly, so he could not produce it in a pure, usable form" - הבעיה הייתה בחומר עצמו. התשובה שההתקדמות האיטית מנעה ממנו לטהר אותו מחליפה בין הסיבה לתוצאה: הקושי בחומר הוא שגרם להתקדמות האיטית.'
         },
         {
           questionNumber: 4,
@@ -1479,7 +1479,7 @@ In 1945, Fleming, Florey and Chain shared the Nobel Prize, a fitting sign that t
           questionTextHe: 'מהי הטענה המרכזית של הכותב?',
           options: ['Penicillin required chance, a ready mind and years of effort', 'Penicillin was discovered mainly thanks to one lucky accident', 'Florey and Chain deserve more of the credit than Fleming', 'Great discoveries come from hard work rather than luck'],
           correctAnswer: 0,
-          explanationHe: 'הכותב מסכם: "Penicillin needed a lucky accident, but it also needed an observer ready to recognize it and years of patient work". התשובה שהתגלית נבעה בעיקר ממזל חלקית מדי: לפי הכותב, בלי מוח מוכן ובלי צוות אוקספורד הפניצילין לא היה הופך לתרופה.'
+          explanationHe: 'הכותב מסכם: "Penicillin needed a lucky accident, but it also needed an observer ready to recognize it and years of patient work". התשובה שהתגלית נבעה בעיקר ממזל מספרת רק חלק מהסיפור: לפי הכותב, בלי מוח מוכן הצלחת אולי הייתה נזרקת, ובלי צוות אוקספורד ייתכן שהפניצילין לא היה הופך לתרופה.'
         }
       ]
     },
@@ -1521,7 +1521,7 @@ Fortunately, the effect can be weakened. If you need help in a crowd, point to o
           questionTextHe: 'בפסקה 2, מהי המשמעות הקרובה ביותר של המילה "cue"?',
           options: ['a reason to feel afraid', 'a signal for how to behave', 'an order that we have to obey', 'a feeling of shared duty'],
           correctAnswer: 1,
-          explanationHe: 'המשפט הבא מסביר: "If everyone seems calm, we assume there is no real emergency" - אנחנו לומדים מהתנהגות האחרים איך לנהוג, כלומר אות או סימן. האפשרות "an order that we have to obey" חזקה מדי: איש לא מצווה עלינו דבר, אנחנו רק מסיקים מהם.'
+          explanationHe: 'המשפט הבא מסביר: "If everyone seems calm, we assume there is no real emergency" - אנחנו לומדים מהתנהגות האחרים איך לנהוג, ולכן cue הוא אות או סימן. האפשרות "an order that we have to obey" חזקה מדי: איש לא מצווה עלינו דבר, אנחנו רק מסיקים מסקנות מההתנהגות שלהם.'
         },
         {
           questionNumber: 3,
@@ -1579,7 +1579,7 @@ Fortunately, the same understanding points to solutions. Planting trees and crea
           questionTextHe: 'לפי הטקסט, מתי ההבדל בטמפרטורה בין העיר לסביבתה הוא לרוב הגדול ביותר?',
           options: ['At midday, when the sunshine is at its very strongest', 'At night, once the fields have lost their daytime heat', 'In the late afternoon, after the city has stored the most heat', 'During heatwaves, when air conditioners are running all day'],
           correctAnswer: 1,
-          explanationHe: 'הטקסט אומר שהפער "is often greatest after sunset", כשהכפר מתקרר מהר והעיר "stays warm long into the night". התשובה על שעות אחר הצהריים, כשהעיר כבר אגרה חום, נשמעת הגיונית, אבל לפי הטקסט השיא מגיע רק אחרי השקיעה.'
+          explanationHe: 'הטקסט אומר שהפער "is often greatest after sunset", כשהאזור הכפרי מתקרר מהר והעיר "stays warm long into the night". התשובה על שעות אחר הצהריים, כשהעיר כבר אגרה חום, נשמעת הגיונית, אבל לפי הטקסט הפער הגדול ביותר מגיע בדרך כלל אחרי השקיעה.'
         },
         {
           questionNumber: 2,
@@ -1603,7 +1603,7 @@ Fortunately, the same understanding points to solutions. Planting trees and crea
           questionTextHe: 'מדוע הכותב מזכיר רחוב הומה שלאורכו נטועים עצים גבוהים?',
           options: ['To suggest that parking lots should be turned into parks', 'To show that busy streets are cooler than quiet ones', 'To show that people prefer to walk in the shade', 'To show that crowding is not what mainly makes cities hot'],
           correctAnswer: 3,
-          explanationHe: 'הכותב מסיק מהדוגמה ש-"surfaces and greenery matter more than crowds" - כלומר הצפיפות אינה הסיבה העיקרית לחום. התשובה שרחובות הומים קרירים יותר משקטים מפספסת את הנקודה: הרחוב קריר בזכות העצים, למרות ההמון, וההשוואה היא למגרש חניה ריק.'
+          explanationHe: 'הכותב מסיק מהדוגמה ש-"surfaces and greenery matter more than crowds" - כלומר הצפיפות אינה הסיבה העיקרית לחום. התשובה שרחובות הומים קרירים יותר מרחובות שקטים מפספסת את העיקר: הרחוב קריר בזכות העצים, למרות ההמון, וההשוואה היא למגרש חנייה ריק.'
         },
         {
           questionNumber: 5,
@@ -1611,7 +1611,7 @@ Fortunately, the same understanding points to solutions. Planting trees and crea
           questionTextHe: 'מהי המטרה העיקרית של הכותב בטקסט?',
           options: ['To warn readers about the dangers of summer heatwaves', 'To explain why city centers stay warmer than the countryside at night', 'To explain what makes cities hotter and what can be done about it', 'To argue that cities should plant trees instead of painting roofs'],
           correctAnswer: 2,
-          explanationHe: 'הטקסט מסביר מה מחמם את העיר ("One of the main reasons lies in the materials") ואז מציע פתרונות ("the same understanding points to solutions"). התשובה על החום בלילה צרה מדי: היא מתאימה לפסקאות 1–2 ומשמיטה את הפתרונות. וגלי החום מוזכרים רק במשפט אחד.'
+          explanationHe: 'הטקסט מסביר מה מחמם את העיר ("One of the main reasons lies in the materials") ואז מציע פתרונות ("the same understanding points to solutions"). התשובה על החום בלילה מצומצמת מדי: היא מתאימה לפסקאות 1–2 ומשמיטה את הפתרונות. וגלי החום מוזכרים רק במשפט אחד.'
         }
       ]
     }
