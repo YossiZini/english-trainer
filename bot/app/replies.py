@@ -167,6 +167,9 @@ def answer_reply(result: dict) -> Reply:
     if data.get("kind") == "drill":
         from .drill_replies import drill_answer_reply
         return drill_answer_reply(data)
+    if data.get("kind") == "unseen":
+        from .unseen_replies import unseen_answer_reply
+        return unseen_answer_reply(data)
     if data.get("setup"):
         intro = NOT_ENOUGH_FOR_CHOICE if data.get("notEnoughWords") else INVALID_CHOICE if data.get("invalid") else ""
         return setup_reply(data, intro)
@@ -202,6 +205,9 @@ def end_reply(result: dict) -> Reply:
     if result["data"].get("kind") == "drill":
         from .drill_replies import drill_end_reply
         return drill_end_reply(result["data"])
+    if result["data"].get("kind") == "unseen":
+        from .unseen_replies import unseen_end_reply
+        return unseen_end_reply(result["data"])
     return _summary_reply("סיימנו להיום.\n", result["data"]["summary"])
 
 
@@ -217,6 +223,9 @@ def status_reply(result: dict) -> Reply:
     if data.get("kind") == "drill":
         from .drill_replies import drill_status_reply
         return drill_status_reply(data)
+    if data.get("kind") == "unseen":
+        from .unseen_replies import unseen_status_reply
+        return unseen_status_reply(data)
     if data.get("setup"):
         return setup_reply(data)
     return Reply("התרגול ממשיך. המילה הנוכחית:\n" + _word_line(data["word"], data["progress"]))

@@ -93,5 +93,14 @@ class TrainerApi:
         """/kefel: ten new multiplication-table questions, answered by typing the number."""
         return await self._call("POST", "/bot/drill/start", chat_id)
 
+    async def unseen_start(self, chat_id: str, number: int | None = None) -> dict:
+        """/unseen: a reading text (the next one not finished, or number N of the list) and its first question."""
+        fields = {"number": number} if number else {}
+        return await self._call("POST", "/bot/unseen/start", chat_id, **fields)
+
+    async def unseen_list(self, chat_id: str) -> dict:
+        """unseen list: every reading text, numbered, marked done or next; the student sends a number."""
+        return await self._call("POST", "/bot/unseen/list", chat_id)
+
     async def status(self, chat_id: str) -> dict:
         return await self._call("GET", "/bot/session/status", chat_id)
