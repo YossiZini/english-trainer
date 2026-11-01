@@ -349,6 +349,10 @@ const topicMeta = {
     ],
     nameKey: 'he',
     numberOffset: 99,
+    // Chapters in teaching order, shown as 1, 2, 3…: division (105) comes
+    // right after the multiplication table. The same list orders lessons in
+    // the API (backend/src/config/subjects.js MATH_CHAPTER_ORDER).
+    topicOrder: [100, 105, 101, 102, 103, 104],
     topicNames: mathTopicNames,
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,
@@ -380,8 +384,18 @@ const topicMeta = {
 const subjectOfTopic = (topicNumber) => (topicNumber > 200 ? 'arabic' : topicNumber >= 100 ? 'math' : 'english');
 /** The subject's page and display text; unknown subjects fall back to English. */
 const metaOf = (subject) => topicMeta[subject] || topicMeta.english;
-const displayTopic = (topicNumber) => topicNumber - topicMeta[subjectOfTopic(topicNumber)].numberOffset;
+const displayTopic = (topicNumber) => {
+  const meta = topicMeta[subjectOfTopic(topicNumber)];
+  const place = meta.topicOrder ? meta.topicOrder.indexOf(Number(topicNumber)) : -1;
+  return place >= 0 ? place + 1 : topicNumber - meta.numberOffset;
+};
+/** A subject's topic numbers (as strings, like Object.keys) in teaching order. */
+const orderedTopics = (subject, numbers) => {
+  const order = metaOf(subject).topicOrder || [];
+  const rank = (n) => (order.indexOf(Number(n)) >= 0 ? order.indexOf(Number(n)) : order.length + Number(n));
+  return [...numbers].sort((a, b) => rank(a) - rank(b));
+};
 const displaySubtopic = (subtopicNumber) => String(subtopicNumber).replace(/^\d+/, (n) => displayTopic(Number(n)));
 
-export { getSubtopicExamples, displayTopic, displaySubtopic, subjectOfTopic, metaOf };
+export { getSubtopicExamples, displayTopic, displaySubtopic, subjectOfTopic, metaOf, orderedTopics };
 export default topicMeta;
