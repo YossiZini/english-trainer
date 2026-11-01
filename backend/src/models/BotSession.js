@@ -182,6 +182,20 @@ class BotSession {
     });
   }
 
+  /** A reading waiting for the student to pick a text from the list (kind 'unseen', in setup). */
+  static async createUnseenPick({ userId, chatId }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'unseen',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'setup',
+      setup_step: 'text',
+      started_at: now,
+      ended_at: null
+    });
+  }
+
   /** Session kind; rows from before exercise sessions are vocabulary sessions. */
   static kindOf(session) {
     return (session && session.kind) || 'vocab';

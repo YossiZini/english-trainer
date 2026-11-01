@@ -71,6 +71,13 @@ router.post('/unseen/start', [
 ], BotController.startUnseen);
 
 /**
+ * POST /api/bot/unseen/list { chatId } — every reading text, numbered in the
+ * website's order, marked done (with the best score) or next; the student
+ * answers with a text's number through /session/answer.
+ */
+router.post('/unseen/list', BotController.listUnseen);
+
+/**
  * POST /api/bot/exercise/lessons { chatId, subject } — the subject's lessons,
  * numbered, 10 per page; the student answers with a number ('עוד' / 'הקודם'
  * turn the page) through /session/answer.

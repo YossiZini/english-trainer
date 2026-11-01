@@ -8,6 +8,7 @@ const app = require('../src/app');
 const UsageService = require('../src/services/usage.service');
 const BotSession = require('../src/models/BotSession');
 const UnseenSession = require('../src/models/UnseenSession');
+const UnseenUserProgress = require('../src/models/UnseenUserProgress');
 
 const pause = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -282,6 +283,52 @@ describe('Bot unseen reading', () => {
       await pause(3); // distinct answer times: "first" is well defined
     }
     expect(await UnseenSession.complete(reading.id)).toMatchObject({ correct_answers: 1, score: 20 });
+  });
+
+  test('unseen list: every text in the website\'s order, marked done or next; a number starts it', async () => {
+    const list = (await bot('/api/bot/unseen/list')).body.data;
+    // The website's own marks: a text is done once a reading of it was completed.
+    const website = (await web('/api/unseen/paragraphs')).body.data;
+    const next = website.findIndex(p => !p.userProgress);
+    expect(list).toMatchObject({ kind: 'unseen', pick: true, count: website.length, allDone: false });
+    expect(list.items).toEqual(website.map((p, i) => ({
+      n: i + 1,
+      title: p.title_en,
+      titleHe: p.title_he,
+      level: p.complexity_level,
+      status: p.userProgress ? 'done' : i === next ? 'next' : 'open',
+      bestScore: p.userProgress ? p.userProgress.best_score : null
+    })));
+    expect(list.items.some(i => i.status === 'done')).toBe(true); // the readings finished above
+    expect((await status()).body.data).toMatchObject({ active: true, kind: 'unseen', pick: true, count: website.length });
+
+    // Not a text's number: the list again, nothing started.
+    for (const text of ['0', String(website.length + 1), 'seven', '?']) {
+      expect((await answer(text)).body.data).toMatchObject({ kind: 'unseen', pick: true, invalid: true });
+    }
+    // A number starts that text, a finished one too (to read it again).
+    const done = list.items.find(i => i.status === 'done');
+    const started = (await answer(String(done.n))).body.data;
+    expect(started).toMatchObject({ kind: 'unseen', reading: { number: done.n, title: done.title }, question: { number: 1 } });
+    expect(started.passage).toBe(website[done.n - 1].content);
+
+    // /end closes the list too.
+    await bot('/api/bot/unseen/list');
+    expect((await bot('/api/bot/session/end')).body.data).toMatchObject({ kind: 'unseen', ended: true, pickClosed: true });
+    expect((await status()).body.data.active).toBe(false);
+  });
+
+  test('with every text finished, /unseen shows the list to read one again', async () => {
+    const userId = (await db.findOne('users', { name: 'bot-unseen' })).id;
+    for (const p of texts) {
+      if (!(await progressOf(p.id))) await UnseenUserProgress.upsertProgress(userId, p.id, 80);
+    }
+    const data = (await bot('/api/bot/unseen/start')).body.data;
+    expect(data).toMatchObject({ kind: 'unseen', pick: true, allDone: true, count: texts.length });
+    expect(data.items.every(i => i.status === 'done')).toBe(true);
+    // The list is open: a number starts that text again.
+    expect((await answer('2')).body.data).toMatchObject({ kind: 'unseen', reading: { number: 2, title: texts[1].title_en } });
+    await bot('/api/bot/session/end');
   });
 
   test('the daily message cap covers /unseen', async () => {

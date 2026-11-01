@@ -10,7 +10,8 @@ const { isEndCommand, isHintCommand } = require('../../utils/botWords');
  * /unseen in the chat bot (session kind 'unseen'): an English reading text
  * from the website's Unseen section, sent first, then its five questions,
  * one per message. The text is the student's next one not finished, in the
- * website's order (level, then English title), or number N of that list.
+ * website's order (level, then English title), or number N of that list;
+ * the list itself is a session in setup, answered with a text's number.
  *
  * An answer is an option's number; "?" shows the text's hard words and the
  * question in Hebrew and is not an answer. The reading is recorded exactly
@@ -33,6 +34,29 @@ async function finishedIds(userId) {
 async function nextIndex(userId, texts) {
   const finished = await finishedIds(userId);
   return texts.findIndex(p => !finished.has(p.id));
+}
+
+/**
+ * The numbered list of texts with the student's marks: done (with the best
+ * score), next (the first not finished) or open; allDone when every text is
+ * finished.
+ */
+async function listView(user) {
+  const texts = await allTexts();
+  const progress = new Map((await UnseenUserProgress.getAllByUser(user.id)).map(p => [p.paragraph_id, p]));
+  const next = texts.findIndex(p => !progress.has(p.id));
+  return {
+    count: texts.length,
+    allDone: next < 0,
+    items: texts.map((p, i) => ({
+      n: i + 1,
+      title: p.title_en,
+      titleHe: p.title_he || null,
+      level: p.complexity_level,
+      status: progress.has(p.id) ? 'done' : i === next ? 'next' : 'open',
+      bestScore: progress.has(p.id) ? progress.get(p.id).best_score : null
+    }))
+  };
 }
 
 /** A question as the session keeps it from the start. */
@@ -126,8 +150,9 @@ async function finish(user, session) {
 class UnseenBotSession {
   /**
    * Start a reading: text `number` of the list, or the student's next text
-   * not finished. Opens the website's reading session, as the reading page
-   * does, and replaces any open session. Returns the text, then question 1.
+   * not finished (with every text finished: the list, to read one again).
+   * Opens the website's reading session, as the reading page does, and
+   * replaces any open session. Returns the text, then question 1.
    */
   static async start(user, chatId, { number } = {}) {
     const texts = await allTexts();
@@ -137,7 +162,7 @@ class UnseenBotSession {
       if (!texts[index]) return { error: 'text_not_found' };
     } else {
       index = await nextIndex(user.id, texts);
-      if (index < 0) return { error: 'all_read' };
+      if (index < 0) return this.list(user, chatId);
     }
     const paragraph = texts[index];
     const questions = (await UnseenQuestion.findByParagraphId(paragraph.id)).map(frozenQuestion);
@@ -153,11 +178,28 @@ class UnseenBotSession {
     };
   }
 
-  /** One message during a reading: an option number, "?", or the end word. The fifth answer ends the reading. */
+  /** Open the list of texts; the student answers with a text's number. Replaces any open session. */
+  static async list(user, chatId) {
+    await replaceOpen(chatId);
+    const session = await BotSession.createUnseenPick({ userId: user.id, chatId });
+    return { kind: 'unseen', pick: true, sessionId: session.id, ...(await listView(user)) };
+  }
+
+  /** In the list: a text's number starts that text (a finished one too, to read it again); anything else shows the list again. */
+  static async pick(user, chatId, session, text) {
+    const view = await listView(user);
+    const t = String(text || '').trim();
+    const n = /^\d{1,3}$/.test(t) ? Number(t) : 0;
+    if (n < 1 || n > view.count) return { kind: 'unseen', pick: true, invalid: true, sessionId: session.id, ...view };
+    return this.start(user, chatId, { number: n });
+  }
+
+  /** One message during a reading: an option number, "?", or the end word (in the list: a text's number). The fifth answer ends the reading. */
   static async answer(user, chatId, text) {
     const session = await openReading(chatId);
     if (!session) return { error: 'no_session' };
     if (isEndCommand(text)) return this.end(user, chatId);
+    if (session.status === 'setup') return this.pick(user, chatId, session, text);
     const shown = { reading: readingView(session), question: questionView(session) };
     if (isHintCommand(text)) return { kind: 'unseen', hintAsked: true, hint: await hintFor(session), ...shown };
 
@@ -213,6 +255,7 @@ class UnseenBotSession {
     const session = await openReading(chatId);
     if (!session) return { error: 'no_session' };
     await BotSession.end(session.id, 'ended');
+    if (session.status === 'setup') return { kind: 'unseen', done: true, ended: true, pickClosed: true };
     if (session.unseen_session_id) await UnseenSession.abandon(session.unseen_session_id);
     return {
       kind: 'unseen',
@@ -228,6 +271,9 @@ class UnseenBotSession {
   static async status(chatId) {
     const session = await openReading(chatId);
     if (!session) return { active: false };
+    if (session.status === 'setup') {
+      return { active: true, kind: 'unseen', pick: true, sessionId: session.id, ...(await listView({ id: session.user_id })) };
+    }
     return { active: true, kind: 'unseen', sessionId: session.id, reading: readingView(session), question: questionView(session) };
   }
 }

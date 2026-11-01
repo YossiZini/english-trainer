@@ -17,7 +17,7 @@ const ERROR_STATUS = {
   // 409, not 429: the bot reads 429 as its own daily message cap.
   exercise_not_found: 404, word_not_found: 404, bad_reason: 400, report_cap: 409, bad_decision: 400,
   bad_proposal: 400, bad_action: 400, no_proposal: 409, review_cap: 409, already_decided: 409,
-  text_not_found: 404, all_read: 409, no_questions: 409
+  text_not_found: 404, no_questions: 409
 };
 
 function send(res, result) {
@@ -86,6 +86,11 @@ class BotController {
   static async startUnseen(req, res) {
     if (invalid(req, res)) return;
     send(res, await UnseenBotSession.start(req.user, req.chatId, { number: req.body.number }));
+  }
+
+  /** unseen list: every reading text, numbered, with the student's marks. */
+  static async listUnseen(req, res) {
+    send(res, await UnseenBotSession.list(req.user, req.chatId));
   }
 
   static async reportQuestion(req, res) {
