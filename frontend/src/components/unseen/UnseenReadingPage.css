@@ -38,6 +38,13 @@
   background: #e5e7eb;
 }
 
+/* Room for the back button (about 6.5rem wide) on both sides, so a long
+   title stays centred and never runs under it. */
+.unseen-reading-page .reading-header {
+  padding-left: 7rem;
+  padding-right: 7rem;
+}
+
 .reading-title {
   font-size: 2rem;
   font-weight: bold;
@@ -299,6 +306,18 @@
 
   .reading-header {
     margin-bottom: 1.5rem;
+  }
+
+  /* Too narrow to keep room beside the title: the back button gets its own row. */
+  .unseen-reading-page .reading-header {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .unseen-reading-page .back-btn {
+    position: static;
+    display: block;
+    margin: 0 0 0.75rem auto;
   }
 
   .reading-title {

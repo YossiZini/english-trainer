@@ -7,6 +7,8 @@
  * QUESTIONS questions: answers, shows feedback and asserts the content card
  * ends above the pinned action bar (no scrolling needed); then presses Next
  * and asserts the new question is at the top with the previous feedback gone.
+ * It also opens the reading page (unseen) of the longest and the shortest
+ * English title and asserts the back button covers neither title.
  *
  * Usage (see SETUP.md for the full sequence):
  *   API running on http://127.0.0.1:5000 (emulator-backed) and either
@@ -152,6 +154,36 @@ async function api(route, opts = {}) {
       }
     }
     console.log(`${tag}: worst overflow ${worst}px over ${QUESTIONS} questions`);
+    await ctx.close();
+  }
+
+  // The reading page's header (defect d8): the back button never covers the
+  // English or Hebrew title, for the longest and the shortest English title,
+  // also at 800px (desktop font size, little room).
+  const listed = await api('/unseen/paragraphs', { headers: { Authorization: `Bearer ${token}` } });
+  const byLength = [...(listed.data || [])].sort((a, b) => b.title_en.length - a.title_en.length);
+  const headerTexts = [byLength[0], byLength[byLength.length - 1]];
+  for (const size of [...SIZES, { name: 'small-laptop', width: 800, height: 900 }]) {
+    const ctx = await browser.newContext({ viewport: { width: size.width, height: size.height }, isMobile: !!size.mobile, hasTouch: !!size.mobile, deviceScaleFactor: 1 });
+    await ctx.addInitScript(({ t, u }) => { localStorage.setItem('token', t); localStorage.setItem('user', JSON.stringify(u)); }, { t: token, u: reg.data.user });
+    const page = await ctx.newPage();
+    for (const [i, text] of headerTexts.entries()) {
+      await page.goto(`${APP_URL}/unseen/reading/${text.id}`);
+      await page.waitForSelector('.reading-header .back-btn');
+      const covered = await page.evaluate(() => {
+        const b = document.querySelector('.back-btn').getBoundingClientRect();
+        return ['.reading-title', '.reading-title-he'].filter((sel) => {
+          const el = document.querySelector(sel);
+          if (!el) return false;
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          return [...range.getClientRects()].some(r => r.right > b.left + 0.5 && r.left < b.right - 0.5 && r.bottom > b.top + 0.5 && r.top < b.bottom - 0.5);
+        });
+      });
+      console.log(`${size.name} reading header "${text.title_en}": ${covered.length ? 'the back button covers ' + covered.join(' and ') : 'clear'}`);
+      if (covered.length) failures++;
+      if (SHOTS_DIR) await page.locator('.reading-header').screenshot({ path: path.join(SHOTS_DIR, `${size.name}-reading-header-${i + 1}.png`) });
+    }
     await ctx.close();
   }
   await browser.close();
