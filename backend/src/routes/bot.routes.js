@@ -59,6 +59,25 @@ router.post('/mistakes/start', [
 router.post('/drill/start', BotController.startDrill);
 
 /**
+ * POST /api/bot/unseen/start { chatId, number? } — /unseen: a reading text
+ * from the website's Unseen section (the student's next one not finished, or
+ * number N of the list), sent first, then its five questions, answered with
+ * option numbers through /session/answer; /session/end stops it. Recorded
+ * like a reading on the website (score, progress, /usage); no points or
+ * mistakes.
+ */
+router.post('/unseen/start', [
+  body('number').optional({ nullable: true }).isInt({ min: 1, max: 999 }).withMessage('number must be a whole number from 1')
+], BotController.startUnseen);
+
+/**
+ * POST /api/bot/unseen/list { chatId } — every reading text, numbered in the
+ * website's order, marked done (with the best score) or next; the student
+ * answers with a text's number through /session/answer.
+ */
+router.post('/unseen/list', BotController.listUnseen);
+
+/**
  * POST /api/bot/exercise/lessons { chatId, subject } — the subject's lessons,
  * numbered, 10 per page; the student answers with a number ('עוד' / 'הקודם'
  * turn the page) through /session/answer.

@@ -18,6 +18,7 @@ from .replies import Reply
 from .exercise_replies import (exercise_start_reply, exercise_status_reply, lesson_list_reply,
                                mistakes_start_reply, report_ask_reply, report_reason, report_reply)
 from .drill_replies import drill_start_reply
+from .unseen_replies import unseen_list_reply, unseen_start_reply
 from .agent import build_agent
 from .api_client import TrainerApi
 from .limits import DailyTurnCounter
@@ -36,7 +37,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
     help | words | end | switch | report | usage | kefel | review [manual|auto] |
     english|math|arabic [N] [easy|medium|hard] |
     lessons english|math|arabic (also lessons_english) | lessons |
-    mistakes english|math|arabic (also mistakes_english) | mistakes"""
+    mistakes english|math|arabic (also mistakes_english) | mistakes |
+    unseen [N] | unseen list (also unseen_list)"""
     words = text.lower().split()
     if not words or len(words) > 3:
         return None
@@ -45,7 +47,17 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         first, words = config.LESSONS_WORD, [first, first.split("_", 1)[1], *words[1:]]
     if first.startswith(config.MISTAKES_WORD + "_"):
         first, words = config.MISTAKES_WORD, [first, first.split("_", 1)[1], *words[1:]]
+    if first.startswith(config.UNSEEN_WORD + "_"):
+        first, words = config.UNSEEN_WORD, [first, first.split("_", 1)[1], *words[1:]]
     rest = words[1:]
+    if first == config.UNSEEN_WORD:
+        if not rest:
+            return "unseen", {}
+        if rest == [config.UNSEEN_LIST_WORD]:
+            return "unseen_list", {}
+        if len(rest) == 1 and LIST_NUMBER.match(rest[0]) and int(rest[0]) >= 1:
+            return "unseen", {"number": int(rest[0])}
+        return None
     if not rest and first in config.HELP_WORDS:
         return "help", {}
     if not rest and first in config.START_WORDS:
@@ -108,7 +120,7 @@ class Coach:
         fast = await self.fast_path(chat_id, text)
         if fast is not None:
             return fast
-        return Reply(await self.ask_agent(chat_id, text))
+        return await self.ask_agent(chat_id, text)
 
     async def fast_path(self, chat_id: str, text: str) -> Reply | None:
         """Replies that need no model: they are fully determined by the API."""
@@ -163,6 +175,10 @@ class Coach:
             return usage_reply(await self.api.usage(chat_id))
         if action == "drill":
             return drill_start_reply(await self.api.drill_start(chat_id))
+        if action == "unseen":
+            return unseen_start_reply(await self.api.unseen_start(chat_id, args.get("number")))
+        if action == "unseen_list":
+            return unseen_list_reply(await self.api.unseen_list(chat_id))
         if action == "report":
             # The API knows what is in front of the student: a word or a question.
             result = await self.api.report(chat_id)
@@ -309,11 +325,12 @@ class Coach:
             data = after
         return rr.auto_reply(results, data)
 
-    async def ask_agent(self, chat_id: str, text: str) -> str:
+    async def ask_agent(self, chat_id: str, text: str) -> Reply:
         session = await self._session(chat_id)
         message = types.Content(role="user", parts=[types.Part(text=text)])
         reply = ""
         helped = False
+        direct = None
         try:
             async for event in self.runner.run_async(
                 user_id=chat_id, session_id=session.id, new_message=message,
@@ -321,13 +338,19 @@ class Coach:
             ):
                 if any(call.name == "show_help" for call in event.get_function_calls() or []):
                     helped = True
+                for response in event.get_function_responses() or []:
+                    if (response.response or {}).get("direct"):
+                        direct = response.response
                 if event.is_final_response() and event.content and event.content.parts:
                     reply = "".join(p.text or "" for p in event.content.parts).strip()
         except Exception as error:  # the model or a tool failed: never leak it to the chat
             log.exception("agent failed for chat %s: %s", chat_id, error)
-            return replies.UNREACHABLE
+            return Reply(replies.UNREACHABLE)
+        if direct:
+            # A tool's whole reply (an /unseen text, then its question), longer than the model may write: as it is.
+            return Reply(direct["reply"], list(direct.get("buttons") or []), list(direct.get("before") or []))
         # The help text is longer than the model's output cap: send it as is.
-        return replies.HELP if helped else reply or replies.HELP
+        return Reply(replies.HELP if helped else reply or replies.HELP)
 
     async def _session(self, chat_id: str):
         session = await self.sessions.get_session(app_name=config.APP_NAME, user_id=chat_id, session_id=chat_id)

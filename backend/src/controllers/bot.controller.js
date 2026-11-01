@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const BotService = require('../services/bot.service');
 const ExerciseSession = require('../services/bot/exerciseSession');
 const DrillSession = require('../services/bot/drillSession');
+const UnseenBotSession = require('../services/bot/unseenSession');
 const { serviceFor } = require('../services/bot/sessionKinds');
 const TelegramLink = require('../models/TelegramLink');
 const ReviewService = require('../services/review.service');
@@ -15,7 +16,8 @@ const ERROR_STATUS = {
   no_session: 404, not_enough_words: 409, lesson_not_found: 404, bad_subject: 400, all_done: 409, no_exercises: 409,
   // 409, not 429: the bot reads 429 as its own daily message cap.
   exercise_not_found: 404, word_not_found: 404, bad_reason: 400, report_cap: 409, bad_decision: 400,
-  bad_proposal: 400, bad_action: 400, no_proposal: 409, review_cap: 409, already_decided: 409
+  bad_proposal: 400, bad_action: 400, no_proposal: 409, review_cap: 409, already_decided: 409,
+  text_not_found: 404, no_questions: 409
 };
 
 function send(res, result) {
@@ -78,6 +80,17 @@ class BotController {
   /** /kefel: ten new multiplication-table questions. */
   static async startDrill(req, res) {
     send(res, await DrillSession.start(req.user, req.chatId));
+  }
+
+  /** /unseen: a reading text (the next one not finished, or number N of the list), then its questions. */
+  static async startUnseen(req, res) {
+    if (invalid(req, res)) return;
+    send(res, await UnseenBotSession.start(req.user, req.chatId, { number: req.body.number }));
+  }
+
+  /** unseen list: every reading text, numbered, with the student's marks. */
+  static async listUnseen(req, res) {
+    send(res, await UnseenBotSession.list(req.user, req.chatId));
   }
 
   static async reportQuestion(req, res) {

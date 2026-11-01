@@ -3,7 +3,9 @@ verdict, the expected translation and the next word never come from the
 model, and the same text serves the fast path and the agent's tools.
 
 A reply is a `Reply(text, buttons)`; `buttons` (a list of strings) becomes
-a Telegram reply keyboard for the setup questions."""
+a Telegram reply keyboard for the setup questions. `before` holds messages
+sent ahead of it, in order (an /unseen text before its first question); the
+buttons ride on the last message."""
 from dataclasses import dataclass, field
 
 from .encouragement import wrong_line
@@ -13,19 +15,25 @@ from .encouragement import wrong_line
 class Reply:
     text: str
     buttons: list[str] = field(default_factory=list)
+    before: list[str] = field(default_factory=list)
 
     def __str__(self) -> str:
         return self.text
 
+    @property
+    def messages(self) -> list[str]:
+        """Every message of the reply, in the order they are sent."""
+        return [*self.before, self.text]
+
 NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באתר, בכפתור \"טלגרם\" למעלה, קבלו קוד בן 6 ספרות "
               "ושלחו אותו לי כאן.")
-NO_SESSION = ("אין תרגול פעיל. כתבו /words, /english, /math או /arabic כדי להתחיל, /kefel ללוח הכפל, "
-              "/mistakes למבחן הטעויות, או /help להסבר.")
+NO_SESSION = ("אין תרגול פעיל. כתבו /words, /english, /math או /arabic כדי להתחיל, /unseen לקטע קריאה באנגלית, "
+              "/kefel ללוח הכפל, /mistakes למבחן הטעויות, או /help להסבר.")
 RATE_LIMITED = "הגעת למכסת ההודעות להיום. נמשיך מחר!"
 UNREACHABLE = "משהו השתבש אצלנו. נסו שוב בעוד רגע."
 BAD_CODE = "הקוד לא נכון או שפג תוקפו. קבלו קוד חדש באתר ושלחו אותו שוב."
 LINKED = ("מעולה, החשבון מחובר! כתבו /words לתרגול של 20 מילים, /english, /math או /arabic לתרגילי השיעור הבא, "
-          "/kefel ללוח הכפל, /mistakes למבחן הטעויות, או /help להסבר מלא.")
+          "/unseen לקטע קריאה באנגלית, /kefel ללוח הכפל, /mistakes למבחן הטעויות, או /help להסבר מלא.")
 SETUP_QUESTIONS = {"level": "איזו רמה?", "direction": "באיזה כיוון?"}
 # The button under a words summary; the coach knows it by this sign (no
 # translation starts with it), so it works without a session.
@@ -53,6 +61,13 @@ HELP = """🤖 איך זה עובד
 • /lessons_english, /lessons_math או /lessons_arabic: רשימת השיעורים (✅ עברתם, ▶️ הבא בתור). שולחים את מספר השיעור; more ו-back מדפדפים.
 • english 12 מתחיל ישר את שיעור 12. math 3 hard מתחיל את שיעור 3 ברמה קשה (easy / medium / hard). arabic מתחיל את שיעור הערבית הבא.
 
+📖 קטע קריאה באנגלית (unseen): /unseen
+קודם מגיע קטע באנגלית, ואחריו 5 שאלות הבנה, כמו ב"פסקאות באנגלית" באתר.
+• עונים במספר התשובה (1–4) או בלחיצה על כפתור. אחרי כל תשובה תראו אם צדקתם, ואם לא, את התשובה הנכונה והסבר.
+• ? נותן את המילים הקשות בקטע עם התרגום, ואת השאלה בעברית.
+• בסוף: כמה צדקתם וציון. הקטע נשמר באתר כקטע שקראתם (בלי נקודות וטעויות), ו-/unseen נותן את הקטע הבא.
+• /unseen_list: רשימת הקטעים (✅ קראתם, ▶️ הבא בתור). שולחים את מספר הקטע; unseen 7 מתחיל ישר את קטע 7.
+
 🔢 לוח הכפל: /kefel
 10 תרגילים חדשים בכל פעם: 5 כפל ו-5 חילוק עד 10×10. כותבים את התשובה בספרות.
 • אחרי כל תשובה תראו אם צדקתם, ואם לא, את התרגיל המלא עם התשובה.
@@ -64,7 +79,7 @@ HELP = """🤖 איך זה עובד
 📊 /usage מראה מי תרגל ב-7 וב-30 הימים האחרונים: ימי פעילות, שיעורים, מילים, קטעי קריאה ותרגילי לוח הכפל (בלי ציונים).
 🚩 /report מדווח על מילה או שאלה שנראית לכם שגויה (במבחן מילים או בתרגיל שיעור). היא יורדת מהתרגול עד שתיבדק.
 🧐 /review_manual בודק את מה שדווח, אחד אחרי השני: סוכן הבדיקה מציע תיקון, ואתם מאשרים, משאירים, מסירים או כותבים תיקון משלכם. /review_auto מחיל את ההצעות התקינות לבד. כל שינוי נבדק לפני שהוא נכנס לתרגול של כולם.
-⏹ /end עוצר כל תרגול. תרגיל שיעור שלא הסתיים לא נשמר; במבחן טעויות, מה שתיקנתם נשמר.
+⏹ /end עוצר כל תרגול. תרגיל שיעור או קטע קריאה שלא הסתיימו לא נשמרים; במבחן טעויות, מה שתיקנתם נשמר.
 ❓ /help מציג את ההסבר הזה.
 
 עוד לא מחוברים? באתר, בכפתור "טלגרם" למעלה, קבלו קוד בן 6 ספרות ושלחו אותו לכאן."""
@@ -159,6 +174,9 @@ def answer_reply(result: dict) -> Reply:
     if data.get("kind") == "drill":
         from .drill_replies import drill_answer_reply
         return drill_answer_reply(data)
+    if data.get("kind") == "unseen":
+        from .unseen_replies import unseen_answer_reply
+        return unseen_answer_reply(data)
     if data.get("setup"):
         intro = NOT_ENOUGH_FOR_CHOICE if data.get("notEnoughWords") else INVALID_CHOICE if data.get("invalid") else ""
         return setup_reply(data, intro)
@@ -194,6 +212,9 @@ def end_reply(result: dict) -> Reply:
     if result["data"].get("kind") == "drill":
         from .drill_replies import drill_end_reply
         return drill_end_reply(result["data"])
+    if result["data"].get("kind") == "unseen":
+        from .unseen_replies import unseen_end_reply
+        return unseen_end_reply(result["data"])
     return _summary_reply("סיימנו להיום.\n", result["data"]["summary"])
 
 
@@ -209,6 +230,9 @@ def status_reply(result: dict) -> Reply:
     if data.get("kind") == "drill":
         from .drill_replies import drill_status_reply
         return drill_status_reply(data)
+    if data.get("kind") == "unseen":
+        from .unseen_replies import unseen_status_reply
+        return unseen_status_reply(data)
     if data.get("setup"):
         return setup_reply(data)
     return Reply("התרגול ממשיך. המילה הנוכחית:\n" + _word_line(data["word"], data["progress"]))

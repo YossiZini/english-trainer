@@ -1,7 +1,9 @@
 # Telegram practice bot
 
-A student practises from Telegram in two ways: vocabulary (below) and a
-lesson's exercises, English or Math (see "Lesson exercises"). For vocabulary, the bot sends a word,
+A student practises from Telegram in several ways: vocabulary (below), a
+lesson's exercises, English or Math (see "Lesson exercises"), English reading
+texts with questions (see "Reading texts (unseen)") and the multiplication
+drill. For vocabulary, the bot sends a word,
 English or Hebrew as the student chose, the student types the translation, the bot says ✅, or a kind, funny line followed by the translation
 and sends the next word. After 20 words the failed ones come back, shuffled,
 round after round, until none are left. `/end` ends the session.
@@ -60,6 +62,7 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/usage` | who practised in the last 7 and 30 days (see "Usage") |
 | `/english`, `/math`, `/arabic`, `/lessons_english`, `/lessons_math`, `/lessons_arabic` | lesson exercises (see "Lesson exercises") |
 | `/mistakes_english`, `/mistakes_math`, `/mistakes_arabic` (also `mistakes english`; `/mistakes` alone offers all three) | the subject's mistakes exam (see "Mistakes exam") |
+| `/unseen` (also `unseen`), `unseen 7`, `/unseen_list` (also `unseen list`) | an English reading text, then its five questions; text 7 of the list; the numbered list of texts (see "Reading texts (unseen)") |
 | `/kefel` (also `kefel`) | ten quick multiplication-table drills; nothing is saved (see "Multiplication drill") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
 | `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | review of reported questions and words, open to every linked student (see "Reported questions and review") |
@@ -245,6 +248,49 @@ the usual `/session/answer` and `/session/end`.
   "כפל" and its day as an active day. A drill has no question to
   `/report`. The daily message cap applies as everywhere.
 
+## Reading texts (unseen)
+
+`/unseen` sends an English reading text from the website's Unseen section
+("פסקאות באנגלית"), then its five comprehension questions, one per message.
+The bot calls `POST /api/bot/unseen/start` (with `number` for `unseen 7`);
+the API's `UnseenBotSession` (`backend/src/services/bot/unseenSession.js`,
+session kind `unseen`) picks the text and freezes its questions. Answers,
+"?", 📄 and `/end` go through the usual `/session/answer` and `/session/end`.
+
+- Which text: the student's next one not finished, in the website's order
+  (level, then English title). A text counts as finished once a reading of
+  it was completed, on the website or here. `unseen 7` opens text 7 of that
+  list. `/unseen_list` (`POST /api/bot/unseen/list`) shows every text,
+  numbered, with ✅ and the best score on finished ones and ▶️ on the next;
+  the student sends a number (a finished text too, to read it again). With
+  every text finished, `/unseen` shows the list.
+- The text is its own message, sent before the first question: a bot reply
+  can carry messages that go first (`Reply.before`), sent in order, with the
+  buttons on the last one. Each question is in English with its options
+  "1) …" and buttons 1–4, ? and 📄. Only an option number is an answer.
+- ✅, or the kind line with the right option and the Hebrew explanation (📖).
+  "?" sends the text's hard words with their translations and the question
+  in Hebrew; 📄 sends the text again. Neither is an answer.
+- After the fifth answer: how many were right, the score, kind words and the
+  next text.
+- Recorded like a reading on the website (the owner's decision): each answer
+  when it is checked (`unseen_answers`), the score and the text's progress at
+  the end (`unseen_sessions`, `unseen_user_progress`). The website's Unseen
+  page then shows the text as done with its score, and `/usage` counts it as
+  a reading text. No points and no mistakes, as on the website. `/end`
+  abandons the reading: nothing is completed.
+- A double tap never counts twice: each answer is claimed in a Firestore
+  transaction on the bot session (`BotSession.claimAnswer`), the website's
+  rows have a fixed id per reading and question, and the end writes all five
+  before the score is counted. `UnseenSession.complete` counts each question
+  once, by its first answer.
+- A reading question cannot be reported (`/report` covers words and lesson
+  questions). The daily message cap applies as everywhere.
+- A free-form request ("אני רוצה לקרוא קטע באנגלית") reaches the agent's
+  `start_unseen` tool (and `list_unseen_texts`). Their replies are longer than
+  the model may write, so they are "direct": the tool skips the model's
+  summary and the coach sends the reply as it is.
+
 ## Architecture
 
 ```
@@ -258,9 +304,10 @@ Telegram ──webhook──► Cloud Run: english-trainer-bot (bot/, Python, Go
                           │  word selection, answer matching, rounds, counters, rate limits
                           │  lesson exercises: questions, verdicts, grading through ExerciseService
                           │  /kefel drills: ten generated questions, verdicts, nothing recorded
+                          │  /unseen readings: a text, its questions, recorded like the website's readings
                           │  a dictionary miss: one yes/no from Gemini (Vertex AI)
                           ▼
-                       Firestore: bot_sessions, telegram_links, bot_usage (+ vocabulary_word_scores)
+                       Firestore: bot_sessions, telegram_links, bot_usage (+ vocabulary_word_scores, unseen_*)
 ```
 
 The bot never chooses words, keeps score or reports progress: every reply
@@ -293,11 +340,11 @@ service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 
 | Piece | Where |
 |---|---|
-| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/drillSession.js` (`/kefel`), `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
+| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/drillSession.js` (`/kefel`), `services/bot/unseenSession.js` (`/unseen`), `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
 | Student side of linking | `backend/src/routes/telegram.routes.js`, web page `/settings/telegram` |
-| Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `drill_replies.py`, `coach.py`, `main.py`) |
+| Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `drill_replies.py`, `unseen_replies.py`, `coach.py`, `main.py`) |
 | Cloud Run spec, secrets | `infra/cloudrun-bot.yaml`, `infra/setup-bot.sh`, `infra/set-webhook.sh` |
-| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/botDrill.test.js`, `backend/tests/mistakesExam.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
+| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/botDrill.test.js`, `backend/tests/botUnseen.test.js`, `backend/tests/mistakesExam.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
 | Local end-to-end | `bot/scripts/smoke.py` |
 
 ## Security

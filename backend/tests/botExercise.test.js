@@ -5,7 +5,7 @@ process.env.BOT_CHAT_RATE_PER_MINUTE = '1000';
 const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db } = require('./helpers');
 const app = require('../src/app');
-const { parseOptionNumber } = require('../src/services/bot/exerciseSession');
+const { parseOptionNumber } = require('../src/utils/answers');
 const { compareLessons } = require('../src/utils/lessonOrder');
 
 const bundled = new Map(require('../data/static/exercises.json').map(e => [e.id, e]));

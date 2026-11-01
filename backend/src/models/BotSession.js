@@ -1,13 +1,17 @@
 const { db } = require('../config/database');
 
+/** The fields that close a session. */
+const endFields = (reason) => ({ status: 'ended', end_reason: reason, ended_at: new Date().toISOString() });
+
 /**
  * A practice session driven from a chat bot. `kind` is 'vocab', 'exercise',
- * 'review' or 'drill'. A vocabulary session starts in `setup`, where the student
+ * 'review', 'drill' or 'unseen'. A vocabulary session starts in `setup`, where the student
  * picks the level and the direction ('en-he' shows the English word, 'he-en'
  * the Hebrew; rows without one are 'en-he'), then holds 20 words (from all words) and rounds of the
  * failed words until none are left. An exercise session holds one lesson's
  * questions (createExercise); a drill, ten multiplication-table questions
- * (createDrill). One open session per chat, of any kind.
+ * (createDrill); an unseen, one reading text's questions (createUnseen). One
+ * open session per chat, of any kind.
  */
 class BotSession {
   static async create({ userId, chatId }) {
@@ -147,6 +151,51 @@ class BotSession {
     });
   }
 
+  /**
+   * A reading from the website's Unseen section (kind 'unseen'): the text's
+   * number in the list, its titles and level, its questions frozen at start
+   * ({ id, text, textHe, options, answer, explanation }), and the website's
+   * reading session (unseen_sessions) that records the answers and the score.
+   */
+  static async createUnseen({ userId, chatId, paragraph, number, count, questions, unseenSessionId }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'unseen',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'active',
+      paragraph_id: paragraph.id,
+      number,
+      count,
+      title_en: paragraph.title_en,
+      title_he: paragraph.title_he || null,
+      level: paragraph.complexity_level,
+      questions,
+      unseen_session_id: unseenSessionId,
+      index: 0,
+      answers: [],
+      correct_count: 0,
+      wrong_count: 0,
+      wrong_streak: 0,
+      started_at: now,
+      ended_at: null
+    });
+  }
+
+  /** A reading waiting for the student to pick a text from the list (kind 'unseen', in setup). */
+  static async createUnseenPick({ userId, chatId }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'unseen',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'setup',
+      setup_step: 'text',
+      started_at: now,
+      ended_at: null
+    });
+  }
+
   /** Session kind; rows from before exercise sessions are vocabulary sessions. */
   static kindOf(session) {
     return (session && session.kind) || 'vocab';
@@ -189,7 +238,25 @@ class BotSession {
 
   /** End the session; `updates` (the last answer's counts) are saved in the same write. */
   static async end(id, reason = 'ended', updates = {}) {
-    return this.update(id, { ...updates, status: 'ended', end_reason: reason, ended_at: new Date().toISOString() });
+    return this.update(id, { ...updates, ...endFields(reason) });
+  }
+
+  /**
+   * One answer, applied only while the session is still active at question
+   * `index` (a Firestore transaction): of two answers sent together, the
+   * first moves the session on and the second changes nothing. With
+   * `endReason` the same write ends the session. Returns the session after
+   * the write, or null when that question was already answered.
+   */
+  static async claimAnswer(id, index, updates, endReason = null) {
+    let claimed = false;
+    const after = await db.transactUpdate('bot_sessions', id, (current) => {
+      // A transaction may run this more than once; the last run decides.
+      claimed = current.status === 'active' && current.index === index;
+      if (!claimed) return null;
+      return endReason ? { ...updates, ...endFields(endReason) } : updates;
+    });
+    return claimed ? after : null;
   }
 
   /**

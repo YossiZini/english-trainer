@@ -36,14 +36,17 @@ session cannot see elsewhere.
 ## Codebase facts
 - Topic numbers: English 1+, math 100–199 (100 is chapter 1,
   `numberOffset` 99), Arabic 201+.
-- Bot session kinds: vocab, exercise, review, drill (`sessionKinds.js`). A
+- Bot session kinds: vocab, exercise, review, drill, unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
-  answer (fast path, no model).
+  answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a
+  transaction (unseen uses it; the other kinds do not yet).
 - A new bot command touches: `config.py`, `parse_command`/`run_command`,
   `COMMANDS` (pinned in `test_webhook.py`), HELP/NO_SESSION/LINKED, the agent
   tool and instruction, `TelegramLinkPage` and its test, `telegram-bot.md`,
-  the system map.
-- Shared helpers: `utils/bidi.ltr`, `utils/botWords.isEndCommand`.
+  the system map. A reply longer than ~200 tokens needs a direct tool
+  (`tools._direct`); `Reply.before` sends messages ahead of the reply.
+- Shared helpers: `utils/bidi.ltr`, `utils/botWords.isEndCommand`/`isHintCommand`,
+  `utils/answers.parseOptionNumber`; bot side `exercise_replies.keep_ltr`.
 
 ## Workflow
 - One branch. After a merge: `git fetch origin main && git checkout -B <branch> origin/main`.

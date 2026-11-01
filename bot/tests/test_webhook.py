@@ -42,11 +42,32 @@ def test_handles_a_text_update_and_sends_the_reply():
     assert res.status_code == 200 and res.json() == {"ok": True}
     assert coach.calls == [("42", "cat")]
     import json
+    assert send.call_count == 1  # one reply, one message
     body = json.loads(send.calls.last.request.content)
     assert body["chat_id"] == "42" and body["text"] == "תשובה"
     assert body["reply_markup"]["keyboard"] == [[{"text": "1"}, {"text": "2"}]]
     assert telegram.reply_markup([]) == {"remove_keyboard": True}
     assert client.get("/health").json() == {"status": "OK"}
+
+
+class TextFirstCoach(FakeCoach):
+    async def handle(self, chat_id, text):
+        self.calls.append((chat_id, text))
+        return Reply("שאלה 1/5", ["1", "2", "3", "4"], before=["📖 The text"])
+
+
+@respx.mock
+def test_a_reply_with_a_message_before_it_sends_both_in_order():
+    import json
+    send = respx.post("http://telegram.test/bot123:abc/sendMessage").mock(return_value=httpx.Response(200, json={"ok": True}))
+    client = TestClient(create_app(TextFirstCoach()))
+    client.post("/telegram/webhook", json=update("unseen", 42), headers={"X-Telegram-Bot-Api-Secret-Token": "hook-secret"})
+    bodies = [json.loads(call.request.content) for call in send.calls]
+    assert [b["text"] for b in bodies] == ["📖 The text", "שאלה 1/5"]
+    # The buttons ride on the question, the last message.
+    assert bodies[0]["reply_markup"] == {"remove_keyboard": True}
+    assert bodies[1]["reply_markup"]["keyboard"] == [[{"text": b} for b in ["1", "2", "3", "4"]]]
+    assert Reply("q", before=["t"]).messages == ["t", "q"] and Reply("q").messages == ["q"]
 
 
 MENU = "http://telegram.test/bot123:abc/setMyCommands"
@@ -59,7 +80,8 @@ async def test_set_commands_sends_the_menu_of_commands_the_coach_understands():
     route = respx.post(MENU).mock(return_value=httpx.Response(200, json={"ok": True, "result": True}))
     assert await telegram.set_commands() is True
     sent = json.loads(route.calls.last.request.content)["commands"]
-    assert [c["command"] for c in sent] == ["help", "words", "switch", "english", "math", "lessons_english", "lessons_math", "kefel",
+    assert [c["command"] for c in sent] == ["help", "words", "switch", "english", "math", "lessons_english", "lessons_math",
+                                            "unseen", "unseen_list", "kefel",
                                             "arabic", "lessons_arabic",
                                             "mistakes_english", "mistakes_math", "mistakes_arabic",
                                             "report", "usage", "review_manual", "review_auto", "end"]

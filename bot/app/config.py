@@ -61,4 +61,9 @@ LESSONS_WORD = "lessons"
 MISTAKES_WORD = "mistakes"
 # The multiplication-table drill (Hebrew "כפל", written in English letters).
 DRILL_WORDS = {"kefel"}
+# English reading texts with questions, as the website's Unseen section:
+# "unseen", "unseen 7", "unseen list" (also unseen_list). Not "reading" or
+# "text": both are vocabulary words, so they could be an answer.
+UNSEEN_WORD = "unseen"
+UNSEEN_LIST_WORD = "list"
 DIFFICULTIES = {"easy", "medium", "hard"}
