@@ -1,12 +1,17 @@
 """ADK tools. Each one is an HTTP call to the trainer API for the chat that
 owns the conversation; the chat id comes from the session state that the
-webhook set, never from the model. Every tool returns a ready Hebrew reply."""
+webhook set, never from the model. Every tool returns a ready Hebrew reply.
+
+A reply longer than the model may write (an /unseen text) is `direct`: the
+tool ends the turn without asking the model again, and the coach sends the
+reply as it is, with its buttons and the messages before it."""
 from google.adk.tools import ToolContext
 
 from . import replies
 from .api_client import TrainerApi
 from .exercise_replies import exercise_start_reply, lesson_list_reply, mistakes_start_reply
 from .drill_replies import drill_start_reply
+from .unseen_replies import unseen_list_reply, unseen_start_reply
 
 _api: TrainerApi | None = None
 
@@ -83,10 +88,28 @@ async def start_kefel_drill(tool_context: ToolContext) -> dict:
     return {"reply": str(drill_start_reply(await _api.drill_start(_chat(tool_context))))}
 
 
+def _direct(reply: replies.Reply, tool_context: ToolContext) -> dict:
+    """A reply the coach sends as it is; the model is not asked to write it again."""
+    tool_context.actions.skip_summarization = True
+    return {"reply": reply.text, "buttons": reply.buttons, "before": reply.before, "direct": True}
+
+
+async def start_unseen(tool_context: ToolContext, number: int = 0) -> dict:
+    """Start an English reading text (unseen, קטע קריאה, הבנת הנקרא) with five comprehension questions:
+    the student's next text, or text number N of the reading list (0 for the next one). The text and the
+    first question are sent to the student as they are."""
+    return _direct(unseen_start_reply(await _api.unseen_start(_chat(tool_context), number or None)), tool_context)
+
+
+async def list_unseen_texts(tool_context: ToolContext) -> dict:
+    """Show the numbered list of English reading texts (unseen) so the student can pick one by number."""
+    return _direct(unseen_list_reply(await _api.unseen_list(_chat(tool_context))), tool_context)
+
+
 async def show_help(tool_context: ToolContext) -> dict:
     """Explain in Hebrew how the bot works and list its English commands."""
     return {"reply": replies.HELP}
 
 
 TOOLS = [show_help, link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise, list_lessons,
-         start_mistakes_exam, start_kefel_drill]
+         start_mistakes_exam, start_kefel_drill, start_unseen, list_unseen_texts]

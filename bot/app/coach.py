@@ -120,7 +120,7 @@ class Coach:
         fast = await self.fast_path(chat_id, text)
         if fast is not None:
             return fast
-        return Reply(await self.ask_agent(chat_id, text))
+        return await self.ask_agent(chat_id, text)
 
     async def fast_path(self, chat_id: str, text: str) -> Reply | None:
         """Replies that need no model: they are fully determined by the API."""
@@ -325,11 +325,12 @@ class Coach:
             data = after
         return rr.auto_reply(results, data)
 
-    async def ask_agent(self, chat_id: str, text: str) -> str:
+    async def ask_agent(self, chat_id: str, text: str) -> Reply:
         session = await self._session(chat_id)
         message = types.Content(role="user", parts=[types.Part(text=text)])
         reply = ""
         helped = False
+        direct = None
         try:
             async for event in self.runner.run_async(
                 user_id=chat_id, session_id=session.id, new_message=message,
@@ -337,13 +338,19 @@ class Coach:
             ):
                 if any(call.name == "show_help" for call in event.get_function_calls() or []):
                     helped = True
+                for response in event.get_function_responses() or []:
+                    if (response.response or {}).get("direct"):
+                        direct = response.response
                 if event.is_final_response() and event.content and event.content.parts:
                     reply = "".join(p.text or "" for p in event.content.parts).strip()
         except Exception as error:  # the model or a tool failed: never leak it to the chat
             log.exception("agent failed for chat %s: %s", chat_id, error)
-            return replies.UNREACHABLE
+            return Reply(replies.UNREACHABLE)
+        if direct:
+            # A tool's whole reply (an /unseen text, then its question), longer than the model may write: as it is.
+            return Reply(direct["reply"], list(direct.get("buttons") or []), list(direct.get("before") or []))
         # The help text is longer than the model's output cap: send it as is.
-        return replies.HELP if helped else reply or replies.HELP
+        return Reply(replies.HELP if helped else reply or replies.HELP)
 
     async def _session(self, chat_id: str):
         session = await self.sessions.get_session(app_name=config.APP_NAME, user_id=chat_id, session_id=chat_id)

@@ -208,6 +208,68 @@ async def test_errors():
     assert (await c.handle("7", "/unseen")).text == "הגעת למכסת ההודעות היומית. נמשיך מחר!"
 
 
+def test_help_the_pointers_and_the_menu_name_unseen():
+    assert "📖 קטע קריאה באנגלית (unseen): /unseen" in replies.HELP and "/unseen_list" in replies.HELP
+    assert "/unseen" in replies.NO_SESSION and "/unseen" in replies.LINKED
+    assert len(replies.HELP.encode("utf-16-le")) // 2 <= TELEGRAM_MAX
+    from app.telegram import COMMANDS
+    assert {"unseen", "unseen_list"} <= {name for name, _ in COMMANDS}
+
+
+class ToolCtx:
+    """What a tool sees: the chat from the session state, and the event's actions."""
+    def __init__(self):
+        from google.adk.events.event_actions import EventActions
+        self.state = {"chat_id": "7"}
+        self.actions = EventActions()
+
+
+class OneToolRunner:
+    """Stands in for the ADK runner: the model calls one tool, and the tool's result comes back as an event."""
+    def __init__(self, name, tool, ctx):
+        self.name, self.tool, self.ctx = name, tool, ctx
+
+    async def run_async(self, **_):
+        from google.adk.events import Event
+        from google.genai import types
+        yield Event(author="practice_coach", content=types.Content(role="model", parts=[
+            types.Part(function_call=types.FunctionCall(name=self.name, args={}))]))
+        result = await self.tool(self.ctx)
+        yield Event(author="practice_coach", actions=self.ctx.actions, content=types.Content(role="user", parts=[
+            types.Part(function_response=types.FunctionResponse(name=self.name, response=result))]))
+
+
+class TextRunner:
+    """Stands in for the ADK runner: the model answers in text."""
+    async def run_async(self, **_):
+        from google.adk.events import Event
+        from google.genai import types
+        yield Event(author="practice_coach", content=types.Content(role="model", parts=[types.Part(text="שלום! במה אפשר לעזור?")]))
+
+
+@respx.mock
+async def test_a_free_form_request_through_the_agent_gets_the_whole_text_and_question():
+    from app import tools
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": False}))
+    respx.post(f"{API}/bot/unseen/start").mock(return_value=ok(START))
+    respx.post(f"{API}/bot/unseen/list").mock(return_value=ok(LIST))
+    c = coach()
+    ctx = ToolCtx()
+    c.runner = OneToolRunner("start_unseen", tools.start_unseen, ctx)
+    reply = await c.handle("7", "אני רוצה לקרוא קטע באנגלית")
+    # The tool's reply as it is: longer than the model may write, so the model is not asked to repeat it.
+    assert ctx.actions.skip_summarization is True
+    assert reply.before == [f"📖 A Day at the Zoo\nיום בגן החיות · קטע 1 מתוך 15 · רמה 1\n\n{PASSAGE}"]
+    assert reply.text == f"{ur.START_INTRO}\n{question_text(1)}" and reply.buttons == BUTTONS
+    c.runner = OneToolRunner("list_unseen_texts", tools.list_unseen_texts, ToolCtx())
+    listed = await c.handle("7", "איזה קטעים יש?")
+    assert listed.text == "\n".join(LIST_LINES) and listed.before == []
+    # Any other agent reply is still the model's own text.
+    c.runner = TextRunner()
+    assert (await c.handle("7", "היי")).text == "שלום! במה אפשר לעזור?"
+    assert tools.start_unseen in tools.TOOLS and tools.list_unseen_texts in tools.TOOLS
+
+
 def test_every_real_text_fits_one_telegram_message():
     texts = json.loads(TEXTS.read_text(encoding="utf-8"))
     assert len(texts) >= 15

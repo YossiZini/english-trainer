@@ -80,7 +80,8 @@ async def test_set_commands_sends_the_menu_of_commands_the_coach_understands():
     route = respx.post(MENU).mock(return_value=httpx.Response(200, json={"ok": True, "result": True}))
     assert await telegram.set_commands() is True
     sent = json.loads(route.calls.last.request.content)["commands"]
-    assert [c["command"] for c in sent] == ["help", "words", "switch", "english", "math", "lessons_english", "lessons_math", "kefel",
+    assert [c["command"] for c in sent] == ["help", "words", "switch", "english", "math", "lessons_english", "lessons_math",
+                                            "unseen", "unseen_list", "kefel",
                                             "arabic", "lessons_arabic",
                                             "mistakes_english", "mistakes_math", "mistakes_arabic",
                                             "report", "usage", "review_manual", "review_auto", "end"]
