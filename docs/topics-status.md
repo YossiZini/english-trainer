@@ -181,14 +181,18 @@ For each topic, these assets must exist:
 ### Math Topics (Hebrew, grades 7–8)
 
 Math lessons live in the same content files with `subject: "math"` and are
-numbered 100+ (shown as 1+ on the `/math` page: the multiplication table, 100,
-is chapter 1 and Fractions, 101, chapter 2). A topic with several
-subtopics keeps them in a folder (`seeds/fractions/`, `seeds/multiplication/`)
-and composes them in `topic1NN-*.js`; write fractions as `a/b` in text and
+numbered 100+. On the `/math` page and in the lesson order they appear in
+curriculum order, chapters 1+: the multiplication table (100), Division (105),
+Fractions (101), then 102–104. The order is `MATH_CHAPTER_ORDER` in
+`backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
+them equal); a new topic number goes where it belongs in both lists. A topic
+with several subtopics keeps them in a folder (`seeds/fractions/`,
+`seeds/multiplication/`, `seeds/division/`) and composes them in
+`topic1NN-*.js`; write fractions as `a/b` in text and
 theory, the app shows them stacked (`MathText` for exercise text,
 `stackFractions` for theory HTML). Pictures for theory come from
 `seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `grid`, `array`, `groups`,
-`figure`). Seeds are plain modules
+`longDivision`, `figure`). Seeds are plain modules
 (`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
 topic has one teaching document and 10 exercises per level (easy/medium/hard),
 because an exercise session is 10 questions. Regenerate with
@@ -198,6 +202,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | # | Topic Name (EN) | Topic Name (HE) | Seed File | Registered | Frontend | Status |
 |---|-----------------|-----------------|-----------|------------|----------|--------|
 | 100 | Multiplication Table (3 subtopics 100.1–100.3) | לוח הכפל | topic100-multiplication.js + multiplication/*.js | Yes | Yes | Complete |
+| 105 | Division (4 subtopics 105.1–105.4, shown as chapter 2) | חילוק | topic105-division.js + division/*.js | Yes | Yes | Complete |
 | 101 | Fractions (6 subtopics 101.1–101.6) | שברים | topic101-fractions.js + fractions/*.js | Yes | Yes | Complete |
 | 102 | Order of Operations | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
 | 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
@@ -229,7 +234,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 5 math topics (100–104), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 6 math topics (100–105), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -288,6 +293,31 @@ Track changes per topic with dates and descriptions.
   columns rule of 100.1 (it showed 6 rows of 7). The independent check now
   matches every dot array against its caption.
 
+### Topic 105: Division (Math)
+- 2026-11-01: New topic, chapter 2 of Math (after the multiplication table,
+  before Fractions): 105.1 division with a remainder (the remainder is smaller
+  than the divisor, checking with `q × d + r`), 105.2 what to do with the
+  remainder in word problems (one more, drop it, or answer with it), 105.3
+  long division of a two-digit number, 105.4 long division of a three-digit
+  number (a zero in the quotient). Each a Hebrew teaching document with a
+  picture for every rule and 30 multiple-choice questions (10 per level).
+  Pictures: groups of dots with the leftovers in a second colour after the
+  groups (`groups(…, { leftover, across })`, laid out right to left, rows
+  chosen so the dots stay large on a phone) and the written long division
+  (`longDivision`). Answers with a remainder read "מנה 3, שארית 2". Answers,
+  wrong options (remainder not smaller than the divisor, a forgotten zero in
+  the quotient, digits swapped) and explanations are computed in
+  `seeds/division/common.js`; `scripts/checks/topic105.js` re-computed all
+  120 and reads the quotient and the remainder back from every long-division
+  picture. Every existing lesson and exercise is unchanged (compared by id);
+  Fractions and the topics after it show one chapter later (Fractions is
+  chapter 3).
+  Checks: equations stay on one line and read in order at 360/390/1366px;
+  `check:viewport` shows long-division feedback ending below the pinned bar
+  (up to 154px on a 360px phone, 180px on a 768px laptop), because its
+  digits are kept readable (about 13px) instead of squeezed to 72px.
+  Sprint 17.
+
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
   (10 per level), answers verified by an exact-fraction check script. Sprint 2.
@@ -304,6 +334,8 @@ Track changes per topic with dates and descriptions.
   The example badges on the math page are wrapped in `ltr()`: they showed
   reversed in the right-to-left page ("1/4 = 3/4 − 1" for `1 − 3/4 = 1/4`).
   Sprint 15.
+- 2026-11-01: Shown as chapter 3 (lessons 3.1–3.6): Division (topic 105) is
+  chapter 2. Content unchanged. Sprint 17.
 
 ### Topic 102: Order of Operations (Math)
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,

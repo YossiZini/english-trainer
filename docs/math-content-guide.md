@@ -10,16 +10,21 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `grid`, `array` (dots in rows × columns), `groups` (equal groups), `row`, `figure`, `figures` |
-| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`) |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
+| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); per chapter `seeds/multiplication/common.js`, `seeds/division/common.js` |
 | Names, TOC line, descriptions, subtopic examples (an equation is wrapped in `ltr()`) | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
 
-Numbering: topics `100+` (shown as `1+`: the multiplication table, 100, is
-chapter 1, Fractions, 101, chapter 2), subtopics `'101.3'`, `orderIndex`
-`1000 + topic offset` (Fractions 1001–1006, Order of operations 1021, …; the
-multiplication table, before them, 991–993).
+Numbering: topics `100+`, shown as chapters `1+` in curriculum order, which
+is not the order of the numbers: `MATH_CHAPTER_ORDER` in
+`backend/src/config/subjects.js` (lesson order, next lesson) and `topicOrder`
+in `topicMeta.js` (chapter numbers on screen) list them, and must stay equal
+(the multiplication table 100, Division 105, Fractions 101, then 102–104). A
+new topic takes the next free number and its place in both lists. Subtopics
+`'101.3'`, `orderIndex` `1000 + topic offset` (Fractions 1001–1006, Order of
+operations 1021, …; before them the multiplication table 991–993 and
+Division 994–997).
 Lesson ids are preserved by `topic/subtopic`, so renaming a subtopic key
 creates a new lesson and orphans progress.
 
@@ -89,7 +94,11 @@ creates a new lesson and orphans progress.
   phones they are laid side by side and must fit above the action bar. Keep
   it low (the multiplication chapter's `pic` scales a picture to at most
   110px): on a 768px laptop a hard question with a picture already ends
-  below the pinned bar.
+  below the pinned bar. The exception is a long division (`longPicture` in
+  `seeds/division/common.js`): it is drawn at 0.7 of the theory size, not
+  capped, and has the class `math-long`, which `ExerciseFeedback.css` never
+  squeezes; squeezed to 72px its digits were 6px. For dot groups on a phone,
+  `groupsSvg` picks the groups per row that draw the dots largest.
 
 ## Animated lesson (optional, above the theory)
 

@@ -10,8 +10,8 @@ const LIGHT = '#ffffff';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-function svg(width, height, body, label, viewBox = `0 0 ${width} ${height}`) {
-  return `<svg class="math-pic" direction="ltr" style="direction:ltr" viewBox="${viewBox}" width="${width}" height="${height}" role="img" aria-label="${esc(label)}">${body}</svg>`;
+function svg(width, height, body, label, viewBox = `0 0 ${width} ${height}`, extraClass = '') {
+  return `<svg class="math-pic${extraClass ? ` ${extraClass}` : ''}" direction="ltr" style="direction:ltr" viewBox="${viewBox}" width="${width}" height="${height}" role="img" aria-label="${esc(label)}">${body}</svg>`;
 }
 
 /** A circle cut into `den` equal slices, the first `num` shaded. */
@@ -106,24 +106,105 @@ function array(rows, cols, { fadeCols = 0, split = 0 } = {}) {
 
 /**
  * `count` equal groups (rounded boxes) with `each` dots in every one, five
- * dots to a line and five groups to a row: count × each, or a sharing.
+ * dots to a line and `across` (five) groups to a row: count × each, or a sharing.
+ * `leftover` dots that make no full group stand after the groups, outside
+ * any box, in the second colour (a division with a remainder). Then the
+ * groups are laid out from the right, the way a Hebrew reader counts them,
+ * so the leftovers come last, on the left; without leftovers the order
+ * does not show and the picture stays as it was.
  */
-function groups(count, each) {
+function groups(count, each, { leftover = 0, across = 5 } = {}) {
   const dot = 14, pad = 6, between = 10;
-  const lineDots = Math.min(each, 5), lines = Math.ceil(each / 5);
+  const lineDots = Math.min(Math.max(each, leftover), 5), lines = Math.ceil(Math.max(each, leftover, 1) / 5);
   const w = lineDots * dot + 2 * pad, h = lines * dot + 2 * pad;
-  const perRow = Math.min(count, 5), rowsOfGroups = Math.ceil(count / 5);
+  const slots = count + (leftover > 0 ? 1 : 0);
+  const perRow = Math.min(slots, across), rowsOfGroups = Math.ceil(slots / across);
   const parts = [];
+  const col = (g) => (leftover > 0 ? perRow - 1 - (g % across) : g % across);
+  const place = (g) => [col(g) * (w + between), Math.floor(g / across) * (h + between)];
   for (let g = 0; g < count; g++) {
-    const x = (g % 5) * (w + between), y = Math.floor(g / 5) * (h + between);
+    const [x, y] = place(g);
     parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#f4f5ff" stroke="${LINE}" stroke-width="1.2"/>`);
     for (let k = 0; k < each; k++) {
       const cx = x + pad + dot / 2 + (k % 5) * dot, cy = y + pad + dot / 2 + Math.floor(k / 5) * dot;
       parts.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="${SHADE}" stroke="${LINE}" stroke-width="1"/>`);
     }
   }
+  if (leftover > 0) {
+    const [x, y] = place(count);
+    for (let k = 0; k < leftover; k++) {
+      const cx = x + pad + dot / 2 + (k % 5) * dot, cy = y + pad + dot / 2 + Math.floor(k / 5) * dot;
+      parts.push(`<circle cx="${cx}" cy="${cy}" r="5" fill="${SHADE_2}" stroke="${LINE}" stroke-width="1"/>`);
+    }
+  }
   const width = perRow * w + (perRow - 1) * between, height = rowsOfGroups * h + (rowsOfGroups - 1) * between;
-  return svg(width, height, parts.join(''), `${count} קבוצות של ${each}`, `-1 -1 ${width + 2} ${height + 2}`);
+  const label = `${count} קבוצות של ${each}${leftover ? `, ונשארו ${leftover}` : ''}`;
+  return svg(width, height, parts.join(''), label, `-1 -1 ${width + 2} ${height + 2}`);
+}
+
+/**
+ * The steps of a long division, as written in school: the quotient above
+ * the dividend, the divisor at the side of the bracket, and under the
+ * dividend each product (with a minus and a line) followed by what is left
+ * with the next digit brought down. A zero in the quotient brings the next
+ * digit down without a product. Returns { quotient, remainder, rows } for
+ * checks; longDivision() draws it.
+ */
+function longDivisionSteps(dividend, divisor) {
+  const digits = String(dividend).split('').map(Number);
+  const n = digits.length;
+  const quotient = Array(n).fill('');
+  const rows = []; // { text, lastCol, minus }
+  let current = 0, started = false;
+  for (let i = 0; i < n; i++) {
+    current = current * 10 + digits[i];
+    if (!started && current < divisor && i < n - 1) continue;
+    started = true;
+    const qd = Math.floor(current / divisor);
+    quotient[i] = String(qd);
+    if (qd > 0 || i === n - 1) {
+      const product = qd * divisor;
+      rows.push({ text: String(product), lastCol: i, minus: true });
+      current -= product;
+      rows.push({ text: i < n - 1 ? `${current}${digits[i + 1]}` : String(current), lastCol: i < n - 1 ? i + 1 : i });
+    } else {
+      // A zero in the quotient: the line above takes the next digit as well.
+      const last = rows[rows.length - 1];
+      last.text += String(digits[i + 1]);
+      last.lastCol = i + 1;
+    }
+  }
+  return { quotient: Number(quotient.join('')), remainder: current, quotientDigits: quotient, rows };
+}
+
+function longDivision(dividend, divisor, { scale = 1 } = {}) {
+  const cw = 12, rh = 24, left = 48, top = 24;
+  const { quotientDigits, rows } = longDivisionSteps(dividend, divisor);
+  const digits = String(dividend).split('');
+  const n = digits.length;
+  const x = (col) => left + col * cw + cw / 2;
+  const t = (cx, cy, s, fill = LINE, weight = 'normal') =>
+    `<text x="${cx}" y="${cy}" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="${weight}" fill="${fill}">${s}</text>`;
+  const parts = [];
+  quotientDigits.forEach((d, i) => { if (d !== '') parts.push(t(x(i), top, d, SHADE, 'bold')); });
+  const barY = top + 7;
+  parts.push(`<path d="M ${left - 6} ${barY + rh} Q ${left + 2} ${barY + rh / 2} ${left - 6} ${barY} L ${left + n * cw + 6} ${barY}" fill="none" stroke="${LINE}" stroke-width="1.6"/>`);
+  parts.push(`<text x="${left - 12}" y="${top + rh}" text-anchor="end" font-family="Arial, sans-serif" font-size="18" fill="${LINE}">${divisor}</text>`);
+  digits.forEach((d, i) => parts.push(t(x(i), top + rh, d)));
+  rows.forEach((row, r) => {
+    const y = top + rh * (r + 2);
+    const first = row.lastCol - row.text.length + 1;
+    row.text.split('').forEach((d, k) => parts.push(t(x(first + k), y, d, r === rows.length - 1 ? SHADE_2 : LINE, r === rows.length - 1 ? 'bold' : 'normal')));
+    if (row.minus) {
+      parts.push(t(x(first) - 12, y, '−'));
+      parts.push(`<line x1="${x(first) - 17}" y1="${y + 6}" x2="${x(row.lastCol) + 8}" y2="${y + 6}" stroke="${LINE}" stroke-width="1.4"/>`);
+    }
+  });
+  const width = left + n * cw + 12, height = top + rh * (rows.length + 1) + 10;
+  // Shown at its own size (class math-long): squeezed to a width or to the
+  // phone's picture height, the digits would be too small to read.
+  return svg(Math.round(width * scale), Math.round(height * scale), parts.join(''),
+    `חילוק ארוך: ${dividend} ÷ ${divisor}`, `0 0 ${width} ${height}`, 'math-long');
 }
 
 /** Several shapes in a row (e.g. two whole circles and a part). */
@@ -141,4 +222,4 @@ function figures(...figs) {
   return `<div class="math-figures">${figs.join('')}</div>`;
 }
 
-module.exports = { circle, bar, numberLine, grid, array, groups, row, figure, figures };
+module.exports = { circle, bar, numberLine, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };

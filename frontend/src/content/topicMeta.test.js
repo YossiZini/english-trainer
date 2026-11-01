@@ -1,4 +1,4 @@
-import topicMeta, { metaOf, subjectOfTopic, displayTopic, displaySubtopic, getSubtopicExamples } from './topicMeta';
+import topicMeta, { metaOf, subjectOfTopic, displayTopic, displaySubtopic, getSubtopicExamples, orderedTopics } from './topicMeta';
 
 describe('subject metadata', () => {
   test('every subject names its page for links back to it', () => {
@@ -22,10 +22,15 @@ describe('subject metadata', () => {
 });
 
 describe('topic numbers on screen', () => {
-  test('each subject counts from 1; the multiplication table is math chapter 1', () => {
-    expect([displayTopic(100), displayTopic(101), displayTopic(104)]).toEqual([1, 2, 5]);
-    expect([displaySubtopic('100.1'), displaySubtopic('101.3')]).toEqual(['1.1', '2.3']);
+  test('each subject counts from 1; math follows its teaching order (division, 105, is chapter 2)', () => {
+    expect([100, 105, 101, 102, 103, 104].map(displayTopic)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect([displaySubtopic('100.1'), displaySubtopic('105.2'), displaySubtopic('101.3')]).toEqual(['1.1', '2.2', '3.3']);
     expect([displayTopic(3), displaySubtopic('201.2')]).toEqual([3, '1.2']);
+  });
+
+  test('the contents list follows the teaching order', () => {
+    expect(orderedTopics('math', ['100', '101', '102', '103', '104', '105'])).toEqual(['100', '105', '101', '102', '103', '104']);
+    expect(orderedTopics('english', ['2', '1', '10'])).toEqual(['1', '2', '10']);
   });
 });
 
