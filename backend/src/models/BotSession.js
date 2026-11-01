@@ -2,12 +2,13 @@ const { db } = require('../config/database');
 
 /**
  * A practice session driven from a chat bot. `kind` is 'vocab', 'exercise',
- * 'review' or 'drill'. A vocabulary session starts in `setup`, where the student
+ * 'review', 'drill' or 'unseen'. A vocabulary session starts in `setup`, where the student
  * picks the level and the direction ('en-he' shows the English word, 'he-en'
  * the Hebrew; rows without one are 'en-he'), then holds 20 words (from all words) and rounds of the
  * failed words until none are left. An exercise session holds one lesson's
  * questions (createExercise); a drill, ten multiplication-table questions
- * (createDrill). One open session per chat, of any kind.
+ * (createDrill); an unseen, one reading text's questions (createUnseen). One
+ * open session per chat, of any kind.
  */
 class BotSession {
   static async create({ userId, chatId }) {
@@ -142,6 +143,37 @@ class BotSession {
       wrong_count: 0,
       wrong_streak: 0,
       missed: [],
+      started_at: now,
+      ended_at: null
+    });
+  }
+
+  /**
+   * A reading from the website's Unseen section (kind 'unseen'): the text's
+   * number in the list, its titles and level, its questions frozen at start
+   * ({ id, text, textHe, options, answer, explanation }), and the website's
+   * reading session (unseen_sessions) that records the answers and the score.
+   */
+  static async createUnseen({ userId, chatId, paragraph, number, count, questions, unseenSessionId }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'unseen',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'active',
+      paragraph_id: paragraph.id,
+      number,
+      count,
+      title_en: paragraph.title_en,
+      title_he: paragraph.title_he || null,
+      level: paragraph.complexity_level,
+      questions,
+      unseen_session_id: unseenSessionId,
+      index: 0,
+      answers: [],
+      correct_count: 0,
+      wrong_count: 0,
+      wrong_streak: 0,
       started_at: now,
       ended_at: null
     });

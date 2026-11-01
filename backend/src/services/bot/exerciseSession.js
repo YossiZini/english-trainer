@@ -4,8 +4,8 @@ const Exercise = require('../../models/Exercise');
 const UserProgress = require('../../models/UserProgress');
 const LessonService = require('../lesson.service');
 const ExerciseService = require('../exercise.service');
-const { isCorrectAnswer, choiceMatches } = require('../../utils/answers');
-const { isEndCommand } = require('../../utils/botWords');
+const { isCorrectAnswer, choiceMatches, parseOptionNumber } = require('../../utils/answers');
+const { isEndCommand, isHintCommand } = require('../../utils/botWords');
 const ReportService = require('../report.service');
 const MistakesService = require('../mistakes.service');
 const { shuffleArray } = require('../../utils/shuffle');
@@ -32,16 +32,6 @@ const EXPLANATION_MAX = 400;
 const PAGE_SIZE = 10;
 const MORE_WORDS = ['more', '/more', 'next'];
 const BACK_WORDS = ['back', '/back', 'prev'];
-const HINT_WORDS = ['?', '？', 'hint', '/hint'];
-
-
-/** The option number the student sent (1..count), or null. */
-function parseOptionNumber(text, count) {
-  const t = String(text || '').trim();
-  if (!/^\d{1,2}$/.test(t)) return null;
-  const n = Number(t);
-  return n >= 1 && n <= count ? n : null;
-}
 
 const capped = (text) => {
   if (!text) return null;
@@ -198,7 +188,7 @@ class ExerciseSession {
     if (session.status === 'setup') return this.pick(user, chatId, session, text);
 
     const current = session.exercises[session.index];
-    if (HINT_WORDS.includes(String(text || '').trim().toLowerCase())) {
+    if (isHintCommand(text)) {
       // Not an answer: the hint (when the question has one) and the same question.
       return { kind: 'exercise', hintAsked: true, hint: capped(current.hint), lesson: lessonView(session), question: questionView(session) };
     }
@@ -351,4 +341,3 @@ class ExerciseSession {
 }
 
 module.exports = ExerciseSession;
-module.exports.parseOptionNumber = parseOptionNumber;

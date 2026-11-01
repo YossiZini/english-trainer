@@ -77,4 +77,12 @@ function isCorrectAnswer(exercise, userAnswer) {
   return match(userAnswer, exercise.correct_answer);
 }
 
-module.exports = { answersMatch, choiceMatches, isCorrectAnswer, parseNumber };
+/** The option number a chat message chose (1..count), or null: only digits count. */
+function parseOptionNumber(text, count) {
+  const t = String(text || '').trim();
+  if (!/^\d{1,2}$/.test(t)) return null;
+  const n = Number(t);
+  return n >= 1 && n <= count ? n : null;
+}
+
+module.exports = { answersMatch, choiceMatches, isCorrectAnswer, parseNumber, parseOptionNumber };

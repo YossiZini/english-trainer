@@ -4,9 +4,9 @@ const ExerciseSession = require('./exerciseSession');
 
 /**
  * The service that owns the chat's open session: vocabulary (BotService),
- * lesson exercises (ExerciseSession), the admin's review (ReviewSession) or
- * the /kefel drill (DrillSession). With no open session, vocabulary
- * answers the "no session" reply as before.
+ * lesson exercises (ExerciseSession), the admin's review (ReviewSession),
+ * the /kefel drill (DrillSession) or an /unseen reading (UnseenBotSession).
+ * With no open session, vocabulary answers the "no session" reply as before.
  */
 async function serviceFor(chatId) {
   const session = await BotSession.findOpenByChat(chatId);
@@ -14,6 +14,7 @@ async function serviceFor(chatId) {
   if (kind === 'exercise') return ExerciseSession;
   if (kind === 'review') return require('./reviewSession');
   if (kind === 'drill') return require('./drillSession');
+  if (kind === 'unseen') return require('./unseenSession');
   return BotService;
 }
 
