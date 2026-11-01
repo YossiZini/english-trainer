@@ -66,6 +66,9 @@ defect-log artifact, `fix` fixes every open defect in one PR.
 **`/docs/retro.md` is binding**: read its "Lessons → rules" before starting
 work, and add to it through `/sprint retro`.
 
+**Session start**: read `/docs/knowledge.md` (one page: setup after a reset,
+local checks, known quirks, codebase facts). Keep it to one page.
+
 ---
 
 ## Server Ports
