@@ -22,6 +22,9 @@ session cannot see elsewhere.
   :3000 and proxies `/api`.
 - Content: `npm run generate-data -- math`, then restart the API. Records of
   other topics must stay identical (compare by id).
+- Reading texts: seed `seed-unseen-paragraphs.js`, then
+  `npm run generate-data -- --unseen` (ids kept by English title); guide
+  `backend/create-unseen.md`.
 - Math check scripts: `backend/scripts/checks/` (independent; one per topic).
 
 ## Known quirks
