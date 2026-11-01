@@ -92,13 +92,14 @@ function explainLong(a, d) {
 const longPicture = (a, d) => pic(P.longDivision(a, d), `${ltr(`${a} ÷ ${d}`)} בחילוק ארוך`);
 
 /**
- * Wrong answers for an exact long division: the digits swapped, one off in
- * a digit, the tens forgotten, a digit too many.
+ * Wrong answers for an exact long division: a dropped zero (103 → 13), the
+ * digits swapped, one off in a digit, the tens forgotten, a digit too many.
  */
 function longWrongs(a, d) {
   const q = a / d;
   const swapped = Number(String(q).split('').reverse().join(''));
-  return firstWrongs(q, [swapped, q + 1, q - 1, q + 10, q - 10, Math.floor(a / 10 / d), q * 10, q + 2]);
+  const noZero = Number(String(q).replace(/0/g, '')) || q;
+  return firstWrongs(q, [noZero, swapped, q + 1, q - 1, q + 10, q - 10, Math.floor(a / 10 / d), q * 10, q + 2]);
 }
 
 /** "a ÷ d = ?" by long division: the quotient, or the quotient and a remainder. */
