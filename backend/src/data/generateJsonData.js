@@ -392,107 +392,85 @@ function parseCSVLine(line) {
   return result;
 }
 
+const UNSEEN_SEED = path.join(seedsDir, 'seed-unseen-paragraphs.js');
+
+/** The reading texts' data from their seed module (throws when it does not load). */
+function loadUnseenSeed() {
+  delete require.cache[require.resolve(UNSEEN_SEED)];
+  return require(UNSEEN_SEED).getParagraphsData();
+}
+
 /**
- * Generate unseen paragraphs and questions JSON
+ * The reading texts (Unseen) as records, from the seed's data. A text that
+ * `previous` already has (same English title) keeps its id and created_at,
+ * and so does each of its questions (same number): students' progress and
+ * readings refer to them. New texts and questions get new ids.
+ */
+function buildUnseenRecords(paragraphsData, previous = { paragraphs: [], questions: [] }) {
+  const oldParagraphs = new Map(previous.paragraphs.map(p => [p.title_en, p]));
+  const oldQuestions = new Map(previous.questions.map(q => [`${q.paragraph_id}/${q.question_number}`, q]));
+  const titles = new Set();
+  const paragraphs = [];
+  const questions = [];
+
+  for (const pData of paragraphsData) {
+    if (titles.has(pData.titleEn)) throw new Error(`Two reading texts are called "${pData.titleEn}"`);
+    titles.add(pData.titleEn);
+    const old = oldParagraphs.get(pData.titleEn);
+    const paragraphId = old ? old.id : generateId();
+    const timestamp = old ? old.created_at : getCurrentTimestamp();
+
+    paragraphs.push({
+      id: paragraphId,
+      title_en: pData.titleEn,
+      title_he: pData.titleHe,
+      content: pData.content,
+      complexity_level: pData.complexityLevel,
+      topic: pData.topic,
+      hard_words: pData.hardWords,
+      is_custom: false,
+      uses_failed_words: false,
+      created_at: timestamp
+    });
+
+    for (const qData of pData.questions) {
+      const oldQuestion = oldQuestions.get(`${paragraphId}/${qData.questionNumber}`);
+      questions.push({
+        id: oldQuestion ? oldQuestion.id : generateId(),
+        paragraph_id: paragraphId,
+        question_number: qData.questionNumber,
+        question_text_en: qData.questionTextEn,
+        question_text_he: qData.questionTextHe,
+        options: qData.options,
+        correct_answer: qData.correctAnswer,
+        explanation_he: qData.explanationHe,
+        created_at: oldQuestion ? oldQuestion.created_at : timestamp
+      });
+    }
+  }
+  return { paragraphs, questions };
+}
+
+/**
+ * Generate unseen paragraphs and questions JSON from their seed, keeping
+ * every existing id. A seed that fails to load stops the run: nothing is
+ * written over the current files.
  */
 async function generateUnseenData() {
   console.log('Generating unseen paragraphs and questions...');
+  const readJson = name => {
+    const file = path.join(staticDir, name);
+    return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : [];
+  };
+  const previous = { paragraphs: readJson('unseen_paragraphs.json'), questions: readJson('unseen_questions.json') };
+  const { paragraphs, questions } = buildUnseenRecords(loadUnseenSeed(), previous);
 
-  const seedPath = path.join(seedsDir, 'seed-unseen-paragraphs.js');
-  if (!fs.existsSync(seedPath)) {
-    console.log('  seed-unseen-paragraphs.js not found, skipping');
-    return { paragraphs: [], questions: [] };
-  }
+  fs.writeFileSync(path.join(staticDir, 'unseen_paragraphs.json'), JSON.stringify(paragraphs, null, 2));
+  fs.writeFileSync(path.join(staticDir, 'unseen_questions.json'), JSON.stringify(questions, null, 2));
 
-  // Import the getParagraphsData function
-  const seedContent = fs.readFileSync(seedPath, 'utf-8');
-
-  // Find and execute getParagraphsData function
-  const funcMatch = seedContent.match(/function getParagraphsData\(\) \{[\s\S]*?return \[([\s\S]*?)\];\s*\}/);
-
-  if (!funcMatch) {
-    console.log('  Could not find getParagraphsData function');
-    return { paragraphs: [], questions: [] };
-  }
-
-  // Try to require the module
-  try {
-    // Clear require cache to get fresh data
-    delete require.cache[require.resolve(seedPath)];
-
-    // Create a temporary version without the pool dependency
-    const tempPath = path.join(__dirname, 'temp-unseen-seed.js');
-    const modifiedContent = seedContent
-      .replace(/const \{ pool \} = require.*?;/g, '// pool removed')
-      .replace(/async function seedUnseenParagraphs.*?module\.exports/s, 'module.exports');
-
-    // Add getParagraphsData export
-    const exportContent = `
-${modifiedContent.replace('module.exports = { seedUnseenParagraphs };', '')}
-
-module.exports = { getParagraphsData };
-`;
-
-    fs.writeFileSync(tempPath, exportContent);
-
-    // Now require the temp file
-    const { getParagraphsData } = require(tempPath);
-    const paragraphsData = getParagraphsData();
-
-    const paragraphs = [];
-    const questions = [];
-
-    for (const pData of paragraphsData) {
-      const paragraphId = generateId();
-      const timestamp = getCurrentTimestamp();
-
-      paragraphs.push({
-        id: paragraphId,
-        title_en: pData.titleEn,
-        title_he: pData.titleHe,
-        content: pData.content,
-        complexity_level: pData.complexityLevel,
-        topic: pData.topic,
-        hard_words: pData.hardWords,
-        is_custom: false,
-        uses_failed_words: false,
-        created_at: timestamp
-      });
-
-      for (const qData of pData.questions) {
-        questions.push({
-          id: generateId(),
-          paragraph_id: paragraphId,
-          question_number: qData.questionNumber,
-          question_text_en: qData.questionTextEn,
-          question_text_he: qData.questionTextHe,
-          options: qData.options,
-          correct_answer: qData.correctAnswer,
-          explanation_he: qData.explanationHe,
-          created_at: timestamp
-        });
-      }
-    }
-
-    // Clean up temp file
-    fs.unlinkSync(tempPath);
-
-    fs.writeFileSync(
-      path.join(staticDir, 'unseen_paragraphs.json'),
-      JSON.stringify(paragraphs, null, 2)
-    );
-    fs.writeFileSync(
-      path.join(staticDir, 'unseen_questions.json'),
-      JSON.stringify(questions, null, 2)
-    );
-
-    console.log(`Generated: ${paragraphs.length} paragraphs, ${questions.length} questions`);
-    return { paragraphs, questions };
-
-  } catch (error) {
-    console.error('  Error generating unseen data:', error.message);
-    return { paragraphs: [], questions: [] };
-  }
+  const kept = paragraphs.filter(p => previous.paragraphs.some(o => o.id === p.id)).length;
+  console.log(`Generated: ${paragraphs.length} paragraphs (${kept} kept their ids), ${questions.length} questions`);
+  return { paragraphs, questions };
 }
 
 /**
@@ -678,9 +656,13 @@ async function initializeDynamicFiles() {
  *   npm run generate-data -- english      rebuild the English lessons from seeds
  *                                         (WARNING: the seeds hold only ~950 of
  *                                         the 2,156 English exercises)
+ *   npm run generate-data -- --unseen     rebuild only the reading texts (Unseen)
+ *                                         from seed-unseen-paragraphs.js; existing
+ *                                         texts and questions keep their ids
  *   npm run generate-data -- --all        also regenerate vocabulary, reading
- *                                         passages and achievements (mints new
- *                                         ids: student word scores would be lost)
+ *                                         texts and achievements (vocabulary and
+ *                                         achievements get new ids: student word
+ *                                         scores would be lost)
  */
 async function main(argv = process.argv.slice(2)) {
   console.log('='.repeat(50));
@@ -692,6 +674,12 @@ async function main(argv = process.argv.slice(2)) {
   const subjects = argv.filter(a => !a.startsWith('--'));
 
   try {
+    if (argv.includes('--unseen')) {
+      await generateUnseenData();
+      console.log();
+      return;
+    }
+
     await generateLessonsAndExercises(subjects.length ? subjects : ['math', 'arabic']);
     console.log();
 
@@ -733,6 +721,8 @@ module.exports = {
   generateLessonsAndExercises,
   generateVocabularyWords,
   generateUnseenData,
+  buildUnseenRecords,
+  loadUnseenSeed,
   generateAchievements,
   initializeDynamicFiles
 };
