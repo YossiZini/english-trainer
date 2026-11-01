@@ -64,6 +64,50 @@ const remainderQ = (n, level, a, d) => {
   return mcq(n, level, expr(`${a} ÷ ${d}`), withRemainder(q, r), remainderWrongs(a, d), explainRemainder(a, d), groupsPicture(a, d));
 };
 
+/**
+ * The written steps of a long division, in one line each: divide, what is
+ * left, bring down the next digit; a zero in the quotient is a step too
+ * ("1 ÷ 4 = 0 ושארית 1"). Ends with the quotient and the check.
+ */
+function explainLong(a, d) {
+  const digits = String(a).split('').map(Number);
+  const pieces = [];
+  let current = 0, started = false;
+  for (let i = 0; i < digits.length; i++) {
+    current = current * 10 + digits[i];
+    if (!started && current < d && i < digits.length - 1) continue;
+    started = true;
+    const qd = Math.floor(current / d), rest = current - qd * d;
+    let piece = `${ltr(`${current} ÷ ${d} = ${qd}`)}${rest ? ` ושארית ${rest}` : ''}`;
+    if (i < digits.length - 1) piece += `, מורידים את ${digits[i + 1]}`;
+    pieces.push(piece);
+    current = rest;
+  }
+  const { q, r } = split(a, d);
+  const check = r ? ltr(`${q} × ${d} + ${r} = ${a}`) : ltr(`${q} × ${d} = ${a}`);
+  return `${pieces.join('; ')}. המנה ${q}${r ? ` ושארית ${r}` : ''}. בדיקה: ${check}.`;
+}
+
+/** The long division of a ÷ d as a picture under an explanation. */
+const longPicture = (a, d) => pic(P.longDivision(a, d), `${ltr(`${a} ÷ ${d}`)} בחילוק ארוך`);
+
+/**
+ * Wrong answers for an exact long division: the digits swapped, one off in
+ * a digit, the tens forgotten, a digit too many.
+ */
+function longWrongs(a, d) {
+  const q = a / d;
+  const swapped = Number(String(q).split('').reverse().join(''));
+  return firstWrongs(q, [swapped, q + 1, q - 1, q + 10, q - 10, Math.floor(a / 10 / d), q * 10, q + 2]);
+}
+
+/** "a ÷ d = ?" by long division: the quotient, or the quotient and a remainder. */
+function longQ(n, level, a, d) {
+  const { q, r } = split(a, d);
+  if (r === 0) return mcq(n, level, expr(`${a} ÷ ${d}`), String(q), longWrongs(a, d).map(String), explainLong(a, d), longPicture(a, d));
+  return mcq(n, level, expr(`${a} ÷ ${d}`), withRemainder(q, r), remainderWrongs(a, d), explainLong(a, d), longPicture(a, d));
+}
+
 /** A question whose answer is a number, with its wrong options given. */
 const numberQuestion = (n, level, text, answer, wrongs, explanation, picture = null) =>
   mcq(n, level, text, String(answer), wrongs.map(String), explanation, picture);
@@ -90,5 +134,5 @@ function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
 
 module.exports = {
   ltr, expr, mcq, P, pic, split, withRemainder, remainderWrongs, explainRemainder, groupsPicture,
-  remainderQ, numberQuestion, firstWrongs, lesson
+  remainderQ, explainLong, longPicture, longWrongs, longQ, numberQuestion, firstWrongs, lesson
 };
