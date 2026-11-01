@@ -145,5 +145,5 @@ function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
 
 module.exports = {
   ltr, expr, mcq, P, pic, times, divide, numberQuestion, productWrongs, quotientWrongs,
-  explainProduct, explainQuotient, timesTable, lesson
+  explainProduct, explainQuotient, timesTable, lesson, glueEquations, firstWrongs
 };
