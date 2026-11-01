@@ -1,12 +1,15 @@
 ---
 name: sprint
-description: Run the project's sprint workflow against the sprint-board artifact — /sprint start|plan|status|next|review|retro|close. Use whenever the user types /sprint or asks to start, plan, continue, review, retrospect or close a sprint.
+description: Run the project's sprint workflow against the sprint-board artifact — /sprint start|status|next|review|close (start also plans the sprint; close also writes its retro). Use whenever the user types /sprint or asks to start, plan, continue, review, retrospect or close a sprint.
 ---
 
 # /sprint — sprint workflow for English Trainer
 
-Usage: `/sprint <start|plan|status|next|review|retro|close> [text]`
+Usage: `/sprint <start|status|next|review|close> [text]`
 Arguments received: `$ARGUMENTS`
+
+The flow: `start` (scope and plan) → `next`, as often as needed → `review` →
+`close` (retro and archive). `status` works at any time.
 
 Only one sprint is active at a time. The sprint's single source of truth is the
 **sprint board artifact**; the repository holds the archives, the retro log and
@@ -28,10 +31,10 @@ this playbook.
 
 ```json
 { "number": 1, "name": "…", "goal": "one sentence", "scope": ["…"],
-  "status": "scoping|planned|active|review|closed",
+  "status": "planned|active|review|closed",
   "startedAt": "YYYY-MM-DD", "closedAt": null, "baseRef": "<origin/main sha at start>",
-  "release": null, "archive": null, "focus": "one line shown at the top of the board",
-  "updatedAt": "ISO timestamp" }
+  "release": null, "archive": null, "retro": null,
+  "focus": "one line shown at the top of the board", "updatedAt": "ISO timestamp" }
 ```
 
 `items/<id>` — stories and tasks. Ids: `s1`, `s2`… for stories, `s1-t1`, `s1-t2`… for tasks.
@@ -56,33 +59,31 @@ when the subcommand does not apply.
 
 ### `start <scope in the user's words>`
 
-Allowed when `meta/sprint` is missing or `status = closed`.
+Scopes and plans the sprint in one command. Allowed when `meta/sprint` is
+missing or `status = closed`; while `status = planned` it re-plans the
+current sprint from the new text (same number and `baseRef`).
 0. If a PR is still open on the work branch (usually the previous sprint's
-   archive), ask the user to merge it first, so the new sprint's first push
+   close), ask the user to merge it first, so the new sprint's first push
    is not blocked.
 1. New number = previous number + 1. Record `baseRef` = current `origin/main`
    sha (`git fetch origin main && git rev-parse origin/main`).
 2. Turn the user's text into a one-sentence `goal` and 3–7 `scope` bullets.
-   If the scope is too vague to plan, ask at most three clarifying questions
-   before writing anything.
-3. Write `meta/sprint` with `status: scoping`, clear any leftover `items`, and
-   show the goal and scope back for confirmation. Suggest `/sprint plan`.
-
-### `plan`
-
-Allowed when `status ∈ {scoping, planned}` (re-planning replaces the stories).
-1. Explore the codebase for each scope bullet (Explore agent or targeted reads)
+   If the scope is too vague to plan, ask at most three clarifying questions,
+   in one round, before writing anything.
+3. Explore the codebase for each scope bullet (Explore agent or targeted reads)
    so stories reflect real files, not guesses.
-2. Produce **user stories**: "As a <student/parent/maintainer>, I want … so that …",
+4. Produce **user stories**: "As a <student/parent/maintainer>, I want … so that …",
    each with `priority` (P1 must-have, P2 should, P3 nice), `acceptance`
    criteria (testable), and a size hint in `detail`. Keep it to what fits one
    sprint; put the rest in a "Deferred" line of the summary, not on the board.
-3. Break **only the P1 stories** into fine-grained tasks (30–90 min each,
+5. Break **only the P1 stories** into fine-grained tasks (30–90 min each,
    owner `claude` unless the user must act — then `owner: you` with `steps`
    and `links`). Later stories stay high level; they get tasks when `next`
    reaches them.
-4. Write everything in one batch, set `status: planned`, and present the
-   plan as a table in chat. Ask for approval before any implementation.
+6. Write `meta/sprint` (`status: planned`) and the items in one batch,
+   replacing any leftover `items`. Show the goal, the scope and the plan as
+   a table in chat, and ask for approval before any implementation. Changes
+   the user asks for in reply go straight onto the board; no command needed.
 
 ### `status`
 
@@ -95,7 +96,7 @@ needed, and the next item `next` would pick. No writes except nothing.
 Allowed when `status ∈ {planned, active}`; sets `status: active` on first use.
 1. Pick the work item: any task `in_progress` first; else the first `todo`
    task of the highest-priority open story; if that story has no tasks yet,
-   break it down first (as in `plan` step 3) and continue.
+   break it down first (as in `start` step 5) and continue.
 2. Mark it `in_progress` (note + `focus`), do the work on the work branch
    following the repo conventions (`CLAUDE.md`; topics → update
    `docs/topics-status.md`), run the relevant checks (`cd backend && npm test`,
@@ -125,19 +126,40 @@ Allowed when `status ∈ {active, review}`; sets `status: review`.
    sprint" items to the board as tasks under a `P1` story "Review follow-ups"
    so `next` picks them up. Do not change code during `review`.
 
-### `retro`
+### `close [release tag]`
 
-Allowed at any time after `plan`; usually after `review`.
-1. Gather evidence: the board's notes (especially `blocked`/`waiting_user`
-   history), the git log since `baseRef`, CI runs, and what happened in this
-   session (failed commands, wrong assumptions, rework, things that went well).
-2. Write a section to `docs/retro.md` (create from the template below if
-   missing): **What went well**, **What hurt** (each with the concrete cause),
-   **Lessons → rules** (imperative, one line each, the kind of rule that
-   prevents a repeat), **Follow-ups**. Keep rules that already exist from
-   duplicating; refine them instead.
-3. Make sure `CLAUDE.md` references `docs/retro.md` (add the pointer once).
-   Commit and push; show the new section in chat.
+Writes the sprint's retro and archives the sprint, in one PR. Allowed when
+`status ∈ {active, review}`.
+1. Verify: every item `done`; the sprint's PRs merged; the latest deploy on
+   `main` green. If anything is open, list it and stop — no partial close.
+2. **Retro** (skip when `docs/retro.md` already has this sprint's section):
+   1. Gather evidence: the board's notes (especially `blocked`/`waiting_user`
+      history), the git log since `baseRef`, CI runs, and what happened in
+      the session (failed commands, wrong assumptions, rework, things that
+      went well).
+   2. Write a section to `docs/retro.md` (create it from the template below
+      if missing): **What went well**, **What hurt** (each with the concrete
+      cause), **Lessons → rules** (imperative, one line each, the kind of
+      rule that prevents a repeat), **Follow-ups**. Refine rules that already
+      exist instead of duplicating them.
+   3. Make sure `CLAUDE.md` references `docs/retro.md` (add the pointer once).
+3. Update the system map when the sprint changed the design (services,
+   ownership, flows, limits): edit `docs/architecture/system-map.html` and
+   republish it to its artifact URL (see CLAUDE.md, "System Map"); say in
+   the close report whether it changed.
+4. Export the board (`ArtifactData list items` with `out_dir`, plus
+   `meta/sprint`) and run `node .claude/skills/sprint/scripts/archive.js
+   <export-dir> <N>` to write `docs/backlog/sprint-<N>.md`.
+5. Commit the retro, the system map (when changed) and the archive on the
+   work branch, push, and open **one** PR, "Sprint <N>: retro and archive".
+6. Clear `items`, set `meta/sprint` to `status: closed`, `closedAt`, `archive`,
+   `retro`, `release` (when the user gave a tag), and a `focus` saying the
+   sprint is archived.
+7. If a release tag was requested: tag `origin/main` and push the tag. If the
+   tag push is refused from this session (known limitation), give the user the
+   three-line `git tag`/`git push` snippet instead.
+8. Report in chat: the retro's new section (its rules in full), whether the
+   system map changed, the archive and the PR link.
 
 Template header for a new `docs/retro.md`:
 
@@ -148,26 +170,12 @@ Lessons from each sprint. Rules under "Lessons → rules" are binding for future
 work in this repository (referenced from CLAUDE.md).
 ```
 
-### `close [release tag]`
+### Old names
 
-Allowed when `status ∈ {active, review}`.
-1. Verify: every item `done`; the sprint's PRs merged; the latest deploy on
-   `main` green. If anything is open, list it and stop — no partial close.
-2. Update the system map when the sprint changed the design (services,
-   ownership, flows, limits): edit `docs/architecture/system-map.html` and
-   republish it to its artifact URL (see CLAUDE.md, "System Map"); say in
-   the close report whether it changed.
-3. Export the board (`ArtifactData list items` with `out_dir`, plus
-   `meta/sprint`) and run `node .claude/skills/sprint/scripts/archive.js
-   <export-dir> <N>` to write `docs/backlog/sprint-<N>.md`. Commit on the work
-   branch, push, open the PR.
-4. Clear `items`, set `meta/sprint` to `status: closed`, `closedAt`, `archive`,
-   `release` (when the user gave a tag), and a `focus` saying the sprint is
-   archived.
-5. If a release tag was requested: tag `origin/main` and push the tag. If the
-   tag push is refused from this session (known limitation), give the user the
-   three-line `git tag`/`git push` snippet instead.
-6. Suggest `/sprint retro` if it has not run for this sprint.
+`plan` and `retro` are now steps of `start` and `close`. If someone types
+them out of habit: `plan` re-plans a `planned` sprint (`start` steps 3–6);
+`retro` writes only the retro (`close` step 2) and commits it alone, for a
+sprint whose close must wait.
 
 ## Guardrails
 
