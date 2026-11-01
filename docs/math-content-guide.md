@@ -117,8 +117,9 @@ creates a new lesson and orphans progress.
 ## Verification (before every commit)
 
 1. A check script re-computes every answer with an evaluator that does not
-   share code with the seed (`scratchpad/checks/*.js` in past sprints; keep
-   one per topic). Zero mismatches, counts 10/10/10, answers among options.
+   share code with the seed (`backend/scripts/checks/topicN.js`, one per
+   topic, kept in the repo: the scratchpad does not survive a reset). Zero
+   mismatches, counts 10/10/10, answers among options.
 2. `cd backend && npm run generate-data` (Math only; English is never rebuilt
    implicitly). A seed that fails to load aborts the run on purpose.
 3. **Restart the API** (bundled content loads at startup), `npm test`,
