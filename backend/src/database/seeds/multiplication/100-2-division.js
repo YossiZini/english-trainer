@@ -47,7 +47,7 @@ const theory = `
 <h3>כלל 5: בודקים חילוק בכפל</h3>
 <div class="rules">
   <p>חישבתם <span dir="ltr">42 ÷ 6 = 7</span>? כופלים את התשובה במחלק: <span dir="ltr">7 × 6 = 42</span>. יצא המחולק – התשובה נכונה.</p>
-  ${P.figures(P.figure(P.array(6, 7), '<span dir="ltr">7 × 6 = 42</span>'))}
+  ${P.figures(P.figure(P.array(7, 6), '<span dir="ltr">7 × 6 = 42</span>'))}
 </div>
 
 <div class="warning">

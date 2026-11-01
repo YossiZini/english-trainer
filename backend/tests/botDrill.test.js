@@ -23,6 +23,7 @@ describe('Bot multiplication drill', () => {
   const answer = (text) => bot('/api/bot/session/answer', { text });
   const openDrill = async () => (await db.find('bot_sessions', { chat_id: chatId }))
     .find(s => s.kind === 'drill' && s.status === 'active');
+  const openDrillOwner = async () => (await db.findOne('users', { name: 'bot-kefel' })).id;
 
   /** This week's answered drill questions of the test student in /usage. */
   const drillUsage = async () => {
@@ -70,7 +71,10 @@ describe('Bot multiplication drill', () => {
         facts.add(factors.sort((a, b) => a - b).join('x'));
       }
       expect(products).toBe(5);
-      expect(facts.size).toBe(10); // no fact twice, so a quotient never repeats a product
+      expect(facts.size).toBe(10); // no fact twice
+      // No division starts from a number that answers one of the round's products (4 × 6 and 24 ÷ 3).
+      const asked = new Set(questions.filter(q => q.text.includes('×')).map(q => q.answer));
+      for (const q of questions.filter(x => x.text.includes('÷'))) expect(asked.has(Number(q.text.split(' ')[0]))).toBe(false);
     }
   });
 
@@ -151,6 +155,18 @@ describe('Bot multiplication drill', () => {
     expect((await bot('/api/bot/exercise/start', { subject: 'math' })).body.data.kind).toBe('exercise');
     expect(await db.findById('bot_sessions', drill.id)).toMatchObject({ status: 'ended', end_reason: 'replaced' });
     await bot('/api/bot/session/end');
+  });
+
+  test('an open drill with every question answered is over, never an error', async () => {
+    // As if the round's last write had failed to close it.
+    const stuck = await db.insert('bot_sessions', {
+      kind: 'drill', user_id: (await openDrillOwner()), chat_id: chatId, status: 'active', index: 10,
+      questions: makeQuestions(), correct_count: 10, wrong_count: 0, wrong_streak: 0, missed: [],
+      started_at: new Date(Date.now() + 1000).toISOString(), ended_at: null
+    });
+    expect((await answer('42')).status).toBe(404);
+    expect((await status()).body.data.active).toBe(false);
+    expect(await db.findById('bot_sessions', stuck.id)).toMatchObject({ status: 'ended', end_reason: 'completed' });
   });
 
   test('the daily message cap covers the drill', async () => {

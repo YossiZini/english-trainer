@@ -187,8 +187,9 @@ class BotSession {
     return db.findById('bot_sessions', id);
   }
 
-  static async end(id, reason = 'ended') {
-    return this.update(id, { status: 'ended', end_reason: reason, ended_at: new Date().toISOString() });
+  /** End the session; `updates` (the last answer's counts) are saved in the same write. */
+  static async end(id, reason = 'ended', updates = {}) {
+    return this.update(id, { ...updates, status: 'ended', end_reason: reason, ended_at: new Date().toISOString() });
   }
 
   /**

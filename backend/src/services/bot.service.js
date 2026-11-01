@@ -11,7 +11,8 @@ const {
 } = require('../utils/englishAnswer');
 const { shuffleArray } = require('../utils/shuffle');
 const BotUsage = require('../models/BotUsage');
-const { SESSION_SIZE, END_WORDS, EXAMPLE_WORDS, DAILY_JUDGE_CAP } = require('../config/bot');
+const { SESSION_SIZE, EXAMPLE_WORDS, DAILY_JUDGE_CAP } = require('../config/bot');
+const { isEndCommand } = require('../utils/botWords');
 const answerJudge = require('./bot/answerJudge');
 const ReportService = require('./report.service');
 
@@ -27,7 +28,6 @@ const ReportService = require('./report.service');
  */
 
 const POINTS_PER_CORRECT = 1;
-const isEndCommand = (text) => END_WORDS.includes(String(text || '').trim().toLowerCase());
 const isExampleRequest = (text) => EXAMPLE_WORDS.includes(String(text || '').trim().toLowerCase());
 
 const LEVEL_WORDS = { easy: 1, medium: 2, hard: 3, 'קל': 1, 'בינוני': 2, 'קשה': 3 };

@@ -4,7 +4,7 @@
 
 // Isolate a math expression inside Hebrew text so digits, operators and
 // fractions keep their left-to-right order (U+2066 LRI … U+2069 PDI).
-const ltr = (s) => `⁦${s}⁩`;
+const { ltr } = require('../../utils/bidi');
 
 // A bare computation question: the expression followed by "= ?", kept LTR.
 const expr = (e) => ltr(`${e} = ?`);
