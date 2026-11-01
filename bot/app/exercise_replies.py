@@ -1,7 +1,8 @@
 """Hebrew replies for lesson exercises, built from the API's data only.
 
 A multiple-choice question lists its options as "1) …" lines and offers
-buttons 1..n; a fill-in question removes the keyboard. The lesson list is
+buttons 1..n (an option without letters is isolated left to right, so
+"40 ÷ 5" never reads "5 ÷ 40"); a fill-in question removes the keyboard. The lesson list is
 numbered across pages; the student sends a lesson's number. The verdict, the
 right option and the score always come from the API."""
 from .replies import Reply
@@ -18,6 +19,7 @@ PICK_INVALID = "שלחו מספר של שיעור מהרשימה:"
 PICK_CLOSED = "סגרנו את רשימת השיעורים."
 NO_HINT = "אין רמז לשאלה הזו."
 START_INTRO = "מתחילים! ענו במספר התשובה (? לרמז), או /end כדי לעצור."
+LRI, PDI = "\u2066", "\u2069"
 
 ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה: /lessons_english, /lessons_math או /lessons_arabic."
 LESSON_NOT_FOUND = "לא מצאתי את השיעור הזה."
@@ -85,6 +87,18 @@ def report_reply(result: dict) -> Reply:
     return Reply(f"🚩 תודה! דיווחנו על שאלה {data['reportedNumber']} ונבדוק אותה.")
 
 
+def keep_ltr(text) -> str:
+    """Text without letters (a number, a fraction, "40 ÷ 5") inside a left-to-right isolate.
+
+    In a Hebrew message such text can show reversed ("5 ÷ 40"), and a trap
+    option would read as the right one. Words (Hebrew, English, Arabic) keep
+    their own direction and are left as they are."""
+    s = str(text)
+    if s.startswith(LRI) or any(ch.isalpha() for ch in s):
+        return s
+    return f"{LRI}{s}{PDI}"
+
+
 def question_reply(data: dict, intro: str = "") -> Reply:
     lesson, q = data["lesson"], data["question"]
     lines = [intro] if intro else []
@@ -95,7 +109,7 @@ def question_reply(data: dict, intro: str = "") -> Reply:
     if q.get("textEn"):
         lines.append(q["textEn"])
     if q.get("options"):
-        lines += [f"{i}) {option}" for i, option in enumerate(q["options"], start=1)]
+        lines += [f"{i}) {keep_ltr(option)}" for i, option in enumerate(q["options"], start=1)]
         return Reply("\n".join(lines), [str(i) for i in range(1, len(q["options"]) + 1)])
     lines.append("כתבו את התשובה (? לרמז):")
     return Reply("\n".join(lines))
@@ -104,7 +118,7 @@ def question_reply(data: dict, intro: str = "") -> Reply:
 def verdict_text(verdict: dict) -> str:
     if verdict["correct"]:
         return "✅ נכון!"
-    answer = verdict["correctAnswer"]
+    answer = keep_ltr(verdict["correctAnswer"])
     if verdict.get("correctOption"):
         answer = f"{verdict['correctOption']}) {answer}"
     text = f"{wrong_line(verdict)}\nהתשובה: {answer}"

@@ -182,7 +182,9 @@ picked number go through `/api/bot/session/answer` like any answer.
    (`bot_sessions`, `kind: exercise`).
 2. Every exercise is multiple choice (a backend content test enforces it):
    the question lists its options as "1) …" with buttons 1..n (3 or 4
-   options). Only an option number is an answer; anything else repeats the
+   options). An option or right answer without letters ("40 ÷ 5", "3/4")
+   is wrapped in a left-to-right isolate, so it never shows reversed in the
+   Hebrew message. Only an option number is an answer; anything else repeats the
    question and records nothing. The fill-in path (typed text, keyboard
    removed) remains only for a question type the content no longer uses.
 3. Each answer gets ✅, or an encouraging line with the right answer and the explanation (📖).

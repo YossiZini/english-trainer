@@ -81,6 +81,18 @@ async def test_answers_go_to_the_open_exercise_and_show_the_verdict():
     assert right.text.startswith("✅ נכון!") and right.buttons == ["1", "2", "3", "4"]
 
 
+def test_math_options_and_answers_keep_their_order_in_a_hebrew_message():
+    q = {"number": 1, "total": 10, "type": "multiple_choice", "text": "איזה תרגיל מראה כמה יש בכל שקית?",
+         "textEn": None, "options": ["40 ÷ 5", "5 ÷ 40", "שניהם 9", "Noun", "3/4"]}
+    lines = er.question_reply({"lesson": LESSON, "question": q}).text.split("\n")
+    # Without letters an option is isolated left to right, so "40 ÷ 5" never reads "5 ÷ 40".
+    assert lines[2:] == ["1) \u206640 ÷ 5\u2069", "2) \u20665 ÷ 40\u2069", "3) שניהם 9", "4) Noun", "5) \u20663/4\u2069"]
+    wrong = er.verdict_text({"correct": False, "correctAnswer": "40 ÷ 5", "correctOption": 1, "wrongCount": 1})
+    assert wrong.endswith("התשובה: 1) \u206640 ÷ 5\u2069")
+    assert er.verdict_text({"correct": False, "correctAnswer": "Noun", "correctOption": 1}).endswith("התשובה: 1) Noun")
+    assert er.keep_ltr("\u20667 × 8 = ?\u2069") == "\u20667 × 8 = ?\u2069"  # already isolated: once only
+
+
 def test_final_summary_and_early_end():
     done = er.exercise_answer_reply({
         "kind": "exercise", "done": True, "lesson": LESSON,
