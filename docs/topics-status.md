@@ -278,6 +278,10 @@ Track changes per topic with dates and descriptions.
   The math page's example badges (topics 100 and 101) are wrapped in `ltr()`:
   they showed reversed in the right-to-left page ("7 = 8 ÷ 56",
   "1/4 = 3/4 − 1").
+- 2026-10-31: In Telegram, `/kefel` practises the table outside the lessons:
+  ten new questions per round (five ×, five ÷, factors 2–10), typed
+  answers, the count and the facts to review at the end; nothing is saved
+  (`docs/telegram-bot.md`, "Multiplication drill").
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises

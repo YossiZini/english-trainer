@@ -60,14 +60,16 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/usage` | who practised in the last 7 and 30 days (see "Usage") |
 | `/english`, `/math`, `/arabic`, `/lessons_english`, `/lessons_math`, `/lessons_arabic` | lesson exercises (see "Lesson exercises") |
 | `/mistakes_english`, `/mistakes_math`, `/mistakes_arabic` (also `mistakes english`; `/mistakes` alone offers all three) | the subject's mistakes exam (see "Mistakes exam") |
+| `/kefel` (also `kefel`) | ten quick multiplication-table drills; nothing is saved (see "Multiplication drill") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
 | `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | review of reported questions and words, open to every linked student (see "Reported questions and review") |
 | `/end` (also `stop`) | ends any open session |
 
 A multiple-choice answer is a number, so a bare command works during a
-question too. Only while a typed (fill-in) question is open would a bare word
-be the answer (it may be "help" or "english"); no exercise is fill-in any
-more, the rule only guards the fill-in path. The "/" form is always the
+question too. Only while a typed question is open (a fill-in question, or a
+`/kefel` drill, whose questions have type `number`) is a bare word the answer
+(it may be "help" or "english"); during a drill the API asks the same
+question again. No lesson exercise is fill-in any more. The "/" form is always the
 command, and `end` always ends the session. A free-form message (for example "איך זה
 עובד?") goes to the agent, whose `show_help` tool sends the same help text.
 
@@ -219,6 +221,26 @@ as in a lesson, with the same kind wrong-answer lines.
 - With nothing waiting: a kind reply ("🎉 אין טעויות לתקן בחשבון!…") and
   no session.
 
+## Multiplication drill
+
+`/kefel` (Hebrew "כפל", multiplication) is a one-minute drill of the
+multiplication table. The bot calls `POST /api/bot/drill/start`; the API's
+`DrillSession` (`backend/src/services/bot/drillSession.js`, session kind
+`drill`) makes ten new questions every time: five products and five
+quotients of ten different facts with factors 2–10 (×1 teaches nothing), so
+a division never gives away a product's answer. Answers and `/end` go through
+the usual `/session/answer` and `/session/end`.
+
+- The student types the number; there are no buttons. Text that is not a
+  number asks the same question again and counts nothing.
+- A right answer: "✅ נכון!". A wrong one: the kind line (`wrongCount`,
+  `wrongStreak`) and the whole fact, "התשובה: 7 × 8 = 56".
+- After the tenth: how many were right with kind words, the facts that were
+  missed ("לחזרה:"), and `/kefel` for another round.
+- Nothing is recorded outside the session: no result, points, progress or
+  mistakes, and `/usage` does not count drills. A drill has no question to
+  `/report`. The daily message cap applies as everywhere.
+
 ## Architecture
 
 ```
@@ -231,6 +253,7 @@ Telegram ──webhook──► Cloud Run: english-trainer-bot (bot/, Python, Go
                           │  chat → student through telegram_links (one-time code from the web app)
                           │  word selection, answer matching, rounds, counters, rate limits
                           │  lesson exercises: questions, verdicts, grading through ExerciseService
+                          │  /kefel drills: ten generated questions, verdicts, nothing recorded
                           │  a dictionary miss: one yes/no from Gemini (Vertex AI)
                           ▼
                        Firestore: bot_sessions, telegram_links, bot_usage (+ vocabulary_word_scores)
@@ -266,11 +289,11 @@ service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 
 | Piece | Where |
 |---|---|
-| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
+| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/drillSession.js` (`/kefel`), `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
 | Student side of linking | `backend/src/routes/telegram.routes.js`, web page `/settings/telegram` |
-| Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `coach.py`, `main.py`) |
+| Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `drill_replies.py`, `coach.py`, `main.py`) |
 | Cloud Run spec, secrets | `infra/cloudrun-bot.yaml`, `infra/setup-bot.sh`, `infra/set-webhook.sh` |
-| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/mistakesExam.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
+| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/botDrill.test.js`, `backend/tests/mistakesExam.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
 | Local end-to-end | `bot/scripts/smoke.py` |
 
 ## Security

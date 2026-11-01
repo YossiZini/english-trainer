@@ -1,12 +1,13 @@
 const { db } = require('../config/database');
 
 /**
- * A practice session driven from a chat bot. `kind` is 'vocab' or
- * 'exercise'. A vocabulary session starts in `setup`, where the student
+ * A practice session driven from a chat bot. `kind` is 'vocab', 'exercise',
+ * 'review' or 'drill'. A vocabulary session starts in `setup`, where the student
  * picks the level and the direction ('en-he' shows the English word, 'he-en'
  * the Hebrew; rows without one are 'en-he'), then holds 20 words (from all words) and rounds of the
  * failed words until none are left. An exercise session holds one lesson's
- * questions (createExercise). One open session per chat, of either kind.
+ * questions (createExercise); a drill, ten multiplication-table questions
+ * (createDrill). One open session per chat, of any kind.
  */
 class BotSession {
   static async create({ userId, chatId }) {
@@ -117,6 +118,30 @@ class BotSession {
       proposal: null,
       skipped: [],
       counts: {},
+      started_at: now,
+      ended_at: null
+    });
+  }
+
+  /**
+   * A /kefel drill (kind 'drill'): ten multiplication-table questions made at
+   * start ({ text, answer }), answered by typing the number. Only the counts
+   * and the missed questions are kept: nothing goes to results, points,
+   * progress or mistakes.
+   */
+  static async createDrill({ userId, chatId, questions }) {
+    const now = new Date().toISOString();
+    return db.insert('bot_sessions', {
+      kind: 'drill',
+      user_id: userId,
+      chat_id: String(chatId),
+      status: 'active',
+      questions,
+      index: 0,
+      correct_count: 0,
+      wrong_count: 0,
+      wrong_streak: 0,
+      missed: [],
       started_at: now,
       ended_at: null
     });

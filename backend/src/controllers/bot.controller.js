@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const BotService = require('../services/bot.service');
 const ExerciseSession = require('../services/bot/exerciseSession');
+const DrillSession = require('../services/bot/drillSession');
 const { serviceFor } = require('../services/bot/sessionKinds');
 const TelegramLink = require('../models/TelegramLink');
 const ReviewService = require('../services/review.service');
@@ -72,6 +73,11 @@ class BotController {
   static async startMistakes(req, res) {
     if (invalid(req, res)) return;
     send(res, await ExerciseSession.startMistakes(req.user, req.chatId, { subject: req.body.subject }));
+  }
+
+  /** /kefel: ten new multiplication-table questions. */
+  static async startDrill(req, res) {
+    send(res, await DrillSession.start(req.user, req.chatId));
   }
 
   static async reportQuestion(req, res) {

@@ -93,7 +93,7 @@
   <header>
     <span class="eyebrow">Architecture overview</span>
     <h1>English Trainer System Map</h1>
-    <p class="lede">A practice app for Hebrew-speaking students: English grammar and vocabulary, a Math tab and an Arabic tab (reading and recognition), used in the browser and from Telegram (vocabulary and lesson exercises). Three services on Google Cloud share one API and one student database.</p>
+    <p class="lede">A practice app for Hebrew-speaking students: English grammar and vocabulary, a Math tab and an Arabic tab (reading and recognition), used in the browser and from Telegram (vocabulary, lesson exercises and a multiplication-table drill). Three services on Google Cloud share one API and one student database.</p>
     <div class="facts">
       <span>GCP project teacher-509909</span>
       <span>Region europe-west1</span>
@@ -156,7 +156,7 @@ flowchart LR
           <div><dt>Owns</dt><dd>Everything the student sees in the browser, and the login token kept on the device.</dd></div>
           <div><dt>Main functions</dt><dd><ul>
             <li>Login and registration</li>
-            <li>English, Math and Arabic topics (numbered 1+, 101+, 201+), lessons with animated explanations</li>
+            <li>English, Math and Arabic topics (numbered 1+, 100+, 201+; each subject shows 1, 2, 3…), lessons with animated explanations</li>
             <li>Exercises with feedback, mistakes review, progress and points</li>
             <li>Mistakes exam per subject: the student's unfixed mistakes; a right answer fixes one</li>
             <li>Vocabulary quiz and history</li>
@@ -177,7 +177,8 @@ flowchart LR
             <li>Mistakes exam per subject: up to 20 of a student's unfixed mistakes in one subject; each answer is graded as it comes and a right one fixes its mistake at once; one rule for the web and the bot</li>
             <li>Vocabulary quiz, word scores, failed words, review mode</li>
             <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
-            <li>Bot API: vocabulary and lesson-exercise sessions, chat linking, service key, rate and daily caps</li>
+            <li>Bot API: vocabulary, lesson-exercise and multiplication-drill sessions, chat linking, service key, rate and daily caps</li>
+            <li>Multiplication drill: ten new multiplication and division questions per round, made and graded by the API inside the bot session; nothing goes to results, points, progress or mistakes</li>
             <li>Question and word reports: a reported question or word is hidden until a student reviews it in Telegram; review decisions are applied live as a layer over the bundled questions and words</li>
             <li>Usage summary: participation per student across lessons, words and reading, read with date-range queries and cached for 10 minutes</li>
           </ul></dd></div>
@@ -194,6 +195,7 @@ flowchart LR
             <li>Link code, commands, level and direction choice, lesson pick, reports and answers go straight to the API</li>
             <li>/review, open to every linked student within a daily cap: a review agent on Gemini Pro proposes keep, change or remove for each reported question or word</li>
             <li>/mistakes_english, /mistakes_math, /mistakes_arabic: the subject's mistakes exam, asked like a lesson, by the API's rule</li>
+            <li>/kefel: a quick multiplication-table drill from the API; the student types each number, and the end shows the count and the facts to review</li>
             <li>/usage: every student's participation (active days, lessons, words, reading; no scores) over 7 and 30 days, visible to every linked student</li>
             <li>Other messages go to an ADK agent whose tools call the API</li>
             <li>Turn, token and call caps before any model use</li>
@@ -343,7 +345,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Telegram bot</span>
         <h3>A lesson's exercises in Telegram</h3>
-        <p>English, Math or Arabic: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved. A subject's mistakes exam (/mistakes_…) runs the same way with up to 20 of the student's unfixed mistakes: each right answer fixes one at once, and the end says what was fixed instead of a score.</p>
+        <p>English, Math or Arabic: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved. A subject's mistakes exam (/mistakes_…) runs the same way with up to 20 of the student's unfixed mistakes: each right answer fixes one at once, and the end says what was fixed instead of a score. The /kefel drill needs no model either: the API makes ten new multiplication-table questions per round and keeps only the session's count.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">
