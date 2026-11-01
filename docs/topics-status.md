@@ -317,6 +317,15 @@ Track changes per topic with dates and descriptions.
   (up to 154px on a 360px phone, 180px on a 768px laptop), because its
   digits are kept readable (about 13px) instead of squeezed to 72px.
   Sprint 17.
+- 2026-11-01: Every lesson opens with a step-by-step animation, one scene
+  per rule. In 2.1 and 2.2 counters gather from a pile into equal groups;
+  each outline appears when its group is full, the leftovers turn orange,
+  and the equation fills in ("17 ÷ 5 = 3 ושארית 2"). One more group with
+  empty seats when the leftovers need a place; faded leftovers when they
+  are dropped. In 2.3 and 2.4 the long division fills in one quotient digit
+  per step (divide, multiply, subtract, bring down), with the same actions
+  written beside it and in the caption. With reduced motion the counters
+  appear in place. Sprint 17.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
@@ -336,6 +345,9 @@ Track changes per topic with dates and descriptions.
   Sprint 15.
 - 2026-11-01: Shown as chapter 3 (lessons 3.1–3.6): Division (topic 105) is
   chapter 2. Content unchanged. Sprint 17.
+- 2026-11-01: The animation captions show their equations in order: they
+  were reversed in the right-to-left caption ("340 = 4 × 85"); the player
+  now isolates them, each on one line. Content unchanged. Sprint 17.
 
 ### Topic 102: Order of Operations (Math)
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
@@ -345,6 +357,9 @@ Track changes per topic with dates and descriptions.
   (`frontend/src/content/animations/order-of-operations/102-1.jsx`): five
   scenes, one per rule, showing the expression with the part computed now
   highlighted and its result popping on the next row. Sprint 5.
+- 2026-11-01: The animation captions show their equations in order: they
+  were reversed in the right-to-left caption ("340 = 4 × 85"); the player
+  now isolates them, each on one line. Content unchanged. Sprint 17.
 
 ### Topic 103: Average (Math)
 - 2026-09-27: Teaching document (sum ÷ count, sum from average, missing value,
@@ -352,6 +367,9 @@ Track changes per topic with dates and descriptions.
 - 2026-09-28: Animated explanation (`animations/average/103-1.jsx`): bar
   charts with a dashed average line, bars that level out to the mean, and the
   sum/count arithmetic. Five scenes, one per rule. Sprint 5.
+- 2026-11-01: The animation captions show their equations in order: they
+  were reversed in the right-to-left caption ("340 = 4 × 85"); the player
+  now isolates them, each on one line. Content unchanged. Sprint 17.
 
 ### Topic 104: Percentage (Math)
 - 2026-09-27: Teaching document (percent ↔ fraction ↔ decimal, percent of a
@@ -361,6 +379,9 @@ Track changes per topic with dates and descriptions.
   hundred grid for percent ↔ fraction ↔ decimal, bars for percent of a number
   and finding the whole, price tags for discount, VAT and the 20%-down-20%-up
   trap. Five scenes, one per rule. Sprint 5.
+- 2026-11-01: The animation captions show their equations in order: they
+  were reversed in the right-to-left caption ("340 = 4 × 85"); the player
+  now isolates them, each on one line. Content unchanged. Sprint 17.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

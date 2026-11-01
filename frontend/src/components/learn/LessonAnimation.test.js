@@ -29,10 +29,15 @@ describe('LessonAnimation', () => {
   test('renders the first step with a stacked fraction in the caption and scene tabs', () => {
     render(<LessonAnimation scenes={scenes} autoplay={false} />);
     expect(screen.getByTestId('s1')).toBeInTheDocument();
-    expect(screen.getByText('צעד 1:')).toBeInTheDocument();
+    expect(screen.getByText(/^צעד/)).toBeInTheDocument();
     expect(document.querySelector('.la-caption .math-frac')).not.toBeNull();
     expect(screen.getAllByRole('tab')).toHaveLength(2);
     expect(screen.getByText('שלב 1 מתוך 2')).toBeInTheDocument();
+  });
+
+  test('an equation in the caption is isolated, so it keeps its order in right-to-left text', () => {
+    render(<LessonAnimation scenes={[{ name: 'א', steps: [{ caption: 'מחברים: 85 × 4 = 340.', draw: () => <rect /> }] }]} autoplay={false} />);
+    expect(document.querySelector('.la-caption').textContent).toBe('מחברים: \u206685\u00a0×\u00a04\u00a0=\u00a0340\u2069.');
   });
 
   test('forward and back move through steps and scenes; the last step disables forward', () => {

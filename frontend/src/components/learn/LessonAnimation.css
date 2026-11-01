@@ -128,3 +128,33 @@
 .lesson-animation .la-strike { stroke: var(--la-sum); stroke-width: 3; }
 .lesson-animation .la-tag-sub { font-size: 13px; fill: var(--la-muted); }
 @media (prefers-reduced-motion: reduce) { .lesson-animation .la-bar { transition-duration: 0.01s; } }
+
+/* Sprint 17 primitives: counters that gather into groups, long division */
+.lesson-animation .la-counter { fill: var(--la-a); stroke: var(--la-ink); stroke-width: 1.5; }
+.lesson-animation .la-counter.b { fill: var(--la-b); }
+.lesson-animation .la-counter.dim { fill: var(--la-line); stroke: var(--la-muted); }
+.lesson-animation .la-gather .la-counter { transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1); }
+/* A leftover keeps the first colour while it moves, then turns. */
+.lesson-animation .la-gather .la-counter.la-turn { animation: la-turn-b 0.3s ease both; }
+.lesson-animation .la-gather .la-counter.dim.la-turn { animation-name: la-turn-dim; }
+.lesson-animation .la-group-box { fill: var(--la-a-soft); stroke: var(--la-a); stroke-width: 2; }
+.lesson-animation .la-group-box.extra { fill: none; stroke: var(--la-b); stroke-dasharray: 6 4; }
+.lesson-animation .la-seat { fill: none; stroke: var(--la-b); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.lesson-animation .la-left-count.b { fill: var(--la-b); font-weight: 700; }
+.lesson-animation .la-div-rest { font-size: 26px; font-weight: 700; fill: var(--la-b); }
+.lesson-animation .la-ld-q { fill: var(--la-sum); font-weight: 700; }
+.lesson-animation .la-ld-down { fill: var(--la-a); font-weight: 700; }
+.lesson-animation .la-ld-rest { fill: var(--la-b); font-weight: 700; }
+.lesson-animation .la-ld-line { stroke: var(--la-ink); stroke-width: 2; }
+.lesson-animation .la-ld-hl { fill: var(--la-b-soft); stroke: var(--la-b); stroke-width: 2; }
+@keyframes la-turn-b { from { fill: var(--la-a); } to { fill: var(--la-b); } }
+@keyframes la-turn-dim { from { fill: var(--la-a); } to { fill: var(--la-line); } }
+/* Reduced motion: the counters are in place at once and every beat shows. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-animation .la-gather .la-counter { transition-duration: 0.01s; transition-delay: 0s !important; }
+  .lesson-animation .la-counters *, .lesson-animation .la-ld *, .lesson-animation .la-ld-note { animation-delay: 0s !important; }
+}
+.lesson-animation .la-ld-note { font-size: 20px; }
+@media (max-width: 768px) {
+  .lesson-animation .la-ld-note { font-size: 24px; }
+}

@@ -114,14 +114,23 @@ creates a new lesson and orphans progress.
   computed now, a token `{ t, cls: 'result' }` is the answer); for averages
   `BarChart` (`values`, `mean` line, `levelled` shares out to the mean,
   `value: null` is a missing bar); for percentages `HundredGrid` (`k` of 100
-  cells) and `PriceTag` (`price`, `label`, `strike`).
+  cells) and `PriceTag` (`price`, `label`, `strike`); for division
+  `Counters` (`total`, `each`, `groups`; `phase` "pile", "gather" or
+  "grouped"; `left` "b", "dim" or "extra"; `labels`), `DivEq` (`a ÷ d = q`
+  and "ושארית r") and `LongDivision` (`upto` steps; the newest step appears
+  in four beats). Long-division scenes come from `division/longSteps.jsx`
+  (`longScene`, `ldCaption`), so the caption, the notes and the drawing use
+  the same steps.
   Entrance classes: `pop`, `rise`, `fadein`, `draw`, `shake` with delays
   `d1`–`d5`. Keep one idea per step; the caption says what the stage shows.
 - The player auto-advances every 4.5 s, stops at the end, and answers arrow
-  keys and space; nothing else to wire.
+  keys and space; nothing else to wire. It isolates the equations in a
+  caption (`isolateMath`, one line each), so write them plainly:
+  "מחברים: 80 + 90 = 170".
 - Check with `node scripts/animation-check.js` (frontend, API on :5000,
   `SHOTS_DIR` for screenshots, `SHOT_STEPS=all` for every step, `LESSONS`
-  to limit): walks every step at laptop and phone.
+  to limit): walks every step at laptop and phone and fails when anything
+  is drawn outside the 640×280 stage.
 
 ## Verification (before every commit)
 

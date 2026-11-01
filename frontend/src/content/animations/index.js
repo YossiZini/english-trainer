@@ -9,6 +9,10 @@ import fractions1016 from './fractions/101-6';
 import order1021 from './order-of-operations/102-1';
 import average1031 from './average/103-1';
 import percentage1041 from './percentage/104-1';
+import division1051 from './division/105-1';
+import division1052 from './division/105-2';
+import division1053 from './division/105-3';
+import division1054 from './division/105-4';
 
 const registry = {
   '101.1': fractions1011,
@@ -20,6 +24,10 @@ const registry = {
   '102.1': order1021,
   '103.1': average1031,
   '104.1': percentage1041,
+  '105.1': division1051,
+  '105.2': division1052,
+  '105.3': division1053,
+  '105.4': division1054,
 };
 
 /** Scenes for a lesson, or null. */
