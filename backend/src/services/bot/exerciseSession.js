@@ -5,7 +5,7 @@ const UserProgress = require('../../models/UserProgress');
 const LessonService = require('../lesson.service');
 const ExerciseService = require('../exercise.service');
 const { isCorrectAnswer, choiceMatches } = require('../../utils/answers');
-const { END_WORDS } = require('../../config/bot');
+const { isEndCommand } = require('../../utils/botWords');
 const ReportService = require('../report.service');
 const MistakesService = require('../mistakes.service');
 const { shuffleArray } = require('../../utils/shuffle');
@@ -34,7 +34,6 @@ const MORE_WORDS = ['more', '/more', 'next'];
 const BACK_WORDS = ['back', '/back', 'prev'];
 const HINT_WORDS = ['?', '？', 'hint', '/hint'];
 
-const isEnd = (text) => END_WORDS.includes(String(text || '').trim().toLowerCase());
 
 /** The option number the student sent (1..count), or null. */
 function parseOptionNumber(text, count) {
@@ -195,7 +194,7 @@ class ExerciseSession {
   static async answer(user, chatId, text) {
     const session = await openSession(chatId);
     if (!session) return { error: 'no_session' };
-    if (isEnd(text)) return this.end(user, chatId);
+    if (isEndCommand(text)) return this.end(user, chatId);
     if (session.status === 'setup') return this.pick(user, chatId, session, text);
 
     const current = session.exercises[session.index];
