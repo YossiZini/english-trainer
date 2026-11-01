@@ -1,6 +1,7 @@
 """Hebrew reply for /usage: every student's participation in the last 7 and
 30 days, from the API's summary (never scores). One line per student, most
-active first; long lists are cut to fit one Telegram message."""
+active first; long lists are cut to fit one Telegram message. "כפל" is the
+number of /kefel questions answered."""
 from .replies import Reply, error_reply
 
 MAX_STUDENTS = 30
@@ -23,7 +24,8 @@ def student_line(n: int, s: dict) -> str:
     w, m = s["week"], s["month"]
     return (f"{n}. {_name(s['name'])}: ימים {w['activeDays']}|{m['activeDays']} · "
             f"שיעורים {w['lessons']}|{m['lessons']} · מילים {w['words']}|{m['words']} · "
-            f"קריאה {w['reading']}|{m['reading']} · אחרון {_day(s['lastActive'])}")
+            f"קריאה {w['reading']}|{m['reading']} · כפל {w.get('drill', 0)}|{m.get('drill', 0)} · "
+            f"אחרון {_day(s['lastActive'])}")
 
 
 def usage_reply(result: dict) -> Reply:

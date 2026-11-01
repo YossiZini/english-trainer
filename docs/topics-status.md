@@ -280,8 +280,10 @@ Track changes per topic with dates and descriptions.
   "1/4 = 3/4 − 1").
 - 2026-10-31: In Telegram, `/kefel` practises the table outside the lessons:
   ten new questions per round (five ×, five ÷, factors 2–10), typed
-  answers, the count and the facts to review at the end; nothing is saved
-  (`docs/telegram-bot.md`, "Multiplication drill").
+  answers, the count and the facts to review at the end; no score, points
+  or mistakes (`docs/telegram-bot.md`, "Multiplication drill").
+- 2026-11-01: `/usage` counts the drill: answered `/kefel` questions show as
+  "כפל" (week|month) and a drill day is an active day.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises

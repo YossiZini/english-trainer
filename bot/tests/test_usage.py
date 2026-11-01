@@ -23,8 +23,8 @@ def coach():
 
 
 def student(name, week_days=2, month_days=3, last="2026-06-15"):
-    return {"name": name, "week": {"activeDays": week_days, "lessons": 1, "words": 3, "reading": 1},
-            "month": {"activeDays": month_days, "lessons": 2, "words": 3, "reading": 1}, "lastActive": last}
+    return {"name": name, "week": {"activeDays": week_days, "lessons": 1, "words": 3, "reading": 1, "drill": 10},
+            "month": {"activeDays": month_days, "lessons": 2, "words": 3, "reading": 1, "drill": 24}, "lastActive": last}
 
 
 def ok(data):
@@ -41,10 +41,18 @@ def test_one_line_per_student_week_then_month_without_scores():
     lines = reply.text.split("\n")
     assert lines[0] == "📊 מי תרגל: שבוע (09.06–15.06) | חודש (17.05–15.06)"
     assert lines[1] == "המספרים: השבוע|החודש"
-    assert lines[2] == "1. dana: ימים 2|3 · שיעורים 1|2 · מילים 3|3 · קריאה 1|1 · אחרון 15.06"
+    assert lines[2] == "1. dana: ימים 2|3 · שיעורים 1|2 · מילים 3|3 · קריאה 1|1 · כפל 10|24 · אחרון 15.06"
     assert lines[3].startswith("2. omer: ימים 0|1") and lines[3].endswith("אחרון 17.05")
     assert lines[4] == "2 תלמידים לא תרגלו ב-30 הימים האחרונים."
     assert "ציון" not in reply.text and reply.buttons == []
+
+
+def test_a_summary_without_drills_shows_zero():
+    old = student("dana")
+    for window in ("week", "month"):
+        del old[window]["drill"]
+    line = usage_reply(ok({"windows": WINDOWS, "students": [old], "inactive": 0})).text.split("\n")[2]
+    assert "· כפל 0|0 ·" in line
 
 
 def test_long_lists_are_cut_to_30_lines_and_one_message():

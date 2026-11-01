@@ -53,8 +53,8 @@ router.post('/mistakes/start', [
 /**
  * POST /api/bot/drill/start { chatId } — /kefel: ten new multiplication-table
  * questions (five ×, five ÷, factors 2–10), answered by typing the number
- * through /session/answer; /session/end stops it. Nothing is recorded:
- * no result, points, progress or mistakes.
+ * through /session/answer; /session/end stops it. No result, points,
+ * progress or mistakes; /usage counts the answered questions.
  */
 router.post('/drill/start', BotController.startDrill);
 

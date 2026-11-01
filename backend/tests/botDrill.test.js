@@ -6,13 +6,14 @@ const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db, DYNAMIC_COLLECTIONS } = require('./helpers');
 const app = require('../src/app');
 const { makeQuestions } = require('../src/services/bot/drillSession');
+const UsageService = require('../src/services/usage.service');
 
 const LRI = '⁦';
 const PDI = '⁩';
 
 /**
  * /kefel in the bot: ten new multiplication-table questions each time,
- * typed answers, a count at the end, and nothing recorded.
+ * typed answers, a count at the end; nothing recorded but the /usage count.
  */
 describe('Bot multiplication drill', () => {
   let token;
@@ -22,6 +23,13 @@ describe('Bot multiplication drill', () => {
   const answer = (text) => bot('/api/bot/session/answer', { text });
   const openDrill = async () => (await db.find('bot_sessions', { chat_id: chatId }))
     .find(s => s.kind === 'drill' && s.status === 'active');
+
+  /** This week's answered drill questions of the test student in /usage. */
+  const drillUsage = async () => {
+    UsageService.clearCache();
+    const me = (await UsageService.summary()).students.find(s => s.name === 'bot-kefel');
+    return me ? me.week.drill : 0;
+  };
 
   /** Every student-data row except the bot's own session and usage counter. */
   const snapshot = async () => {
@@ -73,8 +81,9 @@ describe('Bot multiplication drill', () => {
     expect(unlinked.body.code).toBe('not_linked');
   });
 
-  test('ten typed answers, a count with the missed facts at the end, and nothing recorded', async () => {
+  test('ten typed answers, a count with the missed facts at the end; only /usage counts them', async () => {
     const before = await snapshot();
+    const usageBefore = await drillUsage();
     const start = (await bot('/api/bot/drill/start')).body.data;
     expect(start).toMatchObject({ kind: 'drill', question: { number: 1, total: 10, type: 'number' } });
     expect(start.question.text).toMatch(new RegExp(`^${LRI}\\d+ [×÷] \\d+ = \\?${PDI}$`));
@@ -110,6 +119,8 @@ describe('Bot multiplication drill', () => {
 
     // Only the bot's own session and usage changed: no result, points, progress or mistake.
     expect(await snapshot()).toEqual(before);
+    // /usage counts the ten answered questions, not the four texts that were no number.
+    expect(await drillUsage()).toBe(usageBefore + 10);
   });
 
   test('/end stops a drill with its counts; a new start replaces an open one; nothing to report', async () => {

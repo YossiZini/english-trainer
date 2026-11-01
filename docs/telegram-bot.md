@@ -77,9 +77,9 @@ command, and `end` always ends the session. A free-form message (for example "א
 
 `/usage` shows every student's participation in the last 7 and the last 30
 days, one line per student, most active first: active days, lessons done,
-words practised and reading texts done (week|month), and the last active
-day. There are no scores, points or right/wrong counts. Days are Israel
-dates and each window includes today.
+words practised, reading texts done and `/kefel` questions answered ("כפל")
+(week|month), and the last active day. There are no scores, points or
+right/wrong counts. Days are Israel dates and each window includes today.
 
 It is open to every linked student (the owner's decision), so **every
 linked student sees every active student's account name and activity**.
@@ -88,9 +88,10 @@ most 30 students and stays inside one Telegram message.
 
 The API (`GET /api/bot/usage`, `backend/src/services/usage.service.js`)
 reads each source through its model with one date-range query: lesson
-results (web and bot), web vocabulary-quiz answers, bot words exams (their
-answers, dated by the exam's start) and completed reading texts. The
-summary is cached for 10 minutes per API instance.
+results (web and bot), web vocabulary-quiz answers, bot words exams and
+`/kefel` drills (their answers, dated by the session's start; one query for
+both) and completed reading texts. The summary is cached for 10 minutes per
+API instance.
 
 ## Reported questions, words and review
 
@@ -238,7 +239,8 @@ the usual `/session/answer` and `/session/end`.
 - After the tenth: how many were right with kind words, the facts that were
   missed ("לחזרה:"), and `/kefel` for another round.
 - Nothing is recorded outside the session: no result, points, progress or
-  mistakes, and `/usage` does not count drills. A drill has no question to
+  mistakes. `/usage` reads the session: its answered questions show as
+  "כפל" and its day as an active day. A drill has no question to
   `/report`. The daily message cap applies as everywhere.
 
 ## Architecture
