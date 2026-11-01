@@ -613,5 +613,415 @@
     "is_custom": false,
     "uses_failed_words": false,
     "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "8f10465c-e732-49c7-bec3-26f3bfe9f4c4",
+    "title_en": "The Great Bird Migration",
+    "title_he": "המסע הגדול של הציפורים",
+    "content": "Twice a year, the sky above Israel becomes a busy highway. In autumn, hundreds of millions of birds fly through it from Europe and Asia to Africa, and in spring they fly back. This journey is called migration. Israel is on one of the main routes because it is a narrow land bridge between Africa and Asia. Some birds stop here: every winter, tens of thousands of cranes stay in the Hula Valley.\n\nWhy do birds travel so far? The main reason is food. In the cold northern winter, insects and seeds are hard to find, while Africa is warmer and has more food. In spring, the birds return north to build nests and raise their chicks. But how do they find their way? Scientists believe they use the sun, the stars, the Earth's magnetic field and landmarks such as rivers and mountains.\n\nThe journey is also full of dangers. Before they leave, many birds eat more than usual and store fat as fuel. But some still become exhausted over deserts and seas, where there is little food or water. Storms can push them off their route, and bright city lights at night can confuse them. Many birds are also losing the wetlands where they rest, so people in many countries try to protect these places.",
+    "complexity_level": 3,
+    "topic": "Animals",
+    "hard_words": [
+      {
+        "word": "migration",
+        "translation": "נדידה"
+      },
+      {
+        "word": "land bridge",
+        "translation": "גשר יבשתי (רצועת יבשה שמחברת בין יבשות)"
+      },
+      {
+        "word": "cranes",
+        "translation": "עגורים"
+      },
+      {
+        "word": "chicks",
+        "translation": "גוזלים"
+      },
+      {
+        "word": "landmarks",
+        "translation": "ציוני דרך"
+      },
+      {
+        "word": "exhausted",
+        "translation": "מותשים, עייפים מאוד"
+      },
+      {
+        "word": "wetlands",
+        "translation": "אזורי ביצות, שטחים לחים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.876Z"
+  },
+  {
+    "id": "33cb6b1b-4fff-40c9-a13f-66e146e668d5",
+    "title_en": "Music in Every Culture",
+    "title_he": "מוזיקה בכל תרבות ותרבות",
+    "content": "Every known culture in the world makes music. Scientists have studied hundreds of cultures and have never found one without songs. Music is also very old. Some of the oldest instruments ever found are flutes made from bird bones, and they are more than 35,000 years old. Today, each place has its own instruments and songs, but people everywhere sing and play.\n\nPeople use music for many things. We sing and dance to celebrate weddings, birthdays and holidays. Music also helps us remember. Long before people could write, they passed on their stories and history through songs. Even today, many children learn the alphabet with a song. Music can also help people work together. In the past, sailors sang while they pulled heavy ropes, and the steady beat helped everyone pull at the same moment.\n\nMusic also passes from older people to younger ones. All over the world, children learn songs from their families, and many learn to play an instrument. This takes time and patience. At first, a beginner's fingers may hurt, and the sounds may not be beautiful. Many music teachers say that practicing a little every day is better than practicing for hours once a week. It is hard work, but every new player helps keep a very old tradition alive.",
+    "complexity_level": 3,
+    "topic": "Music",
+    "hard_words": [
+      {
+        "word": "instruments",
+        "translation": "כלי נגינה"
+      },
+      {
+        "word": "flutes",
+        "translation": "חלילים"
+      },
+      {
+        "word": "passed on",
+        "translation": "העבירו הלאה (לדורות הבאים)"
+      },
+      {
+        "word": "sailors",
+        "translation": "מלחים"
+      },
+      {
+        "word": "ropes",
+        "translation": "חבלים"
+      },
+      {
+        "word": "beat",
+        "translation": "קצב, פעימה (במוזיקה)"
+      },
+      {
+        "word": "patience",
+        "translation": "סבלנות"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "5e3c1c29-6eff-40fb-8444-4ddf6d34a3d0",
+    "title_en": "Street Food Around the World",
+    "title_he": "אוכל רחוב ברחבי העולם",
+    "content": "In cities and towns all over the world, people buy food on the street. In the Middle East, many people eat falafel: small fried balls made from chickpeas or beans, often served in a warm pita with salad. In Mexico, tacos are a favorite: soft corn tortillas filled with meat, beans or vegetables. And in many countries, from India to Egypt, sellers roast corn over hot coals.\n\nWhy is street food so popular? First, it is usually cheap, so almost everyone can buy it. It is also quick: the food is ready in a few minutes, and you can eat it while you walk. Often, it is cooked right in front of you, so it is hot and fresh. Many people also love the busy, friendly feeling of eating outside with other customers.\n\nStreet food also tells the story of a place and its people. It is often made from what grows nearby, like corn in Mexico or chickpeas in the Middle East. Many recipes are passed down from parents to children, so a dish may be cooked the same way for generations. When people move to a new country, they often bring their recipes with them. That is why, in many big cities, you can taste food from many countries on a single street.",
+    "complexity_level": 3,
+    "topic": "Food and Culture",
+    "hard_words": [
+      {
+        "word": "chickpeas",
+        "translation": "גרגרי חומוס"
+      },
+      {
+        "word": "tortillas",
+        "translation": "טורטיות (לחם שטוח ודק)"
+      },
+      {
+        "word": "roast",
+        "translation": "צולים (על האש)"
+      },
+      {
+        "word": "coals",
+        "translation": "גחלים"
+      },
+      {
+        "word": "customers",
+        "translation": "לקוחות"
+      },
+      {
+        "word": "recipes",
+        "translation": "מתכונים"
+      },
+      {
+        "word": "generations",
+        "translation": "דורות"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "34030c59-2e0a-4bb1-bdfa-ea04796c3cb6",
+    "title_en": "The Dead Sea",
+    "title_he": "ים המלח",
+    "content": "The Dead Sea lies in a deep valley in the Middle East. Its shore, more than 400 meters below sea level, is the lowest place on land in the world. Although it is called a sea, it is really a lake, because land surrounds it on every side. Its water is almost ten times saltier than ocean water. This is because the Jordan River and several streams flow into the lake, but no river flows out. In the hot desert air, the water evaporates, but the salt it brought stays behind.\n\nAll this salt makes the water very dense: a cup of it weighs about a quarter more than a cup of ordinary water. Such dense water pushes up strongly on anything in it, so people float without any effort. The salt also explains the lake's name: apart from microorganisms, nothing can live in it. Yet the lake is rich in minerals such as magnesium and potassium. Factories collect some of them to make fertilizers, and many visitors cover themselves in the black mud, believing it is good for the skin.\n\nSadly, the Dead Sea is shrinking: its water level drops by about one meter every year. The main reason is that people now use most of the Jordan River's water for drinking and farming before it reaches the lake. The mineral factories also take water from the lake, pumping it into large ponds where it evaporates and the minerals are collected. As the level falls, dangerous holes called sinkholes open suddenly near the shore. Scientists are now looking for ways to save the lake.",
+    "complexity_level": 4,
+    "topic": "Geography",
+    "hard_words": [
+      {
+        "word": "surrounds",
+        "translation": "מקיפה (מכל הצדדים)"
+      },
+      {
+        "word": "evaporates",
+        "translation": "מתאדה, הופך לאדים"
+      },
+      {
+        "word": "dense",
+        "translation": "צפוף, בעל צפיפות גבוהה"
+      },
+      {
+        "word": "effort",
+        "translation": "מאמץ"
+      },
+      {
+        "word": "potassium",
+        "translation": "אשלגן"
+      },
+      {
+        "word": "fertilizers",
+        "translation": "דשנים"
+      },
+      {
+        "word": "sinkholes",
+        "translation": "בולענים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "01b66d0d-081e-4c98-b431-fefb781085b1",
+    "title_en": "The Story of Money",
+    "title_he": "סיפורו של הכסף",
+    "content": "For a long time, many people got what they needed by trading one thing for another. A farmer, for example, might trade some wheat for shoes. This kind of trade is called barter, and it had serious problems. The farmer could get shoes only if the shoemaker wanted wheat at that moment. It was also hard to agree on prices: how many bags of wheat is one goat worth? And a large animal could not be divided to pay for something small.\n\nOne common explanation is that, to solve these problems, societies began to use objects that everyone agreed had value. In parts of Africa and Asia, for example, people paid with small shells, which were light, strong and easy to count. More than 2,500 years ago, the first metal coins appeared. Each coin had a fixed weight and an official stamp, so traders knew its value without weighing it. Coins lasted a long time, but large amounts of them were heavy to carry. That is why, about a thousand years ago, China began to use paper money, which was much lighter. People trusted it because it could be exchanged for coins.\n\nToday, money is changing again. Many people rarely use coins or paper money; instead, they pay with a bank card or by holding their phone near a machine. Most money today exists only as numbers in bank computers. These digital payments are fast and convenient, and they let people buy things from other countries without leaving home. However, the basic idea of money has not changed since the days of shells: it works only because people trust that others will accept it.",
+    "complexity_level": 4,
+    "topic": "Economics",
+    "hard_words": [
+      {
+        "word": "barter",
+        "translation": "סחר חליפין"
+      },
+      {
+        "word": "wheat",
+        "translation": "חיטה"
+      },
+      {
+        "word": "divided",
+        "translation": "מחולק, חולק לחלקים"
+      },
+      {
+        "word": "societies",
+        "translation": "חברות אנושיות, קהילות"
+      },
+      {
+        "word": "weighing",
+        "translation": "שקילה (במאזניים); לשקול"
+      },
+      {
+        "word": "exchanged",
+        "translation": "הוחלף, הומר"
+      },
+      {
+        "word": "convenient",
+        "translation": "נוח"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "087a0db2-9255-43c2-8f08-a33284abc9cc",
+    "title_en": "The Printing Revolution",
+    "title_he": "מהפכת הדפוס",
+    "content": "About six hundred years ago, almost every book in Europe was copied by hand. Skilled writers called scribes copied each page slowly and carefully with a pen, so a single long book could take months or even more than a year. As a result, books were rare and very expensive. Usually only rich families, churches and universities could afford them, and most ordinary people never owned a single book.\n\nAround 1450, a German craftsman named Johannes Gutenberg found a faster way. In Mainz, he built a printing press that used movable type: small metal blocks, each with one letter. Workers arranged the letters into words and lines, inked them, and pressed paper against them. After a page was printed, the same letters could be used again for the next one. Movable type had been used earlier in China, and metal type in Korea. Gutenberg's achievement was combining a strong press and a suitable ink with metal letters that could be cast quickly. This made printing fast and cheap in Europe. One press could print hundreds of pages a day, while a scribe could copy only a few.\n\nThe effects were enormous. Because printed books cost far less than handwritten ones, many more people could buy them, and over time more people learned to read. By 1500, presses were working in more than two hundred European cities, and millions of books had been printed. Since the copies of a book were almost identical, scholars in different countries could read the same text and build on each other's discoveries. New ideas could now spread faster and farther than ever before.",
+    "complexity_level": 4,
+    "topic": "History",
+    "hard_words": [
+      {
+        "word": "scribes",
+        "translation": "מעתיקים (שהעתיקו ספרים בכתב יד)"
+      },
+      {
+        "word": "craftsman",
+        "translation": "בעל מלאכה, אומן"
+      },
+      {
+        "word": "movable type",
+        "translation": "אותיות דפוס מטלטלות"
+      },
+      {
+        "word": "achievement",
+        "translation": "הישג"
+      },
+      {
+        "word": "cast",
+        "translation": "לָצֶקֶת, ליצוק (מתכת בתבנית)"
+      },
+      {
+        "word": "identical",
+        "translation": "זהה"
+      },
+      {
+        "word": "scholars",
+        "translation": "מלומדים, חוקרים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "5f4e3528-8f44-448d-96ef-67da419f9cdd",
+    "title_en": "The Return of Spoken Hebrew",
+    "title_he": "תחייתה של העברית המדוברת",
+    "content": "For more than 1,500 years, Hebrew led a strange double life. Jews in many countries prayed in it, studied its ancient books and even wrote letters and poems in it, yet hardly anyone spoke it at home or with friends. Everyday conversation took place in other languages. Hebrew, in other words, was not dead; it was dormant, alive on the page but silent in the kitchen and the playground.\n\nThe person most often linked to its return is Eliezer Ben-Yehuda, who settled in Jerusalem in 1881. He created new words for modern objects and ideas, began an enormous dictionary and, most famously, insisted that his family speak only Hebrew at home. His son is often described as the first native speaker of modern Hebrew. Ben-Yehuda's determination was remarkable. However, a single household cannot turn a language into a living one, and for years his was one of very few homes where only Hebrew was heard.\n\nThe real turning point came in schools. From the late 1880s, teachers in some of the new villages began teaching every subject in Hebrew, even though proper textbooks hardly existed and teachers often had to invent words as they went along. Children who studied in Hebrew also played in Hebrew, and they carried the language home, where some parents learned it from their own sons and daughters. Within a few decades, a new generation was growing up with Hebrew as its mother tongue.\n\nNone of this makes Ben-Yehuda unimportant. His new words and his dictionary gave speakers useful tools. Yet a dictionary cannot make anyone speak, and his own was completed by others long after his death. Hebrew became a mother tongue again because ordinary families, teachers and children chose to use it every day, not because of one man's will alone. Its revival was, in the end, a shared achievement.",
+    "complexity_level": 5,
+    "topic": "Language",
+    "hard_words": [
+      {
+        "word": "insisted",
+        "translation": "התעקש, עמד על כך"
+      },
+      {
+        "word": "native speaker",
+        "translation": "דובר ילידי (מי שזו שפת אמו)"
+      },
+      {
+        "word": "determination",
+        "translation": "נחישות"
+      },
+      {
+        "word": "household",
+        "translation": "בית, משפחה (בני הבית)"
+      },
+      {
+        "word": "turning point",
+        "translation": "נקודת מפנה"
+      },
+      {
+        "word": "mother tongue",
+        "translation": "שפת אם"
+      },
+      {
+        "word": "revival",
+        "translation": "תחייה, חזרה לחיים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "3f8a59b8-30b9-40cd-b457-b4a6685e73d0",
+    "title_en": "The Mold That Changed Medicine",
+    "title_he": "העובש ששינה את פני הרפואה",
+    "content": "In September 1928, the Scottish scientist Alexander Fleming returned to his London laboratory after a summer vacation and began sorting through dishes of bacteria that he had left on a bench. On one of them, a patch of mold had grown, and around it there was a clear ring where no bacteria could be seen. A stray spore, perhaps carried in from another laboratory, had landed on the dish.\n\nIt is tempting to call this pure luck, and luck certainly played its part. Yet mold often spoiled experiments, and many scientists would simply have thrown such a dish away. Fleming paused because he had spent years studying substances that kill germs; earlier, he had even found one in human tears. The French scientist Louis Pasteur once remarked that chance favors only the prepared mind, and Fleming's curiosity turned an accident into a question worth asking.\n\nHowever, noticing the effect was not the same as making a medicine. Fleming called the substance penicillin and described it, but it was hard to extract and broke down quickly, so he could not produce it in a pure, usable form. For about a decade, progress was slow. Then, from 1939, a team at the University of Oxford led by Howard Florey, with the biochemist Ernst Chain, took up the challenge. Testing it first on mice and then on patients, they showed that penicillin could cure deadly infections, and in the 1940s factories began producing it on a large scale.\n\nIn 1945, Fleming, Florey and Chain shared the Nobel Prize, a fitting sign that the discovery belonged to more than one moment and more than one person. Penicillin needed a lucky accident, but it also needed an observer ready to recognize it and years of patient work by others. Without a prepared observer, the dish might have been thrown away; without the Oxford team, penicillin might never have become a medicine.",
+    "complexity_level": 5,
+    "topic": "Science",
+    "hard_words": [
+      {
+        "word": "spore",
+        "translation": "נבג (תא זעיר שממנו צומח עובש)"
+      },
+      {
+        "word": "tempting",
+        "translation": "מפתה"
+      },
+      {
+        "word": "substances",
+        "translation": "חומרים"
+      },
+      {
+        "word": "germs",
+        "translation": "חיידקים, מחוללי מחלות"
+      },
+      {
+        "word": "remarked",
+        "translation": "העיר, ציין"
+      },
+      {
+        "word": "extract",
+        "translation": "להפיק, לחלץ"
+      },
+      {
+        "word": "decade",
+        "translation": "עשור"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "33c21098-5b00-4ab0-b54a-fd2d6e10bbd9",
+    "title_en": "Why Crowds Hesitate to Help",
+    "title_he": "כשכולם מחכים למישהו אחר",
+    "content": "Picture a woman who slips and falls on a crowded street. Dozens of people see her, yet for a long moment nobody moves. Each passer-by seems to assume that someone else will deal with it, and so help arrives slowly, if at all. Psychologists call this the bystander effect: when many people witness a situation, each of them is less likely to step in than a person who is alone.\n\nIt would be easy to conclude that people in crowds simply do not care. However, research points mainly to two other causes. First, responsibility feels shared: with fifty people watching, each one feels only a small part of the duty to act. Second, we take our cue from the people around us. If everyone seems calm, we assume there is no real emergency, while they, in turn, are watching us and drawing the same conclusion.\n\nA well-known experiment from the 1960s showed how powerful this second cause can be. Students filling out a questionnaire saw smoke drifting into the room through a vent. Most of those who were alone soon left to report it. However, when students sat with two strangers who were secretly working for the researchers and calmly ignored the smoke, most of them stayed in their seats and kept writing.\n\nFortunately, the effect can be weakened. If you need help in a crowd, point to one particular person, such as the man in the blue shirt, and ask him directly to call for help. The responsibility is then no longer shared, and he is far more likely to act. Once one person steps forward, others often follow, and some studies suggest that people who have learned about the bystander effect are more likely to help. The effect, in the end, reveals less about how much people care than about how they read a situation and divide up responsibility.",
+    "complexity_level": 5,
+    "topic": "Psychology",
+    "hard_words": [
+      {
+        "word": "passer-by",
+        "translation": "עובר אורח"
+      },
+      {
+        "word": "bystander",
+        "translation": "צופה מהצד, עומד מן הצד"
+      },
+      {
+        "word": "witness",
+        "translation": "לראות במו עיניו, להיות עד ל-"
+      },
+      {
+        "word": "assume",
+        "translation": "להניח (בלי לבדוק)"
+      },
+      {
+        "word": "questionnaire",
+        "translation": "שאלון"
+      },
+      {
+        "word": "drifting",
+        "translation": "נישא לאט (באוויר)"
+      },
+      {
+        "word": "reveals",
+        "translation": "חושף, מגלה"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "141823ef-6b0f-4f8f-b189-39174d38beb1",
+    "title_en": "Why Cities Run Hot",
+    "title_he": "למה בעיר חם יותר",
+    "content": "On a summer evening, the center of a large city can be several degrees warmer than the fields and villages around it. Scientists call this an urban heat island. Surprisingly, the difference is often greatest after sunset: the countryside cools quickly once the sun goes down, while the city stays warm long into the night. This is more than a matter of comfort, because during heatwaves, hot nights give people's bodies little chance to recover.\n\nOne of the main reasons lies in the materials that cities are made of. Asphalt roads, concrete walls and dark roofs absorb much of the sunlight that falls on them and store it as heat during the day. At night, they slowly release that heat into the air, and this keeps the streets warm. In the countryside, by contrast, plants and moist soil hold water, and as that water evaporates it carries heat away, much as sweat cools our skin. City centers, meanwhile, often have few trees to provide shade and cooling.\n\nIt is often assumed that cities are hot simply because they are so crowded. Cars, factories and air conditioners do add some extra heat; an air conditioner, for example, cools a room by pumping heat out of it and into the street. However, the number of people alone does not explain the effect. A busy street lined with tall trees can be noticeably cooler than an empty parking lot nearby, which suggests that surfaces and greenery matter more than crowds.\n\nFortunately, the same understanding points to solutions. Planting trees and creating parks bring back shade and moisture. Roofs painted in light colors reflect much of the sunlight instead of absorbing it, and green roofs, covered with plants, protect buildings from the sun and cool the air around them. Cities cannot simply move their people elsewhere, but they can change what lies under their feet and over their heads.",
+    "complexity_level": 5,
+    "topic": "Environment",
+    "hard_words": [
+      {
+        "word": "urban",
+        "translation": "עירוני"
+      },
+      {
+        "word": "concrete",
+        "translation": "בטון"
+      },
+      {
+        "word": "release",
+        "translation": "פולטים, משחררים"
+      },
+      {
+        "word": "moist",
+        "translation": "לח"
+      },
+      {
+        "word": "evaporates",
+        "translation": "מתאדה"
+      },
+      {
+        "word": "noticeably",
+        "translation": "באופן מורגש"
+      },
+      {
+        "word": "greenery",
+        "translation": "צמחייה, עצים וצמחים"
+      }
+    ],
+    "is_custom": false,
+    "uses_failed_words": false,
+    "created_at": "2026-11-01T12:43:05.877Z"
   }
 ]

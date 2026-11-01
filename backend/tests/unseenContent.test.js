@@ -69,4 +69,20 @@ describe('Reading texts (Unseen) content', () => {
       }
     }
   });
+
+  test('every English quote in an explanation is word for word in its text (or an option)', () => {
+    // Letters and digits only, so quote marks and commas inside a quote do not
+    // matter, but a changed word does; "..." splits a quote into pieces.
+    const plain = (s) => ` ${s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    for (const p of paragraphs) {
+      for (const q of questions.filter(x => x.paragraph_id === p.id)) {
+        const at = `${p.title_en} #${q.question_number}`;
+        const quotes = [...q.explanation_he.matchAll(/"([^"]*[A-Za-z][^"]*)"/g)].flatMap(m => m[1].split(/\.\.\.|…/));
+        for (const piece of quotes.map(plain).filter(x => x.trim())) {
+          const found = plain(p.content).includes(piece) || q.options.some(o => plain(o).includes(piece));
+          expect([at, piece, found]).toEqual([at, piece, true]);
+        }
+      }
+    }
+  });
 });

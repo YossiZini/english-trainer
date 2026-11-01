@@ -1198,5 +1198,805 @@
     "correct_answer": 1,
     "explanation_he": "הטקסט מסכם: \"thinking about time travel helps us understand the nature of the universe better\" - חשיבה על מסע בזמן עוזרת לנו להבין את טבע היקום טוב יותר.",
     "created_at": "2026-01-22T06:54:27.978Z"
+  },
+  {
+    "id": "4088f11f-4c7d-4f91-932a-63c5b22a1e08",
+    "paragraph_id": "8f10465c-e732-49c7-bec3-26f3bfe9f4c4",
+    "question_number": 1,
+    "question_text_en": "What do tens of thousands of cranes do every winter?",
+    "question_text_he": "מה עושים עשרות אלפי עגורים בכל חורף?",
+    "options": [
+      "They fly on to Africa",
+      "They stay in the Hula Valley",
+      "They fly back north to Europe",
+      "They build nests in Israel"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט אומר: \"every winter, tens of thousands of cranes stay in the Hula Valley\" - עשרות אלפי העגורים האלה לא ממשיכים לאפריקה, אלא נשארים בעמק החולה כל החורף.",
+    "created_at": "2026-11-01T12:43:05.876Z"
+  },
+  {
+    "id": "21e29dee-f9f3-4cd2-95c7-a3e0455f659d",
+    "paragraph_id": "8f10465c-e732-49c7-bec3-26f3bfe9f4c4",
+    "question_number": 2,
+    "question_text_en": "According to the text, what is the main reason that birds migrate?",
+    "question_text_he": "לפי הטקסט, מהי הסיבה העיקרית לכך שציפורים נודדות?",
+    "options": [
+      "To build nests in Africa",
+      "To get away from storms",
+      "To find wetlands to rest in",
+      "To find enough food to eat"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט אומר: \"The main reason is food\" - בחורף הקר קשה למצוא בצפון חרקים וזרעים, ובאפריקה חם יותר ויש יותר מזון.",
+    "created_at": "2026-11-01T12:43:05.876Z"
+  },
+  {
+    "id": "450ea2ec-4dd7-446c-81c7-c245fe9ac46c",
+    "paragraph_id": "8f10465c-e732-49c7-bec3-26f3bfe9f4c4",
+    "question_number": 3,
+    "question_text_en": "In paragraph 2, the word \"raise\" is closest in meaning to:",
+    "question_text_he": "בפסקה 2, מהי המשמעות הקרובה ביותר של המילה \"raise\"?",
+    "options": [
+      "take care of",
+      "lift up",
+      "look for",
+      "leave behind"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הטקסט אומר: \"to build nests and raise their chicks\" - הציפורים בונות קנים ומגדלות את הגוזלים, כלומר דואגות להם עד שיגדלו. כאן raise אינו במובן של להרים.",
+    "created_at": "2026-11-01T12:43:05.876Z"
+  },
+  {
+    "id": "ecfaacee-8011-4132-8ef9-639cbb6ddbc9",
+    "paragraph_id": "8f10465c-e732-49c7-bec3-26f3bfe9f4c4",
+    "question_number": 4,
+    "question_text_en": "What can we infer about birds that fly over deserts and seas?",
+    "question_text_he": "מה אפשר להסיק על ציפורים שעפות מעל מדבריות וימים?",
+    "options": [
+      "They need the fat they stored before the trip",
+      "They find a lot of food and water there",
+      "They stop there to build their nests",
+      "They follow bright city lights to find their way"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "לפני המסע הציפורים \"store fat as fuel\", ומעל מדבריות וימים יש \"little food or water\" - לכן הן זקוקות לשומן שאגרו כדי להמשיך לעוף.",
+    "created_at": "2026-11-01T12:43:05.876Z"
+  },
+  {
+    "id": "653884bf-f2f0-4291-8aa3-cdfb9966676e",
+    "paragraph_id": "8f10465c-e732-49c7-bec3-26f3bfe9f4c4",
+    "question_number": 5,
+    "question_text_en": "What is the text mainly about?",
+    "question_text_he": "במה עוסק הטקסט בעיקר?",
+    "options": [
+      "The cranes that spend the winter in the Hula Valley",
+      "The way birds build nests and raise chicks",
+      "The long journeys that many birds make every year",
+      "The dangers of bright lights in big cities"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מתאר את המסע הארוך של הציפורים - \"This journey is called migration\" - ומסביר למה הן נודדות, איך הן מוצאות את הדרך ואילו סכנות יש בדרך. העגורים והאורות הם רק דוגמאות.",
+    "created_at": "2026-11-01T12:43:05.876Z"
+  },
+  {
+    "id": "54f70393-db90-4947-a26a-11c104c211a8",
+    "paragraph_id": "33cb6b1b-4fff-40c9-a13f-66e146e668d5",
+    "question_number": 1,
+    "question_text_en": "According to the text, what have scientists found?",
+    "question_text_he": "לפי הטקסט, מה גילו המדענים?",
+    "options": [
+      "Every culture they studied has songs",
+      "One culture they studied has no songs",
+      "Some songs are more than 35,000 years old",
+      "Music began about 3,500 years ago"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הטקסט אומר: \"Scientists have studied hundreds of cultures and have never found one without songs\" - לא נמצאה אף תרבות בלי שירים, כלומר בכל תרבות שנחקרה יש שירים. ו-35,000 השנים הן הגיל של החלילים, לא של שירים.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "fdbf1446-aa21-4080-a6b9-64964b1643f2",
+    "paragraph_id": "33cb6b1b-4fff-40c9-a13f-66e146e668d5",
+    "question_number": 2,
+    "question_text_en": "Before people could write, how did they pass on their history?",
+    "question_text_he": "לפני שבני האדם ידעו לכתוב, איך הם העבירו את ההיסטוריה שלהם?",
+    "options": [
+      "By playing flutes",
+      "By dancing at weddings",
+      "By singing songs",
+      "By clapping a beat"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט אומר: \"Long before people could write, they passed on their stories and history through songs\" - הם העבירו את הסיפורים וההיסטוריה שלהם בשירים.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "5d894ae7-58b2-4634-addf-d5043b9d7b86",
+    "paragraph_id": "33cb6b1b-4fff-40c9-a13f-66e146e668d5",
+    "question_number": 3,
+    "question_text_en": "In paragraph 2, the word \"steady\" is closest in meaning to:",
+    "question_text_he": "בפסקה 2, מהי המשמעות הקרובה ביותר של המילה \"steady\"?",
+    "options": [
+      "loud",
+      "fast",
+      "powerful",
+      "regular"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט אומר: \"the steady beat helped everyone pull at the same moment\" - כדי שכל המלחים ימשכו בדיוק באותו רגע, הקצב צריך להיות קבוע וסדיר.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "2913d2cf-bc3a-47fc-86c1-dea3a9ba5a44",
+    "paragraph_id": "33cb6b1b-4fff-40c9-a13f-66e146e668d5",
+    "question_number": 4,
+    "question_text_en": "What can we infer from the last sentence of the text?",
+    "question_text_he": "מה אפשר להסיק מהמשפט האחרון בטקסט?",
+    "options": [
+      "Old instruments are easier to play",
+      "Learning music links people to the past",
+      "Most new players give up after a few weeks",
+      "Music was more important in the past"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "במשפט האחרון כתוב: \"every new player helps keep a very old tradition alive\" - מי שלומד לנגן ממשיך מסורת עתיקה מאוד, ולכן לימוד מוזיקה מחבר אנשים לעבר.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "1578f3e7-6448-4046-9bdf-d499e6638d1b",
+    "paragraph_id": "33cb6b1b-4fff-40c9-a13f-66e146e668d5",
+    "question_number": 5,
+    "question_text_en": "What is the main idea of the text?",
+    "question_text_he": "מהו הרעיון המרכזי של הטקסט?",
+    "options": [
+      "Music is mainly used to celebrate holidays",
+      "Learning an instrument is too hard for most people",
+      "Every culture makes, uses and passes on music",
+      "The first instruments were made from bird bones"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מראה ש-\"Every known culture in the world makes music\", שאנשים משתמשים בה כדי לחגוג, לזכור ולעבוד יחד, ושהמוזיקה \"passes from older people to younger ones\". הרעיון הזה מחבר את שלוש הפסקאות.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "f48c990e-fb7f-4ca0-b68a-8e4b1e044637",
+    "paragraph_id": "5e3c1c29-6eff-40fb-8444-4ddf6d34a3d0",
+    "question_number": 1,
+    "question_text_en": "According to the text, what do sellers in many countries roast over hot coals?",
+    "question_text_he": "לפי הטקסט, מה המוכרים בארצות רבות צולים על גחלים לוחשות?",
+    "options": [
+      "Meat",
+      "Chickpeas",
+      "Corn",
+      "Beans"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט אומר: \"from India to Egypt, sellers roast corn over hot coals\" - בארצות רבות המוכרים צולים תירס על גחלים.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "4860e5df-82dc-4b6b-a2c9-919951e62db5",
+    "paragraph_id": "5e3c1c29-6eff-40fb-8444-4ddf6d34a3d0",
+    "question_number": 2,
+    "question_text_en": "Why can almost everyone buy street food?",
+    "question_text_he": "למה כמעט כל אחד יכול לקנות אוכל רחוב?",
+    "options": [
+      "It does not cost much money",
+      "It is cooked right in front of you",
+      "Customers share it with others",
+      "You can eat it while you walk"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הטקסט אומר: \"it is usually cheap, so almost everyone can buy it\" - אוכל רחוב בדרך כלל זול, ולכן כמעט כל אחד יכול לקנות אותו. הבישול מול הלקוח והאכילה תוך כדי הליכה מסבירים למה אוהבים אותו, לא למה כולם יכולים לקנות אותו.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "ad8b83a1-3292-4492-b9ac-4ac3185ccda9",
+    "paragraph_id": "5e3c1c29-6eff-40fb-8444-4ddf6d34a3d0",
+    "question_number": 3,
+    "question_text_en": "In paragraph 3, the word \"dish\" is closest in meaning to:",
+    "question_text_he": "בפסקה 3, מהי המשמעות הקרובה ביותר של המילה \"dish\"?",
+    "options": [
+      "a kind of food",
+      "a plate for food",
+      "a cooking pot",
+      "a food seller"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הטקסט אומר: \"a dish may be cooked the same way for generations\" - את ה-dish מבשלים, כלומר זו מנה, סוג של אוכל. כאן המילה אינה במובן של צלחת.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "b1607a36-8dcc-4530-b292-cc05b8b0eaab",
+    "paragraph_id": "5e3c1c29-6eff-40fb-8444-4ddf6d34a3d0",
+    "question_number": 4,
+    "question_text_en": "What can we infer from paragraph 3 about many big cities?",
+    "question_text_he": "מה אפשר להסיק מפסקה 3 על ערים גדולות רבות?",
+    "options": [
+      "Their sellers use only food that grows nearby",
+      "Their dishes are cooked the same way as long ago",
+      "People there no longer use old recipes",
+      "Many people there grew up in another country"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט אומר: \"When people move to a new country, they often bring their recipes with them\", ולכן בערים גדולות אפשר לטעום אוכל מארצות רבות - כלומר גרים בהן אנשים רבים שגדלו בארץ אחרת.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "ebd13f67-0b9d-4ee4-92c8-ef267a14a6e3",
+    "paragraph_id": "5e3c1c29-6eff-40fb-8444-4ddf6d34a3d0",
+    "question_number": 5,
+    "question_text_en": "What is the main purpose of the text?",
+    "question_text_he": "מהי המטרה העיקרית של הטקסט?",
+    "options": [
+      "To teach readers how to cook falafel at home",
+      "To describe street food and the stories it tells",
+      "To warn readers that street food is unhealthy",
+      "To compare the prices of food in different countries"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט עונה על השאלה \"Why is street food so popular?\" ומסביר איך אוכל רחוב \"tells the story of a place and its people\" - כלומר הטקסט מתאר אוכל רחוב ומה האוכל הזה מספר על מקומות ועל אנשים.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "8187e0bf-dc7e-44eb-85ba-cc2ef6c9bf5e",
+    "paragraph_id": "34030c59-2e0a-4bb1-bdfa-ea04796c3cb6",
+    "question_number": 1,
+    "question_text_en": "According to paragraph 1, why is the water of the Dead Sea so salty?",
+    "question_text_he": "לפי פסקה 1, מדוע המים של ים המלח מלוחים כל כך?",
+    "options": [
+      "Several small streams bring salty water from the ocean",
+      "The hot desert air carries salt from the land into it",
+      "Its water escapes into the air, but its salt cannot",
+      "No plants or fish live in it to use up the salt"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "בפסקה 1 כתוב: \"no river flows out\" וגם \"the water evaporates, but the salt it brought stays behind\" - המים מתאדים ועולים לאוויר, אבל המלח לא יכול לצאת מהאגם ולכן מצטבר בו.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "afceb104-3916-4fd3-922a-b071247962b5",
+    "paragraph_id": "34030c59-2e0a-4bb1-bdfa-ea04796c3cb6",
+    "question_number": 2,
+    "question_text_en": "In paragraph 2, what does the writer compare to show how dense the water is?",
+    "question_text_he": "בפסקה 2, מה משווה הכותב כדי להראות עד כמה המים צפופים?",
+    "options": [
+      "The weight of equal amounts of lake water and plain water",
+      "The saltiness of the lake water and of ocean water",
+      "The way people float in the lake and in a swimming pool",
+      "The color of the black mud and of the lake water"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "בפסקה 2 כתוב: \"a cup of it weighs about a quarter more than a cup of ordinary water\" - הכותב משווה את המשקל של כמות שווה ממי האגם וממים רגילים. ההשוואה למי האוקיינוס, בפסקה 1, מראה כמה המים מלוחים, לא כמה הם צפופים.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "48cbd1ef-44d2-4957-9d7d-e41487151b75",
+    "paragraph_id": "34030c59-2e0a-4bb1-bdfa-ea04796c3cb6",
+    "question_number": 3,
+    "question_text_en": "In paragraph 3, the word \"shrinking\" is closest in meaning to:",
+    "question_text_he": "בפסקה 3, מהי המשמעות הקרובה ביותר של המילה \"shrinking\"?",
+    "options": [
+      "becoming deeper",
+      "becoming hotter",
+      "becoming cleaner",
+      "becoming smaller"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "מיד אחרי המילה כתוב: \"its water level drops by about one meter every year\" - מפלס המים יורד כל שנה, ולכן shrinking פירושו הולך וקטן, מתכווץ.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "13703833-a74d-48a6-a404-b08b1c276f9d",
+    "paragraph_id": "34030c59-2e0a-4bb1-bdfa-ea04796c3cb6",
+    "question_number": 4,
+    "question_text_en": "What can we infer from paragraph 3?",
+    "question_text_he": "מה אפשר להסיק מפסקה 3?",
+    "options": [
+      "The sinkholes near the shore are the main reason the lake is shrinking",
+      "Farmers water their crops with the salty water of the lake",
+      "The lake would stop shrinking if the factories built more ponds",
+      "The lake would shrink more slowly if more river water reached it"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט מסביר: \"The main reason is that people now use most of the Jordan River's water for drinking and farming before it reaches the lake\" - לכן אם יותר מי נהר יגיעו לאגם, הוא יתכווץ לאט יותר.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "7958ef1e-405c-4bb1-94d1-7c48e3c91d0e",
+    "paragraph_id": "34030c59-2e0a-4bb1-bdfa-ea04796c3cb6",
+    "question_number": 5,
+    "question_text_en": "What is the main idea of the text?",
+    "question_text_he": "מהו הרעיון המרכזי של הטקסט?",
+    "options": [
+      "The Dead Sea is a salty lake that is shrinking mainly because of the heat",
+      "The Dead Sea is a salty lake that is unusual and now in danger",
+      "The Dead Sea is a salty lake that is famous mainly for its black mud",
+      "The Dead Sea is a salty lake where nothing at all is able to live"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט מסביר מה מיוחד בים המלח, ובפסקה האחרונה כתוב: \"Sadly, the Dead Sea is shrinking\" ושמדענים מחפשים \"ways to save the lake\" - אגם מיוחד שנמצא בסכנה. הוא לא מתכווץ בעיקר בגלל החום: \"The main reason is that people now use most of the Jordan River's water\".",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "583b8b91-e647-4976-afd8-0deda92381a0",
+    "paragraph_id": "01b66d0d-081e-4c98-b431-fefb781085b1",
+    "question_number": 1,
+    "question_text_en": "According to paragraph 1, what was one problem with barter?",
+    "question_text_he": "לפי פסקה 1, מה הייתה אחת הבעיות של סחר חליפין?",
+    "options": [
+      "Farmers were not allowed to trade their wheat",
+      "Animals could be traded only for other animals",
+      "Shoemakers did not want to work for farmers",
+      "Each trader had to want what the other offered"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט מסביר: \"The farmer could get shoes only if the shoemaker wanted wheat at that moment\" - כל צד היה צריך לרצות בדיוק את מה שהצד השני הציע.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "31c8d59c-0b66-4a2e-a998-8eaa959019f2",
+    "paragraph_id": "01b66d0d-081e-4c98-b431-fefb781085b1",
+    "question_number": 2,
+    "question_text_en": "Why did China begin to use paper money?",
+    "question_text_he": "מדוע התחילו בסין להשתמש בכסף נייר?",
+    "options": [
+      "Coins did not last for a long time",
+      "Many coins together weighed too much",
+      "Traders had to weigh every single coin",
+      "People had stopped trusting metal coins"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "כתוב: \"large amounts of them were heavy to carry. That is why, about a thousand years ago, China began to use paper money\" - הרבה מטבעות יחד שקלו יותר מדי, וכסף נייר קל הרבה יותר.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "efba50e0-5aa9-422a-a57d-6c43f6cb5bb1",
+    "paragraph_id": "01b66d0d-081e-4c98-b431-fefb781085b1",
+    "question_number": 3,
+    "question_text_en": "In paragraph 3, the word \"rarely\" is closest in meaning to:",
+    "question_text_he": "בפסקה 3, מהי המשמעות הקרובה ביותר של המילה \"rarely\"?",
+    "options": [
+      "very often",
+      "almost never",
+      "really, truly",
+      "for a short time"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "כתוב: \"Many people rarely use coins or paper money; instead, they pay with a bank card\" - המילה instead מראה שהם משלמים בדרך אחרת, ולכן המילה rarely פירושה לעיתים רחוקות, כמעט אף פעם לא. שימו לב: rarely אינה really (באמת).",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "07e2b616-74c6-4dc3-b0f6-4dfd82eb53c5",
+    "paragraph_id": "01b66d0d-081e-4c98-b431-fefb781085b1",
+    "question_number": 4,
+    "question_text_en": "Why does the writer mention \"the days of shells\" in paragraph 3?",
+    "question_text_he": "מדוע הכותב מזכיר בפסקה 3 את \"the days of shells\" (ימי הצדפים)?",
+    "options": [
+      "To show that money has always depended on trust",
+      "To show that people still pay with shells today",
+      "To show that shells were safer than digital money",
+      "To explain why people stopped using shells long ago"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הכותב אומר: \"the basic idea of money has not changed since the days of shells: it works only because people trust that others will accept it\" - מימי הצדפים ועד היום, הכסף תלוי באמון.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "769dfd8f-41a4-4454-9ac8-c712b4a8437a",
+    "paragraph_id": "01b66d0d-081e-4c98-b431-fefb781085b1",
+    "question_number": 5,
+    "question_text_en": "What is the main idea of the text?",
+    "question_text_he": "מהו הרעיון המרכזי של הטקסט?",
+    "options": [
+      "Money keeps changing, so trust in it no longer matters",
+      "Paper money was invented before metal coins",
+      "Money has changed form over time to meet new needs",
+      "Digital payments have made money much less important"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מתאר צורות שונות של כסף לאורך הזמן: צדפים, מטבעות, כסף נייר ותשלום בכרטיס ובטלפון. כל צורה חדשה ענתה על צורך, למשל מטבעות רבים \"were heavy to carry\", ולכן בסין עברו לכסף נייר, קל יותר. והאמון עדיין חשוב: \"it works only because people trust that others will accept it\".",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "58169bb7-9d1f-4798-9e16-df8d4392441c",
+    "paragraph_id": "087a0db2-9255-43c2-8f08-a33284abc9cc",
+    "question_number": 1,
+    "question_text_en": "In paragraph 1, the word \"afford\" is closest in meaning to:",
+    "question_text_he": "בפסקה 1, מהי המשמעות הקרובה ביותר של המילה \"afford\"?",
+    "options": [
+      "copy quickly by hand",
+      "have the money to pay for",
+      "carry from one place to another",
+      "write neatly with a pen"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "לפני כן כתוב: \"books were rare and very expensive\", ולכן בדרך כלל רק משפחות עשירות, כנסיות ואוניברסיטאות יכלו \"afford them\" - כלומר היה להן מספיק כסף כדי לקנות ספרים.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "da2c676e-3624-4447-9156-99964b140e97",
+    "paragraph_id": "087a0db2-9255-43c2-8f08-a33284abc9cc",
+    "question_number": 2,
+    "question_text_en": "According to paragraph 2, what was Gutenberg's achievement?",
+    "question_text_he": "לפי פסקה 2, מה היה ההישג של גוטנברג?",
+    "options": [
+      "Making the first movable type that was ever used",
+      "Being the very first person to make letters out of metal",
+      "Using quickly made metal type with a press and ink",
+      "Teaching scribes to copy pages much more quickly"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "כתוב: \"Gutenberg's achievement was combining a strong press and a suitable ink with metal letters that could be cast quickly\" - אותיות נפרדות ואותיות מתכת היו קיימות כבר בסין ובקוריאה, וההישג שלו היה השילוב.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "518d7abf-64c8-47fb-b61e-0e64d1b94175",
+    "paragraph_id": "087a0db2-9255-43c2-8f08-a33284abc9cc",
+    "question_number": 3,
+    "question_text_en": "Why does the writer mention that a scribe could copy only a few pages a day?",
+    "question_text_he": "מדוע הכותב מזכיר שמעתיק יכול היה להעתיק רק דפים ספורים ביום?",
+    "options": [
+      "To show how much faster printing was than copying",
+      "To show that scribes did not work hard enough",
+      "To explain why handwritten books were more beautiful",
+      "To explain why Gutenberg had once worked as a scribe"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הכותב משווה: \"One press could print hundreds of pages a day, while a scribe could copy only a few\" - ההשוואה מראה כמה מהירה הייתה ההדפסה לעומת העתקה ביד.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "048ef9ff-571d-49dd-b6b0-b38566fef6a8",
+    "paragraph_id": "087a0db2-9255-43c2-8f08-a33284abc9cc",
+    "question_number": 4,
+    "question_text_en": "According to paragraph 3, how did printing help scholars?",
+    "question_text_he": "לפי פסקה 3, איך הדפוס עזר למלומדים?",
+    "options": [
+      "They could study matching copies in faraway places",
+      "They could buy handwritten books for much less money",
+      "They could copy books by hand much more quickly",
+      "They could set up presses in two hundred cities"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הטקסט מסביר: \"Since the copies of a book were almost identical, scholars in different countries could read the same text\" - העותקים היו כמעט זהים, ולכן חוקרים בארצות שונות ורחוקות יכלו ללמוד מאותו טקסט.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "ecab3994-bc9b-4a15-84bd-b26a07bb4742",
+    "paragraph_id": "087a0db2-9255-43c2-8f08-a33284abc9cc",
+    "question_number": 5,
+    "question_text_en": "What is the main idea of the text?",
+    "question_text_he": "מהו הרעיון המרכזי של הטקסט?",
+    "options": [
+      "Books in Europe were copied by hand until the year 1500",
+      "Scribes made far fewer mistakes than the first printing presses",
+      "Handwritten books stayed more popular than printed ones",
+      "The printing press made books cheaper and helped ideas spread"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט מתאר את המעבר מהעתקה ביד למכונת הדפוס של גוטנברג ואת התוצאות: \"printed books cost far less\" ו-\"New ideas could now spread faster\" - זה הרעיון המרכזי.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "4a737f1d-2b4b-48e1-ae81-e1bd26fecbf7",
+    "paragraph_id": "5f4e3528-8f44-448d-96ef-67da419f9cdd",
+    "question_number": 1,
+    "question_text_en": "In paragraph 1, the word \"dormant\" is closest in meaning to:",
+    "question_text_he": "בפסקה 1, מהי המשמעות הקרובה ביותר של המילה \"dormant\"?",
+    "options": [
+      "asleep, and unlikely to wake up again",
+      "inactive for a time, but able to wake up",
+      "slowly being forgotten by almost everyone",
+      "used mostly by a small group of scholars"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב מסביר: \"not dead; it was dormant, alive on the page but silent\" - העברית לא הייתה פעילה לזמן מה, אבל יכלה להתעורר, וכך אכן קרה. האפשרות \"asleep, and unlikely to wake up again\" מתחילה נכון, אבל לפי הכותב העברית הייתה \"not dead\", והטקסט כולו מספר איך היא חזרה.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "40d97e25-618f-4765-8d7e-3804104323a6",
+    "paragraph_id": "5f4e3528-8f44-448d-96ef-67da419f9cdd",
+    "question_number": 2,
+    "question_text_en": "What does the text say about Ben-Yehuda's son?",
+    "question_text_he": "מה הטקסט אומר על בנו של בן-יהודה?",
+    "options": [
+      "He is widely seen as the boy whose example made Hebrew a spoken language again",
+      "He is often described as the first child to learn Hebrew at a village school",
+      "He grew up hearing several different languages spoken at home every day",
+      "He is widely seen as the first child in centuries to be raised speaking Hebrew"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט אומר שבנו של בן-יהודה \"is often described as the first native speaker of modern Hebrew\" - הוא למד עברית בבית שבו דיברו רק עברית, ולא בבית ספר בכפר. הטקסט לא אומר שהדוגמה שלו החזירה את העברית לדיבור; להפך: \"a single household cannot turn a language into a living one\".",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "91186a81-f32f-4619-98f8-995b14eb8c58",
+    "paragraph_id": "5f4e3528-8f44-448d-96ef-67da419f9cdd",
+    "question_number": 3,
+    "question_text_en": "According to the text, what made teaching in Hebrew difficult at first?",
+    "question_text_he": "לפי הטקסט, מה הקשה בהתחלה על ההוראה בעברית?",
+    "options": [
+      "Teachers often lacked the words they needed",
+      "Hardly any books had ever been written in Hebrew",
+      "Parents did not allow Hebrew to be spoken at home",
+      "Children refused to use Hebrew outside the classroom"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הטקסט אומר: \"teachers often had to invent words as they went along\" - חסרו להם מילים. התשובה שכמעט לא נכתבו ספרים בעברית היא הכללה לא נכונה: חסרו רק \"proper textbooks\", ובפסקה 1 מסופר שיהודים למדו בספרים עתיקים בעברית.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "eb01f4ad-00e8-474b-a7e4-494a96108b60",
+    "paragraph_id": "5f4e3528-8f44-448d-96ef-67da419f9cdd",
+    "question_number": 4,
+    "question_text_en": "What can we infer about the children described in paragraph 3?",
+    "question_text_he": "מה אפשר להסיק על הילדים המתוארים בפסקה 3?",
+    "options": [
+      "They taught Hebrew to most of the adults in their villages",
+      "They had learned Hebrew from their parents before school",
+      "Hebrew became part of their daily life, not just lessons",
+      "They made up many of the new words that teachers needed"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הילדים \"also played in Hebrew\" ו-\"carried the language home\", כלומר העברית נכנסה לחייהם היומיומיים ולא נשארה בכיתה. התשובה שלימדו עברית את רוב המבוגרים בכפר מגזימה: לפי הטקסט רק \"some parents learned it\" מילדיהם.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "36326d1c-bab1-4afa-be46-941887c3dd2f",
+    "paragraph_id": "5f4e3528-8f44-448d-96ef-67da419f9cdd",
+    "question_number": 5,
+    "question_text_en": "Which statement best expresses the main point of the text?",
+    "question_text_he": "איזה משפט מבטא בצורה הטובה ביותר את הרעיון המרכזי של הטקסט?",
+    "options": [
+      "Ben-Yehuda's new words brought spoken Hebrew back to life",
+      "Schools brought Hebrew back, and Ben-Yehuda's part was minor",
+      "Hebrew was never truly dead, so bringing it back was easy",
+      "Ben-Yehuda helped, but a whole community revived Hebrew"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הכותב מסכם שהעברית חזרה בזכות \"ordinary families, teachers and children\" - \"a shared achievement\", ובן-יהודה עזר במילים ובמילון. התשובה שבתי הספר החזירו אותה ותפקידו של בן-יהודה היה שולי נשמעת קרובה, אבל הכותב קובע: \"None of this makes Ben-Yehuda unimportant\".",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "5fb07538-bb8a-429a-93ea-9bd5380e2818",
+    "paragraph_id": "3f8a59b8-30b9-40cd-b457-b4a6685e73d0",
+    "question_number": 1,
+    "question_text_en": "What did Fleming find on one of the dishes in 1928?",
+    "question_text_he": "מה מצא פלמינג באחת הצלחות בשנת 1928?",
+    "options": [
+      "Mold that had killed most of the bacteria on the dish",
+      "Bacteria that grew faster wherever the mold was",
+      "An area all around the mold with no visible bacteria",
+      "Mold that had grown where the bacteria had already died"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מתאר: \"around it there was a clear ring where no bacteria could be seen\" - אזור נקי מחיידקים סביב העובש. התשובה שהעובש הרג את רוב החיידקים בצלחת מגזימה: הטבעת הנקייה הייתה רק סביבו, והטקסט לא אומר דבר על שאר הצלחת.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "bc6980fe-6687-4655-bf66-78b1651694b6",
+    "paragraph_id": "3f8a59b8-30b9-40cd-b457-b4a6685e73d0",
+    "question_number": 2,
+    "question_text_en": "What does paragraph 2 suggest about why Fleming paid attention to the dish?",
+    "question_text_he": "מה אפשר להבין מפסקה 2 על הסיבה שפלמינג שם לב לצלחת?",
+    "options": [
+      "His past research helped him see why the dish mattered",
+      "He realized at once that he had found a new medicine",
+      "Mold almost never appeared on dishes in his laboratory",
+      "He had been searching for a mold that kills bacteria"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "פלמינג עצר כי \"he had spent years studying substances that kill germs\" - המחקר הקודם הכין אותו להבחין בתופעה. הוא לא חיפש עובש כזה: הנבג נחת בצלחת במקרה. וגם לא הבין מיד שמצא תרופה: הסקרנות שלו הפכה את המקרה רק ל-\"a question worth asking\".",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "5d46e9ac-ae75-4920-9ed0-4a14e2e1726d",
+    "paragraph_id": "3f8a59b8-30b9-40cd-b457-b4a6685e73d0",
+    "question_number": 3,
+    "question_text_en": "According to paragraph 3, why could Fleming not turn penicillin into a medicine?",
+    "question_text_he": "לפי פסקה 3, מדוע פלמינג לא הצליח להפוך את הפניצילין לתרופה?",
+    "options": [
+      "Progress was so slow that he could not make it pure or stable",
+      "He lost interest in it and turned to other kinds of work",
+      "It could not be extracted from the mold in any way at all",
+      "It was difficult to get out of the mold and did not last long"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט אומר: \"it was hard to extract and broke down quickly, so he could not produce it in a pure, usable form\" - הבעיה הייתה בחומר עצמו. התשובה שההתקדמות האיטית מנעה ממנו לטהר אותו מחליפה בין הסיבה לתוצאה: הקושי בחומר הוא שגרם להתקדמות האיטית.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "6cba7022-ede4-48a7-a29d-1440d973b81a",
+    "paragraph_id": "3f8a59b8-30b9-40cd-b457-b4a6685e73d0",
+    "question_number": 4,
+    "question_text_en": "In paragraph 4, the word \"fitting\" is closest in meaning to:",
+    "question_text_he": "בפסקה 4, מהי המשמעות הקרובה ביותר של המילה \"fitting\"?",
+    "options": [
+      "healthy and in good shape",
+      "right for the situation",
+      "of exactly the right size",
+      "sudden and unexpected"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הכותב רואה בפרס המשותף \"a fitting sign that the discovery belonged to... more than one person\" - סימן הולם ומתאים. האפשרות \"of exactly the right size\" היא המשמעות של fit בבגדים, אבל כאן מדובר בסימן שמתאים למצב, לא בגודל.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "582ab2b6-464f-4fc5-b37f-3d9793e60b17",
+    "paragraph_id": "3f8a59b8-30b9-40cd-b457-b4a6685e73d0",
+    "question_number": 5,
+    "question_text_en": "What is the writer's main argument?",
+    "question_text_he": "מהי הטענה המרכזית של הכותב?",
+    "options": [
+      "Penicillin required chance, a ready mind and years of effort",
+      "Penicillin was discovered mainly thanks to one lucky accident",
+      "Florey and Chain deserve more of the credit than Fleming",
+      "Great discoveries come from hard work rather than luck"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הכותב מסכם: \"Penicillin needed a lucky accident, but it also needed an observer ready to recognize it and years of patient work\". התשובה שהתגלית נבעה בעיקר ממזל מספרת רק חלק מהסיפור: לפי הכותב, בלי מוח מוכן הצלחת אולי הייתה נזרקת, ובלי צוות אוקספורד ייתכן שהפניצילין לא היה הופך לתרופה.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "463ea776-b856-46d8-8d7e-794cf1651d10",
+    "paragraph_id": "33c21098-5b00-4ab0-b54a-fd2d6e10bbd9",
+    "question_number": 1,
+    "question_text_en": "According to the text, what is the bystander effect?",
+    "question_text_he": "לפי הטקסט, מהו אפקט הצופה מהצד (bystander effect)?",
+    "options": [
+      "People in a crowd care less about a stranger who is in trouble",
+      "People in a crowd often fail to notice that someone has fallen",
+      "Help tends to arrive faster when more people are watching",
+      "The bigger the crowd, the less each person in it tends to help"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הטקסט מגדיר: \"each of them is less likely to step in than a person who is alone\" - ככל שהקהל גדול יותר, כל אחד בו נוטה פחות לעזור. התשובה שאנשים בקהל פחות אכפתיים נשמעת נכונה, אבל הכותב דוחה אותה: \"It would be easy to conclude that people in crowds simply do not care. However...\"",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "bd442b8b-1dd4-4bea-b43f-78da4f8715ba",
+    "paragraph_id": "33c21098-5b00-4ab0-b54a-fd2d6e10bbd9",
+    "question_number": 2,
+    "question_text_en": "In paragraph 2, the word \"cue\" is closest in meaning to:",
+    "question_text_he": "בפסקה 2, מהי המשמעות הקרובה ביותר של המילה \"cue\"?",
+    "options": [
+      "a reason to feel afraid",
+      "a signal for how to behave",
+      "an order that we have to obey",
+      "a feeling of shared duty"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "המשפט הבא מסביר: \"If everyone seems calm, we assume there is no real emergency\" - אנחנו לומדים מהתנהגות האחרים איך לנהוג, ולכן cue הוא אות או סימן. האפשרות \"an order that we have to obey\" חזקה מדי: איש לא מצווה עלינו דבר, אנחנו רק מסיקים מסקנות מההתנהגות שלהם.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "1178934d-f9fc-4843-ae06-664bf3187c6d",
+    "paragraph_id": "33c21098-5b00-4ab0-b54a-fd2d6e10bbd9",
+    "question_number": 3,
+    "question_text_en": "What can we infer from the smoke experiment?",
+    "question_text_he": "מה אפשר להסיק מניסוי העשן?",
+    "options": [
+      "The strangers' calm made the smoke seem less serious",
+      "Students sitting with others did not see the smoke",
+      "Students who were alone were simply braver than others",
+      "The strangers told the students to ignore the smoke"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הניסוי מדגים ש-\"we take our cue from the people around us\": הרוגע של הזרים גרם לעשן להיראות לא מסוכן. התשובה שהזרים אמרו לסטודנטים להתעלם מהעשן מגזימה: לפי הטקסט הם רק \"calmly ignored the smoke\", ולא נאמר שדיברו עם הסטודנטים.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "dda10a34-2973-474f-ba6b-76e68f665a2f",
+    "paragraph_id": "33c21098-5b00-4ab0-b54a-fd2d6e10bbd9",
+    "question_number": 4,
+    "question_text_en": "According to paragraph 4, how can a person who needs help weaken the bystander effect?",
+    "question_text_he": "לפי פסקה 4, איך אדם שזקוק לעזרה יכול להחליש את אפקט הצופה מהצד?",
+    "options": [
+      "Ask the people nearby to call for help",
+      "Stay calm so that nobody nearby starts to panic",
+      "Single out one person and give them a clear task",
+      "Wait quietly until someone decides to step forward"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הכותב ממליץ \"point to one particular person... and ask him directly\", כי אז \"The responsibility is then no longer shared\". הבקשה מהאנשים שמסביב להזעיק עזרה נשמעת קרובה, אבל היא פונה לכולם, ולכן האחריות נשארת מתחלקת.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "bb54ffb5-d7e5-4634-a397-795252bee5a7",
+    "paragraph_id": "33c21098-5b00-4ab0-b54a-fd2d6e10bbd9",
+    "question_number": 5,
+    "question_text_en": "Which statement best sums up the writer's view?",
+    "question_text_he": "איזה משפט מסכם בצורה הטובה ביותר את עמדת הכותב?",
+    "options": [
+      "People fail to help in crowds mainly because they do not really care",
+      "Crowds help less mainly because duty feels shared and others seem calm",
+      "Pointing to one person and asking directly makes help much more likely",
+      "Crowds help less mainly because people are afraid of looking foolish"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "לפי הכותב \"research points mainly to two other causes\": האחריות מתחלקת, ואנחנו מסיקים מהרוגע של האחרים שאין סכנה. הפחד להיראות מגוחך לא מוזכר בטקסט, ואת חוסר האכפתיות הכותב דוחה: \"It would be easy to conclude... However\". הפנייה לאדם אחד היא רק עצה מפסקה 4.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "7c54450c-5aab-4b2c-935f-2e186dd00040",
+    "paragraph_id": "141823ef-6b0f-4f8f-b189-39174d38beb1",
+    "question_number": 1,
+    "question_text_en": "According to the text, when is the temperature gap between a city and its surroundings often largest?",
+    "question_text_he": "לפי הטקסט, מתי ההבדל בטמפרטורה בין העיר לסביבתה הוא לרוב הגדול ביותר?",
+    "options": [
+      "At midday, when the sunshine is at its very strongest",
+      "At night, once the fields have lost their daytime heat",
+      "In the late afternoon, after the city has stored the most heat",
+      "During heatwaves, when air conditioners are running all day"
+    ],
+    "correct_answer": 1,
+    "explanation_he": "הטקסט אומר שהפער \"is often greatest after sunset\", כשהאזור הכפרי מתקרר מהר והעיר \"stays warm long into the night\". התשובה על שעות אחר הצהריים, כשהעיר כבר אגרה חום, נשמעת הגיונית, אבל לפי הטקסט הפער הגדול ביותר מגיע בדרך כלל אחרי השקיעה.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "05394e5f-cfeb-448a-826c-4bb564b248db",
+    "paragraph_id": "141823ef-6b0f-4f8f-b189-39174d38beb1",
+    "question_number": 2,
+    "question_text_en": "In paragraph 2, the word \"absorb\" is closest in meaning to:",
+    "question_text_he": "בפסקה 2, מהי המשמעות הקרובה ביותר של המילה \"absorb\"?",
+    "options": [
+      "send back",
+      "soak up water",
+      "take in",
+      "give off"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "המשטחים \"absorb much of the sunlight that falls on them and store it as heat\" - קולטים את אור השמש לתוכם. absorb יכולה לתאר ספוג שסופג מים, אבל כאן נקלט אור ולא מים. ו-send back הוא ההפך: גגות בהירים \"reflect ... instead of absorbing it\".",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "cd57218d-6030-45a5-81ba-c44bc113590e",
+    "paragraph_id": "141823ef-6b0f-4f8f-b189-39174d38beb1",
+    "question_number": 3,
+    "question_text_en": "What does the text say about air conditioners?",
+    "question_text_he": "מה הטקסט אומר על מזגנים?",
+    "options": [
+      "They cool rooms but add heat to the air outside",
+      "They are the main cause of urban heat islands",
+      "They help the city cool down during the night",
+      "They cool a room by bringing in cooler air from outside"
+    ],
+    "correct_answer": 0,
+    "explanation_he": "הטקסט אומר שמזגן מקרר חדר \"by pumping heat out of it and into the street\", כלומר מוסיף חום בחוץ. התשובה שהמזגנים הם הגורם העיקרי מגזימה: הם מוסיפים רק \"some extra heat\", ו-\"the number of people alone does not explain the effect\".",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "160613ed-cd38-4e08-b095-31fd89ac5fd0",
+    "paragraph_id": "141823ef-6b0f-4f8f-b189-39174d38beb1",
+    "question_number": 4,
+    "question_text_en": "Why does the writer mention a busy street lined with tall trees?",
+    "question_text_he": "מדוע הכותב מזכיר רחוב הומה שלאורכו נטועים עצים גבוהים?",
+    "options": [
+      "To suggest that parking lots should be turned into parks",
+      "To show that busy streets are cooler than quiet ones",
+      "To show that people prefer to walk in the shade",
+      "To show that crowding is not what mainly makes cities hot"
+    ],
+    "correct_answer": 3,
+    "explanation_he": "הכותב מסיק מהדוגמה ש-\"surfaces and greenery matter more than crowds\" - כלומר הצפיפות אינה הסיבה העיקרית לחום. התשובה שרחובות הומים קרירים יותר מרחובות שקטים מפספסת את העיקר: הרחוב קריר בזכות העצים, למרות ההמון, וההשוואה היא למגרש חנייה ריק.",
+    "created_at": "2026-11-01T12:43:05.877Z"
+  },
+  {
+    "id": "878871c6-dd83-4019-9b8f-be2d022da40d",
+    "paragraph_id": "141823ef-6b0f-4f8f-b189-39174d38beb1",
+    "question_number": 5,
+    "question_text_en": "What is the writer's main purpose in this text?",
+    "question_text_he": "מהי המטרה העיקרית של הכותב בטקסט?",
+    "options": [
+      "To warn readers about the dangers of summer heatwaves",
+      "To explain why city centers stay warmer than the countryside at night",
+      "To explain what makes cities hotter and what can be done about it",
+      "To argue that cities should plant trees instead of painting roofs"
+    ],
+    "correct_answer": 2,
+    "explanation_he": "הטקסט מסביר מה מחמם את העיר (\"One of the main reasons lies in the materials\") ואז מציע פתרונות (\"the same understanding points to solutions\"). התשובה על החום בלילה מצומצמת מדי: היא מתאימה לפסקאות 1–2 ומשמיטה את הפתרונות. וגלי החום מוזכרים רק במשפט אחד.",
+    "created_at": "2026-11-01T12:43:05.877Z"
   }
 ]
