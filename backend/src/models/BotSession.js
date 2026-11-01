@@ -196,6 +196,16 @@ class BotSession {
     });
   }
 
+  /**
+   * True when the session ended with its last answer (not /end or a
+   * replacement) within `ms`: a message that comes right after it is the
+   * last answer's twin (a double tap), not a new one.
+   */
+  static justCompleted(session, ms = 60 * 1000) {
+    return !!session && session.status === 'ended' && session.end_reason === 'completed'
+      && Date.now() - new Date(session.ended_at).getTime() <= ms;
+  }
+
   /** Session kind; rows from before exercise sessions are vocabulary sessions. */
   static kindOf(session) {
     return (session && session.kind) || 'vocab';
@@ -210,21 +220,28 @@ class BotSession {
     return open[0];
   }
 
-  /** The student's latest lesson-exercise session in this chat with questions (open or ended), or null. */
-  static async findLatestExercise(chatId, userId) {
+  /** The student's latest session in this chat that `keep` accepts (open or ended), or null. */
+  static async findLatest(chatId, userId, keep) {
     const sessions = await db.find('bot_sessions', { chat_id: String(chatId) });
-    const found = sessions.filter(s => s.user_id === userId && s.kind === 'exercise' && Array.isArray(s.exercises));
+    const found = sessions.filter(s => s.user_id === userId && keep(s));
     found.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
     return found[0] || null;
   }
 
+  /** The student's latest lesson-exercise session in this chat with questions (open or ended), or null. */
+  static async findLatestExercise(chatId, userId) {
+    return this.findLatest(chatId, userId, s => s.kind === 'exercise' && Array.isArray(s.exercises));
+  }
+
+  /** The student's latest reading in this chat with questions, not a list (open or ended), or null. */
+  static async findLatestReading(chatId, userId) {
+    return this.findLatest(chatId, userId, s => s.kind === 'unseen' && Array.isArray(s.questions));
+  }
+
   /** The student's latest finished vocabulary session in this chat that had words, or null. */
   static async findLastFinishedVocab(chatId, userId) {
-    const sessions = await db.find('bot_sessions', { chat_id: String(chatId) });
-    const done = sessions.filter(s => s.status === 'ended' && s.user_id === userId
+    return this.findLatest(chatId, userId, s => s.status === 'ended'
       && this.kindOf(s) === 'vocab' && Array.isArray(s.word_ids) && s.word_ids.length > 0);
-    done.sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
-    return done[0] || null;
   }
 
   static async findById(id) {

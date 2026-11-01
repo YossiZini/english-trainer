@@ -3,7 +3,7 @@ const BotService = require('../services/bot.service');
 const ExerciseSession = require('../services/bot/exerciseSession');
 const DrillSession = require('../services/bot/drillSession');
 const UnseenBotSession = require('../services/bot/unseenSession');
-const { serviceFor } = require('../services/bot/sessionKinds');
+const { serviceFor, statusOf } = require('../services/bot/sessionKinds');
 const TelegramLink = require('../models/TelegramLink');
 const ReviewService = require('../services/review.service');
 const ReviewSession = require('../services/bot/reviewSession');
@@ -63,7 +63,7 @@ class BotController {
   }
 
   static async status(req, res) {
-    send(res, await (await serviceFor(req.chatId)).status(req.chatId));
+    send(res, await statusOf(req.chatId, req.user));
   }
 
   static async startExercise(req, res) {

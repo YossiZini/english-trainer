@@ -18,4 +18,16 @@ async function serviceFor(chatId) {
   return BotService;
 }
 
-module.exports = { serviceFor };
+/**
+ * The chat's status: the open session's, or with none open, which kind
+ * just ended with its last answer ({ justEnded: kind }), so the bot can
+ * tell that answer's twin (a double tap) from a new message.
+ */
+async function statusOf(chatId, user) {
+  const status = await (await serviceFor(chatId)).status(chatId);
+  if (status.active) return status;
+  const last = await BotSession.findLatest(chatId, user.id, s => s.status === 'ended');
+  return BotSession.justCompleted(last) ? { ...status, justEnded: BotSession.kindOf(last) } : status;
+}
+
+module.exports = { serviceFor, statusOf };

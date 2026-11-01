@@ -140,18 +140,24 @@ class UnseenSession {
   /**
    * Complete a session and calculate final score
    */
-  static async complete(sessionId) {
-    // Count correct answers. Each question counts once, by its first answer,
-    // so an answer recorded twice never raises the score past 100.
+  /**
+   * The score of a session's recorded answers, without writing anything:
+   * { correctCount, score } out of 5 questions. Each question counts once,
+   * by its first answer, so an answer recorded twice never raises the score
+   * past 100.
+   */
+  static async score(sessionId) {
     const answers = await db.find('unseen_answers', { session_id: sessionId });
     const firstAnswers = new Map();
     for (const a of [...answers].sort((x, y) => String(x.answered_at).localeCompare(String(y.answered_at)))) {
       if (!firstAnswers.has(a.question_id)) firstAnswers.set(a.question_id, a);
     }
     const correctCount = [...firstAnswers.values()].filter(a => a.is_correct === true).length;
+    return { correctCount, score: Math.round((correctCount / 5) * 100) };
+  }
 
-    // Calculate score percentage (out of 5 questions)
-    const score = Math.round((correctCount / 5) * 100);
+  static async complete(sessionId) {
+    const { correctCount, score } = await this.score(sessionId);
     const timestamp = new Date().toISOString();
 
     await db.updateById('unseen_sessions', sessionId, {

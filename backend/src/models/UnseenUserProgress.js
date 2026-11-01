@@ -59,15 +59,28 @@ class UnseenUserProgress {
   }
 
   /**
-   * Create or update progress after completing a session
+   * Create or update progress after completing a session. With the
+   * session's id, a session counts once: progress already updated by that
+   * session (a retry after a failed end) is returned unchanged.
    */
-  static async upsertProgress(userId, paragraphId, sessionScore) {
+  static async upsertProgress(userId, paragraphId, sessionScore, sessionId = null) {
     const existing = await db.findOne('unseen_user_progress', {
       user_id: userId,
       paragraph_id: paragraphId
     });
 
     const timestamp = new Date().toISOString();
+    const counted = sessionId ? { last_session_id: sessionId } : {};
+
+    if (existing && sessionId && existing.last_session_id === sessionId) {
+      return {
+        id: existing.id,
+        user_id: userId,
+        paragraph_id: paragraphId,
+        best_score: existing.best_score,
+        attempts: existing.attempts
+      };
+    }
 
     if (existing) {
       // Update existing record
@@ -78,7 +91,8 @@ class UnseenUserProgress {
         best_score: newBestScore,
         attempts: newAttempts,
         last_attempted_at: timestamp,
-        updated_at: timestamp
+        updated_at: timestamp,
+        ...counted
       });
 
       return {
@@ -99,7 +113,8 @@ class UnseenUserProgress {
       last_attempted_at: timestamp,
       first_completed_at: timestamp,
       created_at: timestamp,
-      updated_at: timestamp
+      updated_at: timestamp,
+      ...counted
     });
 
     return {
