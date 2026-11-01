@@ -80,12 +80,14 @@ class UnseenSession {
   }
 
   /**
-   * Record an answer for a session
+   * Record an answer for a session. With an `id` the write is idempotent:
+   * the same answer written twice stays one row.
    */
-  static async recordAnswer(sessionId, questionId, userAnswer, isCorrect) {
+  static async recordAnswer(sessionId, questionId, userAnswer, isCorrect, id = null) {
     const timestamp = new Date().toISOString();
 
     const answer = await db.insert('unseen_answers', {
+      ...(id ? { id } : {}),
       session_id: sessionId,
       question_id: questionId,
       user_answer: userAnswer,
@@ -139,9 +141,14 @@ class UnseenSession {
    * Complete a session and calculate final score
    */
   static async complete(sessionId) {
-    // Count correct answers
+    // Count correct answers. Each question counts once, by its first answer,
+    // so an answer recorded twice never raises the score past 100.
     const answers = await db.find('unseen_answers', { session_id: sessionId });
-    const correctCount = answers.filter(a => a.is_correct === true).length;
+    const firstAnswers = new Map();
+    for (const a of [...answers].sort((x, y) => String(x.answered_at).localeCompare(String(y.answered_at)))) {
+      if (!firstAnswers.has(a.question_id)) firstAnswers.set(a.question_id, a);
+    }
+    const correctCount = [...firstAnswers.values()].filter(a => a.is_correct === true).length;
 
     // Calculate score percentage (out of 5 questions)
     const score = Math.round((correctCount / 5) * 100);

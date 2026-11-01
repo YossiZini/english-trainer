@@ -92,10 +92,23 @@ async function hintFor(session) {
 }
 
 /**
- * The website's end of a reading: the score of the recorded answers, the
- * text's progress (best score, attempts), and the student's next text.
+ * Record answer `i` of the session (its chosen option) on the website. The
+ * row's id is fixed per reading and question, so writing it twice (a late
+ * write, or the final check below) leaves one row with the same answer.
+ */
+function recordAnswer(session, i, choice) {
+  const q = session.questions[i];
+  return UnseenSession.recordAnswer(session.unseen_session_id, q.id, choice, choice === q.answer, `${session.unseen_session_id}-q${i + 1}`);
+}
+
+/**
+ * The website's end of a reading: every answer the session took is on the
+ * website (an earlier answer's write may still be on its way when two
+ * messages arrive together), then the score, the text's progress (best
+ * score, attempts) and the student's next text.
  */
 async function finish(user, session) {
+  await Promise.all(session.answers.map((choice, i) => recordAnswer(session, i, choice)));
   const completed = await UnseenSession.complete(session.unseen_session_id);
   const progress = await UnseenUserProgress.upsertProgress(user.id, session.paragraph_id, completed.score);
   const texts = await allTexts();
@@ -173,15 +186,26 @@ class UnseenBotSession {
       wrong_streak: wrongStreak
     };
 
-    // Recorded like the website: each answer when it is checked.
-    await UnseenSession.recordAnswer(session.unseen_session_id, current.id, n - 1, correct);
-    if (updates.index < session.questions.length) {
-      const next = await BotSession.update(session.id, updates);
-      return { kind: 'unseen', verdict, reading: readingView(next), question: questionView(next), done: false };
+    const last = updates.index >= session.questions.length;
+    // Only the request that moves the reading past this question goes on: of
+    // two answers sent together (a double tap), the second records nothing.
+    // The last answer and the end are one write: no moment with an open
+    // reading past its questions.
+    const after = await BotSession.claimAnswer(session.id, session.index, updates, last ? 'completed' : null);
+    if (!after) return this.alreadyAnswered(chatId);
+    if (!last) {
+      // Recorded like the website: each answer when it is checked.
+      await recordAnswer(after, session.index, n - 1);
+      return { kind: 'unseen', verdict, reading: readingView(after), question: questionView(after), done: false };
     }
-    // The last answer and the end in one write: no moment with an open reading past its questions.
-    await BotSession.end(session.id, 'completed', updates);
-    return { kind: 'unseen', verdict, reading: readingView(session), done: true, result: await finish(user, session) };
+    return { kind: 'unseen', verdict, reading: readingView(after), done: true, result: await finish(user, after) };
+  }
+
+  /** The answer's question was answered a moment ago (sent twice): where the reading is now, or no session after its end. */
+  static async alreadyAnswered(chatId) {
+    const session = await openReading(chatId);
+    if (!session) return { error: 'no_session' };
+    return { kind: 'unseen', alreadyAnswered: true, reading: readingView(session), question: questionView(session) };
   }
 
   /** Stop now: how far the reading got; the website's reading is abandoned, not completed. */

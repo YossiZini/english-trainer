@@ -1,5 +1,8 @@
 const { db } = require('../config/database');
 
+/** The fields that close a session. */
+const endFields = (reason) => ({ status: 'ended', end_reason: reason, ended_at: new Date().toISOString() });
+
 /**
  * A practice session driven from a chat bot. `kind` is 'vocab', 'exercise',
  * 'review', 'drill' or 'unseen'. A vocabulary session starts in `setup`, where the student
@@ -221,7 +224,25 @@ class BotSession {
 
   /** End the session; `updates` (the last answer's counts) are saved in the same write. */
   static async end(id, reason = 'ended', updates = {}) {
-    return this.update(id, { ...updates, status: 'ended', end_reason: reason, ended_at: new Date().toISOString() });
+    return this.update(id, { ...updates, ...endFields(reason) });
+  }
+
+  /**
+   * One answer, applied only while the session is still active at question
+   * `index` (a Firestore transaction): of two answers sent together, the
+   * first moves the session on and the second changes nothing. With
+   * `endReason` the same write ends the session. Returns the session after
+   * the write, or null when that question was already answered.
+   */
+  static async claimAnswer(id, index, updates, endReason = null) {
+    let claimed = false;
+    const after = await db.transactUpdate('bot_sessions', id, (current) => {
+      // A transaction may run this more than once; the last run decides.
+      claimed = current.status === 'active' && current.index === index;
+      if (!claimed) return null;
+      return endReason ? { ...updates, ...endFields(endReason) } : updates;
+    });
+    return claimed ? after : null;
   }
 
   /**

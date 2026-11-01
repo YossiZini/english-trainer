@@ -6,6 +6,10 @@ const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db, DYNAMIC_COLLECTIONS } = require('./helpers');
 const app = require('../src/app');
 const UsageService = require('../src/services/usage.service');
+const BotSession = require('../src/models/BotSession');
+const UnseenSession = require('../src/models/UnseenSession');
+
+const pause = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * /unseen in the bot: a reading text from the website's Unseen section, then
@@ -214,6 +218,70 @@ describe('Bot unseen reading', () => {
     expect((await answer('1')).status).toBe(404);
     expect((await status()).body.data.active).toBe(false);
     expect(await db.findById('bot_sessions', stuck.id)).toMatchObject({ status: 'ended', end_reason: 'completed' });
+  });
+
+  test('two answers sent together never count twice', async () => {
+    // The guard: two claims of the same question at once, only one wins.
+    await bot('/api/bot/unseen/start', { number: 3 });
+    const first = await openReading();
+    const claims = await Promise.all([1, 2].map(() => BotSession.claimAnswer(first.id, 0, { index: 1, answers: [0] })));
+    expect(claims.filter(Boolean)).toHaveLength(1);
+    expect(await db.findById('bot_sessions', first.id)).toMatchObject({ index: 1, answers: [0] });
+    await bot('/api/bot/session/end');
+
+    // Through the API: every answer of a whole reading sent twice at once (a double tap).
+    const usageBefore = await readingUsage();
+    await bot('/api/bot/unseen/start', { number: 4 });
+    const reading = await openReading();
+    const replies = [];
+    for (let pair = 0; pair < 10; pair++) {
+      const now = await db.findById('bot_sessions', reading.id);
+      if (now.status !== 'active') break;
+      const option = String(now.questions[now.index].answer + 1);
+      replies.push(...await Promise.all([answer(option), answer(option)]));
+    }
+    // Each question took one answer; a twin found its question answered (and the reading as it is now) or the reading over.
+    const verdicts = replies.filter(r => r.status === 200 && r.body.data.verdict);
+    expect(verdicts).toHaveLength(5);
+    expect(verdicts.filter(r => r.body.data.done)).toHaveLength(1);
+    for (const r of replies.filter(x => !verdicts.includes(x))) {
+      if (r.status === 200) expect(r.body.data).toMatchObject({ kind: 'unseen', alreadyAnswered: true });
+      else expect(r.body.code).toBe('no_session');
+    }
+    // The website has exactly the session's five answers, and one completed attempt.
+    const ended = await db.findById('bot_sessions', reading.id);
+    const rows = await db.find('unseen_answers', { session_id: reading.unseen_session_id });
+    expect(rows).toHaveLength(5);
+    reading.questions.forEach((q, i) => {
+      expect(rows.find(r => r.question_id === q.id)).toMatchObject({ user_answer: ended.answers[i] });
+    });
+    expect(await progressOf(texts[3].id)).toMatchObject({ attempts: 1, best_score: Math.round((ended.correct_count / 5) * 100) });
+    expect(await readingUsage()).toBe(usageBefore + 1);
+  });
+
+  test('an answer whose website write is late still counts at the end', async () => {
+    // As if the request that took question 4 had not written it yet when question 5 ends the reading.
+    await bot('/api/bot/unseen/start', { number: 6 });
+    const reading = await openReading();
+    const right = reading.questions.map(q => q.answer);
+    for (let i = 0; i < 3; i++) await answer(String(right[i] + 1));
+    expect(await BotSession.claimAnswer(reading.id, 3, { index: 4, answers: right.slice(0, 4), correct_count: 4 })).not.toBeNull();
+    expect(await db.find('unseen_answers', { session_id: reading.unseen_session_id })).toHaveLength(3);
+    const last = (await answer(String(right[4] + 1))).body.data;
+    expect(last).toMatchObject({ done: true, result: { correct: 5, total: 5, score: 100 } });
+    expect(await db.find('unseen_answers', { session_id: reading.unseen_session_id })).toHaveLength(5);
+  });
+
+  test('a score counts each question once, by its first answer', async () => {
+    // The website's rule too: an answer recorded twice never raises the score.
+    const userId = (await db.findOne('users', { name: 'bot-unseen' })).id;
+    const [q1, q2] = await questionsOf(texts[0].id);
+    const reading = await UnseenSession.create(userId, texts[0].id);
+    for (const [q, choice] of [[q1, q1.correct_answer], [q1, q1.correct_answer], [q2, (q2.correct_answer + 1) % 4], [q2, q2.correct_answer]]) {
+      await UnseenSession.recordAnswer(reading.id, q.id, choice, choice === q.correct_answer);
+      await pause(3); // distinct answer times: "first" is well defined
+    }
+    expect(await UnseenSession.complete(reading.id)).toMatchObject({ correct_answers: 1, score: 20 });
   });
 
   test('the daily message cap covers /unseen', async () => {
