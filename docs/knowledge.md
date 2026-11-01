@@ -39,7 +39,8 @@ session cannot see elsewhere.
 - Bot session kinds: vocab, exercise, review, drill, unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
   answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a
-  transaction (unseen uses it; the other kinds do not yet).
+  transaction (unseen uses it; the other kinds do not yet). For a minute after
+  a last answer, `/session/status` says `justEnded` (the bot's double-tap rule).
 - A new bot command touches: `config.py`, `parse_command`/`run_command`,
   `COMMANDS` (pinned in `test_webhook.py`), HELP/NO_SESSION/LINKED, the agent
   tool and instruction, `TelegramLinkPage` and its test, `telegram-bot.md`,

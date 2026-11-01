@@ -29,6 +29,8 @@ from .usage_replies import usage_reply
 log = logging.getLogger("bot")
 CODE = re.compile(r"^\d{6}$")
 LIST_NUMBER = re.compile(r"^\d{1,3}$")
+# What a double tap repeats: an option or typed number, "?" or the 📄 button.
+TWIN = re.compile(r"^(\d{1,3}|[?？]|📄)$")
 
 
 def parse_command(text: str) -> tuple[str, dict] | None:
@@ -157,7 +159,14 @@ class Coach:
             # In setup or mid-session every message is an answer: a level, a
             # translation, or an exercise option number; the API routes it by
             # the session's kind and the reply builder follows the data.
-            return replies.answer_reply(await self.api.answer(chat_id, text))
+            result = await self.api.answer(chat_id, text)
+            if not result["ok"] and result.get("code") == "no_session":
+                # The session ended between the status and this answer: the twin of its last answer (a double tap).
+                return Reply(replies.ALREADY_ENDED)
+            return replies.answer_reply(result)
+        if status["ok"] and status["data"].get("justEnded") and TWIN.match(text):
+            # A session ended a moment ago with its last answer: a number, "?" or 📄 now is that answer's twin.
+            return Reply(replies.ALREADY_ENDED)
         if not status["ok"] and status.get("code") in ("not_linked", "rate_limited", "unreachable"):
             return Reply(replies.error_reply(status))
         return None

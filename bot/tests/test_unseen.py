@@ -281,6 +281,57 @@ async def test_a_free_form_request_through_the_agent_gets_the_whole_text_and_que
     assert tools.start_unseen in tools.TOOLS and tools.list_unseen_texts in tools.TOOLS
 
 
+@respx.mock
+async def test_a_twin_of_the_last_answer_is_already_answered_not_no_session():
+    status = respx.get(f"{API}/bot/session/status").mock(side_effect=[
+        *[ok({"active": False, "justEnded": "unseen"})] * 3,
+        ok({"active": True, "kind": "unseen", "sessionId": "u", "reading": READING, "question": question(5)}),
+    ])
+    answer = respx.post(f"{API}/bot/session/answer").mock(return_value=httpx.Response(404, json={"code": "no_session"}))
+    c = coach()
+    # The status already says the reading ended a moment ago: a number, ? or 📄 is that answer's twin (no API answer, no model).
+    for text in ("2", "?", "📄"):
+        assert (await c.handle("7", text)).text == replies.ALREADY_ENDED
+    assert answer.call_count == 0
+    # The status still said active, but the answer came after the end.
+    assert (await c.handle("7", "2")).text == replies.ALREADY_ENDED
+    assert answer.call_count == 1 and status.call_count == 4
+
+
+@respx.mock
+async def test_other_messages_right_after_the_end_are_new_messages():
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": False, "justEnded": "unseen"}))
+    c = coach()
+    c.runner = TextRunner()
+    assert (await c.handle("7", "היי")).text == "שלום! במה אפשר לעזור?"
+
+
+def test_reading_errors_read_right_in_every_reply():
+    for code, text in ur.UNSEEN_ERRORS.items():
+        assert replies.error_reply({"ok": False, "code": code}) == text
+        assert replies.answer_reply({"ok": False, "code": code}).text == text
+
+
+@respx.mock
+async def test_through_the_agent_a_picked_text_still_comes_first():
+    from app import tools
+    respx.post(f"{API}/bot/session/answer").mock(side_effect=[
+        ok(START),
+        ok({"kind": "unseen", "done": False, "reading": READING, "question": question(2),
+            "verdict": {"correct": True, "wrongCount": 0, "wrongStreak": 0}}),
+    ])
+    tools.set_api(TrainerApi(base_url=API, key="k", client=httpx.AsyncClient()))
+    ctx = ToolCtx()
+    picked = await tools.answer_word("7", ctx)
+    # The text, then the question: longer than the model may write, so it goes out as it is.
+    assert picked["direct"] is True and ctx.actions.skip_summarization is True
+    assert picked["before"] == [f"📖 A Day at the Zoo\nיום בגן החיות · קטע 1 מתוך 15 · רמה 1\n\n{PASSAGE}"]
+    assert picked["reply"].startswith(ur.START_INTRO) and picked["buttons"] == BUTTONS
+    # A plain verdict stays the model's to relay.
+    verdict = await tools.answer_word("1", ToolCtx())
+    assert "direct" not in verdict and verdict["reply"].startswith("✅ נכון!")
+
+
 def test_every_real_text_fits_one_telegram_message():
     texts = json.loads(TEXTS.read_text(encoding="utf-8"))
     assert len(texts) >= 15

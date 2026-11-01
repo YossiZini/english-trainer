@@ -94,7 +94,11 @@ function questionView(session) {
   };
 }
 
-/** The chat's open reading, or null. A reading with every question answered is over, even if closing it failed. */
+/**
+ * The chat's open reading, or null. A reading with every question answered
+ * is over, even if closing it failed; the next /unseen saves it on the
+ * website (saveUnsaved).
+ */
 async function openReading(chatId) {
   const session = await BotSession.findOpenByChat(chatId);
   if (!session || BotSession.kindOf(session) !== 'unseen') return null;
@@ -133,23 +137,45 @@ function recordAnswer(session, i, choice) {
 /**
  * The website's end of a reading: every answer the session took is on the
  * website (an earlier answer's write may still be on its way when two
- * messages arrive together), then the score, the text's progress (best
- * score, attempts) and the student's next text.
+ * messages arrive together), then the text's progress (best score,
+ * attempts), and the website's reading completed last. Safe to run again
+ * after a failure: the rows have fixed ids, the progress counts a reading
+ * once, and a reading still open on the website is one whose end failed.
+ * Returns the result and the student's next text.
  */
 async function finish(user, session) {
   await Promise.all(session.answers.map((choice, i) => recordAnswer(session, i, choice)));
-  const completed = await UnseenSession.complete(session.unseen_session_id);
-  const progress = await UnseenUserProgress.upsertProgress(user.id, session.paragraph_id, completed.score);
+  const { correctCount, score } = await UnseenSession.score(session.unseen_session_id);
+  const progress = await UnseenUserProgress.upsertProgress(user.id, session.paragraph_id, score, session.unseen_session_id);
+  await UnseenSession.complete(session.unseen_session_id);
   const texts = await allTexts();
   const next = await nextIndex(user.id, texts);
   return {
-    correct: completed.correct_answers,
+    correct: correctCount,
     total: session.questions.length,
-    score: completed.score,
+    score,
     bestScore: progress.best_score,
     attempts: progress.attempts,
     next: next >= 0 ? { number: next + 1, title: texts[next].title_en } : null
   };
+}
+
+/**
+ * The student's last reading here ended but its end never reached the
+ * website (a passing error after the last answer): save it now. Best
+ * effort: a new reading starts either way.
+ */
+async function saveUnsaved(user, chatId) {
+  try {
+    const last = await BotSession.findLatestReading(chatId, user.id);
+    if (!last || last.end_reason !== 'completed' || !last.unseen_session_id) return;
+    const website = await UnseenSession.findById(last.unseen_session_id);
+    if (!website || website.status === 'completed') return;
+    await finish(user, last);
+    console.log(`unseen: saved reading ${last.unseen_session_id} whose end had failed (bot session ${last.id})`);
+  } catch (error) {
+    console.error('unseen: saving an unsaved reading failed:', error.message);
+  }
 }
 
 class UnseenBotSession {
@@ -160,6 +186,7 @@ class UnseenBotSession {
    * replaces any open session. Returns the text, then question 1.
    */
   static async start(user, chatId, { number } = {}) {
+    await saveUnsaved(user, chatId);
     const texts = await allTexts();
     let index;
     if (number) {
@@ -185,6 +212,7 @@ class UnseenBotSession {
 
   /** Open the list of texts; the student answers with a text's number. Replaces any open session. */
   static async list(user, chatId) {
+    await saveUnsaved(user, chatId);
     await replaceOpen(chatId);
     const session = await BotSession.createUnseenPick({ userId: user.id, chatId });
     return { kind: 'unseen', pick: true, sessionId: session.id, ...(await listView(user)) };

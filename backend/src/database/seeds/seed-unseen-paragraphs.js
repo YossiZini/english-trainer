@@ -1,77 +1,10 @@
-const { pool } = require('../../config/database');
-
 /**
- * Seed 15 unseen paragraphs with 5 questions each
- * For ages 12-14, complexity levels 1-5
+ * The reading texts of the Unseen section (website and Telegram /unseen) and
+ * their questions, as plain data. `npm run generate-data -- --unseen` builds
+ * backend/data/static/unseen_paragraphs.json and unseen_questions.json from
+ * it, keeping the ids of texts and questions that already exist (students'
+ * progress refers to them). The content rules: backend/create-unseen.md.
  */
-async function seedUnseenParagraphs() {
-  console.log('Starting unseen paragraphs seed...');
-
-  const client = await pool.connect();
-
-  try {
-    await client.query('BEGIN');
-
-    // Delete existing data (in correct order due to foreign keys)
-    console.log('Cleaning existing unseen data...');
-    await client.query('DELETE FROM unseen_answers');
-    await client.query('DELETE FROM unseen_sessions');
-    await client.query('DELETE FROM unseen_user_progress');
-    await client.query('DELETE FROM unseen_questions');
-    await client.query('DELETE FROM unseen_paragraphs');
-
-    const paragraphs = getParagraphsData();
-
-    for (const paragraphData of paragraphs) {
-      console.log(`Seeding: ${paragraphData.titleEn}...`);
-
-      // Insert paragraph
-      const paragraphResult = await client.query(
-        `INSERT INTO unseen_paragraphs (title_en, title_he, content, complexity_level, topic, hard_words, is_custom, uses_failed_words)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id`,
-        [
-          paragraphData.titleEn,
-          paragraphData.titleHe,
-          paragraphData.content,
-          paragraphData.complexityLevel,
-          paragraphData.topic,
-          JSON.stringify(paragraphData.hardWords),
-          false,
-          false
-        ]
-      );
-
-      const paragraphId = paragraphResult.rows[0].id;
-
-      // Insert questions for this paragraph
-      for (const question of paragraphData.questions) {
-        await client.query(
-          `INSERT INTO unseen_questions (paragraph_id, question_number, question_text_en, question_text_he, options, correct_answer, explanation_he)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [
-            paragraphId,
-            question.questionNumber,
-            question.questionTextEn,
-            question.questionTextHe,
-            JSON.stringify(question.options),
-            question.correctAnswer,
-            question.explanationHe
-          ]
-        );
-      }
-    }
-
-    await client.query('COMMIT');
-    console.log('✅ Successfully seeded all 15 unseen paragraphs with 75 questions!');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('❌ Error seeding unseen paragraphs:', error);
-    throw error;
-  } finally {
-    client.release();
-  }
-}
 
 function getParagraphsData() {
   return [
@@ -1037,17 +970,4 @@ Despite these fascinating ideas, most scientists believe practical time travel i
   ];
 }
 
-// Run the seed function if this file is executed directly
-if (require.main === module) {
-  seedUnseenParagraphs()
-    .then(() => {
-      console.log('Seeding completed successfully!');
-      process.exit(0);
-    })
-    .catch((error) => {
-      console.error('Seeding failed:', error);
-      process.exit(1);
-    });
-}
-
-module.exports = { seedUnseenParagraphs };
+module.exports = { getParagraphsData };

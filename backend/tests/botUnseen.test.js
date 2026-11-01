@@ -246,7 +246,8 @@ describe('Bot unseen reading', () => {
       const option = String(now.questions[now.index].answer + 1);
       replies.push(...await Promise.all([answer(option), answer(option)]));
     }
-    // Each question took one answer; a twin found its question answered (and the reading as it is now) or the reading over.
+    // Each question took one answer; a twin found its question answered (the reading as it is now), or
+    // the reading over (no session, which the bot reads as a twin because its status had said active).
     const verdicts = replies.filter(r => r.status === 200 && r.body.data.verdict);
     expect(verdicts).toHaveLength(5);
     expect(verdicts.filter(r => r.body.data.done)).toHaveLength(1);
@@ -276,6 +277,56 @@ describe('Bot unseen reading', () => {
     const last = (await answer(String(right[4] + 1))).body.data;
     expect(last).toMatchObject({ done: true, result: { correct: 5, total: 5, score: 100 } });
     expect(await db.find('unseen_answers', { session_id: reading.unseen_session_id })).toHaveLength(5);
+  });
+
+  test('right after a reading ends with its last answer, the status says so (a twin is no new message)', async () => {
+    await bot('/api/bot/unseen/start', { number: 8 });
+    const reading = await openReading();
+    for (const q of reading.questions) await answer(String(q.answer + 1));
+    expect((await status()).body.data).toMatchObject({ active: false, justEnded: 'unseen' });
+    // Minutes later it is over, not just ended.
+    await db.updateById('bot_sessions', reading.id, { ended_at: new Date(Date.now() - 5 * 60 * 1000).toISOString() });
+    expect((await status()).body.data).toEqual({ active: false });
+    // A reading stopped with /end did not end with an answer.
+    await bot('/api/bot/unseen/start', { number: 8 });
+    await bot('/api/bot/session/end');
+    expect((await status()).body.data).toEqual({ active: false });
+  });
+
+  test('a reading whose end never reached the website is saved by the next /unseen, once', async () => {
+    const userId = (await db.findOne('users', { name: 'bot-unseen' })).id;
+    await bot('/api/bot/unseen/start', { number: 9 });
+    const reading = await openReading();
+    // Every answer taken and the session ended, then the website writes failed (none of them ran).
+    const right = reading.questions.map(q => q.answer);
+    for (let i = 0; i < 5; i++) {
+      expect(await BotSession.claimAnswer(reading.id, i, { index: i + 1, answers: right.slice(0, i + 1), correct_count: i + 1 },
+        i === 4 ? 'completed' : null)).not.toBeNull();
+    }
+    expect(await db.findById('unseen_sessions', reading.unseen_session_id)).toMatchObject({ status: 'in_progress' });
+    expect(await progressOf(texts[8].id)).toBeNull();
+    const usageBefore = await readingUsage();
+
+    // The next /unseen saves it on the website first, then starts the next text.
+    const next = (await bot('/api/bot/unseen/start')).body.data;
+    expect(next).toMatchObject({ kind: 'unseen', question: { number: 1 } });
+    expect(next.reading.number).not.toBe(9);
+    expect(await db.find('unseen_answers', { session_id: reading.unseen_session_id })).toHaveLength(5);
+    expect(await db.findById('unseen_sessions', reading.unseen_session_id)).toMatchObject({ status: 'completed', score: 100 });
+    expect(await progressOf(texts[8].id)).toMatchObject({ best_score: 100, attempts: 1 });
+    expect(await readingUsage()).toBe(usageBefore + 1);
+
+    // Counted once: another /unseen saves nothing again.
+    await bot('/api/bot/unseen/start');
+    expect(await progressOf(texts[8].id)).toMatchObject({ attempts: 1 });
+    expect(await readingUsage()).toBe(usageBefore + 1);
+    await bot('/api/bot/session/end');
+
+    // Progress counts a reading once, whoever saves it twice.
+    const p = texts[10].id;
+    await UnseenUserProgress.upsertProgress(userId, p, 60, 'reading-a');
+    expect(await UnseenUserProgress.upsertProgress(userId, p, 60, 'reading-a')).toMatchObject({ attempts: 1, best_score: 60 });
+    expect(await UnseenUserProgress.upsertProgress(userId, p, 80, 'reading-b')).toMatchObject({ attempts: 2, best_score: 80 });
   });
 
   test('a score counts each question once, by its first answer', async () => {

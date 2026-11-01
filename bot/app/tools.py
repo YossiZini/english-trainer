@@ -38,7 +38,9 @@ async def start_session(tool_context: ToolContext) -> dict:
 
 async def answer_word(text: str, tool_context: ToolContext) -> dict:
     """Submit the student's answer in the open session (a word's translation, or an exercise option number); returns the verdict and what comes next."""
-    return {"reply": str(replies.answer_reply(await _api.answer(_chat(tool_context), text)))}
+    reply = replies.answer_reply(await _api.answer(_chat(tool_context), text))
+    # With messages before it (a reading's text, then its question) the reply is longer than the model may write.
+    return _direct(reply, tool_context) if reply.before else {"reply": str(reply)}
 
 
 async def end_session(tool_context: ToolContext) -> dict:
