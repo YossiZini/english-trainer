@@ -30,6 +30,8 @@ NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באת�
 NO_SESSION = ("אין תרגול פעיל. כתבו /words, /english, /math או /arabic כדי להתחיל, /unseen לקטע קריאה באנגלית, "
               "/kefel ללוח הכפל, /mistakes למבחן הטעויות, או /help להסבר.")
 RATE_LIMITED = "הגעת למכסת ההודעות להיום. נמשיך מחר!"
+# A double tap on a session's last answer: the second message comes after the end.
+ALREADY_ENDED = "✔️ התשובה הזו כבר נקלטה, והתרגול הסתיים."
 UNREACHABLE = "משהו השתבש אצלנו. נסו שוב בעוד רגע."
 BAD_CODE = "הקוד לא נכון או שפג תוקפו. קבלו קוד חדש באתר ושלחו אותו שוב."
 LINKED = ("מעולה, החשבון מחובר! כתבו /words לתרגול של 20 מילים, /english, /math או /arabic לתרגילי השיעור הבא, "
@@ -114,7 +116,8 @@ def error_reply(result: dict) -> str:
     if code == "not_enough_words":
         return NOT_ENOUGH_WORDS
     from .exercise_replies import EXERCISE_ERRORS
-    return EXERCISE_ERRORS.get(code, UNREACHABLE)
+    from .unseen_replies import UNSEEN_ERRORS
+    return EXERCISE_ERRORS.get(code) or UNSEEN_ERRORS.get(code) or UNREACHABLE
 
 
 def setup_reply(data: dict, intro: str = "") -> Reply:

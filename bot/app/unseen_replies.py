@@ -33,9 +33,7 @@ UNSEEN_ERRORS = {
 
 
 def _error(result: dict) -> str:
-    code = result.get("code")
-    if code in UNSEEN_ERRORS:
-        return UNSEEN_ERRORS[code]
+    """The Hebrew line for an API error; error_reply knows the reading codes too."""
     from .replies import error_reply
     return error_reply(result)
 
