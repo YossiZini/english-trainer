@@ -10,7 +10,8 @@ const { shuffleArray } = require('../../utils/shuffle');
  * teaches nothing), so a division never gives away a product's answer. The
  * student types the number; text that is not a number asks the same
  * question again and counts nothing. Only the session's own counts change:
- * no exercise result, points, progress or mistakes, on purpose.
+ * no exercise result, points, progress or mistakes, on purpose; /usage
+ * counts the answered questions as practice.
  * Replies are plain data; the bot turns them into text.
  */
 const SIZE = 10;

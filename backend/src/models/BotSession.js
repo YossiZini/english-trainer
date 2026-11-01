@@ -127,7 +127,7 @@ class BotSession {
    * A /kefel drill (kind 'drill'): ten multiplication-table questions made at
    * start ({ text, answer }), answered by typing the number. Only the counts
    * and the missed questions are kept: nothing goes to results, points,
-   * progress or mistakes.
+   * progress or mistakes (/usage counts the answered questions).
    */
   static async createDrill({ userId, chatId, questions }) {
     const now = new Date().toISOString();
@@ -192,15 +192,24 @@ class BotSession {
   }
 
   /**
-   * Bot words exams started at or after `since` (ISO) with at least one
-   * answer, for the usage summary: { userId, startedAt, answers }.
+   * Bot words exams and /kefel drills started at or after `since` (ISO) with
+   * at least one answer, for the usage summary:
+   * { kind: 'words' | 'drill', userId, startedAt, answers }. A drill's
+   * answers are its graded questions (a text that was not a number is none).
    */
-  static async vocabAnswersSince(since) {
+  static async practiceAnswersSince(since) {
     const sessions = await db.findSince('bot_sessions', 'started_at', since);
     return sessions
-      .filter(s => this.kindOf(s) === 'vocab' && s.user_id)
-      .map(s => ({ userId: s.user_id, startedAt: s.started_at, answers: (s.correct_count || 0) + (s.wrong_count || 0) }))
-      .filter(s => s.answers > 0);
+      .filter(s => s.user_id)
+      .map((s) => {
+        const kind = this.kindOf(s);
+        if (kind === 'vocab') {
+          return { kind: 'words', userId: s.user_id, startedAt: s.started_at, answers: (s.correct_count || 0) + (s.wrong_count || 0) };
+        }
+        if (kind === 'drill') return { kind: 'drill', userId: s.user_id, startedAt: s.started_at, answers: s.index || 0 };
+        return null;
+      })
+      .filter(s => s && s.answers > 0);
   }
 }
 

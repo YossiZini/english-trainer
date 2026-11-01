@@ -45,6 +45,12 @@ describe('Usage summary', () => {
     await db.insert('bot_sessions', { user_id: ids.omer, chat_id: 'x', kind: 'vocab', status: 'ended', started_at: '2026-05-17T10:00:00Z', correct_count: 5, wrong_count: 3 });
     await db.insert('bot_sessions', { user_id: ids.omer, chat_id: 'x', kind: 'exercise', status: 'ended', started_at: '2026-06-14T10:00:00Z', correct_count: 4, wrong_count: 1 });
     await result(ids.omer, '2026-05-16T12:00:00Z');
+    // /kefel drills count their answered questions: dana finished one today (10),
+    // omer stopped one after 4 three days ago; idle started one and answered nothing.
+    const drill = (userId, at, index) => db.insert('bot_sessions', { user_id: userId, chat_id: 'x', kind: 'drill', status: 'ended', started_at: at, index, correct_count: index, wrong_count: 0, questions: [] });
+    await drill(ids.dana, '2026-06-15T06:00:00Z', 10);
+    await drill(ids.omer, '2026-06-12T15:00:00Z', 4);
+    await drill(ids.idle, '2026-06-14T15:00:00Z', 0);
   });
   afterAll(shutdownDatabase);
   beforeEach(() => UsageService.clearCache());
@@ -56,15 +62,15 @@ describe('Usage summary', () => {
     expect(summary.students).toEqual([
       {
         name: 'dana',
-        week: { activeDays: 2, lessons: 1, words: 3, reading: 1 },
-        month: { activeDays: 3, lessons: 2, words: 3, reading: 1 },
+        week: { activeDays: 2, lessons: 1, words: 3, reading: 1, drill: 10 },
+        month: { activeDays: 3, lessons: 2, words: 3, reading: 1, drill: 10 },
         lastActive: '2026-06-15'
       },
       {
         name: 'omer',
-        week: { activeDays: 0, lessons: 0, words: 0, reading: 0 },
-        month: { activeDays: 1, lessons: 0, words: 8, reading: 0 },
-        lastActive: '2026-05-17'
+        week: { activeDays: 1, lessons: 0, words: 0, reading: 0, drill: 4 },
+        month: { activeDays: 2, lessons: 0, words: 8, reading: 0, drill: 4 },
+        lastActive: '2026-06-12'
       }
     ]);
     expect(summary.inactive).toBe(1);
