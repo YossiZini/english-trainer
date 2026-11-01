@@ -996,3 +996,138 @@ optional animated lessons (s3) were not started.
 - Carried over: `App.test.js` under jest; the owner's Firestore check of
   Alona's math reports and the two proposed review fixes; retros for
   Sprints 11–13.
+
+## Sprint 16 — English unseen in Telegram (2026-11-01)
+
+Goal: let a student practise an English unseen in Telegram: `/unseen` sends
+a reading text first, then its five questions one by one, and saves the
+result like an unseen on the website.
+Result: 4 PRs (#71–#74), all merged, each deployed green on the first run.
+- **#71:** `/unseen`, `unseen list` and `unseen 7`. The text comes as its
+  own message, then the questions with buttons 1–4, `?` for the hard words
+  and 📄 for the text again. Results are recorded like a website reading.
+- **#72:** the four fixes from this sprint's review, and a generator for
+  the reading texts that keeps their ids.
+- **#73:** the owner's mid-sprint addition: 10 new texts at levels 3–5, with
+  a near-miss answer in every level-5 question.
+- **#74:** two old defects on the website's reading page, d7 and d8.
+
+Only the owner's live check in Telegram (s1-t8) is left.
+
+### What went well
+- **A reading on the existing rails.** `unseen` is one more session kind.
+  A reply can send messages ahead of itself, so the text arrives whole and
+  never passes through the model. Answers are claimed in a transaction, and
+  a test sends two at once.
+- **Ids kept, and proven.** The generator was fixed before any content was
+  written. After the new texts were added, the 15 existing texts and their
+  75 questions were identical by id, and a test now ties the JSON to its
+  seed.
+- **Blind reviews found real faults.** Reviewers without the key answered
+  every question four times: 50/50, 50/50, 22/22 and 13/13.
+  - They caught two level-5 questions that broke the owner's rule, and a
+    pattern where absolute words marked the wrong options.
+  - They also caught distractors that common sense rules out.
+  - A read of the explanations with the keys reworded 17 of them.
+- **Work that had to wait stayed outside the repository.** While #72 was
+  open, the texts were written, reviewed and test-integrated in the
+  scratchpad, so nothing was pushed onto an open PR. The texts' PR stayed a
+  draft until its last review was in.
+- **A browser walk of the new content found two old defects.** d8 was
+  measured over 25 texts at 10 widths, and it was wider than first thought.
+  Each fix came with a guard that fails on `main`: a component test for d7
+  and a viewport-check step for d8.
+- **Planted faults for every new test:** the API, the bot, the generator,
+  the quote test, d7 and the viewport step.
+
+### What hurt
+- **The reading texts' generator would have orphaned progress.** It minted
+  new ids on every run and swallowed seed errors through its own temp-file
+  loader. Cause: Sprint 3 fixed the same pattern for lessons ("it throws",
+  ids kept), but the fix never reached this second loader.
+- **Four blind rounds and an explanation pass.** Each round found a new kind
+  of guessing:
+  - absolute words only in the wrong options;
+  - distractors that common sense or general knowledge rules out;
+  - right options that copy the text or the title.
+
+  Cause: the writers' brief had the owner's level-5 rule but none of these
+  rules. The explanations were read only at the end, after the options had
+  changed three times.
+- **A reviewer's brief leaked a key.** An example line quoted the Dead Sea
+  text's real answers, which cost a fresh blind round. Cause: the example
+  used the material under review.
+- **The stop hook against the open-PR rule.** The hook demanded a push while
+  #72 was open, so the generator fix rode in #72, as its body says.
+- **The first double-tap fix was on the wrong path.** It changed the API's
+  answer path. But a twin that arrives after the end never reaches that
+  path: the status is inactive, so the bot routes the message to the agent.
+  It was reverted and redone with `justEnded` in the status. Cause: the
+  path was assumed, not traced.
+- **Board timestamps were guessed.** `updatedAt` was written from an
+  estimate, or in the same parallel batch as `date -u`, and corrected
+  several times.
+- **Two website defects had been on `main` since the reading page was
+  built.**
+  - d7: the page read `explanation` while the API sends `explanation_he`,
+    so the explanation never showed.
+  - d8: on phones the back button covered every title.
+
+  Cause: the page had no component test with API-shaped data and was not in
+  the viewport check.
+- **A test failed for the wrong reason first.** Mocking the whole
+  encouragement module removed a function a child component uses.
+
+### Lessons → rules
+- A fix to a generator or loader pattern is applied to every path that
+  shares it. Search for the pattern before calling it fixed (refines
+  Sprint 3's "it throws").
+- Brief content writers with every question rule in `create-unseen.md`, the
+  anti-guessing rules included, and have them check each question against
+  each rule before the first blind round.
+- A blind reviewer's brief never quotes the material under review: no
+  example answers, options or keys.
+- Stop blind rounds when one finds no must-fix in the changed questions, and
+  list what is left in the PR. Read the explanations with the keys after the
+  last option change.
+- Work that must wait for an open PR stays outside the repository, in the
+  scratchpad, until that PR merges, so the stop hook never forces it onto
+  the open PR (refines "never push new work onto the branch of a PR that is
+  still open").
+- Open a PR as a draft while a review of its content is still running; mark
+  it ready when the review's fixes are in.
+- Before fixing a bot behaviour, trace the message's real path (status, fast
+  path or agent) in the state that triggers it, and test that path.
+- Run `date -u` first, then write `updatedAt` from its output: never in the
+  same batch, never estimated.
+- A page that shows API data has a component test fed with API-shaped
+  records, using the API's own field names.
+- Content longer than any before (texts, options, titles) is a new variant.
+  Walk its pages at 360, 390, 800 and 1366 px before the PR (refines
+  Sprint 1's rule on every variant).
+- In CRA tests, mock services and the router only; use pure modules as they
+  are (refines Sprint 7's rule on mocks).
+
+### Follow-ups
+- s1-t8: the owner's live check of `/unseen` in Telegram.
+- Five new questions that a test-wise student can still narrow down: Street
+  Food Q4, Money Q5, Mold Q1 and Q2, and Crowds Q1. Fix them with one more
+  blind round.
+- Audit the first 15 reading texts against the new rules. They are shorter
+  than the length ranges, their right answers don't use all four positions,
+  and their guessability was never checked. Use a d6-style audit.
+- `.back-btn` is styled globally in `UnseenReadingPage.css`,
+  `UnseenResults.css` and `ProgressPage.css`, and the reading page's
+  `position: absolute` can leak to the others. Scope each under its page
+  root.
+- Open follow-ups from this sprint's review:
+  - one shared "replace the open session" step;
+  - a reading service shared with the website controller;
+  - a guard for a second tap that arrives after the next question;
+  - keeping long direct replies out of the model's history;
+  - building the list once per message.
+- The content tools (the strict validator, the seed integrator, the blind-copy
+  maker) live in the scratchpad. Keep them in the repository, for example
+  `backend/scripts/checks/unseen/` (as in Sprint 15's follow-up).
+- Carried over: `check:viewport`'s laptop "at top" quirk; `App.test.js`
+  under Jest; retros for Sprints 11–13.
