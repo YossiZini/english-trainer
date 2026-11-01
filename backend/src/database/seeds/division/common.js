@@ -51,11 +51,36 @@ function explainRemainder(a, d) {
     + `נשארו ${ltr(`${a} − ${q * d} = ${r}`)}, ו-${r} קטן מ-${d}. בדיקה: ${ltr(`${q} × ${d} + ${r} = ${a}`)}.`;
 }
 
-/** The groups and the leftovers of a ÷ d, when they are few enough to draw. */
+/**
+ * Boxes a groups picture gets on a 360px phone: in the theory (inside a rule)
+ * and under a feedback explanation (ExerciseFeedback.css caps it at 72px).
+ */
+const THEORY_BOX = { width: 232, height: 160 };
+const FEEDBACK_BOX = { width: 236, height: 72 };
+
+/**
+ * `count` groups of `each` and the leftovers, in the number of groups per row
+ * that draws the dots largest in `box` (never above their own size): five
+ * groups in one row would shrink the dots to specks on a phone. The widest
+ * layout wins a tie.
+ */
+function groupsSvg(count, each, leftover = 0, box = THEORY_BOX) {
+  const slots = count + (leftover > 0 ? 1 : 0);
+  let best = null;
+  for (let across = Math.min(slots, 5); across >= 1; across--) {
+    const svg = P.groups(count, each, { leftover, across });
+    const [w, h] = svg.match(/ width="([\d.]+)" height="([\d.]+)"/).slice(1).map(Number);
+    const scale = Math.min(1, box.width / w, box.height / h);
+    if (!best || scale > best.scale + 0.01) best = { svg, scale };
+  }
+  return best.svg;
+}
+
+/** The groups and the leftovers of a ÷ d under an explanation, when they are few enough to draw. */
 function groupsPicture(a, d) {
   const { q, r } = split(a, d);
   if (a > 50 || q === 0) return null;
-  return pic(P.groups(q, d, { leftover: r }), r ? `${q} קבוצות של ${d}, ונשארו ${r}` : `${q} קבוצות של ${d}`);
+  return pic(groupsSvg(q, d, r, FEEDBACK_BOX), r ? `${q} קבוצות של ${d}, ונשארו ${r}` : `${q} קבוצות של ${d}`);
 }
 
 /** "a ÷ d = ?" answered as a quotient and a remainder. */
@@ -88,8 +113,12 @@ function explainLong(a, d) {
   return `${pieces.join('; ')}. המנה ${q}${r ? ` ושארית ${r}` : ''}. בדיקה: ${check}.`;
 }
 
-/** The long division of a ÷ d as a picture under an explanation. */
-const longPicture = (a, d) => pic(P.longDivision(a, d), `${ltr(`${a} ÷ ${d}`)} בחילוק ארוך`);
+/**
+ * The long division of a ÷ d as a picture under an explanation: smaller than
+ * in the theory (digits about 13px), and not capped at 110px like the other
+ * pictures (pic), which would shrink the digits below reading size.
+ */
+const longPicture = (a, d) => P.figures(P.figure(P.longDivision(a, d, { scale: 0.7 }), `${ltr(`${a} ÷ ${d}`)} בחילוק ארוך`));
 
 /**
  * Wrong answers for an exact long division: a dropped zero (103 → 13), the
@@ -134,6 +163,6 @@ function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
 }
 
 module.exports = {
-  ltr, expr, mcq, P, pic, split, withRemainder, remainderWrongs, explainRemainder, groupsPicture,
+  ltr, expr, mcq, P, pic, split, withRemainder, remainderWrongs, explainRemainder, groupsSvg, groupsPicture, FEEDBACK_BOX,
   remainderQ, explainLong, longPicture, longWrongs, longQ, numberQuestion, firstWrongs, lesson
 };

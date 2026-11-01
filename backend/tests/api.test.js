@@ -137,25 +137,31 @@ describe('API', () => {
   test('Math lessons are ordered by subtopic and navigate across topics', async () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
     const numbers = math.body.data.flatMap(t => t.lessons.map(l => l.subtopicNumber));
-    // The multiplication table (topic 100) comes first, then Fractions.
-    expect(numbers.slice(0, 10)).toEqual(['100.1', '100.2', '100.3', '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
+    // The multiplication table (topic 100) comes first, then Division (105), then Fractions.
+    expect(numbers.slice(0, 14)).toEqual(['100.1', '100.2', '100.3', '105.1', '105.2', '105.3', '105.4',
+      '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
 
-    const [table, fractions, order] = math.body.data;
+    const [table, division, fractions, order] = math.body.data;
+    expect([table, division, fractions, order].map(t => t.topicNumber)).toEqual([100, 105, 101, 102]);
     const last = fractions.lessons[5];
     const detail = await request(app).get(`/api/lessons/${last.id}`).set(auth());
     expect(detail.status).toBe(200);
     expect(detail.body.data.navigation.next.id).toBe(order.lessons[0].id);
     expect(detail.body.data.navigation.previous.id).toBe(fractions.lessons[4].id);
 
-    // From the last multiplication-table lesson on to the first Fractions lesson.
+    // From the last multiplication-table lesson on to Division, and from Division on to Fractions.
     const tableEnd = await request(app).get(`/api/lessons/${table.lessons[2].id}`).set(auth());
-    expect(tableEnd.body.data.navigation.next.id).toBe(fractions.lessons[0].id);
+    expect(tableEnd.body.data.navigation.next.id).toBe(division.lessons[0].id);
+    const divisionEnd = await request(app).get(`/api/lessons/${division.lessons[3].id}`).set(auth());
+    expect(divisionEnd.body.data.navigation.previous.id).toBe(division.lessons[2].id);
+    expect(divisionEnd.body.data.navigation.next.id).toBe(fractions.lessons[0].id);
   });
 
   test('next and previous lesson after a Math exercise stay in Math', async () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
     // Order of operations (102.1) has a Math neighbour on each side.
-    const mathLesson = math.body.data[2].lessons[0];
+    const mathLesson = math.body.data.find(t => t.topicNumber === 102).lessons[0];
+    expect(mathLesson.subtopicNumber).toBe('102.1');
     const ex = await request(app).get(`/api/lessons/${mathLesson.id}/exercises?difficulty=easy`).set(auth());
     const exercises = ex.body.data.exercises || ex.body.data;
     // Correct answers are not sent to the client; take them from the bundled content.

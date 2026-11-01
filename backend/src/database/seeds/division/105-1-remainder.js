@@ -1,7 +1,7 @@
 // 105.1 חילוק עם שארית — equal groups and what is left, the remainder is
 // smaller than the divisor, finding the quotient with the table, remainder 0,
 // checking: quotient × divisor + remainder = dividend.
-const { ltr, mcq, P, pic, remainderQ, numberQuestion, lesson } = require('./common');
+const { ltr, mcq, P, pic, groupsSvg, FEEDBACK_BOX, remainderQ, numberQuestion, lesson } = require('./common');
 
 const theory = `
 <h2>חילוק עם שארית</h2>
@@ -17,34 +17,34 @@ const theory = `
 <h3>כלל 1: מחלקים לקבוצות שוות, ומה שלא נכנס הוא השארית</h3>
 <div class="rules">
   <p>מסדרים 17 בקבוצות של 5: קבוצה ראשונה, שנייה, שלישית, ונשארו 2. לקבוצה רביעית צריך עוד 3, ולכן עוצרים: <span dir="ltr">17 ÷ 5 = 3</span> ושארית 2.</p>
-  ${P.figures(P.figure(P.groups(3, 5, { leftover: 2 }), '3 קבוצות של 5, ונשארו 2'))}
+  ${P.figures(P.figure(groupsSvg(3, 5, 2), '3 קבוצות של 5, ונשארו 2'))}
 </div>
 
 <h3>כלל 2: השארית תמיד קטנה מהמחלק</h3>
 <div class="rules">
   <p>אם נשארו 5 או יותר, אפשר לבנות עוד קבוצה של 5. לכן בחילוק ב-5 השארית יכולה להיות 0, 1, 2, 3 או 4, ואף פעם לא 5 או יותר.</p>
   ${P.figures(
-    P.figure(P.groups(2, 5, { leftover: 7 }), '✗ נשארו 7: יש מקום לעוד קבוצה'),
-    P.figure(P.groups(3, 5, { leftover: 2 }), '✓ נשארו 2: פחות מ-5')
+    P.figure(groupsSvg(2, 5, 7), '✗ נשארו 7: יש מקום לעוד קבוצה'),
+    P.figure(groupsSvg(3, 5, 2), '✓ נשארו 2: פחות מ-5')
   )}
 </div>
 
 <h3>כלל 3: מוצאים את המנה בעזרת לוח הכפל</h3>
 <div class="rules">
   <p>כדי לחשב <span dir="ltr">38 ÷ 7</span> מחפשים בשורה של 7 את הכפולה הגדולה ביותר שלא עוברת את 38: <span dir="ltr">5 × 7 = 35</span>. הכפולה הבאה, 42, כבר גדולה מדי. המנה היא 5, והשארית <span dir="ltr">38 − 35 = 3</span>.</p>
-  ${P.figures(P.figure(P.groups(5, 7, { leftover: 3 }), '<span dir="ltr">38 ÷ 7 = 5</span> ושארית 3'))}
+  ${P.figures(P.figure(groupsSvg(5, 7, 3), '<span dir="ltr">38 ÷ 7 = 5</span> ושארית 3'))}
 </div>
 
 <h3>כלל 4: שארית 0 – החילוק יוצא שווה</h3>
 <div class="rules">
   <p><span dir="ltr">20 ÷ 5 = 4</span> ושארית 0: כל הפריטים נכנסו לקבוצות. כשהשארית היא 0 אומרים ש-20 <strong>מתחלק</strong> ב-5.</p>
-  ${P.figures(P.figure(P.groups(4, 5), '<span dir="ltr">20 ÷ 5 = 4</span>, שארית 0'))}
+  ${P.figures(P.figure(groupsSvg(4, 5), '<span dir="ltr">20 ÷ 5 = 4</span>, שארית 0'))}
 </div>
 
 <h3>כלל 5: בודקים: מנה × מחלק + שארית = מחולק</h3>
 <div class="rules">
   <p>חישבתם <span dir="ltr">38 ÷ 7 = 5</span> ושארית 3? כופלים ומוסיפים: <span dir="ltr">5 × 7 + 3 = 38</span>. יצא המחולק, ולכן התשובה נכונה. בודקים גם שהשארית קטנה מהמחלק: 3 קטן מ-7.</p>
-  ${P.figures(P.figure(P.groups(5, 7, { leftover: 3 }), '<span dir="ltr">5 × 7 + 3 = 38</span>'))}
+  ${P.figures(P.figure(groupsSvg(5, 7, 3), '<span dir="ltr">5 × 7 + 3 = 38</span>'))}
 </div>
 
 <div class="warning">
@@ -69,7 +69,7 @@ const exercises = [
   remainderQ(9, 'easy', 20, 5),
   numberQuestion(10, 'easy', 'מסדרים 19 כדורים בקבוצות של 4. כמה כדורים נשארים בחוץ?', 3, [4, 16, 1],
     `${ltr('4 × 4 = 16')}, ונשארו ${ltr('19 − 16 = 3')}. השארית 3, קטנה מ-4.`,
-    pic(P.groups(4, 4, { leftover: 3 }), '4 קבוצות של 4, ונשארו 3')),
+    pic(groupsSvg(4, 4, 3, FEEDBACK_BOX), '4 קבוצות של 4, ונשארו 3')),
 
   // ---------- medium: divisors 6–9, the remainder alone, a missing number ----------
   remainderQ(11, 'medium', 38, 7),

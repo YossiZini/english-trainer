@@ -10,8 +10,8 @@ const LIGHT = '#ffffff';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-function svg(width, height, body, label, viewBox = `0 0 ${width} ${height}`) {
-  return `<svg class="math-pic" direction="ltr" style="direction:ltr" viewBox="${viewBox}" width="${width}" height="${height}" role="img" aria-label="${esc(label)}">${body}</svg>`;
+function svg(width, height, body, label, viewBox = `0 0 ${width} ${height}`, extraClass = '') {
+  return `<svg class="math-pic${extraClass ? ` ${extraClass}` : ''}" direction="ltr" style="direction:ltr" viewBox="${viewBox}" width="${width}" height="${height}" role="img" aria-label="${esc(label)}">${body}</svg>`;
 }
 
 /** A circle cut into `den` equal slices, the first `num` shaded. */
@@ -106,20 +106,22 @@ function array(rows, cols, { fadeCols = 0, split = 0 } = {}) {
 
 /**
  * `count` equal groups (rounded boxes) with `each` dots in every one, five
- * dots to a line and five groups to a row: count × each, or a sharing.
+ * dots to a line and `across` (five) groups to a row: count × each, or a sharing.
  * `leftover` dots that make no full group stand after the groups, outside
- * any box, in the second colour (a division with a remainder). Groups are
- * laid out from the right, the way a Hebrew reader counts them, so the
- * leftovers come last, on the left.
+ * any box, in the second colour (a division with a remainder). Then the
+ * groups are laid out from the right, the way a Hebrew reader counts them,
+ * so the leftovers come last, on the left; without leftovers the order
+ * does not show and the picture stays as it was.
  */
-function groups(count, each, { leftover = 0 } = {}) {
+function groups(count, each, { leftover = 0, across = 5 } = {}) {
   const dot = 14, pad = 6, between = 10;
   const lineDots = Math.min(Math.max(each, leftover), 5), lines = Math.ceil(Math.max(each, leftover, 1) / 5);
   const w = lineDots * dot + 2 * pad, h = lines * dot + 2 * pad;
   const slots = count + (leftover > 0 ? 1 : 0);
-  const perRow = Math.min(slots, 5), rowsOfGroups = Math.ceil(slots / 5);
+  const perRow = Math.min(slots, across), rowsOfGroups = Math.ceil(slots / across);
   const parts = [];
-  const place = (g) => [(perRow - 1 - (g % 5)) * (w + between), Math.floor(g / 5) * (h + between)];
+  const col = (g) => (leftover > 0 ? perRow - 1 - (g % across) : g % across);
+  const place = (g) => [col(g) * (w + between), Math.floor(g / across) * (h + between)];
   for (let g = 0; g < count; g++) {
     const [x, y] = place(g);
     parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#f4f5ff" stroke="${LINE}" stroke-width="1.2"/>`);
@@ -175,7 +177,7 @@ function longDivisionSteps(dividend, divisor) {
   return { quotient: Number(quotient.join('')), remainder: current, quotientDigits: quotient, rows };
 }
 
-function longDivision(dividend, divisor) {
+function longDivision(dividend, divisor, { scale = 1 } = {}) {
   const cw = 12, rh = 24, left = 48, top = 24;
   const { quotientDigits, rows } = longDivisionSteps(dividend, divisor);
   const digits = String(dividend).split('');
@@ -199,7 +201,10 @@ function longDivision(dividend, divisor) {
     }
   });
   const width = left + n * cw + 12, height = top + rh * (rows.length + 1) + 10;
-  return svg(width, height, parts.join(''), `חילוק ארוך: ${dividend} ÷ ${divisor}`);
+  // Shown at its own size (class math-long): squeezed to a width or to the
+  // phone's picture height, the digits would be too small to read.
+  return svg(Math.round(width * scale), Math.round(height * scale), parts.join(''),
+    `חילוק ארוך: ${dividend} ÷ ${divisor}`, `0 0 ${width} ${height}`, 'math-long');
 }
 
 /** Several shapes in a row (e.g. two whole circles and a part). */

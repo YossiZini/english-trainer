@@ -29,6 +29,11 @@
   height: auto;
   display: block;
 }
+/* Long division is drawn at its readable size; never squeezed (see below) */
+.feedback-picture .math-pic.math-long {
+  width: auto;
+  max-width: none;
+}
 .feedback-picture .math-row {
   display: inline-flex;
   flex-wrap: wrap;
@@ -62,4 +67,6 @@
   .feedback-picture .math-pic { width: 100%; height: auto; max-height: 72px; }
   .feedback-picture .math-figure figcaption { font-size: 0.75rem; }
   .feedback-picture .math-row .math-pic { width: auto; max-height: 40px; }
+  /* Taller than the 72px of the other pictures: its digits must stay readable */
+  .feedback-picture .math-pic.math-long { width: auto; max-height: none; }
 }

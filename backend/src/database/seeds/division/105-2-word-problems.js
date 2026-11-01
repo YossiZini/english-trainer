@@ -1,7 +1,7 @@
 // 105.2 מה עושים עם השארית? — the remainder in word problems: round up when
 // everything needs a place, drop it when only whole things count, answer
 // with it when the question asks what is left; check that the answer fits.
-const { ltr, mcq, P, split, groupsPicture, numberQuestion, lesson } = require('./common');
+const { ltr, mcq, P, split, groupsSvg, groupsPicture, numberQuestion, lesson } = require('./common');
 
 const theory = `
 <h2>מה עושים עם השארית?</h2>
@@ -17,25 +17,25 @@ const theory = `
 <h3>כלל 1: מוסיפים 1 כשגם מה שנשאר צריך מקום</h3>
 <div class="rules">
   <p>30 ילדים יוצאים לשייט בסירות של 8 מקומות. כמה סירות צריך? <span dir="ltr">30 ÷ 8 = 3</span> ושארית 6. שלוש סירות לא מספיקות: 6 ילדים יישארו על החוף. צריך עוד סירה, ולכן <strong>4 סירות</strong>.</p>
-  ${P.figures(P.figure(P.groups(3, 8, { leftover: 6 }), '3 סירות מלאות ועוד 6 ילדים: 4 סירות'))}
+  ${P.figures(P.figure(groupsSvg(3, 8, 6), '3 סירות מלאות ועוד 6 ילדים: 4 סירות'))}
 </div>
 
 <h3>כלל 2: משמיטים את השארית כשסופרים רק דברים שלמים</h3>
 <div class="rules">
   <p>יש 30 ₪, ומחברת עולה 8 ₪. כמה מחברות אפשר לקנות? <span dir="ltr">30 ÷ 8 = 3</span> ושארית 6. ב-6 ₪ שנשארו אי אפשר לקנות מחברת רביעית, ולכן <strong>3 מחברות</strong>.</p>
-  ${P.figures(P.figure(P.groups(3, 8, { leftover: 6 }), '3 מחברות, ו-6 ₪ לא מספיקים לרביעית'))}
+  ${P.figures(P.figure(groupsSvg(3, 8, 6), '3 מחברות, ו-6 ₪ לא מספיקים לרביעית'))}
 </div>
 
 <h3>כלל 3: התשובה היא השארית כששואלים כמה נשאר</h3>
 <div class="rules">
   <p>מחלקים 30 קלפים שווה בשווה ל-8 ילדים, כמה שיותר לכל אחד. כמה קלפים נשארים? <span dir="ltr">30 ÷ 8 = 3</span> ושארית 6: כל ילד מקבל 3, ו<strong>נשארים 6 קלפים</strong>.</p>
-  ${P.figures(P.figure(P.groups(8, 3, { leftover: 6 }), '8 ילדים, 3 לכל אחד, ונשארו 6'))}
+  ${P.figures(P.figure(groupsSvg(8, 3, 6), '8 ילדים, 3 לכל אחד, ונשארו 6'))}
 </div>
 
 <h3>כלל 4: בודקים שהתשובה מתאימה לסיפור</h3>
 <div class="rules">
   <p>ב-4 סירות יש <span dir="ltr">4 × 8 = 32</span> מקומות, מספיק ל-30 ילדים. ב-3 סירות יש רק 24 מקומות, ולכן 3 לא מספיקות. וגם: אין "חצי סירה", התשובה היא מספר שלם.</p>
-  ${P.figures(P.figure(P.groups(4, 8), '4 סירות: 32 מקומות ל-30 ילדים'))}
+  ${P.figures(P.figure(groupsSvg(4, 8), '4 סירות: 32 מקומות ל-30 ילדים'))}
 </div>
 
 <div class="warning">
