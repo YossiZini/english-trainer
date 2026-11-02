@@ -242,7 +242,11 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     // Topic 106: Negative numbers (Math, chapter 7)
     '106.1': [ltr('−2 > −5'), ltr('|−7| = 7')],
     '106.2': [ltr('−3 + (−4) = −7'), ltr('5 − (−3) = 8')],
-    '106.3': [ltr('4 × (−3) = −12'), ltr('−3 × (−4) = 12')]
+    '106.3': [ltr('4 × (−3) = −12'), ltr('−3 × (−4) = 12')],
+
+    // Topic 107: The x and y axes (Math, chapter 8)
+    '107.1': [ltr('A(3, 2)'), 'ארבעת הרביעים'],
+    '107.2': [ltr('(1, 2) → (4, −2)'), 'הקודקוד הרביעי של מלבן']
   };
 
   return subtopicExamples[key] || [];
@@ -275,7 +279,8 @@ const mathTopicNames = {
   102: { en: 'Order of Operations', he: 'סדר פעולות חשבון' },
   103: { en: 'Average', he: 'ממוצע' },
   104: { en: 'Percentage', he: 'אחוזים' },
-  106: { en: 'Negative Numbers', he: 'מספרים שליליים' }
+  106: { en: 'Negative Numbers', he: 'מספרים שליליים' },
+  107: { en: 'The x and y Axes', he: 'מערכת צירים' }
 };
 
 const mathTocExamples = {
@@ -285,7 +290,8 @@ const mathTocExamples = {
   102: '(סוגריים, כפל וחילוק, חיבור וחיסור)',
   103: '(סכום חלקי מספר האיברים)',
   104: '(אחוז ממספר, הנחה, מע"מ)',
-  106: '(ישר המספרים, חיבור וחיסור, כפל וחילוק)'
+  106: '(ישר המספרים, חיבור וחיסור, כפל וחילוק)',
+  107: '(ציר x וציר y, שיעורי נקודה, סימון נקודות)'
 };
 
 // Math expressions inside Hebrew text keep their left-to-right order when
@@ -320,6 +326,10 @@ const mathTopicDescriptions = {
   106: {
     description: 'מספרים קטנים מ-0 על ישר המספרים: השוואה, מספרים נגדיים וערך מוחלט, חיבור וחיסור, וכללי הסימנים בכפל ובחילוק.',
     examples: [ltr('−3 + (−4) = −7'), ltr('5 − (−3) = 8'), ltr('−3 × (−4) = 12')]
+  },
+  107: {
+    description: `ציר x וציר y, ראשית הצירים, שיעורי נקודה ${ltr('(x, y)')} וארבעת הרביעים; סימון נקודות, הזזת נקודה, מרחק על קו המשבצות וקודקודים של מלבן.`,
+    examples: [ltr('A(3, 2)'), `${ltr('(−3, 2)')} ברביע השני`, `המרחק בין ${ltr('(−3, 2)')} ל-${ltr('(4, 2)')} הוא 7`]
   }
 };
 

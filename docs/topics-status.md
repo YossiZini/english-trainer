@@ -183,17 +183,20 @@ For each topic, these assets must exist:
 Math lessons live in the same content files with `subject: "math"` and are
 numbered 100+. On the `/math` page and in the lesson order they appear in
 curriculum order, chapters 1+: the multiplication table (100), Division (105),
-Fractions (101), then 102–104, then Negative numbers (106); the x and y axes
-(107) and triangles (108) already have their places, as chapters 8–9. The order is `MATH_CHAPTER_ORDER` in
+Fractions (101), then 102–104, then Negative numbers (106) and the x and y
+axes (107); triangles (108) already has its place, as chapter 9. The order is `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
 them equal); a new topic number goes where it belongs in both lists. A topic
 with several subtopics keeps them in a folder (`seeds/fractions/`,
-`seeds/multiplication/`, `seeds/division/`, `seeds/negatives/`) and composes them in
+`seeds/multiplication/`, `seeds/division/`, `seeds/negatives/`, `seeds/axes/`) and composes them in
 `topic1NN-*.js`; write fractions as `a/b` in text and
 theory, the app shows them stacked (`MathText` for exercise text,
 `stackFractions` for theory HTML). Pictures for theory come from
-`seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `integerLine`, `grid`,
-`array`, `groups`, `longDivision`, `figure`). Seeds are plain modules
+`seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `integerLine`,
+`coordGrid`, `grid`, `array`, `groups`, `longDivision`, `figure`). A
+question that needs a picture to be answered carries it as
+`questionPicture` (`question_picture`, shown between the question and its
+options; the Telegram bot leaves such questions out). Seeds are plain modules
 (`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
 topic has one teaching document and 10 exercises per level (easy/medium/hard),
 because an exercise session is 10 questions. Regenerate with
@@ -209,6 +212,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
 | 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
 | 106 | Negative Numbers (3 subtopics 106.1–106.3, shown as chapter 7) | מספרים שליליים | topic106-negatives.js + negatives/*.js | Yes | Yes | Complete |
+| 107 | The x and y Axes (2 subtopics 107.1–107.2, shown as chapter 8) | מערכת צירים | topic107-axes.js + axes/*.js | Yes | Yes | Complete |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -236,7 +240,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 7 math topics (100–106), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 8 math topics (100–107), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -411,6 +415,28 @@ Track changes per topic with dates and descriptions.
   (compared by id). Checks: equations stay on one line and read in order at
   360/390/1366px, every minus sits inside an isolate, options read left to
   right. Sprint 18.
+
+### Topic 107: The x and y Axes (Math)
+- 2026-11-02: New topic, chapter 8 of Math (after negative numbers): 107.1
+  the axes and a point (the x and y axes, the origin, (x, y) with x first,
+  negative coordinates, the four quarters, points on the axes), 107.2
+  plotting points (placing and moving a point, the distance along a grid
+  line, the fourth corner of a rectangle, area and perimeter on the grid).
+  Each a Hebrew teaching document with a grid for every rule and 30
+  multiple-choice questions (10 per level). Plotting is asked with pictures
+  (owner's decision): 22 questions carry their own grid
+  (`questionPicture` → `question_picture`), shown between the question and
+  the options; on a wide screen beside the options. Grids: `coordGrid` in
+  `math-svg.js` (numbered axes with a real minus sign, named points, dashed
+  guides, segments and arrows); under an explanation at 0.8 of their size
+  with the class `math-grid`, which the feedback box does not squeeze.
+  Points, wrong options (x and y swapped, a sign flipped) and quarters come
+  from `seeds/axes/common.js`; `scripts/checks/topic107.js` reads every grid
+  back from its SVG and re-computed all 60 answers (12 planted faults
+  caught). Every existing lesson and exercise is unchanged (compared by id).
+  Checks: at 360/390/1366px every grid question ends above the pinned bar,
+  equations stay on one line and read in order. In Telegram the grid
+  questions are left out of lesson rounds and the mistakes exam. Sprint 18.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

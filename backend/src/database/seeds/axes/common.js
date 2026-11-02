@@ -1,0 +1,129 @@
+// Shared bits for the coordinate-axes chapter (topic 107, shown as chapter
+// 8): points written (x, y) with a real minus sign, wrong options from the
+// common mistakes (x and y swapped, a sign flipped), the quarters, how a
+// point is reached from the origin, grid pictures for the theory, the
+// explanation and the question itself, and the lesson builder.
+const { ltr, mcq, P, glueEquations } = require('../multiplication/common');
+
+/** An integer as written in the lessons: "−3", "0", "5". */
+const S = P.signed;
+
+/** A point as an option: "(2, −3)". */
+const pair = (x, y) => `(${S(x)}, ${S(y)})`;
+
+/** A point inside Hebrew text, kept left to right: "(2, −3)" or "A(2, −3)". */
+const at = (x, y, name = '') => ltr(`${name}${pair(x, y)}`);
+
+/** A signed number inside Hebrew text. */
+const num = (v) => ltr(S(v));
+
+/** Theory HTML: an expression that keeps its order (< and > escaped, see negatives/common.js). */
+const eq = (s) => `<span dir="ltr">${s.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
+
+const QUARTERS = ['הרביע הראשון', 'הרביע השני', 'הרביע השלישי', 'הרביע הרביעי'];
+
+/** The quarter of a point (0–3), or -1 on an axis. */
+const quarterOf = (x, y) => (x > 0 && y > 0 ? 0 : x < 0 && y > 0 ? 1 : x < 0 && y < 0 ? 2 : x > 0 && y < 0 ? 3 : -1);
+
+/** How a point is reached from the origin: "3 ימינה, ואחר כך 2 למטה". */
+function walk(x, y) {
+  const sx = x > 0 ? `${x} ימינה` : x < 0 ? `${-x} שמאלה` : 'לא זזים ימינה או שמאלה';
+  const sy = y > 0 ? `${y} למעלה` : y < 0 ? `${-y} למטה` : 'לא זזים למעלה או למטה';
+  return `${sx}, ואחר כך ${sy}`;
+}
+
+/** The first three different points of `candidates` that are not (x, y), as options. */
+function pairWrongs(x, y, candidates) {
+  const out = [];
+  for (const [a, b] of candidates) {
+    const p = pair(a, b);
+    if ((a !== x || b !== y) && !out.includes(p)) out.push(p);
+  }
+  if (out.length < 3) throw new Error(`Not enough wrong options for ${pair(x, y)}`);
+  return out.slice(0, 3);
+}
+
+/** The usual mistakes with a point: x and y swapped, one sign or both flipped. */
+const mistakesOf = (x, y) => [[y, x], [-x, y], [x, -y], [-x, -y], [-y, x], [y, -x]];
+
+/** A grid for a question or a picture: the range fits the points, at least −4…4. */
+function grid(points, opts = {}) {
+  const xs = points.map((p) => p.x), ys = points.map((p) => p.y);
+  const range = {
+    xMin: Math.min(-4, ...xs), xMax: Math.max(4, ...xs),
+    yMin: Math.min(-4, ...ys), yMax: Math.max(4, ...ys)
+  };
+  return P.coordGrid({ ...range, points, ...opts });
+}
+
+/**
+ * A grid under an explanation, at 0.8 of its size (about 180px): not through
+ * pic(), whose 110px cap (and the phone's 72px) would make its numbers unreadable.
+ */
+const gridPic = (points, caption, opts = {}) => P.figures(P.figure(grid(points, { scale: 0.8, ...opts }), spans(caption)));
+
+/**
+ * A caption's points as <span dir="ltr"> rather than isolates: the caption's
+ * dir="auto" skips such spans, so its Hebrew sets it right to left; inside an
+ * isolate the letter A of "A(3, −2)" would make the caption left to right.
+ */
+const spans = (caption) => caption.replace(/\u2066([^\u2069]*)\u2069/g, '<span dir="ltr">$1</span>');
+
+/** A question whose answer is a point. */
+const pointQ = (n, level, text, [x, y], explanation, { extra = [], picture = null, question = null } = {}) =>
+  withQuestionPicture(mcq(n, level, text, pair(x, y), pairWrongs(x, y, [...extra, ...mistakesOf(x, y)]), explanation, picture), question);
+
+/** A question whose answer is a whole number. */
+function intQ(n, level, text, answer, candidates, explanation, { picture = null, question = null } = {}) {
+  const wrongs = [];
+  for (const v of candidates) if (v !== answer && !wrongs.includes(v)) wrongs.push(v);
+  if (wrongs.length < 3) throw new Error(`Not enough wrong options for ${answer}`);
+  return withQuestionPicture(mcq(n, level, text, S(answer), wrongs.slice(0, 3).map(S), explanation, picture), question);
+}
+
+/** A question with its own options (letters, quarters, words). */
+const choiceQ = (n, level, text, answer, wrongs, explanation, { picture = null, question = null } = {}) =>
+  withQuestionPicture(mcq(n, level, text, answer, wrongs, explanation, picture), question);
+
+/** The quarter of (x, y) as a question. */
+const quarterQ = (n, level, text, [x, y], explanation, opts = {}) =>
+  choiceQ(n, level, text, QUARTERS[quarterOf(x, y)], QUARTERS.filter((_, i) => i !== quarterOf(x, y)), explanation, opts);
+
+/** Points named A, B, C, D… from [[x, y], …]. */
+const named = (coords, opts = {}) => coords.map(([x, y], i) => ({ x, y, label: 'ABCDEFG'[i], ...(opts[i] || {}) }));
+
+function withQuestionPicture(e, question) {
+  return question ? { ...e, questionPicture: question } : e;
+}
+
+// An option is shown left to right: Hebrew with numbers or Latin letters in
+// it would read scrambled ("ציר x" as "x ציר").
+const HEBREW = /[֐-׿]/;
+const MIXED = /[0-9A-Za-z]/;
+
+/** A lesson object with the shared fields of topic 107. */
+function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
+  const byLevel = exercises.reduce((m, e) => ({ ...m, [e.difficulty]: (m[e.difficulty] || 0) + 1 }), {});
+  for (const level of ['easy', 'medium', 'hard']) {
+    if (byLevel[level] !== 10) throw new Error(`107.${index} ${titleEn}: ${byLevel[level] || 0} ${level} exercises, expected 10`);
+  }
+  for (const e of exercises) {
+    for (const o of e.options || []) {
+      if (HEBREW.test(o) && MIXED.test(o)) throw new Error(`107.${index} q${e.questionNumber}: option mixes Hebrew with numbers or letters: ${o}`);
+    }
+  }
+  return {
+    topicNumber: 107,
+    subtopicNumber: `107.${index}`,
+    titleEn,
+    titleHe,
+    level: 'beginner',
+    // After negative numbers (1061…); triangles are 1081….
+    orderIndex: 1070 + index,
+    theoryContentHe: glueEquations(theoryContentHe),
+    exercises: exercises.map((e) =>
+      (e.explanationPicture ? { ...e, explanationPicture: glueEquations(e.explanationPicture) } : e))
+  };
+}
+
+module.exports = { ltr, P, S, pair, at, num, eq, QUARTERS, quarterOf, walk, grid, gridPic, named, pointQ, intQ, choiceQ, quarterQ, lesson };

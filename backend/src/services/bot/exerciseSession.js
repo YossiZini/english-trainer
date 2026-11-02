@@ -124,7 +124,8 @@ class ExerciseSession {
 
     const list = await Lesson.listBySubject(lesson.subject || 'english');
     const position = list.findIndex(l => l.id === lesson.id) + 1 || null;
-    const set = await LessonService.getExercises(lesson.id, user.id, DIFFICULTIES.includes(difficulty) ? difficulty : null);
+    // The chat sends text only: a question that needs its picture is left out.
+    const set = await LessonService.getExercises(lesson.id, user.id, DIFFICULTIES.includes(difficulty) ? difficulty : null, { textOnly: true });
     if (!set.exercises.length) return { error: 'no_exercises' };
     const exercises = set.exercises.map(ex => frozenQuestion(ex));
 
@@ -144,7 +145,9 @@ class ExerciseSession {
    */
   static async startMistakes(user, chatId, { subject }) {
     if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
-    const { waiting, questions } = await MistakesService.pickSubjectExam(user.id, subject);
+    const { waiting, questions: all } = await MistakesService.pickSubjectExam(user.id, subject);
+    // A mistake on a question with a picture waits for the website (the chat sends text only).
+    const questions = all.filter(({ exercise }) => !exercise.question_picture);
     if (!questions.length) return { kind: 'exercise', mistakes: true, nothingWaiting: true, subject };
     const exercises = questions.map(({ exercise }) => frozenQuestion(exercise, { shuffle: true }));
     const open = await BotSession.findOpenByChat(chatId);

@@ -130,6 +130,101 @@ function integerLine({ from = -6, to = 6, points = [], hops = [], flat = false, 
 }
 
 /**
+ * A coordinate grid: x to the right and y up, from xMin to xMax and yMin to
+ * yMax (0 inside both), grid lines every 1, both axes numbered with a real
+ * minus sign, "x" and "y" at the arrow ends, 0 at the origin.
+ * - points: [{ x, y, label, color: 'a' | 'b', guide, at }] a dot with its
+ *   label beside it (`at`: 'ne' (default), 'nw', 'se', 'sw'); `guide` draws
+ *   dashed lines from the dot to both axes (how the point is read).
+ * - lines: [{ from: [x, y], to: [x, y], arrow, label, labelAt, dashed }] a
+ *   segment, with an arrowhead at `to` when `arrow`, its label at the middle
+ *   (or at `labelAt`: [x, y], away from the axes' numbers).
+ * - texts: [{ x, y, text }] a word at a place (the quarters' names).
+ * Each number is 22px apart; a picture for a question stays at most 9 units
+ * high, so a phone shows it whole with the options under it. `scale` draws
+ * it smaller (under an explanation); the class math-grid keeps the feedback
+ * box from squeezing it further (ExerciseFeedback.css).
+ */
+function coordGrid({ xMin = -4, xMax = 4, yMin = -4, yMax = 4, points = [], lines = [], texts = [], scale = 1 } = {}) {
+  const unit = 22, pad = 22;
+  const width = (xMax - xMin) * unit + 2 * pad, height = (yMax - yMin) * unit + 2 * pad;
+  const X = (x) => pad + (x - xMin) * unit, Y = (y) => pad + (yMax - y) * unit;
+  const f = (v) => v.toFixed(1);
+  const parts = [];
+  for (let x = xMin; x <= xMax; x++) parts.push(`<line x1="${f(X(x))}" y1="${f(Y(yMax))}" x2="${f(X(x))}" y2="${f(Y(yMin))}" stroke="#d6d9e0" stroke-width="1"/>`);
+  for (let y = yMin; y <= yMax; y++) parts.push(`<line x1="${f(X(xMin))}" y1="${f(Y(y))}" x2="${f(X(xMax))}" y2="${f(Y(y))}" stroke="#d6d9e0" stroke-width="1"/>`);
+  // The axes, a little longer than the grid, with arrowheads and their names.
+  const ox = X(0), oy = Y(0);
+  parts.push(`<line x1="${f(X(xMin) - 8)}" y1="${f(oy)}" x2="${f(X(xMax) + 12)}" y2="${f(oy)}" stroke="${LINE}" stroke-width="2"/>`);
+  parts.push(`<path d="M ${f(X(xMax) + 16)} ${f(oy)} l -9 -4.5 l 0 9 z" fill="${LINE}"/>`);
+  parts.push(`<line x1="${f(ox)}" y1="${f(Y(yMin) + 8)}" x2="${f(ox)}" y2="${f(Y(yMax) - 12)}" stroke="${LINE}" stroke-width="2"/>`);
+  parts.push(`<path d="M ${f(ox)} ${f(Y(yMax) - 16)} l -4.5 9 l 9 0 z" fill="${LINE}"/>`);
+  parts.push(`<text x="${f(X(xMax) + 12)}" y="${f(oy - 8)}" font-size="13" font-style="italic" font-weight="700" text-anchor="middle" fill="${LINE}">x</text>`);
+  parts.push(`<text x="${f(ox + 11)}" y="${f(Y(yMax) - 8)}" font-size="13" font-style="italic" font-weight="700" text-anchor="middle" fill="${LINE}">y</text>`);
+  // Numbers: under the x axis, left of the y axis; 0 once, below-left of the origin.
+  for (let x = xMin; x <= xMax; x++) {
+    if (x === 0) continue;
+    parts.push(`<line x1="${f(X(x))}" y1="${f(oy - 3)}" x2="${f(X(x))}" y2="${f(oy + 3)}" stroke="${LINE}" stroke-width="1.5"/>`);
+    parts.push(`<text x="${f(X(x))}" y="${f(oy + 14)}" font-size="11" text-anchor="middle" fill="${LINE}">${signed(x)}</text>`);
+  }
+  for (let y = yMin; y <= yMax; y++) {
+    if (y === 0) continue;
+    parts.push(`<line x1="${f(ox - 3)}" y1="${f(Y(y))}" x2="${f(ox + 3)}" y2="${f(Y(y))}" stroke="${LINE}" stroke-width="1.5"/>`);
+    parts.push(`<text x="${f(ox - 5)}" y="${f(Y(y) + 4)}" font-size="11" text-anchor="end" fill="${LINE}">${signed(y)}</text>`);
+  }
+  parts.push(`<text x="${f(ox - 5)}" y="${f(oy + 14)}" font-size="11" text-anchor="end" fill="${LINE}" font-weight="700">0</text>`);
+  for (const t of texts) {
+    parts.push(`<text x="${f(X(t.x))}" y="${f(Y(t.y) + 4)}" font-size="12" text-anchor="middle" fill="#8a8fa0" font-weight="700">${esc(t.text)}</text>`);
+  }
+  for (const l of lines) {
+    const [x1, y1] = l.from, [x2, y2] = l.to;
+    const color = l.color === 'b' ? SHADE_2 : SHADE;
+    parts.push(`<line x1="${f(X(x1))}" y1="${f(Y(y1))}" x2="${f(X(x2))}" y2="${f(Y(y2))}" stroke="${color}" stroke-width="2.5"${l.dashed ? ' stroke-dasharray="5 4"' : ''}/>`);
+    if (l.arrow) {
+      const a = Math.atan2(Y(y2) - Y(y1), X(x2) - X(x1));
+      const tip = [X(x2) - 6 * Math.cos(a), Y(y2) - 6 * Math.sin(a)];
+      const side = (d) => [tip[0] - 10 * Math.cos(a) + d * 5 * Math.sin(a), tip[1] - 10 * Math.sin(a) - d * 5 * Math.cos(a)];
+      const [l1, l2] = [side(1), side(-1)];
+      parts.push(`<path d="M ${f(tip[0])} ${f(tip[1])} L ${f(l1[0])} ${f(l1[1])} L ${f(l2[0])} ${f(l2[1])} z" fill="${color}"/>`);
+    }
+    if (l.label) {
+      const horizontal = y1 === y2;
+      const [lx, ly] = l.labelAt ? [X(l.labelAt[0]), Y(l.labelAt[1])] : [(X(x1) + X(x2)) / 2, (Y(y1) + Y(y2)) / 2];
+      const mx = lx + (horizontal ? 0 : 9), my = ly + (horizontal ? -6 : 4);
+      parts.push(`<text x="${f(mx)}" y="${f(my)}" font-size="12" text-anchor="${horizontal ? 'middle' : 'start'}" fill="${color}" font-weight="700" direction="ltr">${esc(l.label)}</text>`);
+    }
+  }
+  const OFFSET = { ne: [7, -7, 'start'], nw: [-7, -7, 'end'], se: [7, 15, 'start'], sw: [-7, 15, 'end'] };
+  for (const p of points) {
+    const color = p.color === 'b' ? SHADE_2 : SHADE;
+    const px = X(p.x), py = Y(p.y);
+    if (p.guide) {
+      parts.push(`<line x1="${f(px)}" y1="${f(py)}" x2="${f(px)}" y2="${f(oy)}" stroke="${color}" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+      parts.push(`<line x1="${f(px)}" y1="${f(py)}" x2="${f(ox)}" y2="${f(py)}" stroke="${color}" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+    }
+    parts.push(`<circle cx="${f(px)}" cy="${f(py)}" r="5" fill="${color}" stroke="${LIGHT}" stroke-width="1.5"/>`);
+    if (p.label) {
+      // A label stays clear of the axes' numbers: just under the x axis it
+      // goes below the point, beside the y axis it goes away from the numbers.
+      let at = p.at || 'ne';
+      if (p.y === -1) at = at.replace('n', 's');
+      if (p.y === 0) at = at.replace('s', 'n');
+      if (p.x === -1) at = at.replace('e', 'w');
+      if (p.x === 0) at = at.replace('w', 'e');
+      // A label never leaves the picture: at the grid's edge it turns inward.
+      if (p.x === xMax) at = at.replace('e', 'w');
+      if (p.x === xMin) at = at.replace('w', 'e');
+      if (p.y === yMax) at = at.replace('n', 's');
+      if (p.y === yMin) at = at.replace('s', 'n');
+      const [dx, dy, anchor] = OFFSET[at];
+      parts.push(`<text x="${f(px + dx)}" y="${f(py + dy)}" font-size="13" text-anchor="${anchor}" fill="${color}" font-weight="700" direction="ltr">${esc(p.label)}</text>`);
+    }
+  }
+  return svg(Math.round(width * scale), Math.round(height * scale), parts.join(''),
+    `מערכת צירים: x מ-${signed(xMin)} עד ${signed(xMax)}, y מ-${signed(yMin)} עד ${signed(yMax)}`, `0 0 ${width} ${height}`, 'math-grid');
+}
+
+/**
  * Area model for a product of fractions: a square cut into `rows` × `cols`
  * cells; the first `shadeRows` rows and `shadeCols` columns are coloured, the
  * overlap darker. Shows (shadeRows/rows) × (shadeCols/cols).
@@ -283,4 +378,4 @@ function figures(...figs) {
   return `<div class="math-figures">${figs.join('')}</div>`;
 }
 
-module.exports = { circle, bar, numberLine, integerLine, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };
+module.exports = { circle, bar, numberLine, integerLine, coordGrid, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };

@@ -10,8 +10,8 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
-| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); per chapter `seeds/multiplication/common.js`, `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`, `eq`) |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `coordGrid` (x and y axes: named `points` with dashed `guide`s, `lines` with arrows and labels, `texts`; `scale`), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
+| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); per chapter `seeds/multiplication/common.js`, `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`, `eq`), `seeds/axes/common.js` (`pair`, `at`, `pointQ` with the swapped and sign-flipped points as wrong options, `quarterQ`, `grid`, `gridPic`) |
 | Names, TOC line, descriptions, subtopic examples (an equation is wrapped in `ltr()`) | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
@@ -47,9 +47,14 @@ creates a new lesson and orphans progress.
   `glueEquations`, and the comparison can break across lines.
 - A negative number in Hebrew text is always inside an isolate (`ltr()`,
   `num()`) or `<span dir="ltr">`, captions too: alone, "−1" shows as "1−".
-- An option is shown in a left-to-right box: never mix Hebrew words and
-  numbers in one option ("−2 גדול מ-−8" reads scrambled); use a comparison
-  (`−2 > −8`) or words only.
+- An option is shown in a left-to-right box: never mix Hebrew words with
+  numbers or Latin letters in one option ("−2 גדול מ-−8", "ציר x" read
+  scrambled); use a comparison (`−2 > −8`), a bare letter (`x`), or words only.
+- A caption under a picture has `dir="auto"`: the browser picks its direction
+  from the first letter outside `<span dir="ltr">` elements, but not outside
+  isolates. Write a caption's points or equations in `<span dir="ltr">` (as
+  `gridPic` does), and give a caption with two of them a Hebrew word between
+  them (`A(1, 2) ו-B(4, −2)`), or it shows left to right.
 
 ## Exercises
 
@@ -85,6 +90,13 @@ creates a new lesson and orphans progress.
   `6/8` are the same answer.
 - Numbers in questions: keep denominators ≤ 12 on easy/medium; results reduce
   to something a student can check by hand.
+
+- **A question that needs a picture** (a grid with named points: "מה
+  השיעורים של הנקודה A?") carries it as `questionPicture`, an SVG shown
+  between the question and its options (on a wide screen, beside them).
+  Keep it at most 9 grid units high (a 360px phone shows it at 200px with
+  the options above the pinned bar) and the question to one line. The
+  Telegram bot leaves such questions out.
 
 ## Explanation (`explanationHe`)
 

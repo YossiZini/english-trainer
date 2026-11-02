@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../results/ResultsPage.css';
 import MathText from '../common/MathText';
+import QuestionPicture from '../common/QuestionPicture';
 import Assessment from '../common/Assessment';
 import { assessmentFor, fixedSummary } from '../../content/assessment';
 import { metaOf } from '../../content/topicMeta';
@@ -142,6 +143,7 @@ const CrossTestResultsPage = () => {
                         <span className="mistake-icon">💡</span>
                       </div>
                       <MathText as="div" className="mistake-question" dir={layout.questionDir} text={result.exercise.question_text_he} />
+                      <QuestionPicture html={result.exercise.question_picture} />
                       <div className="mistake-answers">
                         <div className="mistake-answer wrong">
                           <span className="answer-label">תשובתך:</span>

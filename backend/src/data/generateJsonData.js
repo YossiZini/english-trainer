@@ -82,7 +82,8 @@ async function generateLessonsAndExercises(subjects = ['math', 'arabic']) {
       'topic102-order-of-operations.js',
       'topic103-average.js',
       'topic104-percentage.js',
-      'topic106-negatives.js'
+      'topic106-negatives.js',
+      'topic107-axes.js'
     ],
     arabic: [
       'topic201-arabic-first-unit.js'
@@ -167,7 +168,10 @@ async function generateLessonsAndExercises(subjects = ['math', 'arabic']) {
               hint_he: exerciseData.hintHe || null,
               explanation_picture: exerciseData.explanationPicture || null,
               difficulty,
-              created_at: previousExercise ? previousExercise.created_at : timestamp
+              created_at: previousExercise ? previousExercise.created_at : timestamp,
+              // A picture the question needs (a grid with points): only on the
+              // questions that have one, so every other record stays as it was.
+              ...(exerciseData.questionPicture ? { question_picture: exerciseData.questionPicture } : {})
             };
 
             allExercises.push(exercise);

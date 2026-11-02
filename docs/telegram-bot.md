@@ -184,7 +184,11 @@ picked number go through `/api/bot/session/answer` like any answer.
 
 1. The API picks 10 questions with `LessonService.getExercises` (the web's
    difficulty choice and option shuffle) and freezes them in the session
-   (`bot_sessions`, `kind: exercise`).
+   (`bot_sessions`, `kind: exercise`). The bot sends text only, so it asks
+   with `textOnly`: a question that needs its picture (`question_picture`,
+   the grids of Math chapter 8) is left out. When fewer than 10 are left at
+   the level, the round takes the rest from the lesson's other levels (the
+   web's rule for a short level).
 2. Every exercise is multiple choice (a backend content test enforces it):
    the question lists its options as "1) …" with buttons 1..n (3 or 4
    options). An option or right answer without letters ("40 ÷ 5", "3/4")
@@ -215,7 +219,8 @@ come from `MistakesService.pickSubjectExam`, the same rule as the
 website's `GET /api/mistakes/exam`: the student's unfixed mistakes in that
 subject, one per question however many times it was answered wrong,
 without questions hidden after a report, removed in review or gone from
-the content, and no other questions. The session is an exercise session
+the content, and no other questions. A mistake on a question with its own
+picture waits for the website's exam. The session is an exercise session
 (`source: 'mistakes'`), so answers, "?", `/report`, status and `/end` work
 as in a lesson, with the same kind wrong-answer lines.
 
