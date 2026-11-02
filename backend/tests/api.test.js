@@ -157,6 +157,24 @@ describe('API', () => {
     expect(divisionEnd.body.data.navigation.next.id).toBe(fractions.lessons[0].id);
   });
 
+  test("a question's own picture (a grid) reaches the page with the question", async () => {
+    const math = await request(app).get('/api/lessons?subject=math').set(auth());
+    const plotting = math.body.data.find(t => t.topicNumber === 107).lessons.find(l => l.subtopicNumber === '107.2');
+    const bundled = new Map(require('../data/static/exercises.json').map(e => [e.id, e]));
+    let seen = 0;
+    for (const difficulty of ['easy', 'medium', 'hard']) {
+      const ex = await request(app).get(`/api/lessons/${plotting.id}/exercises?difficulty=${difficulty}`).set(auth());
+      for (const e of ex.body.data.exercises) {
+        const picture = bundled.get(e.id).question_picture;
+        if (picture) seen++;
+        expect(e.question_picture).toBe(picture);
+        expect(e.correct_answer).toBeUndefined();
+      }
+    }
+    expect(seen).toBeGreaterThan(0);
+    expect(Object.prototype.hasOwnProperty.call([...bundled.values()].find(e => !e.question_picture), 'question_picture')).toBe(false);
+  });
+
   test('next and previous lesson after a Math exercise stay in Math', async () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
     // Order of operations (102.1) has a Math neighbour on each side.

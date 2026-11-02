@@ -52,7 +52,8 @@ class Exercise {
       question_text_he: e.question_text_he,
       question_text_en: e.question_text_en,
       options: e.options,
-      difficulty: e.difficulty
+      difficulty: e.difficulty,
+      question_picture: e.question_picture || undefined
     }));
   }
 

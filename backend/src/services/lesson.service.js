@@ -125,9 +125,10 @@ class LessonService {
 
   /**
    * Get exercises for a lesson (without answers)
-   * Randomly selects exercises based on difficulty level
+   * Randomly selects exercises based on difficulty level. `textOnly` leaves
+   * out the questions that need their picture (the chat bot sends text only).
    */
-  static async getExercises(lessonId, userId, manualDifficulty = null) {
+  static async getExercises(lessonId, userId, manualDifficulty = null, { textOnly = false } = {}) {
     const lesson = await Lesson.findById(lessonId);
 
     if (!lesson) {
@@ -161,7 +162,7 @@ class LessonService {
     }
 
     // Get all exercises of target difficulty
-    const allExercises = await Exercise.findByLessonIdForClient(lessonId);
+    const allExercises = (await Exercise.findByLessonIdForClient(lessonId)).filter(ex => !(textOnly && ex.question_picture));
     const targetExercises = allExercises.filter(ex => ex.difficulty === targetDifficulty);
 
     // If not enough exercises at target difficulty, include some from adjacent levels
@@ -185,7 +186,8 @@ class LessonService {
       question_text_he: ex.question_text_he,
       question_text_en: ex.question_text_en,
       options: ex.type === 'multiple_choice' && ex.options ? shuffleArray(ex.options) : ex.options,
-      difficulty: ex.difficulty
+      difficulty: ex.difficulty,
+      question_picture: ex.question_picture || undefined
     }));
 
     return {

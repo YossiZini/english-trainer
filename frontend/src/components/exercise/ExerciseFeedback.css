@@ -34,6 +34,12 @@
   width: auto;
   max-width: none;
 }
+/* A coordinate grid is drawn smaller already (0.8); squeezed further its
+   numbers could not be read */
+.feedback-picture .math-pic.math-grid {
+  width: auto;
+  max-width: 100%;
+}
 .feedback-picture .math-row {
   display: inline-flex;
   flex-wrap: wrap;
@@ -69,4 +75,5 @@
   .feedback-picture .math-row .math-pic { width: auto; max-height: 40px; }
   /* Taller than the 72px of the other pictures: its digits must stay readable */
   .feedback-picture .math-pic.math-long { width: auto; max-height: none; }
+  .feedback-picture .math-pic.math-grid { width: auto; max-width: 100%; max-height: none; }
 }

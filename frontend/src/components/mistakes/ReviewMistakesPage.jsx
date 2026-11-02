@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { hasArabic, textDirection } from '../../utils/bidi';
+import QuestionPicture from '../common/QuestionPicture';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import mistakesService from '../../services/mistakesService';
 import lessonService from '../../services/lessonService';
@@ -158,6 +159,7 @@ const ReviewMistakesPage = () => {
 
               <div className={`mistake-content${hasArabic(mistake.question_text_he) || hasArabic(mistake.correct_answer) ? ' arabic' : ''}`}>
                 <MathText as="div" className="question-text" dir={textDirection(mistake.question_text_he)} text={mistake.question_text_he} />
+                <QuestionPicture html={mistake.question_picture} />
 
                 {mistake.type === 'multiple_choice' && mistake.options && (
                   <div className="options-display">
