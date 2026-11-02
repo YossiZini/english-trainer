@@ -22,7 +22,7 @@ const scenes = [
         caption: 'קבוצה ראשונה, שנייה, שלישית: 3 קבוצות של 5. נשארו 2 עפרונות.',
         draw: () => (<>
           <Counters total={17} each={5} phase="gather" labels {...AREA} />
-          <DivEq a={17} d={5} q={3} qAnim="pop" />
+          <DivEq a={17} d={5} q={3} r="?" qAnim="pop" rAnim="fadein d5" />
         </>),
       },
       {
@@ -77,7 +77,7 @@ const scenes = [
         caption: '5 × 7 = 35: חמש קבוצות של 7. נשארו 38 − 35 = 3.',
         draw: () => (<>
           <Counters total={38} each={7} phase="gather" labels {...AREA} />
-          <DivEq a={38} d={7} q={5} qAnim="pop" />
+          <DivEq a={38} d={7} q={5} r="?" qAnim="pop" rAnim="fadein d5" />
         </>),
       },
       {

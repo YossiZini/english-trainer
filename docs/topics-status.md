@@ -292,6 +292,12 @@ Track changes per topic with dates and descriptions.
 - 2026-11-01: 100.2 rule 5 draws `7 × 6 = 42` as 7 rows of 6, the rows ×
   columns rule of 100.1 (it showed 6 rows of 7). The independent check now
   matches every dot array against its caption.
+- 2026-11-02: Every lesson opens with a step-by-step animation, one scene
+  per rule: counters gather into equal groups, dots into rows and columns
+  (3 × 4 turns into 4 × 3), × 10 and half of it for × 5, × 9 as one faded
+  column less, doubling for × 4 and × 8, squares, sharing into groups, a
+  fact family, special cases, checking, a missing number and a two-step
+  problem. The written theory is unchanged. Sprint 17.
 
 ### Topic 105: Division (Math)
 - 2026-11-01: New topic, chapter 2 of Math (after the multiplication table,

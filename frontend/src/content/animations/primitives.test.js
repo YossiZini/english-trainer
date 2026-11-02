@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { Expr, BarChart, HundredGrid, PriceTag, isolateMath, groupLayout, Counters, DivEq, longDivisionSteps, LongDivision } from './primitives';
+import { Expr, BarChart, HundredGrid, PriceTag, isolateMath, groupLayout, Counters, arrayLayout, DotArray, DivEq, longDivisionSteps, LongDivision } from './primitives';
 
 const inSvg = (el) => render(<svg>{el}</svg>).container;
 
@@ -200,5 +200,42 @@ describe('isolateMath', () => {
     expect(isolateMath('מחברים: 85 × 4 = 340.')).toBe(`מחברים: \u2066${nb('85 × 4 = 340')}\u2069.`);
     expect(isolateMath('מכנה משותף 6: 1/2 = 3/6')).toBe(`מכנה משותף 6: \u2066${nb('1/2 = 3/6')}\u2069`);
     expect(isolateMath('7, 14, 21')).toBe('7, 14, 21');
+  });
+});
+
+describe('DotArray', () => {
+  test('rows × cols dots; faded last columns; the second colour from a row or a column on', () => {
+    const c = inSvg(<DotArray rows={6} cols={10} fadeCols={1} />);
+    expect(c.querySelectorAll('.la-counter')).toHaveLength(60);
+    expect(c.querySelectorAll('.la-counter.dim')).toHaveLength(6);
+    expect([...c.querySelectorAll('.la-counter.dim')].every((d) => d.getAttribute('data-col') === '9')).toBe(true);
+    expect(inSvg(<DotArray rows={4} cols={7} splitRows={2} />).querySelectorAll('.la-counter.b')).toHaveLength(14);
+    expect(inSvg(<DotArray rows={4} cols={12} splitCols={6} />).querySelectorAll('.la-counter.b')).toHaveLength(24);
+  });
+
+  test('a turn starts every dot at its place in the turned array (3 rows of 4 become 4 rows of 3)', () => {
+    const turned = arrayLayout(4, 3, { turn: true }), before = arrayLayout(3, 4, { turn: true });
+    for (const d of turned.dots) {
+      const from = before.dots.find((e) => e.row === d.col && e.col === d.row);
+      expect([d.tx, d.ty]).toEqual([from.x, from.y]);
+    }
+    const moved = [...inSvg(<DotArray rows={4} cols={3} phase="turn" />).querySelectorAll('.la-counter')]
+      .filter((el) => /translate\(/.test(el.getAttribute('style')));
+    expect(moved).toHaveLength(12);
+  });
+
+  test('every dot, in the pile, in place and where a turn starts, stays on the stage', () => {
+    for (let rows = 1; rows <= 10; rows++) {
+      for (let cols = 1; cols <= 12; cols++) {
+        for (const turn of [false, true]) {
+          const L = arrayLayout(rows, cols, { x: 20, y: 8, w: 600, h: 195, turn });
+          for (const d of L.dots) {
+            for (const [x, y] of [[d.x, d.y], [d.px, d.py], ...(turn ? [[d.tx, d.ty]] : [])]) {
+              expect(x - L.r >= 0 && x + L.r <= 640 && y - L.r >= 0 && y + L.r <= 280).toBe(true);
+            }
+          }
+        }
+      }
+    }
   });
 });
