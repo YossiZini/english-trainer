@@ -237,7 +237,12 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     '101.3': [ltr('2/3 > 3/5'), 'השוואה לחצי'],
     '101.4': [ltr('1/2 + 1/3 = 5/6'), ltr('1 − 3/4 = 1/4')],
     '101.5': [ltr('2/3 × 3/4 = 1/2'), ltr('3/4 ÷ 1/2 = 3/2')],
-    '101.6': [ltr('2 1/3 = 7/3'), ltr('1 1/2 + 2 3/4 = 4 1/4')]
+    '101.6': [ltr('2 1/3 = 7/3'), ltr('1 1/2 + 2 3/4 = 4 1/4')],
+
+    // Topic 106: Negative numbers (Math, chapter 7)
+    '106.1': [ltr('−2 > −5'), ltr('|−7| = 7')],
+    '106.2': [ltr('−3 + (−4) = −7'), ltr('5 − (−3) = 8')],
+    '106.3': [ltr('4 × (−3) = −12'), ltr('−3 × (−4) = 12')]
   };
 
   return subtopicExamples[key] || [];
@@ -269,7 +274,8 @@ const mathTopicNames = {
   101: { en: 'Fractions', he: 'שברים' },
   102: { en: 'Order of Operations', he: 'סדר פעולות חשבון' },
   103: { en: 'Average', he: 'ממוצע' },
-  104: { en: 'Percentage', he: 'אחוזים' }
+  104: { en: 'Percentage', he: 'אחוזים' },
+  106: { en: 'Negative Numbers', he: 'מספרים שליליים' }
 };
 
 const mathTocExamples = {
@@ -278,7 +284,8 @@ const mathTocExamples = {
   101: '(שישה שיעורים: ממה זה שבר ועד מספרים מעורבים)',
   102: '(סוגריים, כפל וחילוק, חיבור וחיסור)',
   103: '(סכום חלקי מספר האיברים)',
-  104: '(אחוז ממספר, הנחה, מע"מ)'
+  104: '(אחוז ממספר, הנחה, מע"מ)',
+  106: '(ישר המספרים, חיבור וחיסור, כפל וחילוק)'
 };
 
 // Math expressions inside Hebrew text keep their left-to-right order when
@@ -309,6 +316,10 @@ const mathTopicDescriptions = {
   104: {
     description: 'אחוז כחלק ממאה, מעבר בין אחוז, שבר ועשרוני, אחוז ממספר, הנחה ותוספת.',
     examples: [`${ltr('25%')} מ-80 הם 20`, `${ltr('10%')} הנחה על 150 ₪: משלמים 135 ₪`, ltr('3/4 = 75%')]
+  },
+  106: {
+    description: 'מספרים קטנים מ-0 על ישר המספרים: השוואה, מספרים נגדיים וערך מוחלט, חיבור וחיסור, וכללי הסימנים בכפל ובחילוק.',
+    examples: [ltr('−3 + (−4) = −7'), ltr('5 − (−3) = 8'), ltr('−3 × (−4) = 12')]
   }
 };
 
@@ -362,9 +373,11 @@ const topicMeta = {
     nameKey: 'he',
     numberOffset: 99,
     // Chapters in teaching order, shown as 1, 2, 3…: division (105) comes
-    // right after the multiplication table. The same list orders lessons in
+    // right after the multiplication table; negative numbers (106), graphs on
+    // the x and y axes (107) and triangles (108) come after percentage, as
+    // chapters 7–9 (a chapter shows once it has lessons). The same list orders lessons in
     // the API (backend/src/config/subjects.js MATH_CHAPTER_ORDER).
-    topicOrder: [100, 105, 101, 102, 103, 104],
+    topicOrder: [100, 105, 101, 102, 103, 104, 106, 107, 108],
     topicNames: mathTopicNames,
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,

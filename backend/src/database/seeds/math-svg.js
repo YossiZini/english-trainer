@@ -68,6 +68,67 @@ function numberLine({ from = 0, to = 1, den = 4, points = [] } = {}) {
   return svg(width, 56, parts.join(''), `ישר מספרים מ-${from} עד ${to}`);
 }
 
+/** An integer with a real minus sign (U+2212): "−3", "0", "5". */
+const signed = (v) => (v < 0 ? `\u2212${-v}` : String(v));
+
+/**
+ * A number line of whole numbers from `from` to `to` (negatives allowed),
+ * every number (every second one on a long line) labelled with a real minus
+ * sign, 0 in bold. `points` mark
+ * numbers ([{ value, label, color: 'a' | 'b' }], label above the line);
+ * `hops` draw arrows above the line from one number to another
+ * ([{ from, to, label }]), each a level higher than the one before, as when
+ * adding on the line; `flat` keeps them on one level (equal hops in a row,
+ * 4 × (−3) as four hops of −3); `labelEvery` labels only the multiples of a
+ * number (the ends of equal hops: 0, −3, −6…), larger when they are far
+ * apart. A separate function from numberLine, whose pictures (fractions, 0
+ * and up) stay as they are.
+ */
+function integerLine({ from = -6, to = 6, points = [], hops = [], flat = false, labelEvery = 0 } = {}) {
+  // 28px per number, between 200 and 320 wide: a short line is drawn narrower,
+  // so a phone shrinks it less and its labels stay readable.
+  const pad = 16, width = Math.max(200, Math.min(320, (to - from) * 28 + 2 * pad));
+  const span = width - 2 * pad;
+  const x = (v) => pad + ((v - from) / (to - from)) * span;
+  const levels = flat ? Math.min(hops.length, 1) : hops.length;
+  const lift = (i) => 12 + (flat ? 0 : i) * 22;
+  // Hop labels sit 10 higher when points are labelled too, so a short hop's
+  // label does not cover the labels of its two ends.
+  const raise = levels && points.some((p) => p.label) ? 10 : 0;
+  // Room above the line: up to the highest hop label, or the point labels.
+  const above = levels ? lift(levels - 1) + 18 + raise : points.some((p) => p.label) ? 24 : 12;
+  const y = above + 4;
+  // Every number labelled, or every second one when they would touch; with
+  // labelEvery only its multiples, at 14px when they are 36px apart or more.
+  const unit = span / (to - from);
+  const step = labelEvery || (unit < 24 ? 2 : 1);
+  const font = labelEvery && labelEvery * unit >= 36 ? 14 : 12;
+  const height = y + 16 + font;
+  const labelled = (v) => (labelEvery ? v % labelEvery === 0 : (v - from) % step === 0 || v === 0);
+  const parts = [`<line x1="${pad - 6}" y1="${y}" x2="${width - pad + 6}" y2="${y}" stroke="${LINE}" stroke-width="2"/>`];
+  for (let v = from; v <= to; v++) {
+    const zero = v === 0;
+    parts.push(`<line x1="${x(v).toFixed(1)}" y1="${y - (zero ? 10 : 6)}" x2="${x(v).toFixed(1)}" y2="${y + (zero ? 10 : 6)}" stroke="${LINE}" stroke-width="${zero ? 2.5 : 1.5}"/>`);
+    if (labelled(v)) {
+      parts.push(`<text x="${x(v).toFixed(1)}" y="${y + 10 + font}" font-size="${font}" text-anchor="middle" fill="${LINE}"${zero ? ' font-weight="700"' : ''}>${signed(v)}</text>`);
+    }
+  }
+  hops.forEach((h, i) => {
+    const x1 = x(h.from), x2 = x(h.to), mid = (x1 + x2) / 2;
+    const color = flat || i === 0 ? SHADE : SHADE_2;
+    const dir = x2 > x1 ? 1 : -1;
+    parts.push(`<path d="M ${x1.toFixed(1)} ${y - 4} Q ${mid.toFixed(1)} ${y - 4 - 2 * lift(i)} ${x2.toFixed(1)} ${y - 4}" fill="none" stroke="${color}" stroke-width="2"/>`);
+    parts.push(`<path d="M ${x2.toFixed(1)} ${y - 4} l ${(-dir * 7).toFixed(1)} -5 l 0 8 z" fill="${color}"/>`);
+    if (h.label) parts.push(`<text x="${mid.toFixed(1)}" y="${(y - 6 - lift(i) - raise).toFixed(1)}" font-size="12" text-anchor="middle" fill="${color}" font-weight="700" direction="ltr">${esc(h.label)}</text>`);
+  });
+  points.forEach((p, i) => {
+    const color = p.color === 'b' || (p.color === undefined && i > 0) ? SHADE_2 : SHADE;
+    parts.push(`<circle cx="${x(p.value).toFixed(1)}" cy="${y}" r="5.5" fill="${color}" stroke="${LIGHT}" stroke-width="1.5"/>`);
+    if (p.label) parts.push(`<text x="${x(p.value).toFixed(1)}" y="${y - 12}" font-size="12" text-anchor="middle" fill="${color}" font-weight="700" direction="ltr">${esc(p.label)}</text>`);
+  });
+  return svg(width, height, parts.join(''), `ישר המספרים בין ${signed(from)} ל-${signed(to)}`, `0 0 ${width} ${height}`);
+}
+
 /**
  * Area model for a product of fractions: a square cut into `rows` × `cols`
  * cells; the first `shadeRows` rows and `shadeCols` columns are coloured, the
@@ -222,4 +283,4 @@ function figures(...figs) {
   return `<div class="math-figures">${figs.join('')}</div>`;
 }
 
-module.exports = { circle, bar, numberLine, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };
+module.exports = { circle, bar, numberLine, integerLine, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };
