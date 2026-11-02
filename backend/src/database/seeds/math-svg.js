@@ -225,6 +225,111 @@ function coordGrid({ xMin = -4, xMax = 4, yMin = -4, yMax = 4, points = [], line
 }
 
 /**
+ * A triangle ABC drawn to shape, from one of:
+ * - angles: [A, B] in degrees (C is the rest of 180°), the base AB horizontal;
+ * - sides: [AB, BC, CA];
+ * - base, apex: A(0, 0), B(base, 0) and C at apex [x, y], in the same units
+ *   (y is the height to AB; x outside 0…base for a height outside).
+ * Options (each list in the order A, B, C or AB, BC, CA):
+ * - names: the vertices' letters, outside each corner;
+ * - angleLabels: ['50°', '?', ''] an arc and its label at a corner ('' none);
+ *   a right angle gets a small square instead of the arc;
+ * - sideLabels: ['8', '', ''] a length beside a side;
+ * - ticks: [1, 1, 0] equal-side marks;
+ * - height: true draws the height from C to AB (dashed, with its right
+ *   angle; AB extended when it falls outside), heightLabel beside it;
+ * - box: true draws the rectangle the triangle is half of (dashed).
+ * Fits in about 240 × 170; `scale` draws it smaller.
+ */
+function triangle({ angles = null, sides = null, base = null, apex = [0, 1], names = ['A', 'B', 'C'], angleLabels = [], sideLabels = [], ticks = [], height = false, heightLabel = '', box = false, scale = 1 } = {}) {
+  const rad = (d) => (d * Math.PI) / 180;
+  let P;
+  if (angles) {
+    const [a, b] = angles.map(rad), c = Math.PI - a - b;
+    const ac = Math.sin(b) / Math.sin(c); // AB = 1
+    P = [[0, 0], [1, 0], [ac * Math.cos(a), ac * Math.sin(a)]];
+  } else if (sides) {
+    const [ab, bc, ca] = sides;
+    const x = (ab * ab + ca * ca - bc * bc) / (2 * ab);
+    P = [[0, 0], [ab, 0], [x, Math.sqrt(Math.max(0, ca * ca - x * x))]];
+  } else {
+    P = [[0, 0], [base, 0], apex];
+  }
+  // Fit: units to pixels, y up.
+  const foot = [P[2][0], 0];
+  const xs = [...P.map((p) => p[0]), height ? foot[0] : 0], ys = P.map((p) => p[1]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), maxY = Math.max(...ys);
+  const k = Math.min(240 / (maxX - minX), 150 / maxY);
+  const pad = 30;
+  const W = (maxX - minX) * k + 2 * pad, H = maxY * k + 2 * pad;
+  const X = (p) => [pad + (p[0] - minX) * k, pad + (maxY - p[1]) * k];
+  const V = P.map(X);
+  const f = (v) => v.toFixed(1);
+  const parts = [];
+  const centroid = [(V[0][0] + V[1][0] + V[2][0]) / 3, (V[0][1] + V[1][1] + V[2][1]) / 3];
+  const unit = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy); return [dx / l, dy / l]; };
+  if (box) {
+    const [x0, x1] = [Math.min(V[0][0], V[1][0], V[2][0]), Math.max(V[0][0], V[1][0], V[2][0])];
+    const [y0, y1] = [Math.min(V[0][1], V[2][1]), Math.max(V[0][1], V[2][1])];
+    parts.push(`<rect x="${f(x0)}" y="${f(y0)}" width="${f(x1 - x0)}" height="${f(y1 - y0)}" fill="none" stroke="${SHADE_2}" stroke-width="1.5" stroke-dasharray="5 4"/>`);
+  }
+  parts.push(`<path d="M ${f(V[0][0])} ${f(V[0][1])} L ${f(V[1][0])} ${f(V[1][1])} L ${f(V[2][0])} ${f(V[2][1])} Z" fill="#eef0fd" stroke="${LINE}" stroke-width="2" stroke-linejoin="round"/>`);
+  if (height) {
+    const F = X(foot);
+    const [x0, x1] = [Math.min(V[0][0], V[1][0]), Math.max(V[0][0], V[1][0])];
+    if (F[0] < x0 - 0.5 || F[0] > x1 + 0.5) {
+      const near = F[0] < x0 ? x0 : x1;
+      parts.push(`<line x1="${f(near)}" y1="${f(F[1])}" x2="${f(F[0])}" y2="${f(F[1])}" stroke="${LINE}" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+    }
+    parts.push(`<line x1="${f(V[2][0])}" y1="${f(V[2][1])}" x2="${f(F[0])}" y2="${f(F[1])}" stroke="${SHADE}" stroke-width="2" stroke-dasharray="6 4"/>`);
+    const s = 9, side = F[0] >= centroid[0] ? -1 : 1;
+    parts.push(`<path d="M ${f(F[0] + side * s)} ${f(F[1])} L ${f(F[0] + side * s)} ${f(F[1] - s)} L ${f(F[0])} ${f(F[1] - s)}" fill="none" stroke="${SHADE}" stroke-width="1.5"/>`);
+    if (heightLabel) parts.push(`<text x="${f(F[0] - side * 6)}" y="${f((V[2][1] + F[1]) / 2 + 4)}" font-size="13" text-anchor="${side > 0 ? 'end' : 'start'}" fill="${SHADE}" font-weight="700" direction="ltr">${esc(heightLabel)}</text>`);
+  }
+  // Sides AB, BC, CA: equal-side ticks and lengths.
+  [[0, 1], [1, 2], [2, 0]].forEach(([i, j], n) => {
+    const a = V[i], b = V[j], mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    const [ux, uy] = unit(a, b);
+    let nx = -uy, ny = ux;
+    if ((mid[0] - centroid[0]) * nx + (mid[1] - centroid[1]) * ny < 0) { nx = -nx; ny = -ny; }
+    for (let t = 0; t < (ticks[n] || 0); t++) {
+      const o = (t - ((ticks[n] || 0) - 1) / 2) * 5;
+      const c = [mid[0] + ux * o, mid[1] + uy * o];
+      parts.push(`<line x1="${f(c[0] - nx * 6)}" y1="${f(c[1] - ny * 6)}" x2="${f(c[0] + nx * 6)}" y2="${f(c[1] + ny * 6)}" stroke="${LINE}" stroke-width="2"/>`);
+    }
+    if (sideLabels[n]) {
+      parts.push(`<text x="${f(mid[0] + nx * 15)}" y="${f(mid[1] + ny * 15 + 4.5)}" font-size="13" text-anchor="middle" fill="${LINE}" font-weight="700" direction="ltr">${esc(sideLabels[n])}</text>`);
+    }
+  });
+  // Corners: angle marks and the vertices' names.
+  V.forEach((v, i) => {
+    const u1 = unit(v, V[(i + 1) % 3]), u2 = unit(v, V[(i + 2) % 3]);
+    const bis = unit([0, 0], [u1[0] + u2[0], u1[1] + u2[1]]);
+    const angle = Math.acos(Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1]))) * 180 / Math.PI;
+    if (angleLabels[i]) {
+      const right = Math.abs(angle - 90) < 0.5;
+      if (right) {
+        const s = 11;
+        parts.push(`<path d="M ${f(v[0] + u1[0] * s)} ${f(v[1] + u1[1] * s)} L ${f(v[0] + (u1[0] + u2[0]) * s)} ${f(v[1] + (u1[1] + u2[1]) * s)} L ${f(v[0] + u2[0] * s)} ${f(v[1] + u2[1] * s)}" fill="none" stroke="${SHADE_2}" stroke-width="1.8"/>`);
+      } else {
+        const r = 20;
+        const p1 = [v[0] + u1[0] * r, v[1] + u1[1] * r], p2 = [v[0] + u2[0] * r, v[1] + u2[1] * r];
+        const sweep = u1[0] * u2[1] - u1[1] * u2[0] > 0 ? 1 : 0;
+        parts.push(`<path d="M ${f(p1[0])} ${f(p1[1])} A ${r} ${r} 0 0 ${sweep} ${f(p2[0])} ${f(p2[1])}" fill="none" stroke="${SHADE_2}" stroke-width="2"/>`);
+      }
+      if (angleLabels[i] !== '90°' || !right) {
+        const d = angle < 40 ? 44 : 34;
+        parts.push(`<text x="${f(v[0] + bis[0] * d)}" y="${f(v[1] + bis[1] * d + 4.5)}" font-size="12" text-anchor="middle" fill="#c27c0e" font-weight="700" direction="ltr">${esc(angleLabels[i])}</text>`);
+      }
+    }
+    if (names[i]) {
+      parts.push(`<text x="${f(v[0] - bis[0] * 14)}" y="${f(v[1] - bis[1] * 14 + 5)}" font-size="14" text-anchor="middle" fill="${LINE}" font-weight="700" font-style="italic" direction="ltr">${esc(names[i])}</text>`);
+    }
+  });
+  return svg(Math.round(W * scale), Math.round(H * scale), parts.join(''), `משולש ${names.join('')}`, `0 0 ${f(W)} ${f(H)}`, 'math-grid');
+}
+
+/**
  * Area model for a product of fractions: a square cut into `rows` × `cols`
  * cells; the first `shadeRows` rows and `shadeCols` columns are coloured, the
  * overlap darker. Shows (shadeRows/rows) × (shadeCols/cols).
@@ -378,4 +483,4 @@ function figures(...figs) {
   return `<div class="math-figures">${figs.join('')}</div>`;
 }
 
-module.exports = { circle, bar, numberLine, integerLine, coordGrid, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };
+module.exports = { circle, bar, numberLine, integerLine, coordGrid, triangle, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };

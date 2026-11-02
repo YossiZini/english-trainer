@@ -10,8 +10,8 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `coordGrid` (x and y axes: named `points` with dashed `guide`s, `lines` with arrows and labels, `texts`; `scale`), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
-| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); per chapter `seeds/multiplication/common.js`, `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`, `eq`), `seeds/axes/common.js` (`pair`, `at`, `pointQ` with the swapped and sign-flipped points as wrong options, `quarterQ`, `grid`, `gridPic`) |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `coordGrid` (x and y axes: named `points` with dashed `guide`s, `lines` with arrows and labels, `texts`; `scale`), `triangle` (to shape from `angles`, `sides` or `base` and `apex`: `angleLabels`, `sideLabels`, `ticks`, `height`, `box`; `scale`), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
+| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); per chapter `seeds/multiplication/common.js`, `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`, `eq`), `seeds/axes/common.js` (`pair`, `at`, `pointQ` with the swapped and sign-flipped points as wrong options, `quarterQ`, `grid`, `gridPic`), `seeds/triangles/common.js` (`deg`, `ang`, `numQ`, `degQ`, `triPic`, `triFig`) |
 | Names, TOC line, descriptions, subtopic examples (an equation is wrapped in `ltr()`) | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
@@ -42,6 +42,8 @@ creates a new lesson and orphans progress.
   as `a/b` or `1 a/b`; the seed export stacks them (numerator over
   denominator) automatically. Do not hand-write fraction markup.
 - Use `×`, `÷`, `−`, `&gt;`; never `*`, `/` for division, or `-` as minus.
+  Write units with the Hebrew gershayim, ס״מ and סמ״ר, not a quote mark:
+  the checks read a quoted equation as a mistake shown on purpose.
   In theory HTML write a comparison with `&lt;`/`&gt;` (`eq()` in
   `seeds/negatives/common.js` does it): a raw `<` ends the span for
   `glueEquations`, and the comparison can break across lines.
