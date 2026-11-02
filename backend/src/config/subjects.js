@@ -11,9 +11,10 @@ const isSubject = (s) => SUBJECTS.includes(s);
 /**
  * Math chapters in teaching order, by topic number. A chapter added later
  * gets a free number and its place here (division, 105, comes right after
- * the multiplication table), so no existing lesson is renumbered. The
+ * the multiplication table; negative numbers, 106, the axes, 107, and
+ * triangles, 108, come last), so no existing lesson is renumbered. The
  * website shows chapters in this order too (frontend topicMeta.topicOrder).
  */
-const MATH_CHAPTER_ORDER = [100, 105, 101, 102, 103, 104];
+const MATH_CHAPTER_ORDER = [100, 105, 101, 102, 103, 104, 106, 107, 108];
 
 module.exports = { SUBJECTS, isSubject, MATH_CHAPTER_ORDER };

@@ -183,16 +183,17 @@ For each topic, these assets must exist:
 Math lessons live in the same content files with `subject: "math"` and are
 numbered 100+. On the `/math` page and in the lesson order they appear in
 curriculum order, chapters 1+: the multiplication table (100), Division (105),
-Fractions (101), then 102–104. The order is `MATH_CHAPTER_ORDER` in
+Fractions (101), then 102–104, then Negative numbers (106); the x and y axes
+(107) and triangles (108) already have their places, as chapters 8–9. The order is `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
 them equal); a new topic number goes where it belongs in both lists. A topic
 with several subtopics keeps them in a folder (`seeds/fractions/`,
-`seeds/multiplication/`, `seeds/division/`) and composes them in
+`seeds/multiplication/`, `seeds/division/`, `seeds/negatives/`) and composes them in
 `topic1NN-*.js`; write fractions as `a/b` in text and
 theory, the app shows them stacked (`MathText` for exercise text,
 `stackFractions` for theory HTML). Pictures for theory come from
-`seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `grid`, `array`, `groups`,
-`longDivision`, `figure`). Seeds are plain modules
+`seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `integerLine`, `grid`,
+`array`, `groups`, `longDivision`, `figure`). Seeds are plain modules
 (`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
 topic has one teaching document and 10 exercises per level (easy/medium/hard),
 because an exercise session is 10 questions. Regenerate with
@@ -207,6 +208,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 102 | Order of Operations | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
 | 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
 | 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
+| 106 | Negative Numbers (3 subtopics 106.1–106.3, shown as chapter 7) | מספרים שליליים | topic106-negatives.js + negatives/*.js | Yes | Yes | Complete |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -234,7 +236,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 6 math topics (100–105), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 7 math topics (100–106), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -388,6 +390,27 @@ Track changes per topic with dates and descriptions.
 - 2026-11-01: The animation captions show their equations in order: they
   were reversed in the right-to-left caption ("340 = 4 × 85"); the player
   now isolates them, each on one line. Content unchanged. Sprint 17.
+
+### Topic 106: Negative Numbers (Math)
+- 2026-11-02: New topic, chapter 7 of Math (after percentage): 106.1 negative
+  numbers on the number line (their place, comparing, opposites, the distance
+  from 0), 106.2 adding and subtracting (hops right and left, subtracting as
+  adding the opposite), 106.3 multiplying and dividing (a positive times a
+  negative as equal hops, negative times negative from a pattern, division by
+  the same sign rules, several factors). Each a Hebrew teaching document with
+  a picture for every rule and 30 multiple-choice questions (10 per level),
+  with word problems on temperatures, floors, depths, debts and an average.
+  Pictures: `integerLine` (a new function in `math-svg.js`; `numberLine` is
+  unchanged), numbers with a real minus sign, hops as arrows, equal hops on
+  one level for products and quotients. Signed numbers, wrong options from
+  the common mistakes (the wrong sign, adding the distances, forgetting the
+  opposite) and explanations come from `seeds/negatives/common.js`;
+  `scripts/checks/topic106.js` re-computed all 90 answers with its own
+  parser and reads every number line back (points, hop labels, ticks, the
+  caption's equation). Every existing lesson and exercise is unchanged
+  (compared by id). Checks: equations stay on one line and read in order at
+  360/390/1366px, every minus sits inside an isolate, options read left to
+  right. Sprint 18.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

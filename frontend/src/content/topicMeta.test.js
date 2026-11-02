@@ -23,13 +23,13 @@ describe('subject metadata', () => {
 
 describe('topic numbers on screen', () => {
   test('each subject counts from 1; math follows its teaching order (division, 105, is chapter 2)', () => {
-    expect([100, 105, 101, 102, 103, 104].map(displayTopic)).toEqual([1, 2, 3, 4, 5, 6]);
+    expect([100, 105, 101, 102, 103, 104, 106, 107, 108].map(displayTopic)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     expect([displaySubtopic('100.1'), displaySubtopic('105.2'), displaySubtopic('101.3')]).toEqual(['1.1', '2.2', '3.3']);
     expect([displayTopic(3), displaySubtopic('201.2')]).toEqual([3, '1.2']);
   });
 
   test('the contents list follows the teaching order', () => {
-    expect(orderedTopics('math', ['100', '101', '102', '103', '104', '105'])).toEqual(['100', '105', '101', '102', '103', '104']);
+    expect(orderedTopics('math', ['100', '101', '102', '103', '104', '105', '106'])).toEqual(['100', '105', '101', '102', '103', '104', '106']);
     expect(orderedTopics('english', ['2', '1', '10'])).toEqual(['1', '2', '10']);
   });
 });

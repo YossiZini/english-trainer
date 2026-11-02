@@ -34,12 +34,13 @@ session cannot see elsewhere.
 - Hard math questions with a picture overflow the pinned bar (laptop, 360px
   phone): known, accepted by the owner.
 - Right-to-left text: judge order by measuring (`Range.getClientRects`),
-  never from a screenshot.
+  never from a screenshot. A bare "−1" in Hebrew text shows as "1−": isolate it.
+- The API loads bundled content at startup: restart it after `generate-data`.
 
 ## Codebase facts
 - Topic numbers: English 1+, math 100–199, Arabic 201+. Math chapters
   follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
-  100, 105 (Division), 101, 102–104.
+  100, 105 (Division), 101, 102–104, 106 (negatives); 107 and 108 reserved.
 - Bot session kinds: vocab, exercise, review, drill (variant kefel or hiluk), unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
   answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a

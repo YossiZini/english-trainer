@@ -10,8 +10,8 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
-| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); per chapter `seeds/multiplication/common.js`, `seeds/division/common.js` |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
+| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); per chapter `seeds/multiplication/common.js`, `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`, `eq`) |
 | Names, TOC line, descriptions, subtopic examples (an equation is wrapped in `ltr()`) | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
@@ -20,8 +20,9 @@ Numbering: topics `100+`, shown as chapters `1+` in curriculum order, which
 is not the order of the numbers: `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` (lesson order, next lesson) and `topicOrder`
 in `topicMeta.js` (chapter numbers on screen) list them, and must stay equal
-(the multiplication table 100, Division 105, Fractions 101, then 102–104). A
-new topic takes the next free number and its place in both lists. Subtopics
+(the multiplication table 100, Division 105, Fractions 101, then 102–104,
+Negative numbers 106, the axes 107, triangles 108). A new topic takes the
+next free number and its place in both lists. Subtopics
 `'101.3'`, `orderIndex` `1000 + topic offset` (Fractions 1001–1006, Order of
 operations 1021, …; before them the multiplication table 991–993 and
 Division 994–997).
@@ -41,6 +42,14 @@ creates a new lesson and orphans progress.
   as `a/b` or `1 a/b`; the seed export stacks them (numerator over
   denominator) automatically. Do not hand-write fraction markup.
 - Use `×`, `÷`, `−`, `&gt;`; never `*`, `/` for division, or `-` as minus.
+  In theory HTML write a comparison with `&lt;`/`&gt;` (`eq()` in
+  `seeds/negatives/common.js` does it): a raw `<` ends the span for
+  `glueEquations`, and the comparison can break across lines.
+- A negative number in Hebrew text is always inside an isolate (`ltr()`,
+  `num()`) or `<span dir="ltr">`, captions too: alone, "−1" shows as "1−".
+- An option is shown in a left-to-right box: never mix Hebrew words and
+  numbers in one option ("−2 גדול מ-−8" reads scrambled); use a comparison
+  (`−2 > −8`) or words only.
 
 ## Exercises
 
