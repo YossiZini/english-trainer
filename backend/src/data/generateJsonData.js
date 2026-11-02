@@ -83,7 +83,8 @@ async function generateLessonsAndExercises(subjects = ['math', 'arabic']) {
       'topic103-average.js',
       'topic104-percentage.js',
       'topic106-negatives.js',
-      'topic107-axes.js'
+      'topic107-axes.js',
+      'topic108-triangles.js'
     ],
     arabic: [
       'topic201-arabic-first-unit.js'

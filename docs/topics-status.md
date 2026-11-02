@@ -183,17 +183,17 @@ For each topic, these assets must exist:
 Math lessons live in the same content files with `subject: "math"` and are
 numbered 100+. On the `/math` page and in the lesson order they appear in
 curriculum order, chapters 1+: the multiplication table (100), Division (105),
-Fractions (101), then 102–104, then Negative numbers (106) and the x and y
-axes (107); triangles (108) already has its place, as chapter 9. The order is `MATH_CHAPTER_ORDER` in
+Fractions (101), then 102–104, then Negative numbers (106), the x and y
+axes (107) and Triangles (108). The order is `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
 them equal); a new topic number goes where it belongs in both lists. A topic
 with several subtopics keeps them in a folder (`seeds/fractions/`,
-`seeds/multiplication/`, `seeds/division/`, `seeds/negatives/`, `seeds/axes/`) and composes them in
+`seeds/multiplication/`, `seeds/division/`, `seeds/negatives/`, `seeds/axes/`, `seeds/triangles/`) and composes them in
 `topic1NN-*.js`; write fractions as `a/b` in text and
 theory, the app shows them stacked (`MathText` for exercise text,
 `stackFractions` for theory HTML). Pictures for theory come from
 `seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `integerLine`,
-`coordGrid`, `grid`, `array`, `groups`, `longDivision`, `figure`). A
+`coordGrid`, `triangle`, `grid`, `array`, `groups`, `longDivision`, `figure`). A
 question that needs a picture to be answered carries it as
 `questionPicture` (`question_picture`, shown between the question and its
 options; the Telegram bot leaves such questions out). Seeds are plain modules
@@ -213,6 +213,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
 | 106 | Negative Numbers (3 subtopics 106.1–106.3, shown as chapter 7) | מספרים שליליים | topic106-negatives.js + negatives/*.js | Yes | Yes | Complete |
 | 107 | The x and y Axes (2 subtopics 107.1–107.2, shown as chapter 8) | מערכת צירים | topic107-axes.js + axes/*.js | Yes | Yes | Complete |
+| 108 | Triangles (3 subtopics 108.1–108.3, shown as chapter 9) | משולשים | topic108-triangles.js + triangles/*.js | Yes | Yes | Complete |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -240,7 +241,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 8 math topics (100–107), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 9 math topics (100–108), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -437,6 +438,30 @@ Track changes per topic with dates and descriptions.
   Checks: at 360/390/1366px every grid question ends above the pinned bar,
   equations stay on one line and read in order. In Telegram the grid
   questions are left out of lesson rounds and the mistakes exam. Sprint 18.
+
+### Topic 108: Triangles (Math)
+- 2026-11-02: New topic, chapter 9 of Math (after the axes): 108.1 kinds
+  of triangles (by sides and by angles, both at once, equal sides opposite
+  equal angles, which lengths make a triangle), 108.2 the angle sum, 180°
+  (a missing angle, right triangles, isosceles base and top angles, the
+  equilateral triangle, relations between angles), 108.3 perimeter and
+  area (half a rectangle, base × height ÷ 2, the legs of a right triangle,
+  a height outside an obtuse triangle, reverse problems). Each a Hebrew
+  teaching document with a picture for every rule and 30 multiple-choice
+  questions (10 per level); 8 questions are asked on their own picture.
+  Pictures: `triangle` in `math-svg.js`, drawn to shape from two angles,
+  three sides or a base and an apex: angle arcs with degrees, right-angle
+  squares, equal-side marks, side lengths, a dashed height (the base
+  extended when it falls outside) and the rectangle it is half of. Angles,
+  wrong options (360° instead of 180°, forgetting one angle, forgetting
+  ÷ 2, a slanted side as the height) and pictures come from
+  `seeds/triangles/common.js`; `scripts/checks/topic108.js` reads every
+  triangle back (each angle label within 1° of the drawing, right-angle
+  marks on right angles, equal marks on equal sides, lengths in
+  proportion) and re-computed all 90 answers (11 planted faults caught).
+  Every existing lesson and exercise is unchanged (compared by id).
+  Checks: at 360/390/1366px every picture question ends above the pinned
+  bar, equations stay on one line and read in order. Sprint 18.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

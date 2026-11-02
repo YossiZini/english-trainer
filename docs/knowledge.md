@@ -40,7 +40,7 @@ session cannot see elsewhere.
 ## Codebase facts
 - Topic numbers: English 1+, math 100–199, Arabic 201+. Math chapters
   follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
-  100, 105 (Division), 101, 102–104, 106 (negatives), 107 (axes); 108 reserved.
+  100, 105 (Division), 101, 102–104, 106 (negatives), 107 (axes), 108 (triangles).
 - `question_picture`: only on questions that have one (keeps other records
   byte-identical); the API passes it, `QuestionPicture` shows it, the bot skips it.
 - Bot session kinds: vocab, exercise, review, drill (variant kefel or hiluk), unseen (`sessionKinds.js`). A
