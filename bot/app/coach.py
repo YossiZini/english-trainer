@@ -36,7 +36,7 @@ TWIN = re.compile(r"^(\d{1,3}|[?？]|📄)$")
 def parse_command(text: str) -> tuple[str, dict] | None:
     """An English command, with or without "/" (and "@bot" in groups), else None.
 
-    help | words | end | switch | report | usage | kefel | review [manual|auto] |
+    help | words | end | switch | report | usage | kefel | hiluk | review [manual|auto] |
     english|math|arabic [N] [easy|medium|hard] |
     lessons english|math|arabic (also lessons_english) | lessons |
     mistakes english|math|arabic (also mistakes_english) | mistakes |
@@ -74,6 +74,8 @@ def parse_command(text: str) -> tuple[str, dict] | None:
         return "usage", {}
     if not rest and first in config.DRILL_WORDS:
         return "drill", {}
+    if not rest and first in config.DIVISION_WORDS:
+        return "drill", {"variant": "hiluk"}
     if first.startswith(config.REVIEW_WORD + "_") and not rest:
         first, rest = config.REVIEW_WORD, [first.split("_", 1)[1]]
     if first == config.REVIEW_WORD and len(rest) <= 1:
@@ -183,7 +185,7 @@ class Coach:
         if action == "usage":
             return usage_reply(await self.api.usage(chat_id))
         if action == "drill":
-            return drill_start_reply(await self.api.drill_start(chat_id))
+            return drill_start_reply(await self.api.drill_start(chat_id, args.get("variant")))
         if action == "unseen":
             return unseen_start_reply(await self.api.unseen_start(chat_id, args.get("number")))
         if action == "unseen_list":

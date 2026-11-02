@@ -12,8 +12,8 @@ const BotSession = require('../models/BotSession');
  * Sources, each read through its model with one date-range query:
  * lessons (exercise_results, web and bot), word answers (web quiz history
  * and bot words exams, dated by the exam's start), reading texts
- * (unseen_sessions) and multiplication-drill answers (/kefel in the bot,
- * dated by the drill's start). Days are Israel dates; a window includes
+ * (unseen_sessions) and drill answers in the bot (/kefel multiplication,
+ * /hiluk division; dated by the drill's start). Days are Israel dates; a window includes
  * today. The summary is cached for a few minutes per instance.
  */
 const WINDOWS = { week: 7, month: 30 };
@@ -33,7 +33,7 @@ function daysBefore(day, n) {
   return new Date(Date.UTC(y, m - 1, d - n)).toISOString().slice(0, 10);
 }
 
-const emptyCounts = () => ({ activeDays: 0, lessons: 0, words: 0, reading: 0, drill: 0 });
+const emptyCounts = () => ({ activeDays: 0, lessons: 0, words: 0, reading: 0, drill: 0, division: 0 });
 
 class UsageService {
   static clearCache() {
@@ -51,7 +51,7 @@ class UsageService {
     const events = [];
     for (const r of await UserProgress.resultsSince(since)) events.push({ userId: r.user_id, day: israelDay(r.completed_at), kind: 'lessons', amount: 1 });
     for (const a of await VocabularyUserHistory.answersSince(since)) events.push({ userId: a.user_id, day: israelDay(a.answered_at), kind: 'words', amount: 1 });
-    // Bot words exams count their answers as words; /kefel drills their answered questions.
+    // Bot words exams count their answers as words; drills their answered questions (/kefel drill, /hiluk division).
     for (const s of await BotSession.practiceAnswersSince(since)) events.push({ userId: s.userId, day: israelDay(s.startedAt), kind: s.kind, amount: s.answers });
     for (const s of await UnseenSession.completedSince(since)) {
       if (s.completed_at) events.push({ userId: s.user_id, day: israelDay(s.completed_at), kind: 'reading', amount: 1 });
