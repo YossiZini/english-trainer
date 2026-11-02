@@ -1131,3 +1131,108 @@ Only the owner's live check in Telegram (s1-t8) is left.
   `backend/scripts/checks/unseen/` (as in Sprint 15's follow-up).
 - Carried over: `check:viewport`'s laptop "at top" quirk; `App.test.js`
   under Jest; retros for Sprints 11–13.
+
+## Sprint 17 — Division, with groups that move (2026-11-01 → 2026-11-02)
+
+Goal: a division chapter right after the multiplication table, explained by
+step-by-step animations where objects gather into equal groups and the
+leftovers stand apart; the multiplication chapter gets the same animations;
+division in Telegram too.
+Result: 4 PRs (#77–#80), all merged, each deployed green on the first run,
+and the owner's live check of `/unseen` (carried over) passed.
+- **#77:** the chapter "חילוק" (topic 105, shown as chapter 2): division
+  with a remainder, the remainder in word problems, long division of two-
+  and three-digit numbers; 120 computed questions; an independent check.
+  Math chapters now follow an explicit order instead of their numbers.
+- **#78:** animations for the division lessons (counters gather into groups,
+  long division fills in), and a fix for every math animation's captions:
+  their equations showed reversed.
+- **#79:** `/hiluk`, a division drill in Telegram, recorded like `/kefel`.
+- **#80:** the same animations for the multiplication chapter.
+
+### What went well
+- **Nothing moved that should not.** A new chapter came second without
+  renumbering anything: 114 lessons and 2,666 exercises stayed identical by
+  id, and a planted broken sort failed two tests.
+- **Independent checks again.** `topic105.js` recomputed all 120 answers and
+  read the quotient and remainder back from every drawn long division; five
+  planted faults were caught.
+- **Measuring found a bug on `main`.** The caption check showed 104 of 118
+  equations reversed in every math animation's caption. One fix in the
+  shared player corrected all of them (0 of 330 now).
+- **A test of every drawn equation** (`arithmetic.test.js`) found two steps
+  in the already merged division animations that showed "17 ÷ 5 = 3"
+  without its remainder.
+- **One source for the drawing and its words.** Long-division captions and
+  notes are written from the same steps as the drawing, so they cannot
+  disagree; a planted off-by-one failed 17 tests.
+- **Work waiting for a PR stayed in the scratchpad worktree.** Each story
+  moved onto fresh `main` by cherry-pick, after `git diff` against the
+  tested tree came back empty, so what shipped was what was tested.
+- **A drill variant, not a new feature.** `/hiluk` reuses the drill session,
+  its route and its recording; a real round through the coach against the
+  emulator passed before the PR.
+
+### What hurt
+- **A shared picture helper changed old content.** Laying `groups()` out
+  right to left for leftovers changed 3 lessons and 13 exercises of topic
+  100. The identity check caught it. Cause: a new behaviour went into the
+  helper's default path instead of behind its new option.
+- **Long division under an answer took three rounds.** It was 6 px on a
+  phone. The phone CSS (72 px cap) was fixed first, but `pic()` in the seed
+  also shrank it to 110 px. Cause: only one of the sizing layers was traced.
+  The first measurement also misled: it compared the box's width, not the
+  drawn content, which is letterboxed.
+- **The caption fix nearly broke other captions.** The isolate pattern took
+  "6:" into "מכנה משותף 6: 1/2 = 3/6", and equations still wrapped on
+  phones. Cause: the pattern was tried on the new captions only, not on all
+  the existing ones.
+- **An incomplete equation shipped in #78.** "17 ÷ 5 = 3" stood alone for a
+  step, the very mistake the lesson warns about. Cause: drawn equations had
+  no test until #80.
+- **Tooling stumbles.**
+  - The local API was killed at the 30-minute default background limit in
+    the middle of a check.
+  - `pkill -f` matched the shell's own command line and killed it.
+  - The first animation screenshots were taken mid-animation on a scrolled
+    page and could not be judged.
+- **Readable long division costs scrolling.** In 2.3 and 2.4 the feedback
+  picture ends up to 154 px below the pinned bar on a 360 px phone. This is
+  a known trade-off, put to the owner.
+
+### Lessons → rules
+- A shared drawing or text helper changes only behind a new option; its
+  default output stays byte-identical, proven by the by-id identity check
+  (refines "other topics identical by id").
+- Before resizing a picture, trace every layer that sizes it (seed
+  attributes, `pic`/`fitHeight`, the CSS of each breakpoint). Measure the
+  drawn content's scale (the smaller of the width and height ratios), not
+  its box.
+- A change to a pattern that rewrites text (isolates, glue, fractions) is
+  run over all existing content before the PR. Grep it for the pattern's
+  edge cases (a number before a colon, lists, units).
+- Every new place that shows Hebrew with equations (captions, notes,
+  buttons, Telegram) gets the measured-order check before its PR, and its
+  isolates use non-breaking spaces (refines "judge order by measuring").
+- Every equation drawn on an animation stage is checked by
+  `arithmetic.test.js`. A division drawn before its remainder is known
+  shows "ושארית ?".
+- Start a local server for checks with an explicit long timeout. Stop it by
+  task id or by the port's pid, never with `pkill -f`.
+- Screenshot an animation step as the player element, after the step has
+  settled (3.5 s or more), never full-page in the middle of a walk.
+- Move scratchpad work onto fresh `main` only when `git diff <tested>
+  HEAD` is empty.
+
+### Follow-ups
+- The owner's call: long division under an answer scrolls on phones (up to
+  154 px at 360 px). Keep the readable digits, or draw it smaller.
+- Move this sprint's browser checks into the repository: the caption order
+  (as a step of `animation-check.js`), equations on one line and pictures
+  inside their box (`check:viewport` or a new script). They live in the
+  scratchpad today.
+- Sprint 16's open follow-ups: five guessable reading questions, an audit
+  of the first 15 texts, scoping `.back-btn`, and the review follow-ups.
+- Carried over: `check:viewport`'s laptop "at top" quirk; questions with a
+  picture end below the pinned bar on a laptop; `App.test.js` under Jest;
+  the content tools in the repository; retros for Sprints 11–13.
