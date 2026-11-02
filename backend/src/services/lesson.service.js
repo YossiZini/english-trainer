@@ -3,6 +3,7 @@ const Exercise = require('../models/Exercise');
 const UserProgress = require('../models/UserProgress');
 const { db } = require('../config/database');
 const { shuffleArray } = require('../utils/shuffle');
+const { topicRank } = require('../utils/lessonOrder');
 
 class LessonService {
   /**
@@ -69,7 +70,8 @@ class LessonService {
       return acc;
     }, {});
 
-    return Object.values(groupedLessons);
+    // Object keys sort numerically; chapters follow the curriculum order.
+    return Object.values(groupedLessons).sort((a, b) => topicRank(a.topicNumber) - topicRank(b.topicNumber));
   }
 
   /**

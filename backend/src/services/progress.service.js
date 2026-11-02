@@ -3,6 +3,7 @@ const WrongAnswer = require('../models/WrongAnswer');
 const GamificationService = require('./gamification.service');
 const User = require('../models/User');
 const { db } = require('../config/database');
+const { topicRank } = require('../utils/lessonOrder');
 // Subjects shown side by side on the home page, in display order.
 const { SUBJECTS } = require('../config/subjects');
 
@@ -170,7 +171,7 @@ class ProgressService {
         total: data.total,
         percentage: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0
       }))
-      .sort((a, b) => a.topic_number - b.topic_number);
+      .sort((a, b) => topicRank(a.topic_number) - topicRank(b.topic_number));
 
     return {
       scoreProgression,

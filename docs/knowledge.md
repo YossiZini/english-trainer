@@ -37,8 +37,9 @@ session cannot see elsewhere.
   never from a screenshot.
 
 ## Codebase facts
-- Topic numbers: English 1+, math 100–199 (100 is chapter 1,
-  `numberOffset` 99), Arabic 201+.
+- Topic numbers: English 1+, math 100–199, Arabic 201+. Math chapters
+  follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
+  100, 105 (Division), 101, 102–104.
 - Bot session kinds: vocab, exercise, review, drill, unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
   answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a

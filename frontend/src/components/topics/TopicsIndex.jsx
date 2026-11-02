@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import lessonService from '../../services/lessonService';
 import mistakesService from '../../services/mistakesService';
-import { getSubtopicExamples, displayTopic, displaySubtopic, metaOf } from '../../content/topicMeta';
+import { getSubtopicExamples, displayTopic, displaySubtopic, metaOf, orderedTopics } from '../../content/topicMeta';
 import './TopicsIndex.css';
 
 // One page for every subject: the lessons come from the API filtered by
@@ -134,7 +134,7 @@ const TopicsIndex = ({ subject = 'english' }) => {
       <div className="table-of-contents">
         <h3 className="toc-title">תוכן העניינים</h3>
         <div className="toc-grid">
-          {Object.keys(topicNames).map(topicNum => (
+          {orderedTopics(subject, Object.keys(topicNames)).map(topicNum => (
             <a
               key={topicNum}
               href={`#topic-${topicNum}`}

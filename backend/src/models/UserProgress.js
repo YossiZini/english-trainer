@@ -1,5 +1,5 @@
 const { db } = require('../config/database');
-const { compareLessons } = require('../utils/lessonOrder');
+const { compareLessons, topicRank } = require('../utils/lessonOrder');
 
 /** A lesson's subject; content before the Math tab has none and is English. */
 const subjectOf = (lesson) => (lesson && lesson.subject) || 'english';
@@ -226,7 +226,7 @@ class UserProgress {
       });
     }
 
-    result.sort((a, b) => a.topic_number - b.topic_number);
+    result.sort((a, b) => topicRank(a.topic_number) - topicRank(b.topic_number));
     return result;
   }
 
