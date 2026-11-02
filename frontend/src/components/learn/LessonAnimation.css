@@ -142,6 +142,7 @@
 .lesson-animation .la-seat { fill: none; stroke: var(--la-b); stroke-width: 1.5; stroke-dasharray: 3 3; }
 .lesson-animation .la-left-count.b { fill: var(--la-b); font-weight: 700; }
 .lesson-animation .la-div-rest { font-size: 26px; font-weight: 700; fill: var(--la-b); }
+.lesson-animation .la-div-rest.dim { fill: var(--la-muted); }
 .lesson-animation .la-ld-q { fill: var(--la-sum); font-weight: 700; }
 .lesson-animation .la-ld-down { fill: var(--la-a); font-weight: 700; }
 .lesson-animation .la-ld-rest { fill: var(--la-b); font-weight: 700; }

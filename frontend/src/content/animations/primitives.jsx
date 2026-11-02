@@ -385,18 +385,26 @@ export function groupLayout(total, each, { groups, x = 20, y = 10, w = 600, h = 
  * group: a dashed outline with empty seats). `labels` writes the count
  * under each group. With reduced motion the counters appear in place.
  */
-export const Counters = ({ total, each, groups, phase = 'grouped', x = 20, y = 10, w = 600, h = 200, labels = false, left = 'b', anim = '' }) => {
-  const ref = useRef(null);
-  const L = groupLayout(total, each, { groups, x, y, w, h, labels });
+/**
+ * After mount, moves every counter inside `ref` from where its inline
+ * transform puts it to its own place (a CSS transition, see .la-gather).
+ */
+function useSettle(ref, moving) {
   useEffect(() => {
-    if (phase !== 'gather' || !ref.current) return undefined;
+    if (!moving || !ref.current) return undefined;
     const els = ref.current.querySelectorAll('.la-counter');
     let raf2 = 0;
     const raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => { els.forEach((el) => { el.style.transform = 'translate(0px, 0px)'; }); });
     });
     return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
-  }, [phase]);
+  }, [ref, moving]);
+}
+
+export const Counters = ({ total, each, groups, phase = 'grouped', x = 20, y = 10, w = 600, h = 200, labels = false, left = 'b', anim = '' }) => {
+  const ref = useRef(null);
+  const L = groupLayout(total, each, { groups, x, y, w, h, labels });
+  useSettle(ref, phase === 'gather');
   const pile = phase === 'pile', gather = phase === 'gather';
   const slotCount = L.groups + (L.left ? 1 : 0);
   const pace = Math.min(0.3, 1.8 / Math.max(1, slotCount)); // seconds between groups
@@ -434,9 +442,62 @@ export const Counters = ({ total, each, groups, phase = 'grouped', x = 20, y = 1
 };
 
 /**
+ * `rows` rows of `cols` dots in the box x, y, w, h, as the theory's array
+ * pictures (rows × columns). `phase`: "pile" (a heap), "gather" (from a heap
+ * into the rows, one row after another), "turn" (every dot comes from its
+ * place in the cols × rows array, so 4 rows of 3 become 3 rows of 4) or
+ * "grouped" (in place). `fadeCols` dims that many last columns
+ * (6 × 9 = 6 × 10 − 6); `splitRows` / `splitCols` draw the rows / columns
+ * from that index on in the second colour (doubling; half of × 10).
+ */
+export function arrayLayout(rows, cols, { x = 20, y = 10, w = 600, h = 200, maxUnit = 30, turn = false } = {}) {
+  const across = turn ? Math.max(rows, cols) : cols, down = turn ? Math.max(rows, cols) : rows;
+  const unit = Math.min(maxUnit, w / across, h / down);
+  const place = (R, C) => {
+    const ox = x + (w - C * unit) / 2 + unit / 2, oy = y + (h - R * unit) / 2 + unit / 2;
+    return (r, c) => ({ x: ox + c * unit, y: oy + r * unit });
+  };
+  const at = place(rows, cols), turned = place(cols, rows);
+  const n = rows * cols, cx = x + w / 2, cy = y + h / 2, r = 0.36 * unit;
+  const spread = Math.min(unit * 0.62, (Math.min(w, h) / 2 - r - 2) / Math.sqrt(n));
+  const order = shuffled(n);
+  const dots = [];
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      const k = i * cols + j, a = order[k] * 2.39996, d = spread * Math.sqrt(order[k] + 0.5);
+      const from = turned(j, i);
+      dots.push({ ...at(i, j), row: i, col: j, px: cx + d * Math.cos(a), py: cy + d * Math.sin(a), tx: from.x, ty: from.y });
+    }
+  }
+  return { unit, r, dots };
+}
+
+export const DotArray = ({ rows, cols, phase = 'grouped', fadeCols = 0, splitRows = 0, splitCols = 0, x = 20, y = 10, w = 600, h = 200, anim = '' }) => {
+  const ref = useRef(null);
+  const moving = phase === 'gather' || phase === 'turn';
+  const L = arrayLayout(rows, cols, { x, y, w, h, turn: phase === 'turn' });
+  useSettle(ref, moving);
+  const pace = Math.min(0.25, 1.6 / rows);
+  return (
+    <g ref={ref} className={`la-array ${moving ? 'la-gather' : ''} ${anim}`.trim()} data-rows={rows} data-cols={cols} data-faded={fadeCols * rows}>
+      {L.dots.map((d, i) => {
+        const cls = d.col >= cols - fadeCols ? 'dim' : (splitRows && d.row >= splitRows) || (splitCols && d.col >= splitCols) ? 'b' : 'a';
+        const sx = phase === 'pile' ? d.px : d.x, sy = phase === 'pile' ? d.py : d.y;
+        const fromX = phase === 'turn' ? d.tx : d.px, fromY = phase === 'turn' ? d.ty : d.py;
+        const style = moving
+          ? { transform: `translate(${(fromX - d.x).toFixed(1)}px, ${(fromY - d.y).toFixed(1)}px)`, transitionDelay: `${(phase === 'turn' ? i * 0.02 : d.row * pace + d.col * 0.03).toFixed(2)}s` }
+          : undefined;
+        return <circle key={i} cx={sx} cy={sy} r={L.r} className={`la-counter ${phase === 'pile' ? 'a' : cls}`} style={style} data-row={d.row} data-col={d.col} />;
+      })}
+    </g>
+  );
+};
+
+/**
  * "a ÷ d = q" centred on (x, y), with "ושארית r" written after it in Hebrew
- * (to its left) when `r` is given. `q` null shows "?". The quotient is in
- * the result colour, the remainder in the leftovers' colour.
+ * (to its left) when `r` is given. `q` null shows "?"; `r` "?" shows that a
+ * remainder is still to come (never "17 ÷ 5 = 3" on its own). The quotient
+ * is in the result colour, the remainder in the leftovers' colour.
  */
 export const DivEq = ({ x = 320, y = 245, a, d, q = null, r = null, size = 28, anim = '', qAnim = 'pop d2', rAnim = 'fadein d4' }) => {
   const tokens = [String(a), '÷', String(d), '=', q == null ? { t: '?', cls: 'dim' } : { t: String(q), cls: 'result', anim: qAnim }];
@@ -447,7 +508,7 @@ export const DivEq = ({ x = 320, y = 245, a, d, q = null, r = null, size = 28, a
   return (
     <g className={anim} data-div-eq={`${a}÷${d}=${q ?? '?'}${r == null ? '' : `r${r}`}`}>
       <Expr x={right - ew / 2} y={y} size={size} tokens={tokens} />
-      {tail && <Text x={right - ew - between} y={y} anchor="start" rtl cls={`la-div-rest ${rAnim}`}>{tail}</Text>}
+      {tail && <Text x={right - ew - between} y={y} anchor="start" rtl cls={`la-div-rest ${r === '?' ? 'dim' : ''} ${rAnim}`}>{tail}</Text>}
     </g>
   );
 };

@@ -117,8 +117,10 @@ creates a new lesson and orphans progress.
   cells) and `PriceTag` (`price`, `label`, `strike`); for division
   `Counters` (`total`, `each`, `groups`; `phase` "pile", "gather" or
   "grouped"; `left` "b", "dim" or "extra"; `labels`), `DivEq` (`a ÷ d = q`
-  and "ושארית r") and `LongDivision` (`upto` steps; the newest step appears
-  in four beats). Long-division scenes come from `division/longSteps.jsx`
+  and "ושארית r"; `r="?"` until the remainder is known) and `LongDivision`
+  (`upto` steps; the newest step appears in four beats); for multiplication
+  `DotArray` (`rows` × `cols`; `phase` "pile", "gather", "turn" or
+  "grouped"; `fadeCols`, `splitRows`, `splitCols`). Long-division scenes come from `division/longSteps.jsx`
   (`longScene`, `ldCaption`), so the caption, the notes and the drawing use
   the same steps.
   Entrance classes: `pop`, `rise`, `fadein`, `draw`, `shake` with delays
@@ -130,7 +132,9 @@ creates a new lesson and orphans progress.
 - Check with `node scripts/animation-check.js` (frontend, API on :5000,
   `SHOTS_DIR` for screenshots, `SHOT_STEPS=all` for every step, `LESSONS`
   to limit): walks every step at laptop and phone and fails when anything
-  is drawn outside the 640×280 stage.
+  is drawn outside the 640×280 stage. `animations/arithmetic.test.js` checks
+  every equation drawn on any stage (both sides equal; a division with its
+  remainder gives back the dividend).
 
 ## Verification (before every commit)
 
