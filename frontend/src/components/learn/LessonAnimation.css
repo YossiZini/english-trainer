@@ -159,3 +159,53 @@
 @media (max-width: 768px) {
   .lesson-animation .la-ld-note { font-size: 24px; }
 }
+
+/* Sprint 18 primitives (animations/geometry.jsx): hops on a number line, a
+   coordinate plane, triangles. la-trace draws a line from its start
+   (pathLength 1); la-move slides a piece to its place; la-seq marks what
+   waits for an inline delay. */
+.lesson-animation .la-zero { font-weight: 700; fill: var(--la-ink); }
+.lesson-animation .la-trace { stroke-dasharray: 1; stroke-dashoffset: 1; animation: la-trace 0.7s ease forwards; }
+@keyframes la-trace { to { stroke-dashoffset: 0; } }
+.lesson-animation .la-hop { fill: none; stroke: var(--la-a); stroke-width: 3; }
+.lesson-animation .la-hop.b { stroke: var(--la-b); }
+.lesson-animation .la-hop-head.a { fill: var(--la-a); } .lesson-animation .la-hop-head.b { fill: var(--la-b); }
+.lesson-animation .la-hop-label { font-size: 17px; font-weight: 700; fill: var(--la-a); }
+.lesson-animation .la-hop-label.b { fill: var(--la-b); } .lesson-animation .la-hop-label.sum { fill: var(--la-sum); }
+.lesson-animation .la-brace { fill: none; stroke: var(--la-b); stroke-width: 2.5; }
+.lesson-animation .la-grid-line { stroke: var(--la-line); stroke-width: 1; }
+.lesson-animation .la-axis { stroke: var(--la-ink); stroke-width: 2.5; }
+.lesson-animation .la-axis-head { fill: var(--la-ink); }
+.lesson-animation .la-axis-name { font-size: 18px; font-weight: 700; font-style: italic; }
+.lesson-animation .la-axis-num { font-size: 12px; fill: var(--la-muted); }
+.lesson-animation .la-quarter { fill: var(--la-a-soft); }
+.lesson-animation .la-quarter.q2, .lesson-animation .la-quarter.q4 { fill: var(--la-b-soft); }
+.lesson-animation .la-quarter-text { font-size: 16px; font-weight: 700; fill: var(--la-ink); }
+.lesson-animation .la-seg { stroke: var(--la-a); stroke-width: 4; stroke-linecap: round; }
+.lesson-animation .la-seg.b { stroke: var(--la-b); }
+.lesson-animation .la-seg.dashed { stroke-dasharray: 7 5; stroke-width: 2.5; animation: la-fadein 0.5s ease both; }
+.lesson-animation .la-walk { stroke-width: 4; stroke-linecap: round; }
+.lesson-animation .la-walk.x { stroke: var(--la-a); } .lesson-animation .la-walk.y { stroke: var(--la-b); }
+.lesson-animation .la-tri { fill: var(--la-a-soft); stroke: var(--la-ink); stroke-width: 2.5; stroke-linejoin: round; }
+.lesson-animation .la-tri.empty { fill: none; }
+.lesson-animation .la-box { fill: none; stroke: var(--la-b); stroke-width: 2; stroke-dasharray: 6 4; }
+.lesson-animation .la-half { fill: var(--la-b-soft); stroke: var(--la-b); stroke-width: 1.5; }
+.lesson-animation .la-height { stroke: var(--la-a); stroke-width: 2.5; stroke-dasharray: 6 4; }
+.lesson-animation .la-height-sq { fill: none; stroke: var(--la-a); stroke-width: 1.8; }
+.lesson-animation .la-dashed.thin { stroke-width: 1.5; }
+.lesson-animation .la-tick-mark { stroke: var(--la-ink); stroke-width: 2.5; }
+.lesson-animation .la-side-label { font-size: 17px; font-weight: 700; }
+.lesson-animation .la-vertex { font-size: 18px; font-weight: 700; font-style: italic; }
+.lesson-animation .la-angle-mark { fill: none; stroke: var(--la-b); stroke-width: 2.5; }
+.lesson-animation .la-angle-label { font-size: 16px; font-weight: 700; fill: #b46f0a; }
+.lesson-animation .la-wedge { stroke: var(--la-ink); stroke-width: 1.5; fill-opacity: 0.9; transform-box: view-box; transform-origin: 0 0; }
+.lesson-animation .la-wedge.a { fill: var(--la-a); } .lesson-animation .la-wedge.b { fill: var(--la-b); } .lesson-animation .la-wedge.sum { fill: var(--la-sum); }
+.lesson-animation .la-move { transform-box: view-box; transform-origin: 0 0; transition: transform 1.1s cubic-bezier(0.4, 0, 0.2, 1); }
+.lesson-animation .la-rod { stroke-width: 6; stroke-linecap: round; }
+.lesson-animation .la-rod.base { stroke: var(--la-ink); } .lesson-animation .la-rod.a { stroke: var(--la-a); } .lesson-animation .la-rod.b { stroke: var(--la-b); }
+.lesson-animation .la-gap { stroke: var(--la-sum); stroke-width: 3; }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-animation .la-trace { animation-duration: 0.01s; }
+  .lesson-animation .la-seq { animation-delay: 0s !important; }
+  .lesson-animation .la-move { transition-duration: 0.01s; transition-delay: 0s !important; }
+}

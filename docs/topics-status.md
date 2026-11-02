@@ -416,6 +416,10 @@ Track changes per topic with dates and descriptions.
   (compared by id). Checks: equations stay on one line and read in order at
   360/390/1366px, every minus sits inside an isolate, options read left to
   right. Sprint 18.
+- 2026-11-02: Every lesson opens with a step-by-step animation, one scene
+  per rule: hops on the number line traced one after another (adding,
+  subtracting the opposite, equal hops for × and ÷), the sign pattern of
+  × row by row, opposites and the distance from 0. Sprint 18.
 
 ### Topic 107: The x and y Axes (Math)
 - 2026-11-02: New topic, chapter 8 of Math (after negative numbers): 107.1
@@ -438,6 +442,10 @@ Track changes per topic with dates and descriptions.
   Checks: at 360/390/1366px every grid question ends above the pinned bar,
   equations stay on one line and read in order. In Telegram the grid
   questions are left out of lesson rounds and the mistakes exam. Sprint 18.
+- 2026-11-02: Every lesson opens with a step-by-step animation, one scene
+  per rule: a point is reached by walking along x, then along y; the
+  quarters fill in one by one; a point moves with an arrow; a distance is
+  drawn along a grid line; a rectangle's fourth corner appears. Sprint 18.
 
 ### Topic 108: Triangles (Math)
 - 2026-11-02: New topic, chapter 9 of Math (after the axes): 108.1 kinds
@@ -462,6 +470,10 @@ Track changes per topic with dates and descriptions.
   Every existing lesson and exercise is unchanged (compared by id).
   Checks: at 360/390/1366px every picture question ends above the pinned
   bar, equations stay on one line and read in order. Sprint 18.
+- 2026-11-02: Every lesson opens with a step-by-step animation, one scene
+  per rule: a triangle's three corners torn off and laid on a straight line
+  (180°), rods that meet or fall short (which lengths make a triangle), the
+  rectangle a triangle is half of, the height dropping onto the base. Sprint 18.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

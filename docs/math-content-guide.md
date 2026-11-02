@@ -143,7 +143,20 @@ creates a new lesson and orphans progress.
   and "ושארית r"; `r="?"` until the remainder is known) and `LongDivision`
   (`upto` steps; the newest step appears in four beats); for multiplication
   `DotArray` (`rows` × `cols`; `phase` "pile", "gather", "turn" or
-  "grouped"; `fadeCols`, `splitRows`, `splitCols`). Long-division scenes come from `division/longSteps.jsx`
+  "grouped"; `fadeCols`, `splitRows`, `splitCols`); for negative numbers,
+  the axes and triangles `animations/geometry.jsx`: `HopLine` (whole numbers
+  with a real minus sign; `hops` traced one after another, `flat` for equal
+  hops, `points` with `at` to appear when the hops end (`afterHops(n)`),
+  `brace` for a distance), `CoordPlane` (a `walk` along x, then y, to a
+  point; `points`, `moves`, `segments`, shaded `quarters`), `TriangleShape`
+  (corners from `triangleFromAngles` (with `maxHeight`), `triangleFromSides`
+  or `triangleFromBase`; `angleLabels`, `ticks`, `sideLabels`, `height`,
+  `box` with `halves`, `corners` "whole" or "torn" onto a straight line) and
+  `Rods` (two sides that meet over a base, or lie flat with a gap). In a
+  caption or a note, wrap math with a leading minus or a comparison in
+  `iso()`: the player's isolateMath starts a run at a digit, so "−2" alone
+  shows as "2−"; and never put an equation right after "ה-x:" (it lands on
+  the wrong side of the x). Long-division scenes come from `division/longSteps.jsx`
   (`longScene`, `ldCaption`), so the caption, the notes and the drawing use
   the same steps.
   Entrance classes: `pop`, `rise`, `fadein`, `draw`, `shake` with delays
