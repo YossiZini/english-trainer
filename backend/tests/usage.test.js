@@ -51,6 +51,8 @@ describe('Usage summary', () => {
     await drill(ids.dana, '2026-06-15T06:00:00Z', 10);
     await drill(ids.omer, '2026-06-12T15:00:00Z', 4);
     await drill(ids.idle, '2026-06-14T15:00:00Z', 0);
+    // /hiluk (the division drill) counts apart: omer answered 6 the same day.
+    await db.insert('bot_sessions', { user_id: ids.omer, chat_id: 'x', kind: 'drill', variant: 'hiluk', status: 'ended', started_at: '2026-06-12T16:00:00Z', index: 6, correct_count: 6, wrong_count: 0, questions: [] });
   });
   afterAll(shutdownDatabase);
   beforeEach(() => UsageService.clearCache());
@@ -62,14 +64,14 @@ describe('Usage summary', () => {
     expect(summary.students).toEqual([
       {
         name: 'dana',
-        week: { activeDays: 2, lessons: 1, words: 3, reading: 1, drill: 10 },
-        month: { activeDays: 3, lessons: 2, words: 3, reading: 1, drill: 10 },
+        week: { activeDays: 2, lessons: 1, words: 3, reading: 1, drill: 10, division: 0 },
+        month: { activeDays: 3, lessons: 2, words: 3, reading: 1, drill: 10, division: 0 },
         lastActive: '2026-06-15'
       },
       {
         name: 'omer',
-        week: { activeDays: 1, lessons: 0, words: 0, reading: 0, drill: 4 },
-        month: { activeDays: 2, lessons: 0, words: 8, reading: 0, drill: 4 },
+        week: { activeDays: 1, lessons: 0, words: 0, reading: 0, drill: 4, division: 6 },
+        month: { activeDays: 2, lessons: 0, words: 8, reading: 0, drill: 4, division: 6 },
         lastActive: '2026-06-12'
       }
     ]);

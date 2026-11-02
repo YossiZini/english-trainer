@@ -89,9 +89,11 @@ class TrainerApi:
         """A subject's mistakes exam: up to 20 unfixed mistakes, asked like a lesson."""
         return await self._call("POST", "/bot/mistakes/start", chat_id, subject=subject)
 
-    async def drill_start(self, chat_id: str) -> dict:
-        """/kefel: ten new multiplication-table questions, answered by typing the number."""
-        return await self._call("POST", "/bot/drill/start", chat_id)
+    async def drill_start(self, chat_id: str, variant: str | None = None) -> dict:
+        """/kefel: ten new multiplication-table questions, answered by typing the number;
+        variant "hiluk" (/hiluk): ten division questions, answered with the quotient and the remainder."""
+        fields = {"variant": variant} if variant else {}
+        return await self._call("POST", "/bot/drill/start", chat_id, **fields)
 
     async def unseen_start(self, chat_id: str, number: int | None = None) -> dict:
         """/unseen: a reading text (the next one not finished, or number N of the list) and its first question."""

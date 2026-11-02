@@ -64,14 +64,15 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/mistakes_english`, `/mistakes_math`, `/mistakes_arabic` (also `mistakes english`; `/mistakes` alone offers all three) | the subject's mistakes exam (see "Mistakes exam") |
 | `/unseen` (also `unseen`), `unseen 7`, `/unseen_list` (also `unseen list`) | an English reading text, then its five questions; text 7 of the list; the numbered list of texts (see "Reading texts (unseen)") |
 | `/kefel` (also `kefel`) | ten quick multiplication-table drills; nothing is saved (see "Multiplication drill") |
+| `/hiluk` (also `hiluk`, `חילוק`) | ten quick division drills, with remainders and long division; nothing is saved (see "Division drill") |
 | `/report` | report the word or lesson question answered last (or the current one): reason buttons marked 🚩 (see "Reported questions and review") |
 | `/review_manual`, `/review_auto` (also `/review manual`, `/review auto`) | review of reported questions and words, open to every linked student (see "Reported questions and review") |
 | `/end` (also `stop`) | ends any open session |
 
 A multiple-choice answer is a number, so a bare command works during a
 question too. Only while a typed question is open (a fill-in question, or a
-`/kefel` drill, whose questions have type `number`) is a bare word the answer
-(it may be "help" or "english"); during a drill the API asks the same
+`/kefel` or `/hiluk` drill, whose questions have type `number`) is a bare word
+the answer (it may be "help", "english" or "חילוק"); during a drill the API asks the same
 question again. No lesson exercise is fill-in any more. The "/" form is always the
 command, and `end` always ends the session. A free-form message (for example "איך זה
 עובד?") goes to the agent, whose `show_help` tool sends the same help text.
@@ -80,9 +81,10 @@ command, and `end` always ends the session. A free-form message (for example "א
 
 `/usage` shows every student's participation in the last 7 and the last 30
 days, one line per student, most active first: active days, lessons done,
-words practised, reading texts done and `/kefel` questions answered ("כפל")
-(week|month), and the last active day. There are no scores, points or
-right/wrong counts. Days are Israel dates and each window includes today.
+words practised, reading texts done, `/kefel` questions answered ("כפל") and
+`/hiluk` questions answered ("חילוק") (week|month), and the last active day.
+There are no scores, points or right/wrong counts. Days are Israel dates
+and each window includes today.
 
 It is open to every linked student (the owner's decision), so **every
 linked student sees every active student's account name and activity**.
@@ -92,9 +94,9 @@ most 30 students and stays inside one Telegram message.
 The API (`GET /api/bot/usage`, `backend/src/services/usage.service.js`)
 reads each source through its model with one date-range query: lesson
 results (web and bot), web vocabulary-quiz answers, bot words exams and
-`/kefel` drills (their answers, dated by the session's start; one query for
-both) and completed reading texts. The summary is cached for 10 minutes per
-API instance.
+drills (their answers, dated by the session's start; one query for all of
+them; a `/hiluk` drill counts as `division`) and completed reading texts.
+The summary is cached for 10 minutes per API instance.
 
 ## Reported questions, words and review
 
@@ -248,6 +250,33 @@ the usual `/session/answer` and `/session/end`.
   "כפל" and its day as an active day. A drill has no question to
   `/report`. The daily message cap applies as everywhere.
 
+## Division drill
+
+`/hiluk` (also `hiluk` and `חילוק`, Hebrew for division) is the same drill
+with the Math chapter "חילוק": `POST /api/bot/drill/start` with `variant:
+"hiluk"`; the session keeps `variant` and the questions come from
+`backend/src/services/bot/divisionDrill.js`. Ten new questions per round,
+easiest first: five with a remainder (`17 ÷ 5`, divisor and quotient 2–9)
+and five long divisions (two of a two-digit number, three of a three-digit
+one, the last with a 0 inside the quotient), about half with a remainder.
+
+- The student types the quotient and the remainder: `3 2`, `3 שארית 2`,
+  `3 ש 2`, `3r2` or `מנה 3, שארית 2`; with no remainder the quotient alone
+  (`21`, or `21 0`). Anything else asks the same question again and counts
+  nothing.
+- The right quotient without its remainder ("3" for `17 ÷ 5`) says the
+  remainder is missing and asks again, counting nothing.
+- A right answer: "✅ נכון!". A wrong one: the kind line, the answer
+  ("התשובה: 17 ÷ 5 = 3 ושארית 2") and the check by multiplication ("בדיקה:
+  3 × 5 + 2 = 17"); a remainder not smaller than the divisor adds that the
+  remainder is always smaller than the divisor.
+- The end, `/end` and the recording are as in `/kefel`; `/usage` shows the
+  answered questions as "חילוק".
+
+The chapter's lessons (2.1–2.4) are also in the bot's math lessons
+(`/lessons_math`, `math`), in the chapter order of the website; their
+answers with a remainder read "מנה 3, שארית 2" on the buttons.
+
 ## Reading texts (unseen)
 
 `/unseen` sends an English reading text from the website's Unseen section
@@ -310,7 +339,7 @@ Telegram ──webhook──► Cloud Run: english-trainer-bot (bot/, Python, Go
                           │  chat → student through telegram_links (one-time code from the web app)
                           │  word selection, answer matching, rounds, counters, rate limits
                           │  lesson exercises: questions, verdicts, grading through ExerciseService
-                          │  /kefel drills: ten generated questions, verdicts, nothing recorded
+                          │  /kefel and /hiluk drills: ten generated questions, verdicts, nothing recorded
                           │  /unseen readings: a text, its questions, recorded like the website's readings
                           │  a dictionary miss: one yes/no from Gemini (Vertex AI)
                           ▼
@@ -347,7 +376,7 @@ service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 
 | Piece | Where |
 |---|---|
-| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/drillSession.js` (`/kefel`), `services/bot/unseenSession.js` (`/unseen`), `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
+| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/drillSession.js` (`/kefel`, `/hiluk` with `divisionDrill.js`), `services/bot/unseenSession.js` (`/unseen`), `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
 | Student side of linking | `backend/src/routes/telegram.routes.js`, web page `/settings/telegram` |
 | Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `drill_replies.py`, `unseen_replies.py`, `coach.py`, `main.py`) |
 | Cloud Run spec, secrets | `infra/cloudrun-bot.yaml`, `infra/setup-bot.sh`, `infra/set-webhook.sh` |

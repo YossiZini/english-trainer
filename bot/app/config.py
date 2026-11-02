@@ -61,6 +61,9 @@ LESSONS_WORD = "lessons"
 MISTAKES_WORD = "mistakes"
 # The multiplication-table drill (Hebrew "כפל", written in English letters).
 DRILL_WORDS = {"kefel"}
+# The division drill (Hebrew "חילוק"). A bare word during a words exam or a
+# typed question is an answer, so "חילוק" there still translates "division".
+DIVISION_WORDS = {"hiluk", "חילוק"}
 # English reading texts with questions, as the website's Unseen section:
 # "unseen", "unseen 7", "unseen list" (also unseen_list). Not "reading" or
 # "text": both are vocabulary words, so they could be an answer.

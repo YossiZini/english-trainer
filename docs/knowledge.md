@@ -40,7 +40,7 @@ session cannot see elsewhere.
 - Topic numbers: English 1+, math 100–199, Arabic 201+. Math chapters
   follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
   100, 105 (Division), 101, 102–104.
-- Bot session kinds: vocab, exercise, review, drill, unseen (`sessionKinds.js`). A
+- Bot session kinds: vocab, exercise, review, drill (variant kefel or hiluk), unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
   answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a
   transaction (unseen uses it; the other kinds do not yet). For a minute after

@@ -90,6 +90,12 @@ async def start_kefel_drill(tool_context: ToolContext) -> dict:
     return {"reply": str(drill_start_reply(await _api.drill_start(_chat(tool_context))))}
 
 
+async def start_hiluk_drill(tool_context: ToolContext) -> dict:
+    """Start a quick division drill (חילוק): 10 new questions, 5 divisions with a remainder and 5 long
+    divisions, answered by typing the quotient and the remainder ("3 2"). Nothing is saved as a score."""
+    return {"reply": str(drill_start_reply(await _api.drill_start(_chat(tool_context), "hiluk")))}
+
+
 def _direct(reply: replies.Reply, tool_context: ToolContext) -> dict:
     """A reply the coach sends as it is; the model is not asked to write it again."""
     tool_context.actions.skip_summarization = True
@@ -114,4 +120,4 @@ async def show_help(tool_context: ToolContext) -> dict:
 
 
 TOOLS = [show_help, link_account, start_session, answer_word, end_session, session_status, start_lesson_exercise, list_lessons,
-         start_mistakes_exam, start_kefel_drill, start_unseen, list_unseen_texts]
+         start_mistakes_exam, start_kefel_drill, start_hiluk_drill, start_unseen, list_unseen_texts]

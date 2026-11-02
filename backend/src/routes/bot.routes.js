@@ -51,12 +51,17 @@ router.post('/mistakes/start', [
 ], BotController.startMistakes);
 
 /**
- * POST /api/bot/drill/start { chatId } — /kefel: ten new multiplication-table
- * questions (five ×, five ÷, factors 2–10), answered by typing the number
- * through /session/answer; /session/end stops it. No result, points,
- * progress or mistakes; /usage counts the answered questions.
+ * POST /api/bot/drill/start { chatId, variant? } — ten new drill questions,
+ * answered by typing through /session/answer; /session/end stops it.
+ * variant 'kefel' (default, /kefel): the multiplication table (five ×, five
+ * ÷, factors 2–10), typed as a number. 'hiluk' (/hiluk): five divisions
+ * with a remainder and five long divisions, typed as the quotient and the
+ * remainder ("3 2"). No result, points, progress or mistakes; /usage counts
+ * the answered questions.
  */
-router.post('/drill/start', BotController.startDrill);
+router.post('/drill/start', [
+  body('variant').optional({ nullable: true }).isIn(['kefel', 'hiluk']).withMessage('variant must be kefel or hiluk')
+], BotController.startDrill);
 
 /**
  * POST /api/bot/unseen/start { chatId, number? } — /unseen: a reading text

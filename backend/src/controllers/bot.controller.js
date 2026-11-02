@@ -77,9 +77,10 @@ class BotController {
     send(res, await ExerciseSession.startMistakes(req.user, req.chatId, { subject: req.body.subject }));
   }
 
-  /** /kefel: ten new multiplication-table questions. */
+  /** /kefel or /hiluk: ten new drill questions (multiplication table or division). */
   static async startDrill(req, res) {
-    send(res, await DrillSession.start(req.user, req.chatId));
+    if (invalid(req, res)) return;
+    send(res, await DrillSession.start(req.user, req.chatId, { variant: req.body.variant || 'kefel' }));
   }
 
   /** /unseen: a reading text (the next one not finished, or number N of the list), then its questions. */
