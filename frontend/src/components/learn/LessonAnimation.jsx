@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import MathText from '../common/MathText';
+import { isolateMath } from '../../content/animations/primitives';
 import './LessonAnimation.css';
 
 /**
@@ -102,7 +103,8 @@ const LessonAnimation = ({ scenes, stepMs = STEP_MS, autoplay }) => {
             {step.draw()}
           </svg>
         </div>
-        <MathText key={captionKey} as="p" className="la-caption" text={step.caption} />
+        {/* Equations keep their order in the right-to-left caption */}
+        <MathText key={captionKey} as="p" className="la-caption" text={isolateMath(step.caption)} />
         <div className="la-controls">
           <button type="button" className="la-btn" onClick={prev} disabled={si === 0 && st === 0} aria-label="צעד אחורה">‹ אחורה</button>
           <button type="button" className="la-btn la-btn-primary" onClick={togglePlay} aria-label={playing ? 'השהה' : 'הפעל'}>

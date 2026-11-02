@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Walks every step of every animated lesson scene at a laptop and a phone
- * viewport: no page errors, stage inside the viewport, caption non-empty.
+ * viewport: no page errors, stage inside the viewport, everything drawn
+ * inside the stage (640×280), caption non-empty.
  * Screenshots (first step of each scene) go to SHOTS_DIR when set.
  *
  * Usage: API on :5000 (emulator-backed), `npm run build`, then
@@ -71,10 +72,15 @@ async function api(route, opts = {}) {
         while (guard++ < 12) {
           steps++;
           const m = await page.evaluate(() => {
-            const svg = document.querySelector('.lesson-animation svg').getBoundingClientRect();
-            return { inside: svg.left >= 0 && svg.right <= window.innerWidth + 1, caption: document.querySelector('.lesson-animation .la-caption').textContent.trim(), stepLabel: document.querySelector('.la-scene-title small').textContent, hscroll: document.documentElement.scrollWidth > window.innerWidth + 1 };
+            const stage = document.querySelector('.lesson-animation svg');
+            const svg = stage.getBoundingClientRect();
+            // Drawn parts outside the viewBox would spill over the caption or be cut off.
+            const outside = [...stage.children].filter((el) => el.tagName !== 'defs').map((el) => el.getBBox())
+              .filter((b) => (b.width || b.height) && (b.x < -2 || b.y < -2 || b.x + b.width > 642 || b.y + b.height > 282))
+              .map((b) => `${Math.round(b.x)},${Math.round(b.y)} ${Math.round(b.width)}×${Math.round(b.height)}`);
+            return { inside: svg.left >= 0 && svg.right <= window.innerWidth + 1, outside, caption: document.querySelector('.lesson-animation .la-caption').textContent.trim(), stepLabel: document.querySelector('.la-scene-title small').textContent, hscroll: document.documentElement.scrollWidth > window.innerWidth + 1 };
           });
-          if (!m.inside || m.hscroll || !m.caption) { failures++; console.log('FAIL', size.name, l.subtopicNumber, 'tab', t + 1, m); }
+          if (!m.inside || m.outside.length || m.hscroll || !m.caption) { failures++; console.log('FAIL', size.name, l.subtopicNumber, 'tab', t + 1, m); }
           if (SHOTS_DIR && (ALL_STEPS || m.stepLabel.startsWith('שלב 1 '))) { await page.waitForTimeout(900); await page.screenshot({ path: path.join(SHOTS_DIR, `${size.name}-${l.subtopicNumber}-scene${t + 1}${ALL_STEPS ? `-step${m.stepLabel.match(/\d+/)[0]}` : ''}.png`) }); }
           const next = await page.$('.lesson-animation .la-btn[aria-label="צעד קדימה"]:not([disabled])');
           if (!next) break;
