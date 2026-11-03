@@ -57,6 +57,24 @@ creates a new lesson and orphans progress.
   isolates. Write a caption's points or equations in `<span dir="ltr">` (as
   `gridPic` does), and give a caption with two of them a Hebrew word between
   them (`A(1, 2) ו-B(4, −2)`), or it shows left to right.
+- **Equations with the unknown x** (chapter 10; measured in Chromium in a
+  right-to-left paragraph and a `dir="auto"` one before the chapter was built):
+  - The unknown is the Latin letter `x`; `3x` means 3 times x, with no sign
+    or space. A box `□` stands for it only in 10.1, before the letter.
+  - Every expression with an operator or `=` (an equation, a step
+    `x = 12 − 5`, `3x + 2`) is inside an isolate (`ltr()`, question and
+    explanation text) or `<span dir="ltr">` (`eq()`, theory and captions).
+    A lone `x` may stand in Hebrew ("נסמן את הנעלם ב-x", "מצאו את x"): it
+    reads right.
+  - No question, explanation, caption or paragraph starts with `x` or an
+    equation: start with a Hebrew word ("פתרו: ⁦x + 5 = 12⁩"). In a
+    `dir="auto"` box (a caption, a Telegram line) a leading x or isolate
+    turns the whole line left to right.
+  - Division by a number is `x ÷ 4`, not `x/4`: the app stacks only number
+    fractions, so `x/4` would show flat.
+  - Options are numbers, the value of x (`7`, `−3`), never `x = 7`: the bot
+    isolates an option only when it has no letters.
+  - `scripts/checks/topic109.js` enforces these rules on every text field.
 
 ## Exercises
 
