@@ -3,7 +3,7 @@
 // common mistakes (x and y swapped, a sign flipped), the quarters, how a
 // point is reached from the origin, grid pictures for the theory, the
 // explanation and the question itself, and the lesson builder.
-const { ltr, mcq, P, eq, withQuestionPicture, mathLesson } = require('../multiplication/common');
+const { ltr, P, eq, mathLesson, optionsQuestion } = require('../multiplication/common');
 
 /** An integer as written in the lessons: "−3", "0", "5". */
 const S = P.signed;
@@ -67,20 +67,20 @@ const gridPic = (points, caption, opts = {}) => P.figures(P.figure(grid(points, 
 const spans = (caption) => caption.replace(/\u2066([^\u2069]*)\u2069/g, '<span dir="ltr">$1</span>');
 
 /** A question whose answer is a point. */
-const pointQ = (n, level, text, [x, y], explanation, { extra = [], picture = null, question = null } = {}) =>
-  withQuestionPicture(mcq(n, level, text, pair(x, y), pairWrongs(x, y, [...extra, ...mistakesOf(x, y)]), explanation, picture), question);
+const pointQ = (n, level, text, [x, y], explanation, { extra = [], ...opts } = {}) =>
+  optionsQuestion(n, level, text, pair(x, y), pairWrongs(x, y, [...extra, ...mistakesOf(x, y)]), explanation, opts);
 
 /** A question whose answer is a whole number. */
-function intQ(n, level, text, answer, candidates, explanation, { picture = null, question = null } = {}) {
+function intQ(n, level, text, answer, candidates, explanation, opts) {
   const wrongs = [];
   for (const v of candidates) if (v !== answer && !wrongs.includes(v)) wrongs.push(v);
   if (wrongs.length < 3) throw new Error(`Not enough wrong options for ${answer}`);
-  return withQuestionPicture(mcq(n, level, text, S(answer), wrongs.slice(0, 3).map(S), explanation, picture), question);
+  return optionsQuestion(n, level, text, S(answer), wrongs.slice(0, 3).map(S), explanation, opts);
 }
 
 /** A question with its own options (letters, quarters, words). */
-const choiceQ = (n, level, text, answer, wrongs, explanation, { picture = null, question = null } = {}) =>
-  withQuestionPicture(mcq(n, level, text, answer, wrongs, explanation, picture), question);
+const choiceQ = (n, level, text, answer, wrongs, explanation, opts) =>
+  optionsQuestion(n, level, text, answer, wrongs, explanation, opts);
 
 /** The quarter of (x, y) as a question. */
 const quarterQ = (n, level, text, [x, y], explanation, opts = {}) =>

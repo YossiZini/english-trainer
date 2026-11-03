@@ -2,7 +2,7 @@
 // angles in degrees, lengths in ס״מ (with the Hebrew gershayim, not a
 // quote mark), wrong options from the common mistakes, triangle pictures and
 // the lesson builder.
-const { ltr, mcq, P, eq, withQuestionPicture, mathLesson } = require('../multiplication/common');
+const { ltr, P, eq, mathLesson, optionsQuestion } = require('../multiplication/common');
 
 /** An angle: "70°". */
 const deg = (v) => `${v}°`;
@@ -24,16 +24,16 @@ function firstWrongs(answer, candidates, fmt) {
 }
 
 /** A question whose answer is a number (a length, an area, a count). */
-const numQ = (n, level, text, answer, candidates, explanation, { picture = null, question = null } = {}) =>
-  withQuestionPicture(mcq(n, level, text, show(answer), firstWrongs(answer, candidates, show), explanation, picture), question);
+const numQ = (n, level, text, answer, candidates, explanation, opts) =>
+  optionsQuestion(n, level, text, show(answer), firstWrongs(answer, candidates, show), explanation, opts);
 
 /** A question whose answer is an angle in degrees. */
-const degQ = (n, level, text, answer, candidates, explanation, { picture = null, question = null } = {}) =>
-  withQuestionPicture(mcq(n, level, text, deg(answer), firstWrongs(answer, candidates, deg), explanation, picture), question);
+const degQ = (n, level, text, answer, candidates, explanation, opts) =>
+  optionsQuestion(n, level, text, deg(answer), firstWrongs(answer, candidates, deg), explanation, opts);
 
 /** A question with its own options (kinds of triangles, yes or no, triples). */
-const choiceQ = (n, level, text, answer, wrongs, explanation, { picture = null, question = null } = {}) =>
-  withQuestionPicture(mcq(n, level, text, answer, wrongs, explanation, picture), question);
+const choiceQ = (n, level, text, answer, wrongs, explanation, opts) =>
+  optionsQuestion(n, level, text, answer, wrongs, explanation, opts);
 
 /**
  * A triangle under an explanation or a rule: at 0.8 of its size, with the

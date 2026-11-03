@@ -3,7 +3,7 @@
 // a solution and how to check it by putting it in, and 3x as 3 times x.
 // Solving here is by thinking backwards and checking; balancing both pans
 // comes in 109.2.
-const { ltr, P, S, eq, eqn, lin, solve, at, numQ, choiceQ, pans, balFig, balPic, lesson } = require('./common');
+const { ltr, P, S, eq, eqn, lin, solve, at, numQ, choiceQ, pans, balFig, balPic, lesson, plug, checkQ } = require('./common');
 
 const theory = `
 <h2>מהו נעלם?</h2>
@@ -105,12 +105,8 @@ function divQ(n, level, a, c) {
   return numQ(n, level, `מה הפתרון של המשוואה ${ltr(`x ÷ ${a} = ${c}`)}?`, x, [c + a, c - a, Math.round(c / a) || 1, c, x + a], why);
 }
 
-/** The number written for x in a·x + b: "3 × 4 + 2", "(−2) + 5". */
-function substituted([a, b], x) {
-  const X = x < 0 ? `(${S(x)})` : S(x);
-  const ax = a === 1 ? X : a === -1 ? `−${X}` : `${S(a)} × ${X}`;
-  return b === 0 ? ax : `${ax} ${b > 0 ? '+' : '−'} ${Math.abs(b)}`;
-}
+/** The number written for x in a·x + b: "3 × 4 + 2", "−2 + 5" (math guide). */
+const substituted = (form, x) => plug(lin(form), x);
 
 /**
  * The value of a·x + b when x is given; `shown` and `put` write the same
@@ -127,13 +123,6 @@ function valQ(n, level, [a, b], x, { shown = null, put = null, wrongs = null } =
     wrongs || [concat, a + x + b, a * (x + b), v + a, x, b, v + 1, v - 1, -v].filter((c) => c !== null), why);
 }
 
-/** Is x = s the solution of l = r? Answered by putting it in. */
-function checkQ(n, level, l, r, s, text = null) {
-  const right = at(l, s) === at(r, s);
-  const ask = text || `האם ${ltr(`x = ${S(s)}`)} הוא הפתרון של המשוואה ${ltr(eqn(l, r))}?`;
-  const why = `מציבים ${S(s)} במקום x: באגף שמאל ${ltr(`${substituted(l, s)} = ${S(at(l, s))}`)}, ובאגף ימין ${S(at(r, s))}. ${right ? 'שני האגפים שווים, ולכן כן.' : 'האגפים לא שווים, ולכן לא.'}`;
-  return choiceQ(n, level, ask, right ? 'כן' : 'לא', [right ? 'לא' : 'כן', 'אי אפשר לבדוק'], why);
-}
 
 /** "I thought of a number…": a story whose equation is l = r. */
 function storyQ(n, level, text, l, r, steps) {
@@ -159,7 +148,7 @@ const exercises = [
   subQ(11, 'medium', 7, 5),
   addQ(12, 'medium', 4, 12, { flip: true }),
   mulQ(13, 'medium', 5, 35),
-  checkQ(14, 'medium', [2, 0], [0, 18], 16, `דנה אומרת שהפתרון של המשוואה ${ltr('2x = 18')} הוא 16. האם היא צודקת?`),
+  checkQ(14, 'medium', [2, 0], [0, 18], 16, { text: `דנה אומרת שהפתרון של המשוואה ${ltr('2x = 18')} הוא 16. האם היא צודקת?` }),
   valQ(15, 'medium', [3, 2], 4),
   mulQ(16, 'medium', 6, 42, { box: true }),
   divQ(17, 'medium', 3, 5),
@@ -180,7 +169,7 @@ const exercises = [
   valQ(25, 'hard', [3, 0], 5, { shown: 'x + 2x', put: '5 + 2 × 5', wrongs: [30, 35, 12, 20] }),
   mulQ(26, 'hard', 3, 21, { text: 'מאזניים מאוזנים: על כף אחת 3 קופסאות שוות, ועל הכף השנייה 21 קוביות. כמה קוביות בכל קופסה?',
     first: `המאזניים הם המשוואה ${ltr('3x = 21')}. ` }),
-  mulQ(27, 'hard', 4, 20, { flip: true }),
+  mulQ(27, 'hard', 6, 42, { flip: true }),
   storyQ(28, 'hard', 'חשבתי על מספר, הורדתי ממנו 9 וקיבלתי 0. על איזה מספר חשבתי?', [1, -9], [0, 0],
     (x) => `מחפשים מספר שאם מורידים ממנו 9 נשאר 0: ${ltr(`0 + 9 = ${x}`)}.`),
   mulQ(29, 'hard', 3, 0),

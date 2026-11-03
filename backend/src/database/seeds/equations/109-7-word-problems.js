@@ -4,6 +4,8 @@
 // fits a story (options with x), and stories to solve (ages, money, sharing,
 // perimeter, consecutive numbers, tickets).
 const { ltr, S, eq, solve, at, numQ, choiceQ, balFig, lesson, P, steps } = require('./common');
+// Equation and expression options are glued (U+00A0), so the right answer never breaks across lines.
+const { glue } = require('../multiplication/common');
 
 const theory = `
 <h2>מסיפור למשוואה</h2>
@@ -200,9 +202,6 @@ const tickets = (d, m, c, s) => story({
 });
 
 // ---------------------------------------------------------------- questions
-
-/** An option that is an equation or expression, glued (U+00A0) so it never breaks across lines. */
-const glue = (o) => o.replace(/ /g, '\u00a0');
 
 /** Solve the story and answer what `ask` asks: the four steps, the check in the story. */
 function solveQ(n, level, st, ask) {

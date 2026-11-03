@@ -59281,7 +59281,7 @@
       "אי אפשר לבדוק"
     ],
     "correct_answer": "כן",
-    "explanation_he": "מציבים 4 במקום x: באגף שמאל ⁦4 + 6 = 10⁩, ובאגף ימין 10. שני האגפים שווים, ולכן כן.",
+    "explanation_he": "מציבים 4 במקום x: באגף שמאל ⁦4 + 6 = 10⁩, ובאגף ימין ⁦10⁩. שני האגפים שווים, ולכן כן.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -59427,7 +59427,7 @@
       "אי אפשר לבדוק"
     ],
     "correct_answer": "לא",
-    "explanation_he": "מציבים 11 במקום x: באגף שמאל ⁦11 + 2 = 13⁩, ובאגף ימין 9. האגפים לא שווים, ולכן לא.",
+    "explanation_he": "מציבים 11 במקום x: באגף שמאל ⁦11 + 2 = 13⁩, ובאגף ימין ⁦9⁩. האגפים לא שווים, ולכן לא.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -59510,7 +59510,7 @@
       "לא"
     ],
     "correct_answer": "לא",
-    "explanation_he": "מציבים 16 במקום x: באגף שמאל ⁦2 × 16 = 32⁩, ובאגף ימין 18. האגפים לא שווים, ולכן לא.",
+    "explanation_he": "מציבים 16 במקום x: באגף שמאל ⁦2 × 16 = 32⁩, ובאגף ימין ⁦18⁩. האגפים לא שווים, ולכן לא.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -59774,19 +59774,19 @@
     "lesson_id": "dc4c8c7e-5d58-4950-abde-90dbcdd08d92",
     "question_number": 27,
     "type": "multiple_choice",
-    "question_text_he": "מה הפתרון של המשוואה ⁦20 = 4x⁩?",
+    "question_text_he": "מה הפתרון של המשוואה ⁦42 = 6x⁩?",
     "question_text_en": null,
     "options": [
-      "16",
-      "24",
-      "80",
-      "5"
+      "36",
+      "48",
+      "252",
+      "7"
     ],
-    "correct_answer": "5",
-    "explanation_he": "מחפשים מספר שאם כופלים אותו ב-4 מקבלים 20: ⁦20 ÷ 4 = 5⁩. בדיקה: ⁦4 × 5 = 20⁩.",
+    "correct_answer": "7",
+    "explanation_he": "מחפשים מספר שאם כופלים אותו ב-6 מקבלים 42: ⁦42 ÷ 6 = 7⁩. בדיקה: ⁦6 × 7 = 42⁩.",
     "explanation_en": null,
     "hint_he": null,
-    "explanation_picture": "<div class=\"math-figures\"><figure class=\"math-figure\"><svg class=\"math-pic math-grid\" direction=\"ltr\" style=\"direction:ltr\" viewBox=\"0 0 484 118.0\" width=\"387\" height=\"94\" role=\"img\" aria-label=\"מאזניים מאוזנים\"><g data-balance=\"1\" data-tilt=\"level\"><path d=\"M 208.0 112.0 L 276.0 112.0 L 262.0 103.0 L 222.0 103.0 Z\" fill=\"#2b2f3a\"/><line x1=\"242.0\" y1=\"66.0\" x2=\"242.0\" y2=\"103.0\" stroke=\"#2b2f3a\" stroke-width=\"5\" stroke-linecap=\"round\"/><line x1=\"124.9\" y1=\"66.0\" x2=\"359.1\" y2=\"66.0\" stroke=\"#2b2f3a\" stroke-width=\"5\" stroke-linecap=\"round\"/><path d=\"M 242.0 64.0 L 234.0 78.0 L 250.0 78.0 Z\" fill=\"#667eea\"/><g data-pan=\"left\"><line x1=\"124.9\" y1=\"66.0\" x2=\"124.9\" y2=\"52.0\" stroke=\"#2b2f3a\" stroke-width=\"3\"/><path d=\"M 5.9 49.0 L 243.9 49.0 L 235.9 55.0 L 13.9 55.0 Z\" fill=\"#dfe3ea\" stroke=\"#2b2f3a\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><g data-group=\"1\"><rect x=\"11.9\" y=\"12.0\" width=\"52.0\" height=\"36.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"unit\"><rect x=\"15.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"31.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"47.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"23.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"39.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g></g><g data-group=\"2\"><rect x=\"69.9\" y=\"12.0\" width=\"52.0\" height=\"36.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"unit\"><rect x=\"73.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"89.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"105.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"81.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"97.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g></g><g data-group=\"3\"><rect x=\"127.9\" y=\"12.0\" width=\"52.0\" height=\"36.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"unit\"><rect x=\"131.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"147.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"163.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"139.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"155.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g></g><g data-group=\"4\"><rect x=\"185.9\" y=\"12.0\" width=\"52.0\" height=\"36.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"unit\"><rect x=\"189.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"205.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"221.9\" y=\"32.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"197.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"213.9\" y=\"16.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g></g></g><g data-pan=\"right\"><line x1=\"359.1\" y1=\"66.0\" x2=\"359.1\" y2=\"52.0\" stroke=\"#2b2f3a\" stroke-width=\"3\"/><path d=\"M 240.1 49.0 L 478.1 49.0 L 470.1 55.0 L 248.1 55.0 Z\" fill=\"#dfe3ea\" stroke=\"#2b2f3a\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><g data-group=\"1\"><rect x=\"282.1\" y=\"14.0\" width=\"34.0\" height=\"34.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"box\" data-label=\"x\"><g><rect x=\"286.1\" y=\"18.0\" width=\"26\" height=\"26\" rx=\"4\" fill=\"#e8e4fb\" stroke=\"#667eea\" stroke-width=\"2\"/><text x=\"299.1\" y=\"36.5\" font-size=\"16\" font-style=\"italic\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#667eea\">x</text></g></g></g><g data-group=\"2\"><rect x=\"322.1\" y=\"14.0\" width=\"34.0\" height=\"34.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"box\" data-label=\"x\"><g><rect x=\"326.1\" y=\"18.0\" width=\"26\" height=\"26\" rx=\"4\" fill=\"#e8e4fb\" stroke=\"#667eea\" stroke-width=\"2\"/><text x=\"339.1\" y=\"36.5\" font-size=\"16\" font-style=\"italic\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#667eea\">x</text></g></g></g><g data-group=\"3\"><rect x=\"362.1\" y=\"14.0\" width=\"34.0\" height=\"34.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"box\" data-label=\"x\"><g><rect x=\"366.1\" y=\"18.0\" width=\"26\" height=\"26\" rx=\"4\" fill=\"#e8e4fb\" stroke=\"#667eea\" stroke-width=\"2\"/><text x=\"379.1\" y=\"36.5\" font-size=\"16\" font-style=\"italic\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#667eea\">x</text></g></g></g><g data-group=\"4\"><rect x=\"402.1\" y=\"14.0\" width=\"34.0\" height=\"34.0\" rx=\"6\" fill=\"none\" stroke=\"#667eea\" stroke-width=\"1.5\" stroke-dasharray=\"4 3\"/><g data-item=\"box\" data-label=\"x\"><g><rect x=\"406.1\" y=\"18.0\" width=\"26\" height=\"26\" rx=\"4\" fill=\"#e8e4fb\" stroke=\"#667eea\" stroke-width=\"2\"/><text x=\"419.1\" y=\"36.5\" font-size=\"16\" font-style=\"italic\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#667eea\">x</text></g></g></g></g></g></svg><figcaption dir=\"auto\"><span dir=\"ltr\">20 ÷ 4 = 5</span></figcaption></figure></div>",
+    "explanation_picture": null,
     "difficulty": "hard",
     "created_at": "2026-11-03T06:30:07.273Z"
   },
@@ -59921,16 +59921,16 @@
     "lesson_id": "57d6bedc-1835-41e3-8296-d62667e73762",
     "question_number": 4,
     "type": "multiple_choice",
-    "question_text_he": "איזה מספר מורידים משני האגפים כדי לפתור את ⁦x + 7 = 15⁩?",
+    "question_text_he": "איזה מספר מורידים משני האגפים כדי לפתור את ⁦x + 9 = 16⁩?",
     "question_text_en": null,
     "options": [
+      "9",
+      "16",
       "7",
-      "15",
-      "8",
-      "22"
+      "25"
     ],
-    "correct_answer": "7",
-    "explanation_he": "ליד x יש ⁦+ 7⁩, ומבטלים אותו בחיסור: מורידים 7 משני האגפים ומקבלים ⁦x = 8⁩.",
+    "correct_answer": "9",
+    "explanation_he": "ליד x יש ⁦+ 9⁩, ומבטלים אותו בחיסור: מורידים 9 משני האגפים ומקבלים ⁦x = 7⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60077,7 +60077,7 @@
       "5"
     ],
     "correct_answer": "5",
-    "explanation_he": "מורידים 9 משני האגפים: ⁦14 − 9 = x⁩, כלומר ⁦x = 5⁩. בדיקה: ⁦5 + 9 = 14⁩.",
+    "explanation_he": "מורידים 9 משני האגפים: ⁦14 − 9 = x⁩, כלומר ⁦x = 5⁩. בדיקה: ⁦14 = 5 + 9⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": "<div class=\"math-figures\"><figure class=\"math-figure\"><svg class=\"math-pic math-grid\" direction=\"ltr\" style=\"direction:ltr\" viewBox=\"0 0 386 124.0\" width=\"309\" height=\"99\" role=\"img\" aria-label=\"מאזניים מאוזנים\"><g data-balance=\"1\" data-tilt=\"level\"><path d=\"M 159.0 118.0 L 227.0 118.0 L 213.0 109.0 L 173.0 109.0 Z\" fill=\"#2b2f3a\"/><line x1=\"193.0\" y1=\"72.0\" x2=\"193.0\" y2=\"109.0\" stroke=\"#2b2f3a\" stroke-width=\"5\" stroke-linecap=\"round\"/><line x1=\"75.9\" y1=\"72.0\" x2=\"310.1\" y2=\"72.0\" stroke=\"#2b2f3a\" stroke-width=\"5\" stroke-linecap=\"round\"/><path d=\"M 193.0 70.0 L 185.0 84.0 L 201.0 84.0 Z\" fill=\"#667eea\"/><g data-pan=\"left\"><line x1=\"75.9\" y1=\"72.0\" x2=\"75.9\" y2=\"58.0\" stroke=\"#2b2f3a\" stroke-width=\"3\"/><path d=\"M 5.9 55.0 L 145.9 55.0 L 137.9 61.0 L 13.9 61.0 Z\" fill=\"#dfe3ea\" stroke=\"#2b2f3a\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><g data-item=\"unit\"><rect x=\"13.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"29.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"45.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"61.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\"><rect x=\"77.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"93.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"91.9\" y1=\"56.0\" x2=\"107.9\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"109.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"107.9\" y1=\"56.0\" x2=\"123.9\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"125.9\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"123.9\" y1=\"56.0\" x2=\"139.9\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"29.9\" y=\"26.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"27.9\" y1=\"40.0\" x2=\"43.9\" y2=\"24.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"45.9\" y=\"26.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"43.9\" y1=\"40.0\" x2=\"59.9\" y2=\"24.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"61.9\" y=\"26.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"59.9\" y1=\"40.0\" x2=\"75.9\" y2=\"24.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"77.9\" y=\"26.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"75.9\" y1=\"40.0\" x2=\"91.9\" y2=\"24.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"93.9\" y=\"26.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"91.9\" y1=\"40.0\" x2=\"107.9\" y2=\"24.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"109.9\" y=\"26.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"107.9\" y1=\"40.0\" x2=\"123.9\" y2=\"24.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g></g><g data-pan=\"right\"><line x1=\"310.1\" y1=\"72.0\" x2=\"310.1\" y2=\"58.0\" stroke=\"#2b2f3a\" stroke-width=\"3\"/><path d=\"M 240.1 55.0 L 380.1 55.0 L 372.1 61.0 L 248.1 61.0 Z\" fill=\"#dfe3ea\" stroke=\"#2b2f3a\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><g data-item=\"box\" data-label=\"x\"><g><rect x=\"249.1\" y=\"28.0\" width=\"26\" height=\"26\" rx=\"4\" fill=\"#e8e4fb\" stroke=\"#667eea\" stroke-width=\"2\"/><text x=\"262.1\" y=\"46.5\" font-size=\"16\" font-style=\"italic\" font-weight=\"700\" text-anchor=\"middle\" fill=\"#667eea\">x</text></g></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"279.1\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"277.1\" y1=\"56.0\" x2=\"293.1\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"295.1\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"293.1\" y1=\"56.0\" x2=\"309.1\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"311.1\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"309.1\" y1=\"56.0\" x2=\"325.1\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"327.1\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"325.1\" y1=\"56.0\" x2=\"341.1\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"343.1\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"341.1\" y1=\"56.0\" x2=\"357.1\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"359.1\" y=\"42.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"357.1\" y1=\"56.0\" x2=\"373.1\" y2=\"40.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"288.1\" y=\"12.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"286.1\" y1=\"26.0\" x2=\"302.1\" y2=\"10.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"304.1\" y=\"12.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"302.1\" y1=\"26.0\" x2=\"318.1\" y2=\"10.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g><g data-item=\"unit\" data-crossed=\"1\"><rect x=\"320.1\" y=\"12.0\" width=\"12\" height=\"12\" rx=\"1.5\" fill=\"#f5a623\" fill-opacity=\"0.75\" stroke=\"#2b2f3a\" stroke-width=\"1\" opacity=\"0.4\"/><line x1=\"318.1\" y1=\"26.0\" x2=\"334.1\" y2=\"10.0\" stroke=\"#d0342c\" stroke-width=\"2.5\" stroke-linecap=\"round\"/></g></g></g></svg><figcaption dir=\"auto\"><span dir=\"ltr\">x = 5</span></figcaption></figure></div>",
@@ -60098,7 +60098,7 @@
       "20"
     ],
     "correct_answer": "26",
-    "explanation_he": "מוסיפים 6 לשני האגפים: ⁦20 + 6 = x⁩, כלומר ⁦x = 26⁩. בדיקה: ⁦26 − 6 = 20⁩.",
+    "explanation_he": "מוסיפים 6 לשני האגפים: ⁦20 + 6 = x⁩, כלומר ⁦x = 26⁩. בדיקה: ⁦20 = 26 − 6⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60266,7 +60266,7 @@
       "60"
     ],
     "correct_answer": "100",
-    "explanation_he": "מוסיפים 40 לשני האגפים: ⁦60 + 40 = x⁩, כלומר ⁦x = 100⁩. בדיקה: ⁦100 − 40 = 60⁩.",
+    "explanation_he": "מוסיפים 40 לשני האגפים: ⁦60 + 40 = x⁩, כלומר ⁦x = 100⁩. בדיקה: ⁦60 = 100 − 40⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60287,7 +60287,7 @@
       "4"
     ],
     "correct_answer": "−5",
-    "explanation_he": "מורידים 9 משני האגפים: ⁦x = 4 − 9 = −5⁩. בדיקה: ⁦(−5) + 9 = 4⁩.",
+    "explanation_he": "מורידים 9 משני האגפים: ⁦x = 4 − 9 = −5⁩. בדיקה: ⁦−5 + 9 = 4⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60308,7 +60308,7 @@
       "−11"
     ],
     "correct_answer": "−12",
-    "explanation_he": "מורידים 12 משני האגפים: ⁦x = 0 − 12 = −12⁩. בדיקה: ⁦(−12) + 12 = 0⁩.",
+    "explanation_he": "מורידים 12 משני האגפים: ⁦x = 0 − 12 = −12⁩. בדיקה: ⁦−12 + 12 = 0⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60329,7 +60329,7 @@
       "−5"
     ],
     "correct_answer": "−5",
-    "explanation_he": "מוסיפים 3 לשני האגפים: ⁦x = −8 + 3 = −5⁩. בדיקה: ⁦(−5) − 3 = −8⁩.",
+    "explanation_he": "מוסיפים 3 לשני האגפים: ⁦x = −8 + 3 = −5⁩. בדיקה: ⁦−5 − 3 = −8⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60350,7 +60350,7 @@
       "2"
     ],
     "correct_answer": "−4",
-    "explanation_he": "נסמן ב-x את הטמפרטורה בהתחלה: ⁦x + 6 = 2⁩. מורידים 6 משני האגפים: ⁦x = 2 − 6 = −4⁩. בדיקה: ⁦(−4) + 6 = 2⁩.",
+    "explanation_he": "נסמן ב-x את הטמפרטורה בהתחלה: ⁦x + 6 = 2⁩. מורידים 6 משני האגפים: ⁦x = 2 − 6 = −4⁩. בדיקה: ⁦−4 + 6 = 2⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60392,7 +60392,7 @@
       "−5"
     ],
     "correct_answer": "−20",
-    "explanation_he": "מורידים 15 משני האגפים: ⁦−5 − 15 = x⁩, כלומר ⁦x = −20⁩. בדיקה: ⁦(−20) + 15 = −5⁩.",
+    "explanation_he": "מורידים 15 משני האגפים: ⁦−5 − 15 = x⁩, כלומר ⁦x = −20⁩. בדיקה: ⁦−5 = −20 + 15⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60434,7 +60434,7 @@
       "3"
     ],
     "correct_answer": "−5",
-    "explanation_he": "נסמן ב-x את הקומה שממנה יצאה: ⁦x + 8 = 3⁩. מורידים 8 משני האגפים: ⁦x = 3 − 8 = −5⁩. בדיקה: ⁦(−5) + 8 = 3⁩.",
+    "explanation_he": "נסמן ב-x את הקומה שממנה יצאה: ⁦x + 8 = 3⁩. מורידים 8 משני האגפים: ⁦x = 3 − 8 = −5⁩. בדיקה: ⁦−5 + 8 = 3⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60455,7 +60455,7 @@
       "5"
     ],
     "correct_answer": "−15",
-    "explanation_he": "מורידים 20 משני האגפים: ⁦x = 5 − 20 = −15⁩. בדיקה: ⁦(−15) + 20 = 5⁩.",
+    "explanation_he": "מורידים 20 משני האגפים: ⁦x = 5 − 20 = −15⁩. בדיקה: ⁦−15 + 20 = 5⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -60476,7 +60476,7 @@
       "−12"
     ],
     "correct_answer": "−3",
-    "explanation_he": "מוסיפים 9 לשני האגפים: ⁦−12 + 9 = x⁩, כלומר ⁦x = −3⁩. בדיקה: ⁦(−3) − 9 = −12⁩.",
+    "explanation_he": "מוסיפים 9 לשני האגפים: ⁦−12 + 9 = x⁩, כלומר ⁦x = −3⁩. בדיקה: ⁦−12 = −3 − 9⁩.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,

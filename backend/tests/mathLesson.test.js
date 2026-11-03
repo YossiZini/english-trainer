@@ -1,4 +1,4 @@
-const { mathLesson, eq, withQuestionPicture } = require('../src/database/seeds/multiplication/common');
+const { mathLesson, eq, withQuestionPicture, optionsQuestion } = require('../src/database/seeds/multiplication/common');
 
 /**
  * The one lesson builder of the math chapters built from the multiplication
@@ -51,5 +51,31 @@ describe('mathLesson, the shared math lesson builder', () => {
     expect(eq('−8 < −2')).toBe('<span dir="ltr">−8 &lt; −2</span>');
     expect(withQuestionPicture({ id: 1 }, '<svg/>')).toEqual({ id: 1, questionPicture: '<svg/>' });
     expect(withQuestionPicture({ id: 1 }, null)).toEqual({ id: 1 });
+  });
+
+  test('a misspelt check is refused, not turned off', () => {
+    expect(() => mathLesson({ topic: 109, order: 1090, noQuote: 'unit' }, 1, 'A', 'א', '<p></p>', thirty()))
+      .toThrow("noQuote must be true, false or 'units'");
+    expect(() => mathLesson({ topic: 109, order: 1090, options: 'digit' }, 1, 'A', 'א', '<p></p>', thirty()))
+      .toThrow("options must be 'digits' or 'letters'");
+  });
+
+  test('the quote check reads the options too', () => {
+    expect(() => mathLesson({ topic: 109, order: 1090, noQuote: 'units' }, 1, 'A', 'א', '<p></p>', thirty({ options: ['100 ס"מ', '2', '3'] })))
+      .toThrow('a quote mark');
+  });
+});
+
+describe('optionsQuestion, the builder that takes pictures as { picture, question }', () => {
+  test('the pictures land on the exercise', () => {
+    const e = optionsQuestion(1, 'easy', 'כמה?', '7', ['1', '2', '3'], 'כי.', { picture: '<svg/>', question: '/q.png' });
+    expect(e.explanationPicture).toBe('<svg/>');
+    expect(e.questionPicture).toBe('/q.png');
+    expect(optionsQuestion(2, 'easy', 'כמה?', '7', ['1', '2', '3'], 'כי.').questionPicture).toBeUndefined();
+  });
+
+  test('a picture passed in place of the options, or an unknown option, is refused', () => {
+    expect(() => optionsQuestion(3, 'easy', 'כמה?', '7', ['1', '2', '3'], 'כי.', '<svg/>')).toThrow('pass pictures as { picture, question }');
+    expect(() => optionsQuestion(4, 'easy', 'כמה?', '7', ['1', '2', '3'], 'כי.', { pictur: '<svg/>' })).toThrow('unknown option pictur');
   });
 });

@@ -166,6 +166,10 @@ function checkOrder(where, s, { caption = false } = {}) {
   // x alone may stand in Hebrew; 3x and x with a number must be isolated.
   if (/\dx|x\d/.test(out)) fail(where, '3x outside an isolate');
   if (/x\s*\//.test(flat(s))) fail(where, 'x/n written as a fraction (shows flat): write x ÷ n');
+  // A negative number put in goes in parentheses, except first or right after "(" (−5 + 9, 2 × (−5 + 7)).
+  for (const u of [...isolates(s), ...spans(s)]) {
+    if (/^\(−\d+\) [+−×÷=]/.test(u.trim()) || /\(\(−/.test(u)) fail(where, `"${u}": a negative number first in parentheses (write −5 + 9)`);
+  }
   // Glue: an equation must not break across lines (U+00A0, not plain spaces).
   const raw = String(s);
   for (const g of [...raw.matchAll(/\u2066([^\u2069]*)\u2069/g), ...raw.matchAll(/<span dir="ltr">([^<]*)<\/span>/g)]) {

@@ -1,7 +1,7 @@
 // 109.3 כפל וחילוק — solving ax = c by dividing both sides into equal groups,
 // and x ÷ a = c by multiplying both sides: the opposite operation, the
 // unknown on the right, checking, a negative number in the equation.
-const { ltr, P, S, eq, eqn, solve, numQ, balFig, balPic, lesson } = require('./common');
+const { ltr, P, S, eq, eqn, solve, numQ, balFig, balPic, lesson, by } = require('./common');
 
 const theory = `
 <h2>כפל וחילוק: מחלקים את הכפות</h2>
@@ -55,9 +55,6 @@ const theory = `
 
 /** A number after an operator: a negative one in parentheses, "(−3)". */
 const T = (v) => (v < 0 ? `(${S(v)})` : S(v));
-
-/** "ב-3", or "ב-⁦(−3)⁩": a negative number in Hebrew text stays in its isolate. */
-const by = (v) => (v < 0 ? ltr(T(v)) : S(v));
 
 /** The check "3 × 4 = 12" for a·x = c, or "20 ÷ 4 = 5" for x ÷ a = c. */
 const checkMul = (a, x, c) => `בדיקה: ${ltr(`${S(a)} × ${T(x)} = ${S(c)}`)}.`;

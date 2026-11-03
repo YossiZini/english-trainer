@@ -562,6 +562,14 @@ Track changes per topic with dates and descriptions.
   boxes cancel (34 planted faults caught). 732 equations of 10.7, options and
   answers included, read in order on one line on the real pages; 3,832 in the
   bot's messages of the chapter. Sprint 19.
+- 2026-11-03: Sprint 19 close review. 10.2's checks follow the equation as
+  written (flipped ones too) and write a negative x first without
+  parentheses (−5 + 9 = 4), as the math guide says; 10.1 and 10.2 put x in
+  with the shared `plug` and `checkQ`. Two repeated questions got new
+  numbers: 10.1 q27 (42 = 6x, was easy q9's 4x = 20) and 10.2 q4 (x + 9 = 16,
+  was q8's 7 and 15). 16 explanations changed; every id kept. The check now
+  enforces the parentheses rule (35 planted faults caught); 777 equations of
+  10.1–10.2 read in order on the real pages, 3,838 in the bot's messages.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created
