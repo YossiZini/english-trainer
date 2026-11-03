@@ -75,25 +75,31 @@ const xs = (k) => (k === 1 ? 'x' : k === -1 ? '−x' : `${S(k)}x`);
 
 /**
  * The equation as written with x put in: plug('2(x + 3)', 4) → "2 × (4 + 3)",
- * plug('3x − 2', −1) → "3 × (−1) − 2". A negative x goes in parentheses.
+ * plug('3x − 2', −1) → "3 × (−1) − 2". A negative x goes in parentheses,
+ * except first in the expression or right after "(": "−5 + 7", "2 × (−5 + 7)".
  */
 function plug(text, x) {
   const X = x < 0 ? `(${S(x)})` : S(x);
   return text
     .replace(/(\d)\(/g, '$1 × (')
     .replace(/(\d)x/g, `$1 × ${X}`)
-    .replace(/−x/g, x < 0 ? `−${X}` : `−${X}`)
+    .replace(/−x/g, `−${X}`)
+    .replace(/^x|\(x/g, (m) => `${m === 'x' ? '' : '('}${S(x)}`)
     .replace(/x/g, X);
 }
+
+/** One side with x put in and its value: "3 × 4 + 2 = 14"; a side that is just x gives its value alone. */
+const putIn = (side, x, v) => (plug(side, x).replace(/[()]/g, '') === S(v) ? S(v) : `${plug(side, x)} = ${S(v)}`);
 
 /**
  * The steps that solve l = r, one sentence each, then the check in the
  * equation as written (`text`, default eqn(l, r)): take the smaller number
  * of x off both sides (so x stays positive), then the number on the side of
  * x, then divide. `first` opens the explanation (a story's equation, opening
- * parentheses).
+ * parentheses); `orig` the sides of the written equation, when l = r is
+ * another form of it (2(x + 3) = 14 solved as x + 3 = 7).
  */
-function steps(l, r, { text = null, first = '' } = {}) {
+function steps(l, r, { text = null, first = '', orig = null } = {}) {
   let [a, b] = l;
   let [c, d] = r;
   const x = solve(l, r);
@@ -115,13 +121,29 @@ function steps(l, r, { text = null, first = '' } = {}) {
   }
   if (coef !== 1) out.push(`מחלקים את שני האגפים ב-${by(coef)}: ${ltr(`x = ${S(x)}`)}.`);
   else if (!left) out.push(`כלומר ${ltr(`x = ${S(x)}`)}.`);
+  // The check puts x into the equation as written: `orig` are its sides when the steps start from another form.
   const [lt, rt] = (text || eqn(l, r)).split(' = ');
-  const lv = at(l, x), rv = at(r, x);
+  const [L0, R0] = orig || [l, r];
+  const lv = at(L0, x), rv = at(R0, x);
   const lx = /x/.test(lt), rx = /x/.test(rt);
   const check = lx && rx
-    ? `בדיקה: באגף שמאל ${ltr(`${plug(lt, x)} = ${S(lv)}`)}, ובאגף ימין ${ltr(`${plug(rt, x)} = ${S(rv)}`)}.`
+    ? `בדיקה: באגף שמאל ${ltr(putIn(lt, x, lv))}, ובאגף ימין ${ltr(putIn(rt, x, rv))}.`
     : `בדיקה: ${ltr(lx ? `${plug(lt, x)} = ${S(rv)}` : `${S(lv)} = ${plug(rt, x)}`)}.`;
   return `${first}${out.join(' ')} ${check}`;
+}
+
+/**
+ * Is x = s the solution of l = r (written `shown`)? Both sides with s put in;
+ * yes, no, or "cannot be checked".
+ */
+function checkQ(n, level, l, r, s, { shown = null } = {}) {
+  const text = shown || eqn(l, r);
+  const [lt, rt] = text.split(' = ');
+  const lv = at(l, s), rv = at(r, s);
+  const right = lv === rv;
+  const why = `מציבים ${s < 0 ? ltr(S(s)) : s} במקום x: באגף שמאל ${ltr(putIn(lt, s, lv))}, ובאגף ימין ${ltr(putIn(rt, s, rv))}. ${right ? 'שני האגפים שווים, ולכן כן.' : 'האגפים לא שווים, ולכן לא.'}`;
+  return choiceQ(n, level, `האם ${ltr(`x = ${S(s)}`)} הוא הפתרון של המשוואה ${ltr(text)}?`, right ? 'כן' : 'לא',
+    [right ? 'לא' : 'כן', 'אי אפשר לבדוק'], why);
 }
 
 /** A balance in the theory, at full size. */
@@ -136,4 +158,4 @@ const balPic = (opts, caption) => P.figures(P.figure(P.balance({ scale: 0.8, ...
 /** A lesson object with the shared fields of topic 109: after the triangles (1081…). */
 const lesson = (...args) => mathLesson({ topic: 109, order: 1090, options: 'letters', noQuote: true }, ...args);
 
-module.exports = { ltr, P, eq, S, lin, eqn, solve, at, wrongsOf, numQ, choiceQ, pans, balFig, balPic, lesson, by, xs, plug, steps };
+module.exports = { ltr, P, eq, S, lin, eqn, solve, at, wrongsOf, numQ, choiceQ, pans, balFig, balPic, lesson, by, xs, plug, putIn, steps, checkQ };

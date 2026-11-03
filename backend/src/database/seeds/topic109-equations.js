@@ -12,6 +12,8 @@ const lessonsData = [
   require('./equations/109-2-add-subtract'),
   require('./equations/109-3-multiply-divide'),
   require('./equations/109-4-two-steps'),
+  require('./equations/109-5-both-sides'),
+  require('./equations/109-6-parentheses'),
 ];
 
 module.exports = { lessonsData: finishMath(lessonsData) };
