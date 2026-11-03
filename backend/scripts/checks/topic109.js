@@ -268,7 +268,11 @@ function storyEquation(q) {
     [new RegExp(`${N} מחברות זהות עולות יחד ${N}`), (a, b) => `${a}x = ${b}`],
     [new RegExp(`(רבע) מהתלמידים בשכבה הם ${N}`), (a, b) => `x ÷ ${a} = ${b}`],
     [new RegExp(`על כף אחת קופסה ו-${N} קוביות, ועל הכף השנייה ${N} קוביות`), (a, b) => `x + ${a} = ${b}`],
-    [new RegExp(`על כף אחת ${N} קופסאות שוות, ועל הכף השנייה ${N} קוביות`), (a, b) => `${a}x = ${b}`]
+    [new RegExp(`על כף אחת ${N} קופסאות שוות, ועל הכף השנייה ${N} קוביות`), (a, b) => `${a}x = ${b}`],
+    [new RegExp(`כפלתי אותו ב-${N} והוספתי ${N}, וקיבלתי ${N}`), (a, b, c) => `${a}x + ${b} = ${c}`],
+    [new RegExp(`כפלתי אותו ב-${N} והורדתי ${N}, וקיבלתי ${N}`), (a, b, c) => `${a}x − ${b} = ${c}`],
+    [new RegExp(`קנתה ${N} מחברות זהות ועט ב-${N} שקלים, ושילמה בסך הכול ${N} שקלים`), (a, b, c) => `${a}x + ${b} = ${c}`],
+    [new RegExp(`במונית עולה ${N} שקלים, ועוד ${N} שקלים על כל קילומטר\\. נסיעה אחת עלתה ${N} שקלים`), (a, b, c) => `${b}x + ${a} = ${c}`]
   ];
   for (const [re, eqOf] of rules) {
     const m = flat(q).replace(/[⁦-⁩]/g, '').match(re);
@@ -300,18 +304,23 @@ function recompute(q) {
     const v = Q(num(s));
     return { answer: qeq(lat(l, v), lat(r, v)) ? 'כן' : 'לא', x: solveText(e), eq: e };
   }
-  if ((m = q.match(/^איזה מספר (מורידים מ|מוסיפים ל)שני האגפים כדי לפתור את ⁦x ([+−]) (\d+) = ([^⁩]*)⁩\?$/))) {
-    if ((m[1] === 'מורידים מ') !== (m[2] === '+')) return { answer: '(the wrong step is asked)', x: null };
-    return { answer: m[3], x: solveText(iso[0]), eq: iso[0] };
+  if ((m = q.match(/^איזה מספר (מורידים מ|מוסיפים ל)שני האגפים (?:כדי לפתור את|בצעד הראשון של) ⁦([^⁩]*)⁩\?$/))) {
+    // The number beside x (x on one side only): taken off when added, added when taken off.
+    const [l, r] = flat(m[2]).split('=').map(parse);
+    if (l.a.n && r.a.n) return undefined;
+    const b = l.a.n ? l.b : r.b;
+    if (!b.n || (m[1] === 'מורידים מ') !== (b.n > 0)) return { answer: '(the wrong step is asked)', x: null };
+    return { answer: show(Q(Math.abs(b.n), b.d)), x: solveText(m[2]), eq: m[2] };
   }
   if ((m = q.match(/^באיזה מספר (מחלקים|כופלים) את שני האגפים כדי לפתור את ⁦([^⁩]*)⁩\?$/))) {
     const e = m[2];
     const k = m[1] === 'מחלקים' ? (e.match(/^(\d+)x =/) || [])[1] : (e.match(/^x ÷ (\d+) =/) || [])[1];
     return k ? { answer: k, x: solveText(e), eq: e } : undefined;
   }
-  if ((m = q.match(/^במשוואה ⁦([^⁩]*)⁩ (מורידים (\d+) משני האגפים|מחלקים את שני האגפים ב-(\d+))\. איזה מספר יהיה באגף ימין\?$/))) {
+  if ((m = q.match(/^במשוואה ⁦([^⁩]*)⁩ (מורידים (\d+) משני האגפים|מוסיפים (\d+) לשני האגפים|מחלקים את שני האגפים ב-(\d+))\. איזה מספר יהיה באגף ימין\?$/))) {
     const r = parse(flat(m[1]).split('=')[1]);
-    const v = m[3] ? qadd(r.b, Q(-Number(m[3]))) : qdiv(r.b, Q(Number(m[4])));
+    if (r.a.n) return undefined;
+    const v = m[3] ? qadd(r.b, Q(-Number(m[3]))) : m[4] ? qadd(r.b, Q(Number(m[4]))) : qdiv(r.b, Q(Number(m[5])));
     return { answer: show(v), x: solveText(m[1]), eq: m[1] };
   }
   // A story: its equation from its words.

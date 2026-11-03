@@ -256,7 +256,8 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     // Topic 109: Equations with one unknown (Math, chapter 10)
     '109.1': [ltr('□ + 5 = 12'), 'מאזניים מאוזנים'],
     '109.2': [ltr('x + 5 = 12'), ltr('x = 12 − 5')],
-    '109.3': [ltr('3x = 12'), ltr('x ÷ 4 = 5')]
+    '109.3': [ltr('3x = 12'), ltr('x ÷ 4 = 5')],
+    '109.4': [ltr('2x + 3 = 11'), ltr('2x = 8')]
   };
 
   return subtopicExamples[key] || [];

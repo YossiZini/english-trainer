@@ -11,6 +11,7 @@ const lessonsData = [
   require('./equations/109-1-the-unknown'),
   require('./equations/109-2-add-subtract'),
   require('./equations/109-3-multiply-divide'),
+  require('./equations/109-4-two-steps'),
 ];
 
 module.exports = { lessonsData: finishMath(lessonsData) };
