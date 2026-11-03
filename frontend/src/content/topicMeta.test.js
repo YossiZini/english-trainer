@@ -23,7 +23,7 @@ describe('subject metadata', () => {
 
 describe('topic numbers on screen', () => {
   test('each subject counts from 1; math follows its teaching order (division, 105, is chapter 2)', () => {
-    expect([100, 105, 101, 102, 103, 104, 106, 107, 108].map(displayTopic)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect([100, 105, 101, 102, 103, 104, 106, 107, 108, 109].map(displayTopic)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     expect([displaySubtopic('100.1'), displaySubtopic('105.2'), displaySubtopic('101.3')]).toEqual(['1.1', '2.2', '3.3']);
     expect([displayTopic(3), displaySubtopic('201.2')]).toEqual([3, '1.2']);
   });
