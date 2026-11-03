@@ -5,7 +5,8 @@ model, and the same text serves the fast path and the agent's tools.
 A reply is a `Reply(text, buttons)`; `buttons` (a list of strings) becomes
 a Telegram reply keyboard for the setup questions. `before` holds messages
 sent ahead of it, in order (an /unseen text before its first question); the
-buttons ride on the last message."""
+buttons ride on the last message. `photo` is the URL of a question's picture:
+the reply's text is then the photo's caption."""
 from dataclasses import dataclass, field
 
 from .encouragement import wrong_line
@@ -16,6 +17,7 @@ class Reply:
     text: str
     buttons: list[str] = field(default_factory=list)
     before: list[str] = field(default_factory=list)
+    photo: str | None = None
 
     def __str__(self) -> str:
         return self.text
@@ -24,6 +26,13 @@ class Reply:
     def messages(self) -> list[str]:
         """Every message of the reply, in the order they are sent."""
         return [*self.before, self.text]
+
+    def under(self, head: str) -> "Reply":
+        """This reply with `head` (a verdict, a confirmation) above it. Under a
+        photo the caption stays the question, so the head is its own message first."""
+        if self.photo:
+            return Reply(self.text, self.buttons, [*self.before, head], self.photo)
+        return Reply(head + "\n\n" + self.text, self.buttons, self.before)
 
 NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באתר, בכפתור \"טלגרם\" למעלה, קבלו קוד בן 6 ספרות "
               "ושלחו אותו לי כאן.")

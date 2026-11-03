@@ -42,7 +42,10 @@ session cannot see elsewhere.
   follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
   100, 105 (Division), 101, 102–104, 106 (negatives), 107 (axes), 108 (triangles).
 - `question_picture`: only on questions that have one (keeps other records
-  byte-identical); the API passes it, `QuestionPicture` shows it, the bot skips it.
+  byte-identical); the API passes it, `QuestionPicture` shows it, the bot
+  sends its PNG (`frontend/public/question-pictures/<hash>.png`; after
+  changing a picture run `npm run question-pictures` in frontend/, or the
+  backend test fails).
 - Bot session kinds: vocab, exercise, review, drill (variant kefel or hiluk), unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
   answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a

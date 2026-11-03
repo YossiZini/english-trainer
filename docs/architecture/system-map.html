@@ -130,6 +130,7 @@ flowchart LR
   student --> tg
   browser -- "/api via Hosting rewrite, JWT" --> api
   tg -- "webhook + secret token" --> bot
+  tg -. "question pictures, PNG by URL" .-> browser
   bot -- "/api/bot, service key + chat id" --> api
   bot -. "free-form messages" .-> gemini
   api -. "answer checks" .-> gemini
@@ -161,6 +162,7 @@ flowchart LR
             <li>Mistakes exam per subject: the student's unfixed mistakes; a right answer fixes one</li>
             <li>Vocabulary quiz and history</li>
             <li>Telegram page: issue a link code, unlink</li>
+            <li>Serves each question picture as a PNG for the bot (drawn at dev time, named by a hash of the picture)</li>
           </ul></dd></div>
           <div><dt>Tech stack</dt><dd class="stack"><span class="chip">React 19</span><span class="chip">React Router</span><span class="chip">axios</span><span class="chip">Firebase Hosting</span></dd></div>
         </dl>
@@ -196,6 +198,7 @@ flowchart LR
             <li>Link code, commands, level and direction choice, lesson pick, reports and answers go straight to the API</li>
             <li>/review, open to every linked student within a daily cap: a review agent on Gemini Pro proposes keep, change or remove for each reported question or word</li>
             <li>/mistakes_english, /mistakes_math, /mistakes_arabic: the subject's mistakes exam, asked like a lesson, by the API's rule</li>
+            <li>A question that needs its picture (a grid, a triangle) is sent as a photo with the question as its caption; Telegram fetches the PNG from the website</li>
             <li>/kefel and /hiluk: quick multiplication-table and division drills from the API; the student types each answer (for division, the quotient and the remainder), and the end shows the count and the facts to review</li>
             <li>/unseen: an English reading text, sent as its own message, then its five questions; ? shows the hard words and the question in Hebrew, 📄 the text again; /unseen_list picks a text</li>
             <li>/usage: every student's participation (active days, lessons, words, reading, the two drills; no scores) over 7 and 30 days, visible to every linked student</li>
@@ -348,7 +351,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Telegram bot</span>
         <h3>A lesson's exercises in Telegram</h3>
-        <p>English, Math or Arabic: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved. A subject's mistakes exam (/mistakes_…) runs the same way with up to 20 of the student's unfixed mistakes: each right answer fixes one at once, and the end says what was fixed instead of a score. The /kefel and /hiluk drills need no model either: the API makes ten new questions per round and keeps only the session's count.</p>
+        <p>English, Math or Arabic: the next lesson, or one picked from a numbered list. The API freezes the lesson's 10 questions in the bot session; a multiple-choice answer is the option number 1–4. The last answer is graded by the same exercise service as the web, so score, points, mistakes and progress match. No model is involved. A subject's mistakes exam (/mistakes_…) runs the same way with up to 20 of the student's unfixed mistakes: each right answer fixes one at once, and the end says what was fixed instead of a score. A question that needs its picture arrives as a photo of it, the question as its caption; Telegram fetches the PNG from the website, where it was drawn at dev time. The /kefel and /hiluk drills need no model either: the API makes ten new questions per round and keeps only the session's count.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">
@@ -372,6 +375,7 @@ sequenceDiagram
   A->>D: Exercise session
   A-->>B: First question
   B-->>S: Question, options 1–4 as buttons
+  Note over B,S: A question with a picture: a photo, the question as its caption
   loop Each question
     S->>B: Option number or text
     B->>A: Answer

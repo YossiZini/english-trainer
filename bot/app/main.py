@@ -50,10 +50,14 @@ def create_app(coach: Coach | None = None) -> FastAPI:
         except Exception as error:  # never let Telegram retry the same update forever
             log.exception("handling failed: %s", error)
             reply = replies.Reply(replies.UNREACHABLE)
-        # Messages that come first (an /unseen text before its question), in order; the buttons ride on the last.
+        # Messages that come first (an /unseen text before its question, a verdict before a
+        # question with a picture), in order; the buttons ride on the last.
         for text in reply.before:
             await telegram.send_message(chat_id, text)
-        await telegram.send_message(chat_id, reply.text, reply.buttons)
+        if reply.photo:
+            await telegram.send_question_photo(chat_id, reply.photo, reply.text, reply.buttons)
+        else:
+            await telegram.send_message(chat_id, reply.text, reply.buttons)
         return {"ok": True}
 
     return app

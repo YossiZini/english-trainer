@@ -16,6 +16,9 @@ def _int(name: str, default: int) -> int:
 
 
 API_URL = os.environ.get("API_URL", "http://localhost:5000/api").rstrip("/")
+# The website, which serves the question pictures the bot sends as photos
+# (Telegram fetches them by URL). By default the site the API is under.
+SITE_URL = (os.environ.get("SITE_URL") or API_URL.removesuffix("/api")).rstrip("/")
 BOT_API_KEY = os.environ.get("BOT_API_KEY", "")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_WEBHOOK_SECRET = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "")

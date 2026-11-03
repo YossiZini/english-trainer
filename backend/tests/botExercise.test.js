@@ -7,6 +7,7 @@ const { resetDatabase, shutdownDatabase, db } = require('./helpers');
 const app = require('../src/app');
 const { parseOptionNumber } = require('../src/utils/answers');
 const { compareLessons } = require('../src/utils/lessonOrder');
+const { questionPicturePath } = require('../src/utils/questionPicture');
 
 const bundled = new Map(require('../data/static/exercises.json').map(e => [e.id, e]));
 const lessons = require('../data/static/lessons.json');
@@ -236,35 +237,42 @@ describe('Bot lesson exercises', () => {
     expect((await bot('/api/bot/exercise/report', { reason: 'unclear' })).status).toBe(404);
   });
 
-  test('a question that needs its picture stays on the website: lesson rounds and the mistakes exam leave it out', async () => {
+  test('a question that needs its picture is asked in the chat with the path of its PNG: lesson rounds and the mistakes exam', async () => {
     const jwt = { Authorization: `Bearer ${token}` };
     const withPicture = new Set([...bundled.values()].filter(e => e.question_picture).map(e => e.id));
+    const pngOf = (id) => questionPicturePath(bundled.get(id).question_picture);
     // Plotting points (107.2): most of its questions are asked on a grid.
     const plotting = lessons.find(l => l.subtopic_number === '107.2');
     expect([...bundled.values()].filter(e => e.lesson_id === plotting.id && withPicture.has(e.id)).length).toBeGreaterThan(10);
     for (const difficulty of ['easy', 'medium', 'hard']) {
       const start = (await bot('/api/bot/exercise/start', { lessonId: plotting.id, difficulty })).body.data;
       const session = (await db.find('bot_sessions', { chat_id: chatId })).find(x => x.status === 'active');
-      expect(session.exercises.length).toBe(start.question.total);
-      expect(session.exercises.some(e => withPicture.has(e.id))).toBe(false);
+      expect(session.exercises.some(e => withPicture.has(e.id))).toBe(true);
+      for (const e of session.exercises) expect(e.picture).toBe(withPicture.has(e.id) ? pngOf(e.id) : null);
+      // The session keeps the PNG's path, not the picture; the question the chat shows carries it.
+      expect(JSON.stringify(session.exercises)).not.toContain('<svg');
+      expect(start.question.picture).toBe(session.exercises[0].picture);
       await bot('/api/bot/session/end');
     }
+    // A question without a picture says so.
+    const text = lessons.find(l => l.subtopic_number === '106.1');
+    expect((await bot('/api/bot/exercise/start', { lessonId: text.id })).body.data.question.picture).toBeNull();
+    await bot('/api/bot/session/end');
 
-    // A mistake on a grid question waits for the website's mistakes exam.
+    // A mistake on a grid question is asked in the chat's mistakes exam too, with its picture.
     const gridQuestion = [...bundled.values()].find(e => e.lesson_id === plotting.id && withPicture.has(e.id));
     await request(app).post('/api/exercises/submit').set(jwt).send({
       lessonId: plotting.id, timeSpent: 30, difficulty: gridQuestion.difficulty,
       answers: [{ exerciseId: gridQuestion.id, userAnswer: gridQuestion.options.find(o => o !== gridQuestion.correct_answer) }]
     });
     const web = (await request(app).get('/api/mistakes/exam?subject=math').set(jwt)).body.data;
-    const onWeb = web.exercises.find(e => e.id === gridQuestion.id);
-    expect(onWeb.question_picture).toBe(gridQuestion.question_picture);
+    expect(web.exercises.find(e => e.id === gridQuestion.id).question_picture).toBe(gridQuestion.question_picture);
     const exam = (await bot('/api/bot/mistakes/start', { subject: 'math' })).body.data;
-    if (!exam.nothingWaiting) {
-      const session = (await db.find('bot_sessions', { chat_id: chatId })).find(x => x.status === 'active');
-      expect(session.exercises.some(e => withPicture.has(e.id))).toBe(false);
-      await bot('/api/bot/session/end');
-    }
+    // Every waiting mistake is in this round (at most 20), the grid question among them.
+    expect(exam.lesson.waiting).toBeLessThanOrEqual(20);
+    const session = (await db.find('bot_sessions', { chat_id: chatId })).find(x => x.status === 'active');
+    expect(session.exercises.find(e => e.id === gridQuestion.id).picture).toBe(pngOf(gridQuestion.id));
+    await bot('/api/bot/session/end');
     // Fixed on the website, so the later tests start from the same mistakes.
     await request(app).post('/api/mistakes/exam/answer').set(jwt)
       .send({ subject: 'math', exerciseId: gridQuestion.id, userAnswer: gridQuestion.correct_answer });

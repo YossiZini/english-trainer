@@ -196,7 +196,8 @@ theory, the app shows them stacked (`MathText` for exercise text,
 `coordGrid`, `triangle`, `grid`, `array`, `groups`, `longDivision`, `figure`). A
 question that needs a picture to be answered carries it as
 `questionPicture` (`question_picture`, shown between the question and its
-options; the Telegram bot leaves such questions out). Seeds are plain modules
+options; the Telegram bot sends it as a PNG photo, so after a picture
+changes run `npm run question-pictures` in `frontend/`). Seeds are plain modules
 (`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
 topic has one teaching document and 10 exercises per level (easy/medium/hard),
 because an exercise session is 10 questions. Regenerate with
@@ -446,6 +447,11 @@ Track changes per topic with dates and descriptions.
   per rule: a point is reached by walking along x, then along y; the
   quarters fill in one by one; a point moves with an arrow; a distance is
   drawn along a grid line; a rectangle's fourth corner appears. Sprint 18.
+- 2026-11-03: The grid questions are in Telegram too: each grid is drawn
+  as a PNG (`npm run question-pictures` in frontend/), served by the
+  website, and the bot sends it as a photo with the question as its
+  caption and the answer buttons, in lesson rounds and the mistakes exam.
+  Sprint 18.
 
 ### Topic 108: Triangles (Math)
 - 2026-11-02: New topic, chapter 9 of Math (after the axes): 108.1 kinds
@@ -474,6 +480,8 @@ Track changes per topic with dates and descriptions.
   per rule: a triangle's three corners torn off and laid on a straight line
   (180°), rods that meet or fall short (which lengths make a triangle), the
   rectangle a triangle is half of, the height dropping onto the base. Sprint 18.
+- 2026-11-03: The picture questions are in Telegram too, sent as a photo
+  with the question as its caption (as in topic 107). Sprint 18.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

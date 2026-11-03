@@ -20,7 +20,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "check:viewport": "node scripts/viewport-check.js"
+    "check:viewport": "node scripts/viewport-check.js",
+    "question-pictures": "node scripts/render-question-pictures.js"
   },
   "eslintConfig": {
     "extends": [

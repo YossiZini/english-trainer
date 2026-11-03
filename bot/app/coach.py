@@ -229,7 +229,7 @@ class Coach:
             current = replies.status_reply(status)
         else:
             return confirmation
-        return Reply(confirmation.text + "\n\n" + current.text, current.buttons)
+        return current.under(confirmation.text)
 
     # ---------------------------------------------------------------- review
     @property
@@ -358,8 +358,9 @@ class Coach:
             log.exception("agent failed for chat %s: %s", chat_id, error)
             return Reply(replies.UNREACHABLE)
         if direct:
-            # A tool's whole reply (an /unseen text, then its question), longer than the model may write: as it is.
-            return Reply(direct["reply"], list(direct.get("buttons") or []), list(direct.get("before") or []))
+            # A tool's whole reply, as it is: an /unseen text before its question (longer than the model
+            # may write), or a question's picture (the model cannot send a photo).
+            return Reply(direct["reply"], list(direct.get("buttons") or []), list(direct.get("before") or []), direct.get("photo"))
         # The help text is longer than the model's output cap: send it as is.
         return Reply(replies.HELP if helped else reply or replies.HELP)
 
