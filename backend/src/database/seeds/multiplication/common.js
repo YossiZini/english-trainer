@@ -124,26 +124,67 @@ function timesTable() {
   return `<div class="times-table-wrap"><table class="times-table" dir="ltr">${head}${rows.join('')}</table></div>`;
 }
 
-/** A lesson object with the shared fields of topic 100. */
-function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
+// ---------------------------------------------------------------------------
+// Shared by the math chapters built from these helpers (1, 2 and 7 on): one
+// home, so a fix to escaping or to the lesson checks is made once.
+
+/**
+ * Theory HTML: an equation, a comparison or a number that keeps its order.
+ * < and > are escaped: a raw "<" would end the span early for
+ * glueEquations, and the comparison could break across lines.
+ */
+const eq = (s) => `<span dir="ltr">${s.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
+
+/** A question asked on its own picture (a grid, a triangle): `question` is its SVG. */
+const withQuestionPicture = (e, question) => (question ? { ...e, questionPicture: question } : e);
+
+const HEBREW = /[֐-׿]/;
+// An option is shown left to right: Hebrew words with numbers in it read
+// scrambled ("−2 גדול מ-−8" the wrong way round), and so do Hebrew words
+// with a Latin letter ("ציר x" as "x ציר").
+const MIXED = { digits: /\d/, letters: /[0-9A-Za-z]/ };
+
+/**
+ * A math lesson object: `chapter` gives the topic number, where its lessons
+ * sort (`order` + index) and the checks it runs. Every lesson has 10
+ * questions per level and its equations glued to one line (glueEquations).
+ * Checks, each by its option: `options` ('digits' or 'letters'), no option
+ * mixes Hebrew with digits (or with digits or Latin letters); `noQuote`, no
+ * quote mark in a question or explanation (units take ״, as in ס״מ).
+ */
+function mathLesson(chapter, index, titleEn, titleHe, theoryContentHe, exercises) {
+  const { topic, order, options = null, noQuote = false } = chapter;
+  const id = `${topic}.${index}`;
   const byLevel = exercises.reduce((m, e) => ({ ...m, [e.difficulty]: (m[e.difficulty] || 0) + 1 }), {});
   for (const level of ['easy', 'medium', 'hard']) {
-    if (byLevel[level] !== 10) throw new Error(`100.${index} ${titleEn}: ${byLevel[level] || 0} ${level} exercises, expected 10`);
+    if (byLevel[level] !== 10) throw new Error(`${id} ${titleEn}: ${byLevel[level] || 0} ${level} exercises, expected 10`);
+  }
+  for (const e of exercises) {
+    for (const o of (options && e.options) || []) {
+      if (HEBREW.test(o) && MIXED[options].test(o)) {
+        throw new Error(`${id} q${e.questionNumber}: option mixes Hebrew with ${options === 'digits' ? 'numbers' : 'numbers or letters'}: ${o}`);
+      }
+    }
+    if (noQuote && /"/.test(e.questionTextHe + e.explanationHe)) throw new Error(`${id} q${e.questionNumber}: a quote mark (write ס״מ with ״)`);
   }
   return {
-    topicNumber: 100,
-    subtopicNumber: `100.${index}`,
+    topicNumber: topic,
+    subtopicNumber: id,
     titleEn,
     titleHe,
     level: 'beginner',
-    orderIndex: 990 + index,
+    orderIndex: order + index,
     theoryContentHe: glueEquations(theoryContentHe),
     exercises: exercises.map((e) =>
       (e.explanationPicture ? { ...e, explanationPicture: glueEquations(e.explanationPicture) } : e))
   };
 }
 
+/** A lesson object with the shared fields of topic 100. */
+const lesson = (...args) => mathLesson({ topic: 100, order: 990, noQuote: true }, ...args);
+
 module.exports = {
   ltr, expr, mcq, P, pic, times, divide, numberQuestion, productWrongs, quotientWrongs,
-  explainProduct, explainQuotient, timesTable, lesson, glueEquations, firstWrongs
+  explainProduct, explainQuotient, timesTable, lesson, glueEquations, firstWrongs,
+  eq, withQuestionPicture, mathLesson
 };

@@ -2,7 +2,7 @@
 // right after the multiplication table): answers with a remainder, wrong
 // options from the common mistakes, explanations, pictures and the lesson
 // builder. Equations stay on one line (see multiplication/common.js).
-const { ltr, expr, mcq, P, pic, glueEquations, firstWrongs } = require('../multiplication/common');
+const { ltr, expr, mcq, P, pic, firstWrongs, mathLesson } = require('../multiplication/common');
 
 /**
  * A quotient with a remainder as an option: Hebrew first, so it reads the
@@ -142,25 +142,8 @@ function longQ(n, level, a, d) {
 const numberQuestion = (n, level, text, answer, wrongs, explanation, picture = null) =>
   mcq(n, level, text, String(answer), wrongs.map(String), explanation, picture);
 
-/** A lesson object with the shared fields of topic 105. */
-function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
-  const byLevel = exercises.reduce((m, e) => ({ ...m, [e.difficulty]: (m[e.difficulty] || 0) + 1 }), {});
-  for (const level of ['easy', 'medium', 'hard']) {
-    if (byLevel[level] !== 10) throw new Error(`105.${index} ${titleEn}: ${byLevel[level] || 0} ${level} exercises, expected 10`);
-  }
-  return {
-    topicNumber: 105,
-    subtopicNumber: `105.${index}`,
-    titleEn,
-    titleHe,
-    level: 'beginner',
-    // After the multiplication table (991–993), before fractions (1001–).
-    orderIndex: 993 + index,
-    theoryContentHe: glueEquations(theoryContentHe),
-    exercises: exercises.map((e) =>
-      (e.explanationPicture ? { ...e, explanationPicture: glueEquations(e.explanationPicture) } : e))
-  };
-}
+/** A lesson object with the shared fields of topic 105: after the multiplication table (991–993), before fractions (1001–). */
+const lesson = (...args) => mathLesson({ topic: 105, order: 993 }, ...args);
 
 module.exports = {
   ltr, expr, mcq, P, pic, split, withRemainder, remainderWrongs, explainRemainder, groupsSvg, groupsPicture, FEEDBACK_BOX,

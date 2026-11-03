@@ -198,7 +198,10 @@ question that needs a picture to be answered carries it as
 `questionPicture` (`question_picture`, shown between the question and its
 options; the Telegram bot sends it as a PNG photo, so after a picture
 changes run `npm run question-pictures` in `frontend/`). Seeds are plain modules
-(`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; each
+(`module.exports = { lessonsData }`) built with `seeds/math-helpers.js`; the
+chapters from the multiplication table on build their lessons with
+`mathLesson` in `seeds/multiplication/common.js` (one builder, its checks
+chosen per chapter); each
 topic has one teaching document and 10 exercises per level (easy/medium/hard),
 because an exercise session is 10 questions. Regenerate with
 `cd backend && npm run generate-data math` (English content is never rebuilt
@@ -306,6 +309,9 @@ Track changes per topic with dates and descriptions.
   column less, doubling for × 4 and × 8, squares, sharing into groups, a
   fact family, special cases, checking, a missing number and a two-step
   problem. The written theory is unchanged. Sprint 17.
+- 2026-11-03: Lessons built by the shared `mathLesson` (`seeds/multiplication/common.js`),
+  which now also refuses a quote mark in a question or explanation. Content
+  unchanged (identical by id). Sprint 19.
 
 ### Topic 105: Division (Math)
 - 2026-11-01: New topic, chapter 2 of Math (after the multiplication table,
@@ -340,6 +346,9 @@ Track changes per topic with dates and descriptions.
   per step (divide, multiply, subtract, bring down), with the same actions
   written beside it and in the caption. With reduced motion the counters
   appear in place. Sprint 17.
+- 2026-11-03: Lessons built by the shared `mathLesson`, with no extra checks:
+  the remainder options mix Hebrew with numbers by design, and 105.2 q28
+  writes ס"מ with a quote mark. Content unchanged (identical by id). Sprint 19.
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
@@ -421,6 +430,10 @@ Track changes per topic with dates and descriptions.
   per rule: hops on the number line traced one after another (adding,
   subtracting the opposite, equal hops for × and ÷), the sign pattern of
   × row by row, opposites and the distance from 0. Sprint 18.
+- 2026-11-03: Lessons built by the shared `mathLesson`; the option check now
+  also refuses a Latin letter next to Hebrew, and a quote mark is refused.
+  Pictures pass to `intQ`/`choiceQ` as `{ picture }`. Content unchanged
+  (identical by id). Sprint 19.
 
 ### Topic 107: The x and y Axes (Math)
 - 2026-11-02: New topic, chapter 8 of Math (after negative numbers): 107.1
@@ -452,6 +465,9 @@ Track changes per topic with dates and descriptions.
   website, and the bot sends it as a photo with the question as its
   caption and the answer buttons, in lesson rounds and the mistakes exam.
   Sprint 18.
+- 2026-11-03: Lessons built by the shared `mathLesson` (`eq` and
+  `withQuestionPicture` shared too), which now also refuses a quote mark.
+  Content unchanged (identical by id). Sprint 19.
 
 ### Topic 108: Triangles (Math)
 - 2026-11-02: New topic, chapter 9 of Math (after the axes): 108.1 kinds
@@ -482,6 +498,9 @@ Track changes per topic with dates and descriptions.
   rectangle a triangle is half of, the height dropping onto the base. Sprint 18.
 - 2026-11-03: The picture questions are in Telegram too, sent as a photo
   with the question as its caption (as in topic 107). Sprint 18.
+- 2026-11-03: Lessons built by the shared `mathLesson` (`eq` and
+  `withQuestionPicture` shared too). Content unchanged (identical by id).
+  Sprint 19.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created
