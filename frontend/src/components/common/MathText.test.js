@@ -45,3 +45,26 @@ test('MathText renders numerator over denominator', () => {
   expect(fracs[0].getAttribute('aria-label')).toBe('3/4');
   expect(container.textContent).toContain('÷');
 });
+
+describe('a glued equation that holds a fraction stays on one line', () => {
+  const LRI = '⁦', PDI = '⁩', NB = ' ';
+
+  test('a glued isolate with a fraction is wrapped in math-line; the text around it is not', () => {
+    const text = `מכנה 10: ${LRI}3/10${NB}=${NB}0.3${PDI}.`;
+    const { container } = render(<MathText text={text} />);
+    const lines = container.querySelectorAll('.math-line');
+    expect(lines).toHaveLength(1);
+    // The fraction reads as its numerator and denominator: "3" over "10".
+    expect(lines[0].textContent).toBe(`${LRI}310${NB}=${NB}0.3${PDI}`);
+    expect(lines[0].querySelectorAll('.math-frac')).toHaveLength(1);
+    expect(container.textContent.startsWith('מכנה 10: ')).toBe(true);
+    expect(container.textContent.endsWith(`${PDI}.`)).toBe(true);
+  });
+
+  test('isolates with plain spaces (the fractions chapter), without a fraction, or a lone fraction stay as they were', () => {
+    for (const text of [`${LRI}9/12 − 2/12 = 7/12${PDI}`, `${LRI}2.5${NB}+${NB}1.75${PDI}`, `השבר ${LRI}3/4${PDI} גדול`]) {
+      const { container } = render(<MathText text={text} />);
+      expect(container.querySelector('.math-line')).toBeNull();
+    }
+  });
+});

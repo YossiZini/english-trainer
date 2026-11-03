@@ -26,3 +26,8 @@
 .math-text .math-frac-den {
   border-top: 0.09em solid currentColor;
 }
+
+/* A glued equation that holds a fraction stays on one line (MathText). */
+.math-text .math-line {
+  white-space: nowrap;
+}

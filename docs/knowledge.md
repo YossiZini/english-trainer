@@ -26,6 +26,9 @@ session cannot see elsewhere.
   `npm run generate-data -- --unseen` (ids kept by English title); guide
   `backend/create-unseen.md`.
 - Math check scripts: `backend/scripts/checks/` (independent; one per topic).
+  Reading order on the real pages: `TOPICS=<n> node scripts/reading-order-check.js`
+  in frontend/ (build + API); the Fractions chapter (101) breaks equations on
+  phones (58 at 360/390 px, on `main` too): known, not yet fixed.
 
 ## Known quirks
 - `check:viewport` fails the laptop "at top" check here (navbar 69px, layout
@@ -41,8 +44,8 @@ session cannot see elsewhere.
 ## Codebase facts
 - Topic numbers: English 1+, math 100–199, Arabic 201+. Math chapters
   follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
-  100, 105 (Division), 101, 102–104, 106 (negatives), 107 (axes), 108 (triangles),
-  109 (equations).
+  100, 105 (Division), 101, 110 (decimals), 102–104, 106 (negatives), 107 (axes),
+  108 (triangles), 109 (equations).
 - `question_picture`: only on questions that have one (keeps other records
   byte-identical); the API passes it, `QuestionPicture` shows it, the bot
   sends its PNG (`frontend/public/question-pictures/<hash>.png`; after

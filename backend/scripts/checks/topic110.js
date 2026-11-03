@@ -18,7 +18,8 @@
 //   fraction bar, no operator, =, ≈ or negative number outside an isolate,
 //   no unit inside one, glued isolates, options that are bare numbers,
 //   Hebrew words or letterless comparisons, numeric options that differ by
-//   value and carry no trailing zero, no explanation starting with an isolate.
+//   value and carry no trailing zero, no explanation starting with an isolate,
+//   and every equation span of the theory and captions marked math-line.
 // From backend/:
 //   node scripts/checks/topic110.js          # data/static/{lessons,exercises}.json
 //   SEED=1 node scripts/checks/topic110.js   # the seed module, before generate-data
@@ -161,9 +162,11 @@ function checkChain(where, chain) {
 // ---------------------------------------------------------------- reading order (guide: "Decimal numbers")
 // The raw text: a no-break space is not a plain space here (the glue check reads them).
 const isolates = (s) => [...String(s ?? '').matchAll(/⁦([^⁩]*)⁩/g)].map((m) => m[1]);
-const spans = (s) => [...String(s).matchAll(/<span dir="ltr">(.*?)<\/span>/g)].map((m) => m[1]);
+const spans = (s) => [...String(s).matchAll(/<span dir="ltr"(?: class="math-line")?>(.*?)<\/span>/g)].map((m) => m[1]);
 const outside = (s) => unescape(String(s).replace(/<svg[\s\S]*?<\/svg>/g, ' ')
-  .replace(/⁦[^⁩]*⁩/g, ' ').replace(/<span dir="ltr">.*?<\/span>/g, ' ').replace(/<[^>]+>/g, ' '));
+  .replace(/⁦[^⁩]*⁩/g, ' ').replace(/<span dir="ltr"[^>]*>.*?<\/span>/g, ' ').replace(/<[^>]+>/g, ' '));
+/** Every equation span keeps its line on the website (class math-line: a stacked fraction would break it). */
+const unmarked = (html) => /<span dir="ltr">/.test(String(html ?? ''));
 function checkText(where, s, { explanation = false } = {}) {
   const raw = String(s ?? '');
   const text = outside(raw);
@@ -490,6 +493,7 @@ let recomputed = 0;
 for (const lesson of lessons) {
   const where = `${lesson.subtopic_number} theory`;
   if (stackedDecimal(lesson.theory_content_he)) fail(where, 'a decimal over a fraction bar');
+  if (unmarked(lesson.theory_content_he)) fail(where, 'an equation span without class math-line');
   const html = unstack(lesson.theory_content_he);
   if (/⁦/.test(html)) fail(where, 'an isolate in the theory (use <span dir="ltr">)');
   for (const p of html.matchAll(/<p>([\s\S]*?)<\/p>/g)) checkText(`${where} paragraph`, p[1]);
@@ -531,6 +535,7 @@ for (const e of exercises) {
 
   const qPicture = e.question_picture ? checkPictures(`${where} question picture`, `<figure class="math-figure">${e.question_picture}</figure>`) : [];
   if (stackedDecimal(e.explanation_picture)) fail(where, 'a decimal over a fraction bar in the explanation picture');
+  if (unmarked(e.explanation_picture)) fail(where, 'an equation span without class math-line in the explanation picture');
   if (e.explanation_picture) checkPictures(`${where} explanation picture`, unstack(e.explanation_picture));
 
   let r;

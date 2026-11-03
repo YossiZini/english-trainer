@@ -21,6 +21,17 @@ describe('mathLesson, the shared math lesson builder', () => {
     expect(lesson.exercises).toHaveLength(30);
   });
 
+  test('oneLine marks every equation span, glued, of the theory and the pictures; without it nothing changes', () => {
+    const theory = `<p>${eq('0.7 = 7/10')} ו-${eq('0.5')}</p>`;
+    const picture = '<figcaption dir="auto"><span dir="ltr">3/10 = 0.3</span></figcaption>';
+    const marked = mathLesson({ topic: 110, order: 1010, oneLine: true }, 1, 'Tenths', 'עשיריות', theory, thirty({ explanationPicture: picture }));
+    expect(marked.theoryContentHe).toBe('<p><span dir="ltr" class="math-line">0.7 = 7/10</span> ו-<span dir="ltr" class="math-line">0.5</span></p>');
+    expect(marked.exercises[0].explanationPicture).toBe('<figcaption dir="auto"><span dir="ltr" class="math-line">3/10 = 0.3</span></figcaption>');
+    const plain = mathLesson({ topic: 110, order: 1010 }, 1, 'Tenths', 'עשיריות', theory, thirty({ explanationPicture: picture }));
+    expect(plain.theoryContentHe).toBe('<p><span dir="ltr">0.7 = 7/10</span> ו-<span dir="ltr">0.5</span></p>');
+    expect(() => mathLesson({ topic: 110, order: 1010, oneLine: 'yes' }, 1, 'T', 'ע', '', thirty())).toThrow('oneLine must be true or false');
+  });
+
   test('10 questions per level, or no lesson', () => {
     const short = thirty().slice(1);
     expect(() => mathLesson({ topic: 109, order: 1090 }, 1, 'Short', 'קצר', '', short)).toThrow('109.1 Short: 9 easy exercises, expected 10');

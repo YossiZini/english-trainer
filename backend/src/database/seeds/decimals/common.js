@@ -163,8 +163,11 @@ function decQ(n, level, text, answer, candidates, explanation, opts = {}) {
 const choiceQ = (n, level, text, answer, wrongs, explanation, opts) =>
   optionsQuestion(n, level, text, answer, wrongs, explanation, opts);
 
-/** A lesson object with the shared fields of topic 110: after Fractions (1001–1006). */
-const lesson = (...args) => mathLesson({ topic: 110, order: 1010, options: 'letters', noQuote: true }, ...args);
+/**
+ * A lesson object with the shared fields of topic 110: after Fractions
+ * (1001–1006). `oneLine`: its equations hold stacked fractions (0.7 = 7/10).
+ */
+const lesson = (...args) => mathLesson({ topic: 110, order: 1010, options: 'letters', noQuote: true, oneLine: true }, ...args);
 
 module.exports = {
   ltr, P, eq, pic, D, str, places, add, sub, mul, div, shift, round, cut, cmp, ofFraction, digits,
