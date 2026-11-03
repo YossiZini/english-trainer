@@ -5,6 +5,7 @@ buttons 1..n (an option without letters is isolated left to right, so
 "40 ÷ 5" never reads "5 ÷ 40"); a fill-in question removes the keyboard. The lesson list is
 numbered across pages; the student sends a lesson's number. The verdict, the
 right option and the score always come from the API."""
+from . import config
 from .replies import Reply
 from .encouragement import wrong_line
 
@@ -100,7 +101,9 @@ def keep_ltr(text) -> str:
 
 
 def question_reply(data: dict, intro: str = "") -> Reply:
+    """A question; one that needs its picture is a photo with the question as its caption."""
     lesson, q = data["lesson"], data["question"]
+    photo = config.SITE_URL + q["picture"] if q.get("picture") else None
     lines = [intro] if intro else []
     level = LEVEL_NAME.get(lesson.get("difficulty"))
     icon = "🎯" if lesson.get("mistakes") else "📘"
@@ -110,9 +113,9 @@ def question_reply(data: dict, intro: str = "") -> Reply:
         lines.append(q["textEn"])
     if q.get("options"):
         lines += [f"{i}) {keep_ltr(option)}" for i, option in enumerate(q["options"], start=1)]
-        return Reply("\n".join(lines), [str(i) for i in range(1, len(q["options"]) + 1)])
+        return Reply("\n".join(lines), [str(i) for i in range(1, len(q["options"]) + 1)], photo=photo)
     lines.append("כתבו את התשובה (? לרמז):")
-    return Reply("\n".join(lines))
+    return Reply("\n".join(lines), photo=photo)
 
 
 def verdict_text(verdict: dict) -> str:
@@ -219,8 +222,7 @@ def exercise_answer_reply(data: dict) -> Reply:
     verdict = verdict_text(data["verdict"])
     if data.get("done"):
         return Reply(verdict + "\n\n" + result_text(data))
-    reply = question_reply(data)
-    return Reply(verdict + "\n\n" + reply.text, reply.buttons)
+    return question_reply(data).under(verdict)
 
 
 def exercise_end_reply(data: dict) -> Reply:

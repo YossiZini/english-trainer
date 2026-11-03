@@ -98,7 +98,11 @@ creates a new lesson and orphans progress.
   between the question and its options (on a wide screen, beside them).
   Keep it at most 9 grid units high (a 360px phone shows it at 200px with
   the options above the pinned bar) and the question to one line. The
-  Telegram bot leaves such questions out.
+  Telegram bot sends the picture as a PNG with the question as its
+  caption: after `npm run generate-data`, run `npm run question-pictures`
+  in `frontend/` (with `CHROMIUM_PATH=/opt/pw-browsers/chromium`) and
+  commit the new PNGs; `backend/tests/questionPictures.test.js` fails
+  without them.
 
 ## Explanation (`explanationHe`)
 

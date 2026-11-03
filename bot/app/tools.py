@@ -2,9 +2,10 @@
 owns the conversation; the chat id comes from the session state that the
 webhook set, never from the model. Every tool returns a ready Hebrew reply.
 
-A reply longer than the model may write (an /unseen text) is `direct`: the
-tool ends the turn without asking the model again, and the coach sends the
-reply as it is, with its buttons and the messages before it."""
+A reply longer than the model may write (an /unseen text) or with a photo (a
+question's picture) is `direct`: the tool ends the turn without asking the
+model again, and the coach sends the reply as it is, with its buttons, the
+messages before it and its photo."""
 from google.adk.tools import ToolContext
 
 from . import replies
@@ -38,9 +39,7 @@ async def start_session(tool_context: ToolContext) -> dict:
 
 async def answer_word(text: str, tool_context: ToolContext) -> dict:
     """Submit the student's answer in the open session (a word's translation, or an exercise option number); returns the verdict and what comes next."""
-    reply = replies.answer_reply(await _api.answer(_chat(tool_context), text))
-    # With messages before it (a reading's text, then its question) the reply is longer than the model may write.
-    return _direct(reply, tool_context) if reply.before else {"reply": str(reply)}
+    return _sent(replies.answer_reply(await _api.answer(_chat(tool_context), text)), tool_context)
 
 
 async def end_session(tool_context: ToolContext) -> dict:
@@ -50,7 +49,7 @@ async def end_session(tool_context: ToolContext) -> dict:
 
 async def session_status(tool_context: ToolContext) -> dict:
     """Tell whether a session is active and repeat the current word."""
-    return {"reply": str(replies.status_reply(await _api.status(_chat(tool_context))))}
+    return _sent(replies.status_reply(await _api.status(_chat(tool_context))), tool_context)
 
 
 def _subject(subject: str) -> str:
@@ -70,7 +69,7 @@ async def start_lesson_exercise(subject: str, tool_context: ToolContext, number:
     level = level if level in ("easy", "medium", "hard") else None
     result = await _api.exercise_start(_chat(tool_context), subject=_subject(subject), number=number or None,
                                        difficulty=level)
-    return {"reply": str(exercise_start_reply(result))}
+    return _sent(exercise_start_reply(result), tool_context)
 
 
 async def list_lessons(subject: str, tool_context: ToolContext) -> dict:
@@ -81,7 +80,7 @@ async def list_lessons(subject: str, tool_context: ToolContext) -> dict:
 async def start_mistakes_exam(subject: str, tool_context: ToolContext) -> dict:
     """Start a subject's mistakes exam: up to 20 questions the student got wrong and has not fixed yet.
     subject is "english", "math" or "arabic"."""
-    return {"reply": str(mistakes_start_reply(await _api.mistakes_start(_chat(tool_context), _subject(subject))))}
+    return _sent(mistakes_start_reply(await _api.mistakes_start(_chat(tool_context), _subject(subject))), tool_context)
 
 
 async def start_kefel_drill(tool_context: ToolContext) -> dict:
@@ -99,7 +98,14 @@ async def start_hiluk_drill(tool_context: ToolContext) -> dict:
 def _direct(reply: replies.Reply, tool_context: ToolContext) -> dict:
     """A reply the coach sends as it is; the model is not asked to write it again."""
     tool_context.actions.skip_summarization = True
-    return {"reply": reply.text, "buttons": reply.buttons, "before": reply.before, "direct": True}
+    return {"reply": reply.text, "buttons": reply.buttons, "before": reply.before, "photo": reply.photo, "direct": True}
+
+
+def _sent(reply: replies.Reply, tool_context: ToolContext) -> dict:
+    """Sent as it is when the model could not pass it on whole: with messages before it (a reading's
+    text is longer than the model may write) or with a photo (a question's picture). Any other reply
+    is the model's to pass on."""
+    return _direct(reply, tool_context) if reply.before or reply.photo else {"reply": str(reply)}
 
 
 async def start_unseen(tool_context: ToolContext, number: int = 0) -> dict:

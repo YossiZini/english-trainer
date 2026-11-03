@@ -184,11 +184,12 @@ picked number go through `/api/bot/session/answer` like any answer.
 
 1. The API picks 10 questions with `LessonService.getExercises` (the web's
    difficulty choice and option shuffle) and freezes them in the session
-   (`bot_sessions`, `kind: exercise`). The bot sends text only, so it asks
-   with `textOnly`: a question that needs its picture (`question_picture`,
-   the grids of Math chapter 8) is left out. When fewer than 10 are left at
-   the level, the round takes the rest from the lesson's other levels (the
-   web's rule for a short level).
+   (`bot_sessions`, `kind: exercise`). When fewer than 10 are left at the
+   level, the round takes the rest from the lesson's other levels (the
+   web's rule for a short level). A question that needs its picture
+   (`question_picture`: the grids of Math chapter 8, the triangles of
+   chapter 9) is frozen with the site path of the picture's PNG, and the
+   bot sends it as a photo (see "Question pictures" below).
 2. Every exercise is multiple choice (a backend content test enforces it):
    the question lists its options as "1) …" with buttons 1..n (3 or 4
    options). An option or right answer without letters ("40 ÷ 5", "3/4")
@@ -208,6 +209,30 @@ round; `/api/bot/session/answer`, `end` and `status` route to the open
 session's kind (`services/bot/sessionKinds.js`). Exercise answers never
 touch the model.
 
+## Question pictures
+
+Telegram shows pictures, not inline SVG, so every question picture also
+exists as a PNG the website serves: `/question-pictures/<hash>.png`, where
+the hash is of the picture itself (`backend/src/utils/questionPicture.js`).
+A changed picture gets a new file, so nothing cached (Telegram, browsers,
+Hosting, which keeps them for a year) shows the old one.
+
+- **Drawn at dev time**: after `npm run generate-data`, run
+  `cd frontend && CHROMIUM_PATH=/opt/pw-browsers/chromium npm run question-pictures`.
+  It draws only new or changed pictures (3× for a phone screen, on white)
+  into `frontend/public/question-pictures/` and removes unused ones; commit
+  them with the content. `backend/tests/questionPictures.test.js` fails
+  when a PNG is missing or left over. No runtime dependency.
+- **Sent by URL**: the question view carries `picture` (the path); the bot
+  sends `sendPhoto` with `SITE_URL` + path (default: `API_URL` without
+  `/api`, the Hosting site), the question and its options as the caption
+  and the answer buttons under it. A verdict or a report confirmation goes
+  first, as its own message. A question too long for a caption (1024 UTF-16
+  units) follows the photo; if Telegram refuses the photo, the question
+  goes as text with the picture's link.
+- Through the agent, a reply with a photo is `direct` (the model cannot
+  send photos), like an /unseen text.
+
 ## Mistakes exam
 
 Up to 20 questions the student got wrong in one subject and has not fixed
@@ -219,8 +244,8 @@ come from `MistakesService.pickSubjectExam`, the same rule as the
 website's `GET /api/mistakes/exam`: the student's unfixed mistakes in that
 subject, one per question however many times it was answered wrong,
 without questions hidden after a report, removed in review or gone from
-the content, and no other questions. A mistake on a question with its own
-picture waits for the website's exam. The session is an exercise session
+the content, and no other questions. A question with its own picture is
+sent as a photo, as in a lesson. The session is an exercise session
 (`source: 'mistakes'`), so answers, "?", `/report`, status and `/end` work
 as in a lesson, with the same kind wrong-answer lines.
 

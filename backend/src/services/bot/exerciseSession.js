@@ -10,6 +10,7 @@ const ReportService = require('../report.service');
 const MistakesService = require('../mistakes.service');
 const { shuffleArray } = require('../../utils/shuffle');
 const { SUBJECTS } = require('../../config/subjects');
+const { questionPicturePath } = require('../../utils/questionPicture');
 
 /** A finished lesson's questions can be reported for this long after it ended. */
 const REPORT_WINDOW_MS = 60 * 60 * 1000;
@@ -39,14 +40,19 @@ const capped = (text) => {
   return s.length > EXPLANATION_MAX ? `${s.slice(0, EXPLANATION_MAX - 1)}…` : s;
 };
 
-/** A question as a session keeps it from the start: what the chat shows, and the hint. */
+/**
+ * A question as a session keeps it from the start: what the chat shows, and
+ * the hint. A question that needs its picture keeps the site path of the
+ * picture's PNG (the bot sends it as a photo), not the picture itself.
+ */
 const frozenQuestion = (ex, { shuffle = false } = {}) => ({
   id: ex.id,
   type: ex.type,
   text: ex.question_text_he || ex.question_text_en,
   textEn: ex.question_text_he ? ex.question_text_en || null : null,
   options: ex.type === 'multiple_choice' ? (shuffle ? shuffleArray(ex.options) : ex.options) : null,
-  hint: ex.hint_he || null
+  hint: ex.hint_he || null,
+  picture: questionPicturePath(ex.question_picture)
 });
 
 function questionView(session) {
@@ -57,7 +63,8 @@ function questionView(session) {
     type: ex.type,
     text: ex.text,
     textEn: ex.textEn || null,
-    options: ex.type === 'multiple_choice' ? ex.options : null
+    options: ex.type === 'multiple_choice' ? ex.options : null,
+    picture: ex.picture || null
   };
 }
 
@@ -124,8 +131,7 @@ class ExerciseSession {
 
     const list = await Lesson.listBySubject(lesson.subject || 'english');
     const position = list.findIndex(l => l.id === lesson.id) + 1 || null;
-    // The chat sends text only: a question that needs its picture is left out.
-    const set = await LessonService.getExercises(lesson.id, user.id, DIFFICULTIES.includes(difficulty) ? difficulty : null, { textOnly: true });
+    const set = await LessonService.getExercises(lesson.id, user.id, DIFFICULTIES.includes(difficulty) ? difficulty : null);
     if (!set.exercises.length) return { error: 'no_exercises' };
     const exercises = set.exercises.map(ex => frozenQuestion(ex));
 
@@ -145,9 +151,7 @@ class ExerciseSession {
    */
   static async startMistakes(user, chatId, { subject }) {
     if (!SUBJECTS.includes(subject)) return { error: 'bad_subject' };
-    const { waiting, questions: all } = await MistakesService.pickSubjectExam(user.id, subject);
-    // A mistake on a question with a picture waits for the website (the chat sends text only).
-    const questions = all.filter(({ exercise }) => !exercise.question_picture);
+    const { waiting, questions } = await MistakesService.pickSubjectExam(user.id, subject);
     if (!questions.length) return { kind: 'exercise', mistakes: true, nothingWaiting: true, subject };
     const exercises = questions.map(({ exercise }) => frozenQuestion(exercise, { shuffle: true }));
     const open = await BotSession.findOpenByChat(chatId);

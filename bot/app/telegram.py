@@ -1,4 +1,4 @@
-"""The thin Telegram side: parse an update, send a message, set the menu."""
+"""The thin Telegram side: parse an update, send a message or a photo, set the menu."""
 import logging
 
 import httpx
@@ -33,6 +33,8 @@ COMMANDS = [
     ("end", "עצירת התרגול"),
 ]
 COMMANDS_TIMEOUT_SECONDS = 5
+# Telegram's limit on a photo's caption, in UTF-16 code units (an emoji counts two).
+CAPTION_MAX = 1024
 
 
 def parse_update(update: dict) -> tuple[str, str] | None:
@@ -66,6 +68,45 @@ async def send_message(chat_id: str, text: str, buttons: list[str] | None = None
     finally:
         if own:
             await client.aclose()
+
+
+async def send_photo(chat_id: str, photo: str, caption: str = "", buttons: list[str] | None = None,
+                     client: httpx.AsyncClient | None = None) -> bool:
+    """A photo by its URL (Telegram fetches it), with a caption and the buttons under it."""
+    url = f"{config.TELEGRAM_API}/bot{config.TELEGRAM_BOT_TOKEN}/sendPhoto"
+    body = {"chat_id": chat_id, "photo": photo, "reply_markup": reply_markup(buttons)}
+    if caption:
+        body["caption"] = caption
+    own = client is None
+    client = client or httpx.AsyncClient(timeout=config.API_TIMEOUT_SECONDS)
+    try:
+        res = await client.post(url, json=body)
+    except httpx.HTTPError as error:
+        log.warning("sendPhoto failed: %s", type(error).__name__)
+        return False
+    finally:
+        if own:
+            await client.aclose()
+    if res.status_code != 200:
+        log.warning("sendPhoto refused: HTTP %s", res.status_code)
+    return res.status_code == 200
+
+
+def _caption_fits(text: str) -> bool:
+    return len(text.encode("utf-16-le")) // 2 <= CAPTION_MAX
+
+
+async def send_question_photo(chat_id: str, photo: str, text: str, buttons: list[str] | None = None,
+                              client: httpx.AsyncClient | None = None) -> bool:
+    """A question with its picture: the photo, the question as its caption, the buttons under it.
+    A question too long for a caption follows the photo as its own message. If Telegram refuses
+    the photo, the question still arrives, as text with the picture's link."""
+    if _caption_fits(text):
+        if await send_photo(chat_id, photo, text, buttons, client=client):
+            return True
+    elif await send_photo(chat_id, photo, client=client):
+        return await send_message(chat_id, text, buttons, client=client)
+    return await send_message(chat_id, f"{text}\n{photo}", buttons, client=client)
 
 
 async def set_commands(client: httpx.AsyncClient | None = None) -> bool:
