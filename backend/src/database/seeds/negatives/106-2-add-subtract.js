@@ -77,7 +77,7 @@ function explainAdd(a, b) {
 /** a + b: wrong options from adding the distances, the wrong sign, subtracting. */
 const addQ = (n, level, a, b) => intQ(n, level, ask(op(a, '+', b)), a + b,
   [-(a + b), a - b, b - a, Math.abs(a) + Math.abs(b), -(Math.abs(a) + Math.abs(b)), a + b + 1, a + b - 1],
-  explainAdd(a, b), hopPic(a, b, ltr(`${op(a, '+', b)} = ${S(a + b)}`)));
+  explainAdd(a, b), { picture: hopPic(a, b, ltr(`${op(a, '+', b)} = ${S(a + b)}`)) });
 
 /** a − b as a plus the opposite. */
 function explainSub(a, b) {
@@ -88,7 +88,7 @@ function explainSub(a, b) {
 /** a − b: wrong options from forgetting the opposite (a + b), the wrong sign, one off. */
 const subQ = (n, level, a, b) => intQ(n, level, ask(op(a, '−', b)), a - b,
   [a + b, -(a - b), b - a, -(a + b), a - b + 1, a - b - 1],
-  explainSub(a, b), hopPic(a, -b, ltr(`${op(a, '−', b)} = ${S(a - b)}`)));
+  explainSub(a, b), { picture: hopPic(a, -b, ltr(`${op(a, '−', b)} = ${S(a - b)}`)) });
 
 /**
  * A story whose answer is a ∘ b (∘ is + or −): the explanation writes the
@@ -99,7 +99,7 @@ function storyQ(n, level, text, a, sym, b, why = '') {
   const exercise = ltr(`${op(a, sym, b)} = ${S(r)}`);
   const cands = sym === '+' ? [-r, a - b, a + b + 1, a + b - 1, -(Math.abs(a) + Math.abs(b))] : [a + b, -r, r + 1, r - 1, -(a + b)];
   const picture = sym === '+' ? hopPic(a, b, exercise) : hopPic(a, -b, exercise);
-  return intQ(n, level, text, r, cands, `התרגיל: ${exercise}.${why ? ` ${why}` : ''}`, picture);
+  return intQ(n, level, text, r, cands, `התרגיל: ${exercise}.${why ? ` ${why}` : ''}`, { picture });
 }
 
 const exercises = [

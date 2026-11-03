@@ -3,7 +3,7 @@
 // common mistakes (x and y swapped, a sign flipped), the quarters, how a
 // point is reached from the origin, grid pictures for the theory, the
 // explanation and the question itself, and the lesson builder.
-const { ltr, mcq, P, glueEquations } = require('../multiplication/common');
+const { ltr, mcq, P, eq, withQuestionPicture, mathLesson } = require('../multiplication/common');
 
 /** An integer as written in the lessons: "−3", "0", "5". */
 const S = P.signed;
@@ -16,9 +16,6 @@ const at = (x, y, name = '') => ltr(`${name}${pair(x, y)}`);
 
 /** A signed number inside Hebrew text. */
 const num = (v) => ltr(S(v));
-
-/** Theory HTML: an expression that keeps its order (< and > escaped, see negatives/common.js). */
-const eq = (s) => `<span dir="ltr">${s.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>`;
 
 const QUARTERS = ['הרביע הראשון', 'הרביע השני', 'הרביע השלישי', 'הרביע הרביעי'];
 
@@ -92,38 +89,7 @@ const quarterQ = (n, level, text, [x, y], explanation, opts = {}) =>
 /** Points named A, B, C, D… from [[x, y], …]. */
 const named = (coords, opts = {}) => coords.map(([x, y], i) => ({ x, y, label: 'ABCDEFG'[i], ...(opts[i] || {}) }));
 
-function withQuestionPicture(e, question) {
-  return question ? { ...e, questionPicture: question } : e;
-}
-
-// An option is shown left to right: Hebrew with numbers or Latin letters in
-// it would read scrambled ("ציר x" as "x ציר").
-const HEBREW = /[֐-׿]/;
-const MIXED = /[0-9A-Za-z]/;
-
-/** A lesson object with the shared fields of topic 107. */
-function lesson(index, titleEn, titleHe, theoryContentHe, exercises) {
-  const byLevel = exercises.reduce((m, e) => ({ ...m, [e.difficulty]: (m[e.difficulty] || 0) + 1 }), {});
-  for (const level of ['easy', 'medium', 'hard']) {
-    if (byLevel[level] !== 10) throw new Error(`107.${index} ${titleEn}: ${byLevel[level] || 0} ${level} exercises, expected 10`);
-  }
-  for (const e of exercises) {
-    for (const o of e.options || []) {
-      if (HEBREW.test(o) && MIXED.test(o)) throw new Error(`107.${index} q${e.questionNumber}: option mixes Hebrew with numbers or letters: ${o}`);
-    }
-  }
-  return {
-    topicNumber: 107,
-    subtopicNumber: `107.${index}`,
-    titleEn,
-    titleHe,
-    level: 'beginner',
-    // After negative numbers (1061…); triangles are 1081….
-    orderIndex: 1070 + index,
-    theoryContentHe: glueEquations(theoryContentHe),
-    exercises: exercises.map((e) =>
-      (e.explanationPicture ? { ...e, explanationPicture: glueEquations(e.explanationPicture) } : e))
-  };
-}
+/** A lesson object with the shared fields of topic 107: after negative numbers (1061…); triangles are 1081…. */
+const lesson = (...args) => mathLesson({ topic: 107, order: 1070, options: 'letters', noQuote: true }, ...args);
 
 module.exports = { ltr, P, S, pair, at, num, eq, QUARTERS, quarterOf, walk, grid, gridPic, named, pointQ, intQ, choiceQ, quarterQ, lesson };
