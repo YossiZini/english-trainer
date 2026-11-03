@@ -230,7 +230,9 @@ function checkBalance(where, b, x, sides = null) {
       } catch (err) { /* not an equation of x */ }
     }
   }
-  if (!x && (b.left.boxes || b.right.boxes)) {
+  // The same boxes on both pans (x against x + 4): the tilt is the numbers' alone, for every x.
+  const cancel = !x && (b.left.boxes || b.right.boxes) && qeq(b.left.all.a, b.right.all.a);
+  if (!x && !cancel && (b.left.boxes || b.right.boxes)) {
     const own = solveForms(b.left.all, b.right.all);
     if (!own || own.d !== 1 || own.n <= 0) { fail(where, 'a balance without one positive whole weight for the box'); return; }
     x = own;
@@ -240,7 +242,8 @@ function checkBalance(where, b, x, sides = null) {
   const diff = l.n / l.d - r.n / r.d;
   const want = diff === 0 ? 'level' : diff > 0 ? 'left' : 'right';
   if (b.tilt !== want) fail(where, `balance drawn ${b.tilt}, but its pans weigh ${qstr(l)} and ${qstr(r)}${x ? ` at x = ${qstr(x)}` : ''}`);
-  if (!qeq(at(b.left.struck), at(b.right.struck))) fail(where, 'struck items differ between the pans (both sides must lose the same)');
+  const sameStruck = x ? qeq(at(b.left.struck), at(b.right.struck)) : qeq(b.left.struck.a, b.right.struck.a) && qeq(b.left.struck.b, b.right.struck.b);
+  if (!sameStruck) fail(where, 'struck items differ between the pans (both sides must lose the same)');
   if (b.left.groups && b.right.groups && b.left.groups !== b.right.groups) fail(where, `${b.left.groups} groups against ${b.right.groups}`);
   for (const side of ['left', 'right']) {
     const g = b[side].groupUnits;
@@ -297,14 +300,83 @@ function storyEquation(q) {
   return null;
 }
 
+/**
+ * 10.7: a story, its equation (x as the story's own "נסמן" would choose it),
+ * and what each of its questions asks, as an expression in x.
+ */
+function wordProblem(q) {
+  const N = '(\\d+)';
+  const t = flat(q).replace(/[⁦-⁩]/g, '');
+  const rules = [
+    [`(\\S+) גדולה מאחיה ב-${N} שנים, ויחד הגילים שלהם ${N}\\.`, ([name, d, s]) => [`x + x + ${d} = ${s}`, [['בן כמה האח\\?', 'x'], [`בת כמה ${name}\\?`, `x + ${d}`]]]],
+    [`אמא גדולה פי ${N} מבתה, ויחד הגילים שלהן ${N}\\.`, ([k, s]) => [`${k}x + x = ${s}`, [['בת כמה הבת\\?', 'x'], ['בת כמה אמא\\?', `${k}x`]]]],
+    [`אבא בן ${N} ובנו בן ${N}\\. בעוד כמה שנים יהיה האבא גדול פי ${N} מבנו\\?`, ([a, b, k]) => [`${a} + x = ${k}(${b} + x)`, [['', 'x']]]],  // the story is its question
+    [`ל(\\S+) היו ${N} שקלים\\. הוא קנה ${N} (\\S+) במחיר זהה, ונשארו לו ${N} שקלים\\.`, ([name, a, k, items, r]) => [`${k}x + ${r} = ${a}`, [['כמה עלה כל \\S+\\?', 'x'], [`כמה שילם ${name} על כל ה${items}\\?`, `${k}x`]]]],
+    [`שני אחים חילקו ביניהם ${N} שקלים\\. הגדול קיבל ${N} שקלים יותר מהקטן\\.`, ([s, d]) => [`x + x + ${d} = ${s}`, [['כמה קיבל הקטן\\?', 'x'], ['כמה קיבל הגדול\\?', `x + ${d}`]]]],
+    [`${N} גולות חולקו בין רון לגיל, ולרון יש פי ${N} יותר גולות מאשר לגיל\\.`, ([s, k]) => [`${k}x + x = ${s}`, [['כמה גולות יש לגיל\\?', 'x'], ['כמה גולות יש לרון\\?', `${k}x`]]]],
+    [`אורך של מלבן גדול פי ${N} מהרוחב שלו, וההיקף שלו ${N} סנטימטרים\\.`, ([k, p]) => [`2(${k}x + x) = ${p}`, [['מה הרוחב של המלבן\\?', 'x'], ['מה האורך של המלבן\\?', `${k}x`]]]],
+    [`במשולש שווה שוקיים כל שוק ארוכה מהבסיס ב-${N} סנטימטרים, וההיקף שלו ${N} סנטימטרים\\.`, ([d, p]) => [`x + 2(x + ${d}) = ${p}`, [['מה אורך הבסיס\\?', 'x'], ['מה אורך כל שוק\\?', `x + ${d}`]]]],
+    [`הסכום של שני מספרים עוקבים הוא ${N}\\.`, ([s]) => [`x + x + 1 = ${s}`, [['מה המספר הקטן\\?', 'x'], ['מה המספר הגדול\\?', 'x + 1']]]],
+    [`הסכום של שלושה מספרים זוגיים עוקבים הוא ${N}\\.`, ([s]) => [`x + x + 2 + x + 4 = ${s}`, [['מה המספר הקטן\\?', 'x'], ['מה המספר האמצעי\\?', 'x + 2'], ['מה המספר הגדול\\?', 'x + 4']]]],
+    [`${N} ילדים חילקו ביניהם ${N} סוכריות שווה בשווה, ונשארו ${N} סוכריות\\.`, ([k, s, r]) => [`${k}x + ${r} = ${s}`, [['כמה סוכריות קיבל כל ילד\\?', 'x']]]],
+    [`כרטיס למבוגר יקר ב-${N} שקלים מכרטיס לילד\\. ${N} מבוגרים ו-${N} ילדים שילמו יחד ${N} שקלים\\.`, ([d, m, c, s]) => [`${m}(x + ${d}) + ${c}x = ${s}`, [['כמה עולה כרטיס לילד\\?', 'x'], ['כמה עולה כרטיס למבוגר\\?', `x + ${d}`]]]]
+  ];
+  for (const [re, of] of rules) {
+    const m = t.match(new RegExp(`^${re}`));
+    if (!m) continue;
+    const [eq, asks] = of(m.slice(1));
+    const rest = t.slice(m[0].length).trim();
+    const ask = asks.find(([a]) => new RegExp(`^${a}$`).test(rest));
+    return { eq, ask: ask ? ask[1] : null, rest };
+  }
+  return null;
+}
+
+/** 10.7: what an expression question describes ("3 מדבקות יותר ממנה" → x + 3), as a linear form. */
+function describedExpression(q) {
+  const m = flat(q).match(/^ל(\S+) יש x (\S+), ול(\S+) יש (.+)\. איזה ביטוי מתאר כמה (\S+) יש ל(\S+)\?$/);
+  if (!m || m[5] !== m[2] || m[6] !== m[3]) return null;
+  const [rel, things] = [m[4], m[2]];
+  let k;
+  if ((k = rel.match(new RegExp(`^(\\d+) ${things} יותר ממנה$`)))) return parse(`x + ${k[1]}`);
+  if ((k = rel.match(new RegExp(`^(\\d+) ${things} פחות ממנה$`)))) return parse(`x − ${k[1]}`);
+  if ((k = rel.match(/^פי (\d+) ממה שיש לה$/))) return parse(`${k[1]}x`);
+  if ((k = rel.match(/^פי (\d+) ממה שיש לה ועוד (\d+)$/))) return parse(`${k[1]}x + ${k[2]}`);
+  if (rel === 'חצי ממה שיש לה') return parse('x ÷ 2');
+  return null;
+}
+
 // ---------------------------------------------------------------- questions
 /**
  * The answer a question asks for, re-computed from its text, and the x its
  * explanation works with; undefined when the question is not recognised.
  */
-function recompute(q) {
+function recompute(q, options = []) {
   const iso = isolates(q);
   let m;
+  // 10.7: which equation fits the story — exactly one option solves to the story's x.
+  if (q.endsWith('איזו משוואה מתאימה לסיפור?')) {
+    const w = wordProblem(q);
+    if (!w) return undefined;
+    const x = solveText(w.eq);
+    const fits = options.filter((o) => { try { return qeq(solveText(o), x); } catch (err) { return false; } });
+    if (fits.length !== 1) return { answer: `(${fits.length} options fit the story ${w.eq})`, x: null };
+    return { answer: fits[0], x, eq: w.eq, story: true };
+  }
+  // 10.7: which expression the words describe — exactly one option is that expression.
+  if (q.endsWith('איזה ביטוי מתאר כמה') || /איזה ביטוי מתאר כמה \S+ יש ל\S+\?$/.test(q)) {
+    const want = describedExpression(q);
+    if (!want) return undefined;
+    const same = options.filter((o) => { try { const v = parse(o); return qeq(v.a, want.a) && qeq(v.b, want.b); } catch (err) { return false; } });
+    return same.length === 1 ? { answer: same[0], x: null } : { answer: `(${same.length} options are the expression)`, x: null };
+  }
+  // 10.7: a word problem — its equation from its words, the answer to what it asks.
+  const w = wordProblem(q);
+  if (w) {
+    if (!w.ask) return undefined;
+    const x = solveText(w.eq);
+    return { answer: show(lat(parse(w.ask), x)), x, eq: w.eq, story: true };
+  }
   if ((m = q.match(/^מה הפתרון של המשוואה ⁦([^⁩]*)⁩\?$/)) || (m = q.match(/^מה מסתתר בקופסה\? ⁦([^⁩]*)⁩$/))) {
     const x = solveText(m[1]);
     return { answer: show(x), x, eq: m[1] };
@@ -390,8 +462,13 @@ for (const e of exercises) {
   if (options.length !== (yesNo ? 3 : 4)) fail(where, `${options.length} options`);
   if (new Set(options).size !== options.length) fail(where, 'two options are the same');
   if (!options.includes(answer)) fail(where, 'answer is not an option');
+  // An option with x (10.7): an expression or an equation of x, no Hebrew, that parses.
+  const mathOption = (o) => !HEBREW.test(o) && /x/.test(o) && !/[A-Za-wyz]/.test(o) && (() => {
+    try { o.split('=').forEach((p) => parse(p)); return o.split('=').length <= 2; } catch (err) { return false; }
+  })();
+  for (const raw of e.options || []) if (mathOption(flat(raw)) && / /.test(raw)) fail(where, `option "${raw}" is not glued (plain spaces)`);
   for (const o of options) {
-    if (!(num(o) !== null || (HEBREW.test(o) && !/[0-9A-Za-z−=]/.test(o)))) fail(where, `option "${o}" is neither a number nor Hebrew words`);
+    if (!(num(o) !== null || (HEBREW.test(o) && !/[0-9A-Za-z−=]/.test(o)) || mathOption(o))) fail(where, `option "${o}" is neither a number, Hebrew words nor an expression of x`);
     if (/^-/.test(o)) fail(where, `option "${o}" with a hyphen for minus`);
   }
   if (num(answer) !== null && options.filter((o) => num(o) === num(answer)).length > 1) fail(where, 'a wrong option equals the answer');
@@ -400,7 +477,7 @@ for (const e of exercises) {
   checkOrder(`${where} question`, e.question_text_he);
   checkOrder(`${where} explanation`, e.explanation_he);
   let r;
-  try { r = recompute(flat(e.question_text_he)); } catch (err) { fail(where, err.message); }
+  try { r = recompute(flat(e.question_text_he), options); } catch (err) { fail(where, err.message); }
   if (r === undefined) { fail(where, `could not re-compute "${flat(e.question_text_he)}"`); continue; }
   if (!r) continue;
   if (r.answer !== answer) fail(where, `answer ${answer}, re-computed ${r.answer}`);

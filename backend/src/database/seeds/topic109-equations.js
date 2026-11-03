@@ -14,6 +14,7 @@ const lessonsData = [
   require('./equations/109-4-two-steps'),
   require('./equations/109-5-both-sides'),
   require('./equations/109-6-parentheses'),
+  require('./equations/109-7-word-problems'),
 ];
 
 module.exports = { lessonsData: finishMath(lessonsData) };

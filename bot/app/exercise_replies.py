@@ -1,10 +1,13 @@
 """Hebrew replies for lesson exercises, built from the API's data only.
 
 A multiple-choice question lists its options as "1) …" lines and offers
-buttons 1..n (an option without letters is isolated left to right, so
-"40 ÷ 5" never reads "5 ÷ 40"); a fill-in question removes the keyboard. The lesson list is
+buttons 1..n (math is isolated left to right: an option without letters,
+or whose only letter is a lone x, so "40 ÷ 5" never reads "5 ÷ 40");
+a fill-in question removes the keyboard. The lesson list is
 numbered across pages; the student sends a lesson's number. The verdict, the
 right option and the score always come from the API."""
+import re
+
 from . import config
 from .replies import Reply
 from .encouragement import wrong_line
@@ -88,14 +91,19 @@ def report_reply(result: dict) -> Reply:
     return Reply(f"🚩 תודה! דיווחנו על שאלה {data['reportedNumber']} ונבדוק אותה.")
 
 
+# The unknown x standing alone (3x, x + 4), not inside a word ("box", "x-ray" keeps its letters).
+_LONE_X = re.compile(r"(?<![^\W\d_])x(?![^\W\d_])")
+
+
 def keep_ltr(text) -> str:
-    """Text without letters (a number, a fraction, "40 ÷ 5") inside a left-to-right isolate.
+    """Math (a number, a fraction, "40 ÷ 5", an equation with x) inside a left-to-right isolate.
 
     In a Hebrew message such text can show reversed ("5 ÷ 40"), and a trap
-    option would read as the right one. Words (Hebrew, English, Arabic) keep
-    their own direction and are left as they are."""
+    option would read as the right one. Text whose only letter is a lone x
+    ("3x + 4 = 19") is math too. Words (Hebrew, English, Arabic) keep their
+    own direction and are left as they are."""
     s = str(text)
-    if s.startswith(LRI) or any(ch.isalpha() for ch in s):
+    if s.startswith(LRI) or any(ch.isalpha() for ch in _LONE_X.sub("", s)):
         return s
     return f"{LRI}{s}{PDI}"
 

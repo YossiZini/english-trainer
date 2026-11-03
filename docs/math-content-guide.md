@@ -73,8 +73,16 @@ creates a new lesson and orphans progress.
     browser skips spans when it picks the direction), never with a bare x.
   - Division by a number is `x ÷ 4`, not `x/4`: the app stacks only number
     fractions, so `x/4` would show flat.
-  - Options are numbers, the value of x (`7`, `−3`), never `x = 7`: the bot
-    isolates an option only when it has no letters.
+  - Options are numbers, the value of x (`7`, `−3`), never `x = 7`. Only
+    a question about the equation or expression itself ("which equation fits
+    the story", 10.7) offers equations or expressions of x, with no Hebrew
+    and glued with U+00A0 (`glue` in `109-7-word-problems.js`), or the right
+    answer wraps on a phone. The bot isolates an option without letters or
+    whose only letter is a lone x (`keep_ltr`); the page shows options in a
+    `dir="auto"` box and the right answer in a `<bdi>`, where x leads.
+  - A word problem is checked in its story, not in its equation (`steps`
+    with `check`), and answers what was asked: the other amount when the
+    question is about it.
   - An identity may be shown (`3x + 2x = 5x`, `2(x + 3) = 2x + 6`); a wrong
     one is never written as an equation (write "2(x + 3) איננו 2x + 3").
   - A negative x put into an expression goes in parentheses (`3 × (−2) + 1`),

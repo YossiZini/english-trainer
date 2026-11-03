@@ -93,6 +93,18 @@ def test_math_options_and_answers_keep_their_order_in_a_hebrew_message():
     assert er.keep_ltr("\u20667 × 8 = ?\u2069") == "\u20667 × 8 = ?\u2069"  # already isolated: once only
 
 
+def test_options_with_the_unknown_x_are_isolated_but_words_are_not():
+    # An equation or expression of x (chapter 10) reads left to right like a number;
+    # an English word with an x in it keeps its own direction.
+    q = {"number": 3, "total": 10, "type": "multiple_choice", "text": "איזו משוואה מתאימה לסיפור?",
+         "textEn": None, "options": ["x + x + 1 = 25", "2x = 25", "x ÷ 2", "2(x + 5)", "box", "x-ray", "Fox"]}
+    lines = er.question_reply({"lesson": LESSON, "question": q}).text.split("\n")
+    assert lines[2:] == ["1) \u2066x + x + 1 = 25\u2069", "2) \u20662x = 25\u2069", "3) \u2066x ÷ 2\u2069",
+                         "4) \u20662(x + 5)\u2069", "5) box", "6) x-ray", "7) Fox"]
+    wrong = er.verdict_text({"correct": False, "correctAnswer": "x + x + 1 = 25", "correctOption": 1, "wrongCount": 1})
+    assert wrong.endswith("התשובה: 1) \u2066x + x + 1 = 25\u2069")
+
+
 def test_final_summary_and_early_end():
     done = er.exercise_answer_reply({
         "kind": "exercise", "done": True, "lesson": LESSON,

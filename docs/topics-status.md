@@ -218,7 +218,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 106 | Negative Numbers (3 subtopics 106.1–106.3, shown as chapter 7) | מספרים שליליים | topic106-negatives.js + negatives/*.js | Yes | Yes | Complete |
 | 107 | The x and y Axes (2 subtopics 107.1–107.2, shown as chapter 8) | מערכת צירים | topic107-axes.js + axes/*.js | Yes | Yes | Complete |
 | 108 | Triangles (3 subtopics 108.1–108.3, shown as chapter 9) | משולשים | topic108-triangles.js + triangles/*.js | Yes | Yes | Complete |
-| 109 | Equations with One Unknown (6 of 7 subtopics, 109.1–109.6, shown as chapter 10) | משוואה עם נעלם אחד | topic109-equations.js + equations/*.js | Yes | Yes | In progress |
+| 109 | Equations with One Unknown (7 subtopics 109.1–109.7, shown as chapter 10) | משוואה עם נעלם אחד | topic109-equations.js + equations/*.js | Yes | Yes | Complete |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -547,6 +547,21 @@ Track changes per topic with dates and descriptions.
   equation (25 planted faults caught). Existing content unchanged (by id).
   1,830 equations of the new lessons read in order on the real pages at
   360/390/1366px, and 3,228 in the bot's messages of the chapter. Sprint 19.
+- 2026-11-03: Lesson 109.7 from a story to an equation completes the
+  chapter (7 of 7). The four steps on one story, each on a balance: choose
+  what x is (an older sister as a bag of x and 4), write the equation, solve,
+  check in the story, and answer what was asked. 30 questions: which
+  expression the words describe (more, fewer, times, half), which equation
+  fits a story, and stories to solve (ages, a father and son in the future,
+  money left, sharing, a rectangle and an isosceles triangle, consecutive
+  and even numbers, sweets, tickets), some asking for the other amount.
+  Options with x are glued equations and expressions; the bot now isolates
+  an option whose only letter is a lone x. The check reads every story's
+  equation and question from its words, requires exactly one option to fit
+  (by its solution, or as the same expression), and reads a balance whose
+  boxes cancel (34 planted faults caught). 732 equations of 10.7, options and
+  answers included, read in order on one line on the real pages; 3,832 in the
+  bot's messages of the chapter. Sprint 19.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created
