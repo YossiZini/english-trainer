@@ -677,8 +677,8 @@ right after the merge.
 - Long agent batches write their output only when done; after an
   interruption, check which outputs exist and resume every stopped agent
   from its transcript before starting new ones.
-- Run `/sprint review` before `/sprint close`; if the user closes first,
-  review the merged range as the first follow-up.
+- Never close a sprint unreviewed: the review is step 2 of `/sprint close`
+  (Sprint 18 merged `/sprint review` into it).
 
 ### Follow-ups
 - Review the Sprint 9 range (`2a30a47...32b230a`) with the review lens.
@@ -1236,3 +1236,136 @@ and the owner's live check of `/unseen` (carried over) passed.
 - Carried over: `check:viewport`'s laptop "at top" quirk; questions with a
   picture end below the pinned bar on a laptop; `App.test.js` under Jest;
   the content tools in the repository; retros for Sprints 11–13.
+
+## Sprint 18 — Negative numbers, axes and triangles (2026-11-02 → 2026-11-03)
+
+Goal: three new math chapters at the end, 7–9: negative numbers, points on
+the x–y axes, and the basics of triangles. Each lesson has pictures,
+computed questions and a step-by-step animation.
+Result: 5 PRs (#82–#86), all merged, each deployed green on the first run.
+This is also the first close with the review folded in: the owner asked to
+merge `/sprint review` into `/sprint close`, and the review's fixes ride in
+the close PR.
+- **#82:** chapter 7, "מספרים שליליים" (topic 106), three lessons: the
+  number line, adding and subtracting, multiplying and dividing.
+  `integerLine` draws the number lines.
+- **#83:** chapter 8, "מערכת צירים" (topic 107), two lessons. This added a
+  new content field, a picture on the question itself (`question_picture`),
+  drawn as a grid. It shows beside the options on a wide screen. The bot
+  skipped these questions for now.
+- **#84:** chapter 9, "משולשים" (topic 108), three lessons: kinds, the
+  angle sum, perimeter and area. `triangle` draws a triangle from its
+  angles, its sides, or a base and an apex.
+- **#85:** animations for all eight lessons: hops on the number line, a
+  walk to a point (x first, then y), torn corners laid on a straight line,
+  rods that meet or fall short, a triangle as half a rectangle.
+- **#86:** picture questions in Telegram. Each picture is drawn as a PNG at
+  dev time, named by its hash and served by the website. The bot sends it
+  as a photo, with the question as the caption and the answer buttons under
+  it. The skip from #83 is gone.
+
+### What went well
+- **Three chapters without touching the rest.** Every existing lesson and
+  exercise stayed identical by id through five PRs. The chapter order
+  (`MATH_CHAPTER_ORDER`) placed them at the end with no renumbering.
+- **Independent checks for all 240 answers.** `topic106.js`, `topic107.js`
+  and `topic108.js` recompute every answer with their own parsers. They read
+  every number line, grid and triangle back from its SVG. 36 planted faults
+  (13 + 12 + 11) were all caught.
+- **A new picture kind cost no new runtime dependency.** The PNGs are drawn
+  at dev time and named by their hash, so a changed picture can never show
+  stale. A test fails when a PNG is missing or left over; both faults were
+  planted and caught.
+- **Primitives with their own tests.** These cover hop lengths, grid
+  positions, torn corners that fill 180°, and rods that meet. Every
+  equation on a stage is in `arithmetic.test.js`, which caught −0 printed
+  as "0" and triangles too tall for the stage.
+- **The folded-in review earned its keep.** It found 10 issues and 7 were
+  fixed in the close PR. Two of the fixes reached beyond this sprint:
+  - The retry page ("תיקון טעויות") had shown the options without their
+    question in every subject. The API sent camelCase keys the page never
+    reads, along with the answers.
+  - `/review_auto` could rewrite or remove a grid question its agent cannot
+    see.
+
+### What hurt
+- **Mixed Hebrew and math text took many rounds again.** Each of these was
+  found by measuring after it was built:
+  - a bare "−1" in a caption read "1−";
+  - an isolate flipped a caption's direction (`dir=auto` skips spans but
+    not isolates);
+  - two points in one caption ran together;
+  - "שיעור ה-x: 3" scrambled.
+
+  Cause: coordinates and signed numbers were a new kind of mixed text, and
+  the rules for them were written while fixing, not before building.
+- **A new question element crowded the phone layout.** The grid pushed the
+  options under the pinned action bar. Fixing it took three changes: the
+  picture beside the options, 200 px on phones, and shorter questions.
+  Cause: the card's layout budget was measured after the field was wired,
+  not when it was designed.
+- **The new field was not followed to every consumer.** `question_picture`
+  reached the lesson page, the mistakes pages, the cross test and the bot.
+  It did not reach the retry payload (camelCase, unread) or the review
+  queue and its agent; the close review found both. Cause: consumers were
+  found by memory, not by searching for a sibling field.
+- **A primitive option drew wrong unseen.** CoordPlane's dashed segments
+  drew solid: `pathLength="1"` rescaled the dash pattern. Rods meant for
+  impossible lengths turned to NaN. The tests checked where things are
+  drawn, not how each option looks.
+- **A cache header also covered the SPA fallback.** The year-long
+  `immutable` header on `/question-pictures/**` would also pin `index.html`,
+  which Hosting serves for a PNG not deployed yet. The header was removed.
+- **Tooling stumbles.**
+  - The emulator once failed to start ("could not determine executable to
+    run"); a retry worked.
+  - The command safety check blocked an `rm` of a scratch folder, and a
+    heredoc it could not parse.
+
+### Lessons → rules
+- When content gains a field, follow it through every consumer before its
+  PR. To find them, search for a sibling field (`explanation_picture`): the
+  lesson page, mistakes review, retry, the cross test, the mistakes exam,
+  the bot's lessons, mistakes and reports, and the review queue and agent.
+- Every API response a page renders has a test of the exact fields the page
+  reads. The same applies to the bot: a test of what the bot reads.
+- Every option of a drawing primitive gets a test of how it looks (dashed
+  draws dashes, impossible lengths do not meet), not only of where it is
+  drawn.
+- An agent that decides content sees everything a student sees. When it
+  cannot (a picture), the automatic path leaves the item to a person.
+- Long or immutable cache headers go only on paths that always exist
+  (`/static/**`). Hosting serves `index.html` for a missing file, under the
+  missing file's headers.
+- Before wiring a new element into a question card, budget its height at
+  360, 390 and 1366 px, with the options above the pinned bar.
+- Write the bidi rules for a new kind of mixed text (coordinates, signed
+  numbers, units) into the math guide before building that chapter, and
+  extend the topic's check to enforce them (refines "every new place that
+  shows Hebrew with equations gets the measured-order check").
+- Write multi-line scripts with the file tool and run them by path. Never
+  inline them through a Bash heredoc.
+
+### Follow-ups
+- Seed helpers are copied three times. `eq()`, `withQuestionPicture`, the
+  Hebrew-and-digits option check and most of `lesson()` repeat in
+  `negatives/common.js`, `axes/common.js` and `triangles/common.js`.
+  Move them next to `mcq` in `multiplication/common.js`, with one way to
+  pass the question picture: `intQ` takes it positionally, the others take
+  an options object.
+- Let the review agent see the picture: send it the PNG (Gemini reads
+  images). Then `/review_auto` can decide picture questions too
+  (`bot/app/review_agent.py`, `coach.review_auto`).
+- Watch the photo resend in real use. A hint, a wrong number, `/status` and
+  a report confirmation each send the question's photo again. If it feels
+  noisy, repeat the question as text (`exercise_replies.question_reply`).
+- Fine as is: a `sendPhoto` that times out after Telegram accepted it sends
+  the question again as text with a link. A duplicate is better than a
+  missing question (`telegram.send_question_photo`).
+- The owner's live check: `math 21` in Telegram should show a grid question
+  as a photo with buttons 1–4.
+- Carried over from Sprint 17:
+  - long division scrolls on phones (the owner's call);
+  - the browser checks should move into the repository;
+  - Sprint 16's follow-ups;
+  - the older carried items.

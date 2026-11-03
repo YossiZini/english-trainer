@@ -190,19 +190,15 @@ class MistakesService {
       return [];
     }
 
-    // Transform mistakes into exercise format for the frontend
+    // The shape of a lesson's exercises, which the exercise page reads, and like
+    // them without the answer: the server checks every answer.
     const exercises = mistakes.map(mistake => ({
       id: mistake.exercise_id,
-      questionNumber: mistake.question_number,
+      question_number: mistake.question_number,
       type: mistake.type,
-      questionTextHe: mistake.question_text_he,
-      questionPicture: mistake.question_picture || undefined,
-      options: mistake.options,
-      correctAnswer: mistake.correct_answer,
-      explanationHe: mistake.explanation_he,
-      explanationEn: mistake.explanation_en,
-      previousWrongAnswer: mistake.user_answer,
-      attemptNumber: mistake.attempt_number
+      question_text_he: mistake.question_text_he,
+      question_picture: mistake.question_picture || undefined,
+      options: mistake.options
     }));
 
     return exercises;

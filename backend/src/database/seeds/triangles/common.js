@@ -20,7 +20,7 @@ const show = (v) => String(Math.round(v * 100) / 100);
 function firstWrongs(answer, candidates, fmt) {
   const out = [];
   for (const v of candidates) {
-    if (Number.isFinite(v) && v > 0 && v !== answer && !out.includes(fmt(v))) out.push(fmt(v));
+    if (Number.isFinite(v) && v > 0 && fmt(v) !== fmt(answer) && !out.includes(fmt(v))) out.push(fmt(v));
   }
   if (out.length < 3) throw new Error(`Not enough wrong options for ${answer}`);
   return out.slice(0, 3);

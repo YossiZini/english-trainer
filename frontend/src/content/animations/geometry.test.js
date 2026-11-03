@@ -44,6 +44,14 @@ describe('CoordPlane', () => {
     // x first, then y.
     expect(parseFloat(wy.style.animationDelay)).toBeGreaterThan(parseFloat(wx.style.animationDelay));
   });
+  test('a dashed segment keeps its length, so its dashes show; a drawn one is traced', () => {
+    const c = inSvg(<CoordPlane segments={[{ from: [0, 0], to: [2, 0] }, { from: [2, 0], to: [2, 2], dashed: true }]} />);
+    const [drawn, dashed] = [...c.querySelectorAll('[data-segment] line')];
+    expect(drawn.getAttribute('pathLength')).toBe('1');
+    expect(drawn.classList.contains('la-trace')).toBe(true);
+    expect(dashed.hasAttribute('pathLength')).toBe(false);
+    expect(dashed.classList.contains('dashed')).toBe(true);
+  });
 });
 
 describe('triangles', () => {
@@ -93,5 +101,9 @@ describe('triangles', () => {
     expect(l2[1]).toBeCloseTo(220, 3); expect(r2[1]).toBeCloseTo(220, 3);
     expect(r2[0] - l2[0]).toBeCloseTo(45, 3);
     expect(no.querySelector('.la-gap')).not.toBeNull();
+    // One rod longer than the other two together: no triangle either, and no broken turn.
+    const long = inSvg(<Rods base={2} left={5} right={1} />);
+    expect(long.querySelector('.la-rods').getAttribute('data-meet')).toBe('no');
+    expect([...long.querySelectorAll('[data-rod]')].every((rod) => !rod.getAttribute('data-to').includes('NaN'))).toBe(true);
   });
 });

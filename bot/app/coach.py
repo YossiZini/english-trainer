@@ -304,6 +304,14 @@ class Coach:
                and time.monotonic() + config.REVIEW_TIMEOUT_SECONDS <= deadline):
             item = data["item"]
             title = rr.item_title(item)
+            if (item.get("question") or {}).get("picture"):
+                # The agent cannot see the picture: a person decides, in manual review (no agent call spent).
+                results.append(f"⏭ {title}: {rr.NEEDS_PICTURE}")
+                after = await act("skip")
+                if after is None:
+                    break
+                data = after
+                continue
             proposal, error = await self._propose(chat_id, item)
             if error == rr.REVIEW_CAP:
                 # Nothing more today: leave the rest under review.

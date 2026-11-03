@@ -1,15 +1,15 @@
 ---
 name: sprint
-description: Run the project's sprint workflow against the sprint-board artifact — /sprint start|status|next|review|close (start also plans the sprint; close also writes its retro). Use whenever the user types /sprint or asks to start, plan, continue, review, retrospect or close a sprint.
+description: Run the project's sprint workflow against the sprint-board artifact — /sprint start|status|next|close (start also plans the sprint; close also reviews the sprint's code, fixes what must be fixed and writes its retro). Use whenever the user types /sprint or asks to start, plan, continue, review, retrospect or close a sprint.
 ---
 
 # /sprint — sprint workflow for English Trainer
 
-Usage: `/sprint <start|status|next|review|close> [text]`
+Usage: `/sprint <start|status|next|close> [text]`
 Arguments received: `$ARGUMENTS`
 
-The flow: `start` (scope and plan) → `next`, as often as needed → `review` →
-`close` (retro and archive). `status` works at any time.
+The flow: `start` (scope and plan) → `next`, as often as needed → `close`
+(code review and its fixes, retro, archive). `status` works at any time.
 
 Only one sprint is active at a time. The sprint's single source of truth is the
 **sprint board artifact**; the repository holds the archives, the retro log and
@@ -106,60 +106,64 @@ Allowed when `status ∈ {planned, active}`; sets `status: active` on first use.
 4. Continue to the following item **while nothing needs the user**. Stop and
    report when an item becomes `waiting_user` or `blocked`, when a PR must be
    merged to proceed, or when the sprint's remaining items are all done —
-   then suggest `/sprint review`.
+   then suggest `/sprint close`.
 5. Open one PR per story (or per coherent batch), never per task, with the
    attribution footer the session requires. Do not merge.
 
-### `review`
-
-Allowed when `status ∈ {active, review}`; sets `status: review`.
-1. Diff the sprint: `git fetch origin main && git diff <baseRef>...origin/main`
-   plus unmerged work on the branch.
-2. Run the `code-review` skill on that range at level `high`, then add a
-   pass with this sprint's fixed lens: **low coupling and strong cohesion of
-   services** (each service owns one concern; controllers stay thin; models
-   do not reach into other models' storage), **fewer and simpler
-   dependencies** (no new package for something Node or an existing dep does;
-   no cross-layer imports), duplicated logic, error handling at boundaries.
-3. Report findings grouped as *fix in this sprint* / *follow-up* / *fine as is*
-   with concrete suggestions (file:line). With the user's OK, add "fix in this
-   sprint" items to the board as tasks under a `P1` story "Review follow-ups"
-   so `next` picks them up. Do not change code during `review`.
-
 ### `close [release tag]`
 
-Writes the sprint's retro and archives the sprint, in one PR. Allowed when
-`status ∈ {active, review}`.
+Reviews the sprint's code and fixes what must be fixed, writes the sprint's
+retro and archives the sprint, in one PR. Allowed when `status ∈ {active,
+review}`; sets `status: review` while it runs.
 1. Verify: every item `done`; the sprint's PRs merged; the latest deploy on
    `main` green. If anything is open, list it and stop — no partial close.
-2. **Retro** (skip when `docs/retro.md` already has this sprint's section):
+2. **Review** (skip when this sprint was already reviewed in this close):
+   1. Diff the sprint: `git fetch origin main && git diff <baseRef>...origin/main`.
+   2. Run the `code-review` skill on that range at level `high`, then add a
+      pass with this sprint's fixed lens: **low coupling and strong cohesion
+      of services** (each service owns one concern; controllers stay thin;
+      models do not reach into other models' storage), **fewer and simpler
+      dependencies** (no new package for something Node or an existing dep
+      does; no cross-layer imports), duplicated logic, error handling at
+      boundaries.
+   3. Sort the findings: *fix now* (a real defect or a broken rule, small and
+      local), *follow-up* (larger: a design change, a new feature, a
+      multi-file refactor) and *fine as is*. Fix every *fix now* finding on
+      the work branch, with a test where it can have one, and run the checks
+      `next` runs; the fixes ride in the close PR. *Follow-ups* go to the
+      retro's Follow-ups with a concrete suggestion (file:line); no new board
+      items, the sprint is closing.
+3. **Retro** (skip when `docs/retro.md` already has this sprint's section):
    1. Gather evidence: the board's notes (especially `blocked`/`waiting_user`
-      history), the git log since `baseRef`, CI runs, and what happened in
-      the session (failed commands, wrong assumptions, rework, things that
-      went well).
+      history), the git log since `baseRef`, CI runs, the review's findings,
+      and what happened in the session (failed commands, wrong assumptions,
+      rework, things that went well).
    2. Write a section to `docs/retro.md` (create it from the template below
       if missing): **What went well**, **What hurt** (each with the concrete
       cause), **Lessons → rules** (imperative, one line each, the kind of
       rule that prevents a repeat), **Follow-ups**. Refine rules that already
       exist instead of duplicating them.
    3. Make sure `CLAUDE.md` references `docs/retro.md` (add the pointer once).
-3. Update the system map when the sprint changed the design (services,
+4. Update the system map when the sprint changed the design (services,
    ownership, flows, limits): edit `docs/architecture/system-map.html` and
    republish it to its artifact URL (see CLAUDE.md, "System Map"); say in
    the close report whether it changed.
-4. Export the board (`ArtifactData list items` with `out_dir`, plus
+5. Export the board (`ArtifactData list items` with `out_dir`, plus
    `meta/sprint`) and run `node .claude/skills/sprint/scripts/archive.js
    <export-dir> <N>` to write `docs/backlog/sprint-<N>.md`.
-5. Commit the retro, the system map (when changed) and the archive on the
-   work branch, push, and open **one** PR, "Sprint <N>: retro and archive".
-6. Clear `items`, set `meta/sprint` to `status: closed`, `closedAt`, `archive`,
+6. Commit the review fixes, the retro, the system map (when changed) and the
+   archive on the work branch, push, and open **one** PR, "Sprint <N>: review
+   fixes, retro and archive" ("Sprint <N>: retro and archive" when the review
+   fixed nothing).
+7. Clear `items`, set `meta/sprint` to `status: closed`, `closedAt`, `archive`,
    `retro`, `release` (when the user gave a tag), and a `focus` saying the
    sprint is archived.
-7. If a release tag was requested: tag `origin/main` and push the tag. If the
+8. If a release tag was requested: tag `origin/main` and push the tag. If the
    tag push is refused from this session (known limitation), give the user the
    three-line `git tag`/`git push` snippet instead.
-8. Report in chat: the retro's new section (its rules in full), whether the
-   system map changed, the archive and the PR link.
+9. Report in chat: what the review fixed and what it left as follow-ups, the
+   retro's new section (its rules in full), whether the system map changed,
+   the archive and the PR link.
 
 Template header for a new `docs/retro.md`:
 
@@ -172,10 +176,11 @@ work in this repository (referenced from CLAUDE.md).
 
 ### Old names
 
-`plan` and `retro` are now steps of `start` and `close`. If someone types
-them out of habit: `plan` re-plans a `planned` sprint (`start` steps 3–6);
-`retro` writes only the retro (`close` step 2) and commits it alone, for a
-sprint whose close must wait.
+`plan`, `review` and `retro` are now steps of `start` and `close`. If someone
+types them out of habit: `plan` re-plans a `planned` sprint (`start` steps
+3–6); `review` runs `close` (the review is its step 2); `retro` writes only
+the retro (`close` step 3) and commits it alone, for a sprint whose close
+must wait.
 
 ## Guardrails
 

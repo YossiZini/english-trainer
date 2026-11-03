@@ -140,7 +140,7 @@ export const CoordPlane = ({ xMin = -5, xMax = 5, yMin = -4, yMax = 4, ox = 320,
       <Text x={ox - 6} y={oy + 13} anchor="end" cls="la-axis-num la-zero">0</Text>
       {segments.map((s, i) => (
         <g key={`s${i}`} data-segment={`${s.from}|${s.to}`}>
-          <line x1={X(s.from[0])} y1={Y(s.from[1])} x2={X(s.to[0])} y2={Y(s.to[1])} pathLength="1" className={`la-seg ${s.color || 'a'} ${s.dashed ? 'dashed' : 'la-trace'} la-seq`} style={seq(s.at ?? 0.2)} />
+          <line x1={X(s.from[0])} y1={Y(s.from[1])} x2={X(s.to[0])} y2={Y(s.to[1])} pathLength={s.dashed ? undefined : 1} className={`la-seg ${s.color || 'a'} ${s.dashed ? 'dashed' : 'la-trace'} la-seq`} style={seq(s.at ?? 0.2)} />
           {s.label && <Text x={X((s.from[0] + s.to[0]) / 2) + (s.from[0] === s.to[0] ? 16 : 0)} y={Y((s.from[1] + s.to[1]) / 2) - (s.from[1] === s.to[1] ? 14 : 0)} cls={`la-hop-label ${s.color || 'a'} fadein la-seq`} style={seq((s.at ?? 0.2) + 0.6)}>{s.label}</Text>}
         </g>
       ))}
@@ -335,14 +335,14 @@ export const TriangleShape = ({ V, names = ['A', 'B', 'C'], angleLabels = [], ti
 /**
  * Three lengths, or not, as a triangle: the base AB of `base` units, a rod
  * of `left` units at A and one of `right` units at B, both starting leaning
- * outwards and turning down. When left + right is more than the base they meet at C;
- * otherwise they end flat on the base and the gap between them shows.
+ * outwards and turning down. When the three lengths make a triangle (each less than
+ * the other two together) they meet at C; otherwise they end flat on the base.
  */
 export const Rods = ({ base, left, right, x = 140, y = 220, unit = 45, labels = true }) => {
   const ref = useRef(null);
   useMove(ref, true);
   const A = [x, y], B = [x + base * unit, y];
-  const meet = left + right > base;
+  const meet = left + right > base && base + left > right && base + right > left;
   // Final turn of each rod from upright: the triangle's angle at A and B, or flat.
   let a = 0, b = 0;
   if (meet) {
