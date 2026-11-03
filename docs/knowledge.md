@@ -46,6 +46,9 @@ session cannot see elsewhere.
   sends its PNG (`frontend/public/question-pictures/<hash>.png`; after
   changing a picture run `npm run question-pictures` in frontend/, or the
   backend test fails).
+- Answer options sit in a left-to-right box (`MultipleChoice`), but their text is
+  `dir="auto"`: a Hebrew-first option ("רק cacti", "3/4 הוא יותר משלם")
+  reads right to left; Arabic options keep the right-to-left box (d12).
 - Bot session kinds: vocab, exercise, review, drill (variant kefel or hiluk), unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
   answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a

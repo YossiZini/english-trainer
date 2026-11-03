@@ -117,6 +117,11 @@
   color: #333;
   font-weight: 500;
 }
+/* Its own direction (dir="auto") orders a Hebrew option right to left; it
+   keeps the box's left alignment, so no option moves. */
+.multiple-choice .option-text[dir="auto"] {
+  text-align: left;
+}
 
 .enter-hint {
   background: linear-gradient(135deg, #667eea, #764ba2);
