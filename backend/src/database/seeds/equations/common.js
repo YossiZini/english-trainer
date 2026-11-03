@@ -97,9 +97,10 @@ const putIn = (side, x, v) => (plug(side, x).replace(/[()]/g, '') === S(v) ? S(v
  * of x off both sides (so x stays positive), then the number on the side of
  * x, then divide. `first` opens the explanation (a story's equation, opening
  * parentheses); `orig` the sides of the written equation, when l = r is
- * another form of it (2(x + 3) = 14 solved as x + 3 = 7).
+ * another form of it (2(x + 3) = 14 solved as x + 3 = 7); `check` replaces
+ * the check (a word problem is checked in its story).
  */
-function steps(l, r, { text = null, first = '', orig = null } = {}) {
+function steps(l, r, { text = null, first = '', orig = null, check: own = null } = {}) {
   let [a, b] = l;
   let [c, d] = r;
   const x = solve(l, r);
@@ -129,7 +130,7 @@ function steps(l, r, { text = null, first = '', orig = null } = {}) {
   const check = lx && rx
     ? `בדיקה: באגף שמאל ${ltr(putIn(lt, x, lv))}, ובאגף ימין ${ltr(putIn(rt, x, rv))}.`
     : `בדיקה: ${ltr(lx ? `${plug(lt, x)} = ${S(rv)}` : `${S(lv)} = ${plug(rt, x)}`)}.`;
-  return `${first}${out.join(' ')} ${check}`;
+  return `${first}${out.join(' ')} ${own ?? check}`;
 }
 
 /**
