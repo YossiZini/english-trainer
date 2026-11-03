@@ -141,6 +141,11 @@ students at once (approved changes, removals and "keep" alike).
   ▶️ continues. A failed call ends the round with what was done so far.
 - If another reviewer decided an item first, a decision on it is not applied
   ("already decided") and the review moves on.
+- A question asked on its own picture (a grid, a triangle): the queue item
+  carries the PNG's path, and manual review shows the picture with the
+  question. The agent cannot see it (`has_picture` tells it so), so
+  `/review auto` skips such a question without an agent call and leaves it
+  for `/review_manual`.
 
 The review agent (`bot/app/review_agent.py`) is an ADK `LlmAgent` with a
 structured output on the latest Gemini Pro model (`REVIEW_MODEL`,
@@ -215,7 +220,9 @@ Telegram shows pictures, not inline SVG, so every question picture also
 exists as a PNG the website serves: `/question-pictures/<hash>.png`, where
 the hash is of the picture itself (`backend/src/utils/questionPicture.js`).
 A changed picture gets a new file, so nothing cached (Telegram, browsers,
-Hosting, which keeps them for a year) shows the old one.
+Hosting) shows the old one. They keep Hosting's default caching: a
+year-long header would also pin the site's page, which Hosting serves for a
+picture not deployed yet.
 
 - **Drawn at dev time**: after `npm run generate-data`, run
   `cd frontend && CHROMIUM_PATH=/opt/pw-browsers/chromium npm run question-pictures`.

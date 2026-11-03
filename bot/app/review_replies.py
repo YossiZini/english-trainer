@@ -3,6 +3,7 @@
 The question or word, its reports and the review agent's proposal are shown as data
 from the API and the agent; the reviewer answers with the buttons below, or
 types a correction for the agent."""
+from . import config
 from .replies import Reply
 
 APPROVE = "✅ לאשר את ההצעה"
@@ -15,6 +16,8 @@ ACTIONS = {APPROVE: "approve", KEEP: "keep", REMOVE: "remove", SKIP: "skip"}
 ALREADY_DECIDED = "מישהו אחר כבר החליט על הפריט הזה, אז לא שינינו אותו. ממשיכים:"
 REVIEW_CAP = "הגעתם למכסת הבדיקות להיום. מה שנשאר ממתין לבדיקה מחר."
 NOTHING = "אין שאלות או מילים שמחכות לבדיקה. 🎉"
+# /review_auto leaves a question asked on its picture to a person: the agent does not see the picture.
+NEEDS_PICTURE = "שאלה על ציור, נשארת לבדיקה ידנית (/review_manual)"
 AGENT_DOWN = ("סוכן הבדיקה לא זמין כרגע ({model}). אפשר להחליט בעצמכם בכפתורים, "
               "או לנסות שוב מאוחר יותר.")
 DECISION_NAME = {"keep": "להשאיר כמו שהיא", "change": "לתקן", "remove": "להסיר"}
@@ -100,7 +103,9 @@ def review_reply(data: dict, proposal: dict | None, intro: str = "", agent_error
         buttons = [APPROVE, *buttons]
     elif agent_error:
         parts.append(agent_error)
-    return Reply("\n\n".join(parts), buttons)
+    # A question asked on its picture: the reviewer sees the picture too.
+    picture = (data["item"].get("question") or {}).get("picture")
+    return Reply("\n\n".join(parts), buttons, photo=config.SITE_URL + picture if picture else None)
 
 
 def counts_text(counts: dict | None) -> str:

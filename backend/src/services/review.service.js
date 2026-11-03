@@ -6,6 +6,7 @@ const VocabularyWord = require('../models/VocabularyWord');
 const WordReport = require('../models/WordReport');
 const WordOverride = require('../models/WordOverride');
 const { choiceMatches } = require('../utils/answers');
+const { questionPicturePath } = require('../utils/questionPicture');
 
 /**
  * The review of reported questions and words, open to every linked student
@@ -158,7 +159,9 @@ class ReviewService {
           options: exercise.options || [],
           answer: exercise.correct_answer,
           explanation: exercise.explanation_he || null,
-          difficulty: exercise.difficulty || null
+          difficulty: exercise.difficulty || null,
+          // A question asked on its own picture (a grid, a triangle): its PNG, for the reviewer to see.
+          picture: questionPicturePath(exercise.question_picture)
         },
         reports: reports.map(r => ({ reason: r.reason, note: r.note || null, source: r.source, at: r.created_at })),
         firstReportedAt: reports[0].created_at

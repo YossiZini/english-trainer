@@ -432,7 +432,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Web app + Telegram</span>
         <h3>Report a question or word, review it in Telegram</h3>
-        <p>A student reports a question or a word from the site or the bot (a lesson, the vocabulary quiz, the words exam); it is hidden from students until it is reviewed. In Telegram any linked student's /review asks a review agent on Gemini Pro for a proposal (keep, change or remove), within a daily cap; in manual mode the reviewer approves or types a correction, in auto mode valid proposals apply directly. The API validates every change and applies it at once as a layer over the bundled questions and words.</p>
+        <p>A student reports a question or a word from the site or the bot (a lesson, the vocabulary quiz, the words exam); it is hidden from students until it is reviewed. In Telegram any linked student's /review asks a review agent on Gemini Pro for a proposal (keep, change or remove), within a daily cap; in manual mode the reviewer approves or types a correction, in auto mode valid proposals apply directly, except for a question asked on a picture, which waits for a person because the agent cannot see it. The API validates every change and applies it at once as a layer over the bundled questions and words.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">

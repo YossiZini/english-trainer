@@ -147,7 +147,7 @@ def unseen_answer_reply(data: dict) -> Reply:
     if data.get("done"):
         return Reply(verdict + "\n\n" + result_text(data))
     reply = question_reply(data)
-    return Reply(verdict + "\n\n" + reply.text, reply.buttons)
+    return reply.under(verdict)
 
 
 def unseen_end_reply(data: dict) -> Reply:

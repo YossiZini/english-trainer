@@ -67,6 +67,7 @@ describe('Review of reported questions', () => {
       reports: [{ reason: 'two_answers', note: null, source: 'web' }]
     });
     expect(data.items[0].lesson.title).toBeTruthy();
+    expect(data.items[0].question.picture).toBeNull();
     expect(data.items[1].reports[0].note).toBe('typo in 2');
   });
 
@@ -140,5 +141,15 @@ describe('Review of reported questions', () => {
     // The skipped question is still under review for next time.
     expect((await admin.get('/api/bot/review/queue')).body.data.items.map(i => i.exerciseId)).toEqual([d.id]);
     expect((await bot(studentChat).post('/api/bot/review/start', { mode: 'auto' })).body.data).toMatchObject({ kind: 'review', mode: 'auto' });
+  });
+
+  test("a question asked on its picture comes with its PNG's path, for the reviewer to see", async () => {
+    const { questionPicturePath } = require('../src/utils/questionPicture');
+    const grid = db.getCollection('exercises', true).find(e => e.question_picture);
+    await request(app).post('/api/reports').set(student).send({ exerciseId: grid.id, reason: 'unclear' });
+    const items = (await bot(adminChat).get('/api/bot/review/queue')).body.data.items;
+    const item = items.find(i => i.exerciseId === grid.id);
+    expect(item.question.picture).toBe(questionPicturePath(grid.question_picture));
+    expect(JSON.stringify(item)).not.toContain('<svg');
   });
 });

@@ -56,7 +56,7 @@ Keep it high level: no endpoint lists or field names.
 
 Work is organised in sprints driven by the `/sprint` command
 (`.claude/skills/sprint/SKILL.md`): `start` (scope and plan) → `next` →
-`review` → `close` (retro and archive). The sprint board is a Claude
+`close` (code review and its fixes, retro, archive). The sprint board is a Claude
 artifact; closed sprints are archived under `docs/backlog/`.
 
 Defects (bugs in what is already on `main`) are tracked with the `/defect`

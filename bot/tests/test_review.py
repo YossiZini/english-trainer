@@ -205,3 +205,35 @@ async def test_a_decision_someone_else_made_first_moves_on_without_changing_it()
     reply = await coach(FakeReviewer([KEEP])).handle("1", rr.KEEP)
     assert reply.text.startswith(rr.ALREADY_DECIDED)
     assert status.called
+
+
+def picture_item(eid):
+    return {**item(eid, "מה השיעורים של הנקודה A?"), "question": {
+        "text": "מה השיעורים של הנקודה A?", "options": ["(3, 1)", "(1, 3)", "(3, -1)", "(-3, 1)"],
+        "answer": "(3, 1)", "explanation": None, "picture": "/question-pictures/0123456789abcdef.png"}}
+
+
+@respx.mock
+async def test_a_question_asked_on_its_picture_shows_the_picture_and_the_agent_knows_it_cannot_see_it():
+    from app import config
+    from app.review_agent import _prompt
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok({**queue("g1"), "item": picture_item("g1")}))
+    respx.post(f"{API}/bot/review/proposal").mock(return_value=ok({**queue("g1"), "item": picture_item("g1")}))
+    reply = await coach(FakeReviewer([KEEP])).handle("1", "/review manual")
+    assert reply.photo == config.SITE_URL + "/question-pictures/0123456789abcdef.png"
+    assert "מה השיעורים של הנקודה A?" in reply.text and rr.APPROVE in reply.buttons
+    assert '"has_picture": true' in _prompt(picture_item("g1"))
+    assert "has_picture" not in _prompt(item("e1")) and rr.review_reply(queue("e1"), KEEP).photo is None
+
+
+@respx.mock
+async def test_auto_review_leaves_a_question_asked_on_its_picture_to_a_person():
+    respx.post(f"{API}/bot/review/start").mock(return_value=ok({**queue("g1"), "mode": "auto", "item": picture_item("g1")}))
+    act = respx.post(f"{API}/bot/review/act").mock(return_value=ok(
+        {"kind": "review", "item": None, "done": True, "remaining": 0, "counts": {"skip": 1}}))
+    reviewer = FakeReviewer([KEEP])
+    reply = await coach(reviewer).handle("1", "/review auto")
+    # No agent call (nor a unit of the daily cap) for it: skipped, still under review.
+    assert reviewer.calls == []
+    assert [json.loads(call.request.content)["action"] for call in act.calls] == ["skip"]
+    assert f"⏭ מה השיעורים של הנקודה A?: {rr.NEEDS_PICTURE}" in reply.text
