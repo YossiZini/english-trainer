@@ -1467,13 +1467,9 @@ Result: 5 PRs (#88–#92), all merged, each deployed green on the first run.
 - Regenerate only the subject you changed (`npm run generate-data -- math`).
 
 ### Follow-ups
-- **Names to fix (the owner's call, listed in chat on 2026-11-03):**
-  - 10.2 → "משוואות עם חיבור וחיסור" and 10.3 → "משוואות עם כפל וחילוק";
-  - 8.1 → "הצירים ושיעורי נקודה";
-  - 3.1 → "מהו שבר?";
-  - the fractions contents line, and chapter 10's, which is cut off with
-    "…" (`frontend/src/content/topicMeta.js:302`);
-  - "נושא" or "פרק" on the math page.
+- **Lesson and chapter names: the owner keeps them as they are**
+  (2026-11-03). The candidates were listed in chat, among them 10.2/10.3 in
+  the bot's flat list and the cut-off contents line of chapter 10. No change.
 - **Explanation pictures behind a "show the picture" button** on short
   screens, to keep the feedback above the pinned bar (the owner's call;
   `ExerciseFeedback.jsx`).
