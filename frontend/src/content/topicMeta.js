@@ -239,21 +239,27 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     '101.5': [ltr('2/3 × 3/4 = 1/2'), ltr('3/4 ÷ 1/2 = 3/2')],
     '101.6': [ltr('2 1/3 = 7/3'), ltr('1 1/2 + 2 3/4 = 4 1/4')],
 
-    // Topic 106: Negative numbers (Math, chapter 7)
+    // Topic 110: Decimals (Math, chapter 4)
+    '110.1': [ltr('0.7 = 7/10'), 'עשיריות ומאיות'],
+    '110.2': [ltr('0.5 > 0.45'), ltr('2.47 ≈ 2.5')],
+    '110.3': [ltr('2.50 + 1.75 = 4.25'), ltr('5 − 1.25 = 3.75')],
+    '110.4': [ltr('3.45 × 10 = 34.5'), ltr('0.3 × 0.2 = 0.06')],
+
+    // Topic 106: Negative numbers (Math, chapter 8)
     '106.1': [ltr('−2 > −5'), ltr('|−7| = 7')],
     '106.2': [ltr('−3 + (−4) = −7'), ltr('5 − (−3) = 8')],
     '106.3': [ltr('4 × (−3) = −12'), ltr('−3 × (−4) = 12')],
 
-    // Topic 107: The x and y axes (Math, chapter 8)
+    // Topic 107: The x and y axes (Math, chapter 9)
     '107.1': [ltr('A(3, 2)'), 'ארבעת הרביעים'],
     '107.2': [ltr('(1, 2) → (4, −2)'), 'הקודקוד הרביעי של מלבן'],
 
-    // Topic 108: Triangles (Math, chapter 9)
+    // Topic 108: Triangles (Math, chapter 10)
     '108.1': ['שווה שוקיים, ישר-זווית', ltr('3 + 4 > 6')],
     '108.2': [ltr('∠A + ∠B + ∠C = 180°'), ltr('180° − 40° − 75° = 65°')],
     '108.3': ['בסיס × גובה ÷ 2', ltr('8 × 5 ÷ 2 = 20')],
 
-    // Topic 109: Equations with one unknown (Math, chapter 10)
+    // Topic 109: Equations with one unknown (Math, chapter 11)
     '109.1': [ltr('□ + 5 = 12'), 'מאזניים מאוזנים'],
     '109.2': [ltr('x + 5 = 12'), ltr('x = 12 − 5')],
     '109.3': [ltr('3x = 12'), ltr('x ÷ 4 = 5')],
@@ -290,6 +296,7 @@ const mathTopicNames = {
   100: { en: 'Multiplication Table', he: 'לוח הכפל' },
   105: { en: 'Division', he: 'חילוק' },
   101: { en: 'Fractions', he: 'שברים' },
+  110: { en: 'Decimals', he: 'שברים עשרוניים' },
   102: { en: 'Order of Operations', he: 'סדר פעולות חשבון' },
   103: { en: 'Average', he: 'ממוצע' },
   104: { en: 'Percentage', he: 'אחוזים' },
@@ -303,6 +310,7 @@ const mathTocExamples = {
   100: '(כפל וחילוק עד 10×10, ובעיות מילוליות)',
   105: '(שארית, בעיות מילוליות וחילוק ארוך)',
   101: '(שישה שיעורים: ממה זה שבר ועד מספרים מעורבים)',
+  110: '(עשיריות ומאיות, השוואה ועיגול, ארבע פעולות החשבון)',
   102: '(סוגריים, כפל וחילוק, חיבור וחיסור)',
   103: '(סכום חלקי מספר האיברים)',
   104: '(אחוז ממספר, הנחה, מע"מ)',
@@ -328,6 +336,10 @@ const mathTopicDescriptions = {
   101: {
     description: 'מה זה שבר, שברים שווים וצמצום, מכנה משותף, ארבע פעולות החשבון בשברים ומספרים מעורבים.',
     examples: [ltr('1/2 + 1/4 = 3/4'), ltr('2/3 × 3/5 = 2/5'), ltr('1 1/2 = 3/2')]
+  },
+  110: {
+    description: 'שבר עשרוני הוא שבר שהמכנה שלו 10, 100 או 1000: עשיריות ומאיות, ערך המקום של כל ספרה, השוואה ועיגול, חיבור וחיסור כשהנקודות זו מתחת לזו, וכפל וחילוק.',
+    examples: [ltr('0.25 = 1/4'), ltr('2.50 + 1.75 = 4.25'), ltr('0.3 × 0.2 = 0.06')]
   },
   102: {
     description: 'באיזה סדר מחשבים תרגיל שיש בו כמה פעולות: סוגריים, כפל וחילוק, ואז חיבור וחיסור.',
@@ -409,11 +421,12 @@ const topicMeta = {
     nameKey: 'he',
     numberOffset: 99,
     // Chapters in teaching order, shown as 1, 2, 3…: division (105) comes
-    // right after the multiplication table; negative numbers (106), graphs on
-    // the x and y axes (107), triangles (108) and equations (109) come after
-    // percentage, as chapters 7–10 (a chapter shows once it has lessons). The same list orders lessons in
+    // right after the multiplication table, decimals (110) right after
+    // fractions; negative numbers (106), graphs on the x and y axes (107),
+    // triangles (108) and equations (109) come after percentage, as chapters
+    // 8–11 (a chapter shows once it has lessons). The same list orders lessons in
     // the API (backend/src/config/subjects.js MATH_CHAPTER_ORDER).
-    topicOrder: [100, 105, 101, 102, 103, 104, 106, 107, 108, 109],
+    topicOrder: [100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109],
     topicNames: mathTopicNames,
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,
