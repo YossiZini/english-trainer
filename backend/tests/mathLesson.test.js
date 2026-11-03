@@ -40,6 +40,11 @@ describe('mathLesson, the shared math lesson builder', () => {
     const quoted = thirty({ questionTextHe: 'אורך 5 ס"מ' });
     expect(() => mathLesson({ topic: 109, order: 1090, noQuote: true }, 1, 'A', 'א', '', quoted)).toThrow('109.1 q1: a quote mark');
     expect(() => mathLesson({ topic: 109, order: 1090, noQuote: true }, 1, 'A', 'א', '', thirty({ questionTextHe: 'אורך 5 ס״מ' }))).not.toThrow();
+    // 'units': only a quote mark inside a Hebrew word; a quoted question is fine.
+    expect(() => mathLesson({ topic: 109, order: 1090, noQuote: 'units' }, 1, 'A', 'א', '', quoted)).toThrow('109.1 q1: a quote mark');
+    const quoting = thirty({ explanationHe: 'עונה על "כמה נשארו".' });
+    expect(() => mathLesson({ topic: 109, order: 1090, noQuote: 'units' }, 1, 'A', 'א', '', quoting)).not.toThrow();
+    expect(() => mathLesson({ topic: 109, order: 1090, noQuote: true }, 1, 'A', 'א', '', quoting)).toThrow('a quote mark');
   });
 
   test('eq keeps < and > from ending the span; a question picture only when there is one', () => {

@@ -143,7 +143,7 @@ const numberQuestion = (n, level, text, answer, wrongs, explanation, picture = n
   mcq(n, level, text, String(answer), wrongs.map(String), explanation, picture);
 
 /** A lesson object with the shared fields of topic 105: after the multiplication table (991–993), before fractions (1001–). */
-const lesson = (...args) => mathLesson({ topic: 105, order: 993 }, ...args);
+const lesson = (...args) => mathLesson({ topic: 105, order: 993, noQuote: 'units' }, ...args);
 
 module.exports = {
   ltr, expr, mcq, P, pic, split, withRemainder, remainderWrongs, explainRemainder, groupsSvg, groupsPicture, FEEDBACK_BOX,

@@ -143,6 +143,10 @@ const HEBREW = /[֐-׿]/;
 // scrambled ("−2 גדול מ-−8" the wrong way round), and so do Hebrew words
 // with a Latin letter ("ציר x" as "x ציר").
 const MIXED = { digits: /\d/, letters: /[0-9A-Za-z]/ };
+// A quote mark anywhere (`noQuote: true`), or only inside a Hebrew word, where
+// it stands for the gershayim of a unit (ס"מ for ס״מ): `noQuote: 'units'`
+// still lets an explanation quote a question ("כמה נשארו").
+const QUOTE = { all: /"/, units: /[\u0590-\u05FF]"[\u0590-\u05FF]/ };
 
 /**
  * A math lesson object: `chapter` gives the topic number, where its lessons
@@ -150,7 +154,8 @@ const MIXED = { digits: /\d/, letters: /[0-9A-Za-z]/ };
  * questions per level and its equations glued to one line (glueEquations).
  * Checks, each by its option: `options` ('digits' or 'letters'), no option
  * mixes Hebrew with digits (or with digits or Latin letters); `noQuote`, no
- * quote mark in a question or explanation (units take ״, as in ס״מ).
+ * quote mark in a question or explanation (units take ״, as in ס״מ), or with
+ * `noQuote: 'units'` none inside a Hebrew word.
  */
 function mathLesson(chapter, index, titleEn, titleHe, theoryContentHe, exercises) {
   const { topic, order, options = null, noQuote = false } = chapter;
@@ -165,7 +170,8 @@ function mathLesson(chapter, index, titleEn, titleHe, theoryContentHe, exercises
         throw new Error(`${id} q${e.questionNumber}: option mixes Hebrew with ${options === 'digits' ? 'numbers' : 'numbers or letters'}: ${o}`);
       }
     }
-    if (noQuote && /"/.test(e.questionTextHe + e.explanationHe)) throw new Error(`${id} q${e.questionNumber}: a quote mark (write ס״מ with ״)`);
+    const quote = noQuote && QUOTE[noQuote === true ? 'all' : noQuote];
+    if (quote && quote.test(e.questionTextHe + e.explanationHe)) throw new Error(`${id} q${e.questionNumber}: a quote mark (write ס״מ with ״)`);
   }
   return {
     topicNumber: topic,

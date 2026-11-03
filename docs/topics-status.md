@@ -349,6 +349,9 @@ Track changes per topic with dates and descriptions.
 - 2026-11-03: Lessons built by the shared `mathLesson`, with no extra checks:
   the remainder options mix Hebrew with numbers by design, and 105.2 q28
   writes ס"מ with a quote mark. Content unchanged (identical by id). Sprint 19.
+- 2026-11-03: d11: 105.2 q28 writes ס״מ (it had a quote mark); the lessons now
+  refuse a quote mark inside a Hebrew word (`noQuote: 'units'`; 105.2 q30 may
+  still quote a question). Only that exercise changed (same id).
 
 ### Topic 101: Fractions (Math)
 - 2026-09-27: Teaching document (7 rules, each with examples) and 30 exercises
