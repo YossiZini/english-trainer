@@ -138,6 +138,21 @@ const eq = (s) => `<span dir="ltr">${s.replace(/</g, '&lt;').replace(/>/g, '&gt;
 /** A question asked on its own picture (a grid, a triangle): `question` is its SVG. */
 const withQuestionPicture = (e, question) => (question ? { ...e, questionPicture: question } : e);
 
+/**
+ * A multiple-choice question whose pictures come as an options object,
+ * `{ picture, question }` (the builders of chapters 7–10). A picture passed in
+ * its place, or an unknown option, is refused: destructuring would drop it
+ * without a word.
+ */
+function optionsQuestion(n, level, text, answer, wrongs, explanation, opts = {}) {
+  if (opts === null || typeof opts !== 'object' || Array.isArray(opts)) {
+    throw new Error(`Question ${n}: pass pictures as { picture, question }, not a ${opts === null ? 'null' : typeof opts}`);
+  }
+  const { picture = null, question = null, ...rest } = opts;
+  if (Object.keys(rest).length) throw new Error(`Question ${n}: unknown option ${Object.keys(rest).join(', ')}`);
+  return withQuestionPicture(mcq(n, level, text, answer, wrongs, explanation, picture), question);
+}
+
 const HEBREW = /[֐-׿]/;
 // An option is shown left to right: Hebrew words with numbers in it read
 // scrambled ("−2 גדול מ-−8" the wrong way round), and so do Hebrew words
@@ -160,6 +175,9 @@ const QUOTE = { all: /"/, units: /[\u0590-\u05FF]"[\u0590-\u05FF]/ };
 function mathLesson(chapter, index, titleEn, titleHe, theoryContentHe, exercises) {
   const { topic, order, options = null, noQuote = false } = chapter;
   const id = `${topic}.${index}`;
+  // A misspelt check would turn itself off (noQuote) or fail with a TypeError (options).
+  if (options !== null && !MIXED[options]) throw new Error(`${id}: options must be 'digits' or 'letters', not ${JSON.stringify(options)}`);
+  if (noQuote !== false && noQuote !== true && !QUOTE[noQuote]) throw new Error(`${id}: noQuote must be true, false or 'units', not ${JSON.stringify(noQuote)}`);
   const byLevel = exercises.reduce((m, e) => ({ ...m, [e.difficulty]: (m[e.difficulty] || 0) + 1 }), {});
   for (const level of ['easy', 'medium', 'hard']) {
     if (byLevel[level] !== 10) throw new Error(`${id} ${titleEn}: ${byLevel[level] || 0} ${level} exercises, expected 10`);
@@ -171,7 +189,7 @@ function mathLesson(chapter, index, titleEn, titleHe, theoryContentHe, exercises
       }
     }
     const quote = noQuote && QUOTE[noQuote === true ? 'all' : noQuote];
-    if (quote && quote.test(e.questionTextHe + e.explanationHe)) throw new Error(`${id} q${e.questionNumber}: a quote mark (write ס״מ with ״)`);
+    if (quote && quote.test([e.questionTextHe, e.explanationHe, ...(e.options || [])].join(' '))) throw new Error(`${id} q${e.questionNumber}: a quote mark (write ס״מ with ״)`);
   }
   return {
     topicNumber: topic,
@@ -192,5 +210,5 @@ const lesson = (...args) => mathLesson({ topic: 100, order: 990, noQuote: true }
 module.exports = {
   ltr, expr, mcq, P, pic, times, divide, numberQuestion, productWrongs, quotientWrongs,
   explainProduct, explainQuotient, timesTable, lesson, glueEquations, firstWrongs,
-  eq, withQuestionPicture, mathLesson
+  eq, withQuestionPicture, mathLesson, optionsQuestion, glue
 };

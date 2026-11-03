@@ -3,7 +3,7 @@
 // expressions with negative terms in parentheses, wrong options from the
 // common mistakes, number-line pictures and the lesson builder. Equations
 // stay on one line (see multiplication/common.js).
-const { ltr, mcq, P, pic, eq, mathLesson } = require('../multiplication/common');
+const { ltr, P, pic, eq, mathLesson, optionsQuestion } = require('../multiplication/common');
 
 /** An integer as written in the lessons: "−3", "0", "5". */
 const S = P.signed;
@@ -34,12 +34,12 @@ function signedWrongs(answer, candidates) {
 }
 
 /** A question whose answer is an integer. */
-const intQ = (n, level, text, answer, candidates, explanation, { picture = null } = {}) =>
-  mcq(n, level, text, S(answer), signedWrongs(answer, candidates), explanation, picture);
+const intQ = (n, level, text, answer, candidates, explanation, opts) =>
+  optionsQuestion(n, level, text, S(answer), signedWrongs(answer, candidates), explanation, opts);
 
 /** A question with its own options (words, comparisons, orders). */
-const choiceQ = (n, level, text, answer, wrongs, explanation, { picture = null } = {}) =>
-  mcq(n, level, text, answer, wrongs, explanation, picture);
+const choiceQ = (n, level, text, answer, wrongs, explanation, opts) =>
+  optionsQuestion(n, level, text, answer, wrongs, explanation, opts);
 
 /** A number line picture under an explanation or a rule. */
 const linePic = (opts, caption) => pic(P.integerLine(opts), caption);

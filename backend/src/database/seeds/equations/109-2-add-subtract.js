@@ -2,7 +2,7 @@
 // doing the same to both sides: take the same off both pans, add the same,
 // the opposite operation, the unknown on the right, checking, and a negative
 // solution (on the number line: a balance has no negative weights).
-const { ltr, P, S, eq, eqn, solve, at, numQ, pans, balFig, balPic, lesson } = require('./common');
+const { ltr, P, S, eq, eqn, solve, numQ, pans, balFig, balPic, lesson, plug } = require('./common');
 
 const theory = `
 <h2>חיבור וחיסור: שומרים על איזון</h2>
@@ -54,16 +54,8 @@ const theory = `
 </div>
 `;
 
-/** "בדיקה: 7 + 5 = 12" for the solution x of l = r. */
-const check = (l, r, x) => {
-  const term = ([a, b]) => {
-    const X = x < 0 ? `(${S(x)})` : S(x);
-    const ax = a === 0 ? '' : X;
-    if (!ax) return S(b);
-    return b === 0 ? ax : `${ax} ${b > 0 ? '+' : '−'} ${Math.abs(b)}`;
-  };
-  return `בדיקה: ${ltr(`${term(l)} = ${term(r)}`)}.`;
-};
+/** "בדיקה: 7 + 5 = 12": x put into the equation as written ("12 = 7 + 5" when flipped). */
+const check = (shown, x) => `בדיקה: ${ltr(shown.split(' = ').map((side) => plug(side, x)).join(' = '))}.`;
 
 /**
  * x + b = c (or x − b = c when b < 0), the unknown on the left or the right
@@ -78,7 +70,7 @@ function solveQ(n, level, b, c, { flip = false, text = null, before = '' } = {})
   const undo = b > 0
     ? `מורידים ${b} משני האגפים: ${ltr(flip ? `${S(c)} − ${b} = x` : `x = ${S(c)} − ${b} = ${S(x)}`)}`
     : `מוסיפים ${-b} לשני האגפים: ${ltr(flip ? `${S(c)} + ${-b} = x` : `x = ${S(c)} + ${-b} = ${S(x)}`)}`;
-  const why = `${before}${undo}${flip ? `, כלומר ${ltr(`x = ${S(x)}`)}` : ''}. ${check(l, r, x)}`;
+  const why = `${before}${undo}${flip ? `, כלומר ${ltr(`x = ${S(x)}`)}` : ''}. ${check(shown, x)}`;
   const sides = flip ? [r, l] : [l, r];
   const picture = b > 0 && c > 0 && x > 0 ? balPic(pans(...sides, { take: b }), eq(`x = ${x}`)) : null;
   // The same operation instead of the opposite (c + b), the sign, the numbers seen.
@@ -108,7 +100,7 @@ const exercises = [
   solveQ(1, 'easy', 3, 8),
   solveQ(2, 'easy', 6, 10),
   solveQ(3, 'easy', -2, 5),
-  stepQ(4, 'easy', 7, 15),
+  stepQ(4, 'easy', 9, 16),
   solveQ(5, 'easy', 12, 20),
   solveQ(6, 'easy', -5, 9),
   afterQ(7, 'easy', 4, 11),

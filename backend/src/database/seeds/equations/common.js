@@ -3,7 +3,7 @@
 // a real minus sign), an exact solver, wrong options from the common mistakes,
 // balance pictures built from an equation, and the lesson builder.
 // Reading order: math-content-guide.md, "Equations with the unknown x".
-const { ltr, mcq, P, eq, mathLesson } = require('../multiplication/common');
+const { ltr, P, eq, mathLesson, optionsQuestion } = require('../multiplication/common');
 
 /** An integer as written in the lessons: "−3", "0", "5". */
 const S = P.signed;
@@ -40,12 +40,12 @@ function wrongsOf(answer, candidates) {
 }
 
 /** A question whose answer is a whole number (the value of x, or of an expression). */
-const numQ = (n, level, text, answer, candidates, explanation, { picture = null } = {}) =>
-  mcq(n, level, text, S(answer), wrongsOf(answer, candidates), explanation, picture);
+const numQ = (n, level, text, answer, candidates, explanation, opts) =>
+  optionsQuestion(n, level, text, S(answer), wrongsOf(answer, candidates), explanation, opts);
 
 /** A question with its own options (yes or no, words). */
-const choiceQ = (n, level, text, answer, wrongs, explanation, { picture = null } = {}) =>
-  mcq(n, level, text, answer, wrongs, explanation, picture);
+const choiceQ = (n, level, text, answer, wrongs, explanation, opts) =>
+  optionsQuestion(n, level, text, answer, wrongs, explanation, opts);
 
 /**
  * The pans of a·x + b = c·x + d as balance items: a boxes and b cubes (a
@@ -134,16 +134,16 @@ function steps(l, r, { text = null, first = '', orig = null, check: own = null }
 }
 
 /**
- * Is x = s the solution of l = r (written `shown`)? Both sides with s put in;
- * yes, no, or "cannot be checked".
+ * Is x = s the solution of l = r (written `shown`, or asked in other words,
+ * `text`)? Both sides with s put in; yes, no, or "cannot be checked".
  */
-function checkQ(n, level, l, r, s, { shown = null } = {}) {
+function checkQ(n, level, l, r, s, { shown = null, text: ask = null } = {}) {
   const text = shown || eqn(l, r);
   const [lt, rt] = text.split(' = ');
   const lv = at(l, s), rv = at(r, s);
   const right = lv === rv;
   const why = `מציבים ${s < 0 ? ltr(S(s)) : s} במקום x: באגף שמאל ${ltr(putIn(lt, s, lv))}, ובאגף ימין ${ltr(putIn(rt, s, rv))}. ${right ? 'שני האגפים שווים, ולכן כן.' : 'האגפים לא שווים, ולכן לא.'}`;
-  return choiceQ(n, level, `האם ${ltr(`x = ${S(s)}`)} הוא הפתרון של המשוואה ${ltr(text)}?`, right ? 'כן' : 'לא',
+  return choiceQ(n, level, ask || `האם ${ltr(`x = ${S(s)}`)} הוא הפתרון של המשוואה ${ltr(text)}?`, right ? 'כן' : 'לא',
     [right ? 'לא' : 'כן', 'אי אפשר לבדוק'], why);
 }
 

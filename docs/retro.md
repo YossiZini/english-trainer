@@ -1369,3 +1369,125 @@ the close PR.
   - the browser checks should move into the repository;
   - Sprint 16's follow-ups;
   - the older carried items.
+
+## Sprint 19 — Equations with one unknown (2026-11-03 → 2026-11-03)
+
+Goal: a new math chapter 10, "משוואה עם נעלם אחד", in seven lessons that
+explain what an unknown is and solve equations step by step on a balance
+scale.
+Result: 5 PRs (#88–#92), all merged, each deployed green on the first run.
+- **#88:** one home for the math seed helpers (Sprint 18's first
+  follow-up): `mathLesson`, `eq`, the option check and the question picture
+  live in `multiplication/common.js`. Chapters 1, 2 and 7–9 use them, and
+  every lesson stayed identical by id.
+- **#89:** defects d11 (a quote mark inside a Hebrew word, 105.2) and d12
+  (a Hebrew-first option read left to right). d9 and d10 did not reproduce
+  when measured.
+- **#90:** the guide's reading-order rules for x, `balance()` in
+  `math-svg.js`, lessons 10.1–10.3, and the independent check `topic109.js`.
+- **#91:** lessons 10.4–10.6: two steps, the unknown on both sides,
+  parentheses as equal bags. `steps()` writes the explanation of any linear
+  equation with its check.
+- **#92:** lesson 10.7, from a story to an equation. Options with x, and the
+  bot isolates them.
+
+### What went well
+- **Shared helpers first.** Chapter 10 was the fourth chapter on the same
+  builder and nothing was copied a fourth time. The stricter option check it
+  brought found a real defect on main (d11) on day one.
+- **The rules came before the lessons.** The reading-order rules for x were
+  measured in Chromium and written into the guide before 10.1 (Sprint 18's
+  rule). After that, measuring found one real problem in the whole chapter,
+  before its PR: the right answer `x + x + 2 + x + 4 = 60` wrapped on a
+  phone.
+- **The check grew with the chapter.** `topic109.js` recomputes all 210
+  answers with its own solver and reads each story's equation from its
+  words. It requires exactly one option to fit a story and reads 91 balances
+  back from their SVG, each pan's side taken from where it is drawn. It
+  found real content faults: an `=` outside a span, paragraphs that start
+  with an equation, negative divisors outside an isolate, two described
+  balances without an equation. 35 planted faults, all caught.
+- **One explanation generator.** `steps()` writes the steps and the check
+  for any linear equation, as written. 10.4–10.7 reuse it, and a word
+  problem checks in its story (`check`).
+- **A bot change proven by a failing test.** The new `keep_ltr` test fails
+  on main's code and passes with the change.
+
+### What hurt
+- **Two defects were logged from reasoning, not from measuring.** d9 and d10
+  were written down from how the text "should" render. Measured, they read
+  correctly and were closed as won't fix. The real issue, a Hebrew-first
+  option in a `dir="ltr"` box (d12), showed up only when measured.
+- **The balance picture was redesigned twice, and its check missed a
+  fault.** The first design clipped pans and crossed piles with its
+  strings. Flipped equations drew the box on the wrong pan. The check read
+  each pan's side from its label, so the planted "box on the wrong pan" was
+  missed until the check read the side from the stem's position.
+- **Checks that passed without testing anything.** The glue test ran on
+  text whose no-break spaces were already flattened, so it could not fail.
+  A caption's x was misread from "x = 9 + 4 = 13". Cause: the check
+  normalised the text before testing the very thing it normalised.
+- **A rule added mid-chapter missed the earlier lessons.** "A negative x
+  put in goes in parentheses, except first" entered the guide with 10.4.
+  10.1–10.3 kept their own `substituted` and `check`, so eight 10.2 checks
+  read `(−5) + 9 = 4`. The check did not enforce the rule. The close review
+  found it, along with local copies of `by`, `glue` and `checkQ`.
+- **A picture passed the wrong way would vanish.** Builders took pictures as
+  `{ picture }`, so a positional SVG destructured to `null` and the question
+  lost its picture without an error. A misspelt `noQuote` turned its check
+  off. Both are refused now.
+- **A full data regeneration reordered 22,560 unrelated lines.**
+  `npm run generate-data` rebuilt every subject and reordered records that
+  had not changed; `-- math` keeps the diff to the content.
+- **Lesson names were judged on the site only.** "כפל וחילוק" (10.3) reads
+  fine under its chapter heading. In the bot's flat list it is "27. כפל
+  וחילוק", which looks like plain arithmetic. The owner noticed odd names.
+- **The pinned bar is still in the way.** After checking, chapter 10's
+  feedback runs past it by up to 187 px on a laptop and 123 px at 360 px
+  (chapter 9: 220 px). Explanation pictures behind a button are the owner's
+  decision.
+
+### Lessons → rules
+- Log a defect only with a measurement that shows it (refines "measure
+  reading order, never judge it from screenshots": not from reasoning
+  either).
+- When the guide gains a rule during a chapter, make the topic's check
+  enforce it and run it on the whole chapter, the earlier lessons included,
+  in the same PR.
+- A check tests the raw text it guards. Never normalise (no-break spaces,
+  isolates) before a check about that normalisation, and plant a fault for
+  every rule it enforces.
+- When a shared helper appears during a chapter, move the chapter's earlier
+  lessons onto it in the same story. Leave no local copies.
+- A shared helper refuses wrong input out loud. A misspelt config or an
+  argument in the wrong place throws; it never turns a check off or drops a
+  picture.
+- Name a lesson so it reads on its own: read the bot's numbered list (no
+  chapter headings) before merging new lesson titles.
+- Regenerate only the subject you changed (`npm run generate-data -- math`).
+
+### Follow-ups
+- **Names to fix (the owner's call, listed in chat on 2026-11-03):**
+  - 10.2 → "משוואות עם חיבור וחיסור" and 10.3 → "משוואות עם כפל וחילוק";
+  - 8.1 → "הצירים ושיעורי נקודה";
+  - 3.1 → "מהו שבר?";
+  - the fractions contents line, and chapter 10's, which is cut off with
+    "…" (`frontend/src/content/topicMeta.js:302`);
+  - "נושא" or "פרק" on the math page.
+- **Explanation pictures behind a "show the picture" button** on short
+  screens, to keep the feedback above the pinned bar (the owner's call;
+  `ExerciseFeedback.jsx`).
+- **Run every `scripts/checks/topic*.js` in CI**, as part of `npm test` or
+  the deploy's test step. Today the independent checks run only by hand.
+- **Isolate in the bot by the absence of right-to-left letters.** Text with
+  no Hebrew or Arabic letter is always left to right, so the lone-x special
+  case in `bot/app/exercise_replies.py:95` could go. English options would
+  be isolated too, which is harmless; update the test of "4) Noun".
+- **`numberQuestion` (chapters 1–2) still takes a positional picture.** Move
+  it onto `optionsQuestion` (`multiplication/common.js`).
+- **Move the browser checks into the repository**, carried since Sprint 17:
+  the reading-order measurement on the real pages, the Telegram model and
+  the planted faults of `topic109.js`.
+- Carried from Sprint 18: the review agent should see the picture, watch the
+  photo resend, and the owner's live check of `math 21`. Older carried
+  items stand.

@@ -1,7 +1,7 @@
 // 109.6 סוגריים וכינוס איברים — arrange each side first: collect the x
 // together and the numbers together, open parentheses (2(x + 3) is two bags of
 // x + 3), or divide by the number outside them; then solve as in 10.4 and 10.5.
-const { ltr, S, eq, eqn, solve, numQ, balFig, balPic, lesson, P, xs, steps, checkQ } = require('./common');
+const { ltr, S, eq, eqn, lin, solve, numQ, balFig, balPic, lesson, P, xs, steps, checkQ } = require('./common');
 
 const theory = `
 <h2>סוגריים וכינוס איברים</h2>
@@ -77,12 +77,12 @@ function arrQ(n, level, written, l, r, arrange, { mistakes = [], text = null, fi
 /** "k(px + q)" as written, and its sides when opened: [k·p, k·q]. */
 const par = (k, [p, q]) => ({ text: `${k}(${xs(p)} ${q < 0 ? '−' : '+'} ${Math.abs(q)})`, form: [k * p, k * q] });
 /** The sentence that opens k(px + q) and gives the arranged equation. */
-const opens = (k, pq, l, r) => `פותחים סוגריים: ${ltr(`${par(k, pq).text} = ${eqn(par(k, pq).form, [0, 0]).split(' = ')[0]}`)}, ומקבלים ${ltr(eqn(l, r))}.`;
+const opens = (k, pq, l, r) => { const { text, form } = par(k, pq); return `פותחים סוגריים: ${ltr(`${text} = ${lin(form)}`)}, ומקבלים ${ltr(eqn(l, r))}.`; };
 
 /** k(x + q) = d (or = c·x + d), opened; `divide` divides by k first instead. */
 function parQ(n, level, k, pq, right, { divide = false } = {}) {
   const { text, form } = par(k, pq);
-  const written = `${text} = ${typeof right === 'number' ? S(right) : eqn(right, [0, 0]).split(' = ')[0]}`;
+  const written = `${text} = ${typeof right === 'number' ? S(right) : lin(right)}`;
   const r = typeof right === 'number' ? [0, right] : right;
   // The slip: only the first term multiplied (2(x + 3) read as 2x + 3).
   const mistakes = [[[form[0], pq[1]], r]];
@@ -107,7 +107,7 @@ function openQ(n, level, k, pq) {
   const { text, form } = par(k, pq);
   const word = form[1] > 0 ? 'ועוד' : 'פחות';
   const v = Math.abs(form[1]);
-  const why = `כופלים ב-${k} כל מה שבתוך הסוגריים: ${ltr(`${k} × ${Math.abs(pq[1])} = ${v}`)}, כלומר ${ltr(`${text} = ${eqn(form, [0, 0]).split(' = ')[0]}`)}.`;
+  const why = `כופלים ב-${k} כל מה שבתוך הסוגריים: ${ltr(`${k} × ${Math.abs(pq[1])} = ${v}`)}, כלומר ${ltr(`${text} = ${lin(form)}`)}.`;
   return numQ(n, level, `כשפותחים את הסוגריים ב-${ltr(text)} מקבלים ${ltr(xs(form[0]))} ${word} מספר. איזה מספר?`, v,
     [Math.abs(pq[1]), k + Math.abs(pq[1]), Number(`${k}${Math.abs(pq[1])}`), v + k, v - 1], why);
 }
