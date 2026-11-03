@@ -30,7 +30,7 @@ const theory = `
 
 <h3>כלל 3: משוואה היא מאזניים מאוזנים</h3>
 <div class="rules">
-  <p>משוואה אומרת ששני צדדים שווים. הצד שמשמאל לסימן = נקרא <strong>אגף שמאל</strong>, והצד שמימינו <strong>אגף ימין</strong>. במשוואה ${eq('x + 5 = 12')} אגף שמאל הוא ${eq('x + 5')}, ואגף ימין הוא 12.</p>
+  <p>משוואה אומרת ששני צדדים שווים. הצד שמשמאל לסימן ${eq('=')} נקרא <strong>אגף שמאל</strong>, והצד שמימינו <strong>אגף ימין</strong>. במשוואה ${eq('x + 5 = 12')} אגף שמאל הוא ${eq('x + 5')}, ואגף ימין הוא 12.</p>
   <p>מספר שאינו הפתרון מטה את המאזניים. אם במקום x שמים 5, באגף שמאל יש ${eq('5 + 5 = 10')}, פחות מ-12, והמאזניים נוטים לצד של ה-12.</p>
   ${P.figures(balFig({ left: [5, { units: 5 }], right: [{ units: 12 }], tilt: 'right' }, `אם במקום x שמים 5: ${eq('10 < 12')}`))}
 </div>
@@ -58,13 +58,13 @@ const theory = `
 
 const BOX = '□';
 
-/** x + b = c, or □ + b = c (`box`), or written c = x + b (`flip`). */
-function addQ(n, level, b, c, { box = false, flip = false, text = null } = {}) {
+/** x + b = c, or □ + b = c (`box`), or written c = x + b (`flip`); `first` opens the explanation. */
+function addQ(n, level, b, c, { box = false, flip = false, text = null, first = '' } = {}) {
   const x = c - b;
   const u = box ? BOX : 'x';
   const shown = flip ? `${c} = ${u} + ${b}` : `${u} + ${b} = ${c}`;
   const ask = text || (box ? `מה מסתתר בקופסה? ${ltr(shown)}` : `מה הפתרון של המשוואה ${ltr(shown)}?`);
-  const why = `מחפשים מספר שאם מוסיפים לו ${b} מקבלים ${S(c)}: ${ltr(`${S(c)} − ${b} = ${S(x)}`)}. בדיקה: ${ltr(`${S(x)} + ${b} = ${S(c)}`)}.`;
+  const why = `${first}מחפשים מספר שאם מוסיפים לו ${b} מקבלים ${S(c)}: ${ltr(`${S(c)} − ${b} = ${S(x)}`)}. בדיקה: ${ltr(`${S(x)} + ${b} = ${S(c)}`)}.`;
   // The pans follow the written sides: 12 = x + 4 has the box on the right.
   const sides = flip ? [[0, c], [1, b]] : [[1, b], [0, c]];
   const picture = x > 0 && c > 0 ? balPic(pans(...sides, { box: box ? '?' : 'x' }), eq(`${u} = ${x}`)) : null;
@@ -91,9 +91,10 @@ function mulQ(n, level, a, c, { box = false, flip = false, shown = null, text = 
   const written = shown || (box ? `${BOX} × ${a} = ${c}` : flip ? `${c} = ${a}x` : `${a}x = ${c}`);
   const ask = text || (box ? `מה מסתתר בקופסה? ${ltr(written)}` : `מה הפתרון של המשוואה ${ltr(written)}?`);
   const why = `${first}מחפשים מספר שאם כופלים אותו ב-${a} מקבלים ${c}: ${ltr(`${c} ÷ ${a} = ${x}`)}. בדיקה: ${ltr(`${a} × ${x} = ${c}`)}.`;
-  const picture = x > 0 && c <= 24
-    ? balPic({ left: Array.from({ length: a }, () => ({ box: box ? '?' : 'x' })), right: [{ units: c }], groups: { left: a, right: a } }, eq(`${c} ÷ ${a} = ${x}`))
-    : null;
+  // The pans follow the written sides: 20 = 4x has the boxes on the right.
+  const boxes = Array.from({ length: a }, () => ({ box: box ? '?' : 'x' }));
+  const pans2 = flip ? { left: [{ units: c }], right: boxes } : { left: boxes, right: [{ units: c }] };
+  const picture = x > 0 && c <= 24 ? balPic({ ...pans2, groups: { left: a, right: a } }, eq(`${c} ÷ ${a} = ${x}`)) : null;
   return numQ(n, level, ask, x, [c - a, c + a, c * a, x + 1, x - 1], why, { picture });
 }
 
@@ -165,7 +166,8 @@ const exercises = [
   storyQ(18, 'medium', 'חשבתי על מספר, הוספתי לו 6 וקיבלתי 14. על איזה מספר חשבתי?', [1, 6], [0, 14],
     (x) => `מחפשים מספר שאם מוסיפים לו 6 מקבלים 14: ${ltr(`14 − 6 = ${x}`)}.`),
   addQ(19, 'medium', 3, 11, {
-    text: 'מאזניים מאוזנים: על כף אחת קופסה ו-3 קוביות, ועל הכף השנייה 11 קוביות. כמה קוביות בקופסה?'
+    text: 'מאזניים מאוזנים: על כף אחת קופסה ו-3 קוביות, ועל הכף השנייה 11 קוביות. כמה קוביות בקופסה?',
+    first: `המאזניים הם המשוואה ${ltr('x + 3 = 11')}. `
   }),
   valQ(20, 'medium', [1, -4], 10),
 
@@ -176,7 +178,8 @@ const exercises = [
   storyQ(24, 'hard', 'חשבתי על מספר, כפלתי אותו ב-4 וקיבלתי 36. על איזה מספר חשבתי?', [4, 0], [0, 36],
     (x) => `מחפשים מספר שאם כופלים אותו ב-4 מקבלים 36: ${ltr(`36 ÷ 4 = ${x}`)}.`),
   valQ(25, 'hard', [3, 0], 5, { shown: 'x + 2x', put: '5 + 2 × 5', wrongs: [30, 35, 12, 20] }),
-  mulQ(26, 'hard', 3, 21, { text: 'מאזניים מאוזנים: על כף אחת 3 קופסאות שוות, ועל הכף השנייה 21 קוביות. כמה קוביות בכל קופסה?' }),
+  mulQ(26, 'hard', 3, 21, { text: 'מאזניים מאוזנים: על כף אחת 3 קופסאות שוות, ועל הכף השנייה 21 קוביות. כמה קוביות בכל קופסה?',
+    first: `המאזניים הם המשוואה ${ltr('3x = 21')}. ` }),
   mulQ(27, 'hard', 4, 20, { flip: true }),
   storyQ(28, 'hard', 'חשבתי על מספר, הורדתי ממנו 9 וקיבלתי 0. על איזה מספר חשבתי?', [1, -9], [0, 0],
     (x) => `מחפשים מספר שאם מורידים ממנו 9 נשאר 0: ${ltr(`0 + 9 = ${x}`)}.`),

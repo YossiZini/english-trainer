@@ -28,7 +28,7 @@ const theory = `
 
 <h3>כלל 3: כפל מבטל חילוק</h3>
 <div class="rules">
-  <p>${eq('x ÷ 4 = 5')} אומר שאם מחלקים את x לארבעה חלקים שווים, בכל חלק 5. לכן x שווה לארבע קבוצות של 5: כופלים את שני האגפים ב-4 ומקבלים ${eq('x = 4 × 5 = 20')}.</p>
+  <p>המשוואה ${eq('x ÷ 4 = 5')} אומרת שאם מחלקים את x לארבעה חלקים שווים, בכל חלק 5. לכן x שווה לארבע קבוצות של 5: כופלים את שני האגפים ב-4 ומקבלים ${eq('x = 4 × 5 = 20')}.</p>
   ${P.figures(balFig({ left: ['x'], right: [{ units: 20 }], groups: { right: 4 } }, `ארבע קבוצות של 5: ${eq('x = 20')}`))}
 </div>
 
@@ -56,6 +56,9 @@ const theory = `
 /** A number after an operator: a negative one in parentheses, "(−3)". */
 const T = (v) => (v < 0 ? `(${S(v)})` : S(v));
 
+/** "ב-3", or "ב-⁦(−3)⁩": a negative number in Hebrew text stays in its isolate. */
+const by = (v) => (v < 0 ? ltr(T(v)) : S(v));
+
 /** The check "3 × 4 = 12" for a·x = c, or "20 ÷ 4 = 5" for x ÷ a = c. */
 const checkMul = (a, x, c) => `בדיקה: ${ltr(`${S(a)} × ${T(x)} = ${S(c)}`)}.`;
 const checkDiv = (a, x, c) => `בדיקה: ${ltr(`${S(x)} ÷ ${T(a)} = ${S(c)}`)}.`;
@@ -77,7 +80,7 @@ function mulQ(n, level, a, c, { flip = false, text = null, before = '' } = {}) {
   const x = solve(l, r);
   const shown = flip ? eqn(r, l) : eqn(l, r);
   const ask = text || `מה הפתרון של המשוואה ${ltr(shown)}?`;
-  const why = `${before}מחלקים את שני האגפים ב-${T(a)}: ${ltr(`x = ${S(c)} ÷ ${T(a)} = ${S(x)}`)}. ${checkMul(a, x, c)}`;
+  const why = `${before}מחלקים את שני האגפים ב-${by(a)}: ${ltr(`x = ${S(c)} ÷ ${T(a)} = ${S(x)}`)}. ${checkMul(a, x, c)}`;
   // Subtracting or adding instead of dividing, multiplying, the sign.
   return numQ(n, level, ask, x, [c - a, ...(x < 0 || a < 0 ? [-x] : []), c * a, c + a, x + 1, x - 1], why,
     { picture: mulPicture(a, c, x, flip) });
@@ -88,7 +91,7 @@ function divQ(n, level, a, c, { flip = false, text = null, before = '' } = {}) {
   const x = a * c;
   const shown = flip ? `${S(c)} = x ÷ ${T(a)}` : `x ÷ ${T(a)} = ${S(c)}`;
   const ask = text || `מה הפתרון של המשוואה ${ltr(shown)}?`;
-  const why = `${before}כופלים את שני האגפים ב-${T(a)}: ${ltr(`x = ${S(c)} × ${T(a)} = ${S(x)}`)}. ${checkDiv(a, x, c)}`;
+  const why = `${before}כופלים את שני האגפים ב-${by(a)}: ${ltr(`x = ${S(c)} × ${T(a)} = ${S(x)}`)}. ${checkDiv(a, x, c)}`;
   const picture = a > 0 && c > 0 && x <= 24
     ? balPic(flip ? { left: [{ units: x }], right: ['x'], groups: { left: a } } : { left: ['x'], right: [{ units: x }], groups: { right: a } },
       `${a} קבוצות של ${c}: ${eq(`x = ${x}`)}`)

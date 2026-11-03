@@ -66,10 +66,11 @@ creates a new lesson and orphans progress.
     explanation text) or `<span dir="ltr">` (`eq()`, theory and captions).
     A lone `x` may stand in Hebrew ("נסמן את הנעלם ב-x", "מצאו את x"): it
     reads right.
-  - No question, explanation, caption or paragraph starts with `x` or an
-    equation: start with a Hebrew word ("פתרו: ⁦x + 5 = 12⁩"). In a
-    `dir="auto"` box (a caption, a Telegram line) a leading x or isolate
-    turns the whole line left to right.
+  - No question, explanation or paragraph starts with `x` or an equation:
+    start with a Hebrew word ("פתרו: ⁦x + 5 = 12⁩"). In a `dir="auto"` box
+    (a caption, a Telegram line) a leading x or isolate turns the whole line
+    left to right. A caption may start with its `<span dir="ltr">` (the
+    browser skips spans when it picks the direction), never with a bare x.
   - Division by a number is `x ÷ 4`, not `x/4`: the app stacks only number
     fractions, so `x/4` would show flat.
   - Options are numbers, the value of x (`7`, `−3`), never `x = 7`: the bot
