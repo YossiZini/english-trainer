@@ -251,7 +251,12 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     // Topic 108: Triangles (Math, chapter 9)
     '108.1': ['שווה שוקיים, ישר-זווית', ltr('3 + 4 > 6')],
     '108.2': [ltr('∠A + ∠B + ∠C = 180°'), ltr('180° − 40° − 75° = 65°')],
-    '108.3': ['בסיס × גובה ÷ 2', ltr('8 × 5 ÷ 2 = 20')]
+    '108.3': ['בסיס × גובה ÷ 2', ltr('8 × 5 ÷ 2 = 20')],
+
+    // Topic 109: Equations with one unknown (Math, chapter 10)
+    '109.1': [ltr('□ + 5 = 12'), 'מאזניים מאוזנים'],
+    '109.2': [ltr('x + 5 = 12'), ltr('x = 12 − 5')],
+    '109.3': [ltr('3x = 12'), ltr('x ÷ 4 = 5')]
   };
 
   return subtopicExamples[key] || [];
@@ -286,7 +291,8 @@ const mathTopicNames = {
   104: { en: 'Percentage', he: 'אחוזים' },
   106: { en: 'Negative Numbers', he: 'מספרים שליליים' },
   107: { en: 'The x and y Axes', he: 'מערכת צירים' },
-  108: { en: 'Triangles', he: 'משולשים' }
+  108: { en: 'Triangles', he: 'משולשים' },
+  109: { en: 'Equations with One Unknown', he: 'משוואה עם נעלם אחד' }
 };
 
 const mathTocExamples = {
@@ -298,7 +304,8 @@ const mathTocExamples = {
   104: '(אחוז ממספר, הנחה, מע"מ)',
   106: '(ישר המספרים, חיבור וחיסור, כפל וחילוק)',
   107: '(ציר x וציר y, שיעורי נקודה, סימון נקודות)',
-  108: '(סוגי משולשים, סכום הזוויות, היקף ושטח)'
+  108: '(סוגי משולשים, סכום הזוויות, היקף ושטח)',
+  109: '(מהו נעלם, שומרים על איזון, חיבור וחיסור, כפל וחילוק)'
 };
 
 // Math expressions inside Hebrew text keep their left-to-right order when
@@ -341,6 +348,10 @@ const mathTopicDescriptions = {
   108: {
     description: 'סוגי משולשים לפי הצלעות ולפי הזוויות, אילו צלעות יוצרות משולש, סכום הזוויות במשולש, והיקף ושטח: בסיס כפול גובה חלקי 2.',
     examples: [ltr('50° + 60° + 70° = 180°'), `שטח: ${ltr('8 × 5 ÷ 2 = 20')}`, `${ltr('3 + 4 > 6')}: יש משולש`]
+  },
+  109: {
+    description: 'מהו נעלם: מספר שמסתתר בקופסה, אות במקומו, ומשוואה כמו מאזניים מאוזנים. פותרים צעד אחרי צעד, ועושים אותו דבר לשני האגפים: חיבור וחיסור, כפל וחילוק, ובסוף בודקים.',
+    examples: [`הפתרון של ${ltr('x + 5 = 12')} הוא 7`, `מורידים 5 משני האגפים: ${ltr('x = 7')}`, `בדיקה: ${ltr('3 × 4 = 12')}`]
   }
 };
 
@@ -395,10 +406,10 @@ const topicMeta = {
     numberOffset: 99,
     // Chapters in teaching order, shown as 1, 2, 3…: division (105) comes
     // right after the multiplication table; negative numbers (106), graphs on
-    // the x and y axes (107) and triangles (108) come after percentage, as
-    // chapters 7–9 (a chapter shows once it has lessons). The same list orders lessons in
+    // the x and y axes (107), triangles (108) and equations (109) come after
+    // percentage, as chapters 7–10 (a chapter shows once it has lessons). The same list orders lessons in
     // the API (backend/src/config/subjects.js MATH_CHAPTER_ORDER).
-    topicOrder: [100, 105, 101, 102, 103, 104, 106, 107, 108],
+    topicOrder: [100, 105, 101, 102, 103, 104, 106, 107, 108, 109],
     topicNames: mathTopicNames,
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,

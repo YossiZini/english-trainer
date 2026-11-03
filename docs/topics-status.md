@@ -184,7 +184,7 @@ Math lessons live in the same content files with `subject: "math"` and are
 numbered 100+. On the `/math` page and in the lesson order they appear in
 curriculum order, chapters 1+: the multiplication table (100), Division (105),
 Fractions (101), then 102–104, then Negative numbers (106), the x and y
-axes (107) and Triangles (108). The order is `MATH_CHAPTER_ORDER` in
+axes (107), Triangles (108) and Equations with one unknown (109). The order is `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
 them equal); a new topic number goes where it belongs in both lists. A topic
 with several subtopics keeps them in a folder (`seeds/fractions/`,
@@ -218,6 +218,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 106 | Negative Numbers (3 subtopics 106.1–106.3, shown as chapter 7) | מספרים שליליים | topic106-negatives.js + negatives/*.js | Yes | Yes | Complete |
 | 107 | The x and y Axes (2 subtopics 107.1–107.2, shown as chapter 8) | מערכת צירים | topic107-axes.js + axes/*.js | Yes | Yes | Complete |
 | 108 | Triangles (3 subtopics 108.1–108.3, shown as chapter 9) | משולשים | topic108-triangles.js + triangles/*.js | Yes | Yes | Complete |
+| 109 | Equations with One Unknown (3 of 7 subtopics, 109.1–109.3, shown as chapter 10) | משוואה עם נעלם אחד | topic109-equations.js + equations/*.js | Yes | Yes | In progress |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -504,6 +505,31 @@ Track changes per topic with dates and descriptions.
 - 2026-11-03: Lessons built by the shared `mathLesson` (`eq` and
   `withQuestionPicture` shared too). Content unchanged (identical by id).
   Sprint 19.
+
+### Topic 109: Equations with One Unknown (Math)
+- 2026-11-03: New topic, chapter 10 of Math (after the triangles), in seven
+  lessons; the first three: 109.1 what an unknown is (a number hidden in a
+  box on a level balance, a letter in its place, an equation as two equal
+  sides, a solution and checking it by putting it in, 3x as 3 times x),
+  109.2 addition and subtraction, keeping the balance (the same off both
+  pans, the opposite operation, the unknown on the right, checking, a
+  negative solution on the number line), 109.3 multiplication and division
+  (both pans in equal groups, dividing to undo ×, multiplying to undo ÷).
+  Each a Hebrew teaching document with a balance picture for every rule and
+  30 multiple-choice questions (10 per level); none is asked on a picture
+  (owner's decision). Pictures: `balance` in `math-svg.js` (boxes for the
+  unknown, weights, unit cubes, bags, struck items, equal groups, a tilt);
+  expressions, an exact solver, wrong options from the common mistakes
+  (adding instead of undoing, reading 3x as 35, subtracting instead of
+  dividing, the sign) and pans built from an equation come from
+  `seeds/equations/common.js`. The reading-order rules for equations with x
+  were measured and written into the math guide before the lessons.
+  `scripts/checks/topic109.js` re-computes all 90 answers with its own
+  solver (stories from their words), reads all 50 balances back from their
+  SVG and enforces the reading-order rules (14 planted faults caught).
+  Every existing lesson and exercise is unchanged (compared by id). Checks:
+  1,185 equations read in order on one line on the real pages at
+  360/390/1366px, and 1,426 in the bot's messages. Sprint 19.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

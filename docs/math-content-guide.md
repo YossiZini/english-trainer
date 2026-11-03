@@ -10,8 +10,8 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `coordGrid` (x and y axes: named `points` with dashed `guide`s, `lines` with arrows and labels, `texts`; `scale`), `triangle` (to shape from `angles`, `sides` or `base` and `apex`: `angleLabels`, `sideLabels`, `ticks`, `height`, `box`; `scale`), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures` |
-| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); shared by the chapters from the multiplication table on: `seeds/multiplication/common.js` (`ltr`, `mcq`, `pic`, `glueEquations`, `eq`, `withQuestionPicture`, and `mathLesson`, the one lesson builder: 10 questions per level, glued equations, and per chapter the option check `options: 'digits'`/`'letters'` and `noQuote` (`true`: no quote mark at all; `'units'`: none inside a Hebrew word)); per chapter `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`), `seeds/axes/common.js` (`pair`, `at`, `pointQ` with the swapped and sign-flipped points as wrong options, `quarterQ`, `grid`, `gridPic`), `seeds/triangles/common.js` (`deg`, `ang`, `numQ`, `degQ`, `triPic`, `triFig`) |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `coordGrid` (x and y axes: named `points` with dashed `guide`s, `lines` with arrows and labels, `texts`; `scale`), `triangle` (to shape from `angles`, `sides` or `base` and `apex`: `angleLabels`, `sideLabels`, `ticks`, `height`, `box`; `scale`), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures`; `balance` (a balance scale for equations: boxes for the unknown `'x'`/`{ box: '?' }`, weights `5`, unit cubes `{ units: 4 }`, bags `{ bag: [...] }` for parentheses, `crossed: true` for what leaves both pans, `groups` rings in equal parts, `tilt` toward the heavier pan; every pan and item carries `data-*` for the checks) |
+| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); shared by the chapters from the multiplication table on: `seeds/multiplication/common.js` (`ltr`, `mcq`, `pic`, `glueEquations`, `eq`, `withQuestionPicture`, and `mathLesson`, the one lesson builder: 10 questions per level, glued equations, and per chapter the option check `options: 'digits'`/`'letters'` and `noQuote` (`true`: no quote mark at all; `'units'`: none inside a Hebrew word)); per chapter `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`), `seeds/axes/common.js` (`pair`, `at`, `pointQ` with the swapped and sign-flipped points as wrong options, `quarterQ`, `grid`, `gridPic`), `seeds/triangles/common.js` (`deg`, `ang`, `numQ`, `degQ`, `triPic`, `triFig`), `seeds/equations/common.js` (`lin` writes a·x + b as 3x + 2, `eqn`, `solve` refuses an equation without one whole solution, `numQ`, `pans` turns an equation into balance items, `balFig`/`balPic`) |
 | Names, TOC line, descriptions, subtopic examples (an equation is wrapped in `ltr()`) | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
@@ -57,6 +57,25 @@ creates a new lesson and orphans progress.
   isolates. Write a caption's points or equations in `<span dir="ltr">` (as
   `gridPic` does), and give a caption with two of them a Hebrew word between
   them (`A(1, 2) ו-B(4, −2)`), or it shows left to right.
+- **Equations with the unknown x** (chapter 10; measured in Chromium in a
+  right-to-left paragraph and a `dir="auto"` one before the chapter was built):
+  - The unknown is the Latin letter `x`; `3x` means 3 times x, with no sign
+    or space. A box `□` stands for it only in 10.1, before the letter.
+  - Every expression with an operator or `=` (an equation, a step
+    `x = 12 − 5`, `3x + 2`) is inside an isolate (`ltr()`, question and
+    explanation text) or `<span dir="ltr">` (`eq()`, theory and captions).
+    A lone `x` may stand in Hebrew ("נסמן את הנעלם ב-x", "מצאו את x"): it
+    reads right.
+  - No question, explanation or paragraph starts with `x` or an equation:
+    start with a Hebrew word ("פתרו: ⁦x + 5 = 12⁩"). In a `dir="auto"` box
+    (a caption, a Telegram line) a leading x or isolate turns the whole line
+    left to right. A caption may start with its `<span dir="ltr">` (the
+    browser skips spans when it picks the direction), never with a bare x.
+  - Division by a number is `x ÷ 4`, not `x/4`: the app stacks only number
+    fractions, so `x/4` would show flat.
+  - Options are numbers, the value of x (`7`, `−3`), never `x = 7`: the bot
+    isolates an option only when it has no letters.
+  - `scripts/checks/topic109.js` enforces these rules on every text field.
 
 ## Exercises
 

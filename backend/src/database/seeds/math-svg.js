@@ -468,6 +468,141 @@ function longDivision(dividend, divisor, { scale = 1 } = {}) {
     `חילוק ארוך: ${dividend} ÷ ${divisor}`, `0 0 ${width} ${height}`, 'math-long');
 }
 
+/**
+ * A balance scale for an equation with one unknown: a beam on a post, a pan
+ * at each end. Each pan holds a list of items, laid out in rows:
+ *   'x' or { box: 'x' }  a box hiding the unknown (label 'x', or '?' in 10.1)
+ *   5 or { weight: 5 }   a weight with its number
+ *   { units: 4 }         four unit cubes of 1 each
+ *   { bag: [items] }     a bag holding items: one copy of (x + 3) in 2(x + 3)
+ * Any item may be `crossed: true` (faded and struck: taken off both pans).
+ * `groups: { left: 3, right: 3 }` rings a pan's pieces in that many equal
+ * groups (3x = 12 → each box against 4 cubes). `tilt` is 'left' or 'right'
+ * (that pan is heavier and lower) or null (level). Every pan, item and group
+ * carries data-* attributes, so the chapter's check reads the picture back.
+ */
+function balance({ left = [], right = [], tilt = null, groups = {}, scale = 1 } = {}) {
+  const f = (v) => v.toFixed(1);
+  const BOX = 26, UNIT = 12, GAP = 4, PAN_W = 140, ROW_W = 132, BOX_FILL = '#e8e4fb', WEIGHT_FILL = '#fde9c8', CROSS = '#d0342c';
+  const norm = (it) => (typeof it === 'number' ? { weight: it } : it === 'x' ? { box: 'x' } : it);
+
+  // An item as drawable pieces: each { w, h, draw(x, y), data }.
+  function pieces(item) {
+    const it = norm(item);
+    const crossed = !!it.crossed;
+    const mark = (x, y, w, h) => (crossed
+      ? `<line x1="${f(x - 2)}" y1="${f(y + h + 2)}" x2="${f(x + w + 2)}" y2="${f(y - 2)}" stroke="${CROSS}" stroke-width="2.5" stroke-linecap="round"/>` : '');
+    const fade = crossed ? ' opacity="0.4"' : '';
+    if (it.box !== undefined) {
+      return [{ w: BOX, h: BOX, data: `data-item="box" data-label="${esc(it.box)}"${crossed ? ' data-crossed="1"' : ''}`,
+        draw: (x, y) => `<g${fade}><rect x="${f(x)}" y="${f(y)}" width="${BOX}" height="${BOX}" rx="4" fill="${BOX_FILL}" stroke="${SHADE}" stroke-width="2"/>`
+          + `<text x="${f(x + BOX / 2)}" y="${f(y + BOX / 2 + 5.5)}" font-size="16" font-style="italic" font-weight="700" text-anchor="middle" fill="${SHADE}">${esc(it.box)}</text></g>${mark(x, y, BOX, BOX)}` }];
+    }
+    if (it.weight !== undefined) {
+      const w = Math.max(28, 12 + 9 * String(it.weight).length), h = 24;
+      return [{ w, h, data: `data-item="weight" data-value="${it.weight}"${crossed ? ' data-crossed="1"' : ''}`,
+        draw: (x, y) => `<g${fade}><path d="M ${f(x + 4)} ${f(y)} L ${f(x + w - 4)} ${f(y)} L ${f(x + w)} ${f(y + h)} L ${f(x)} ${f(y + h)} Z" fill="${WEIGHT_FILL}" stroke="${LINE}" stroke-width="1.5" stroke-linejoin="round"/>`
+          + `<text x="${f(x + w / 2)}" y="${f(y + h / 2 + 5)}" font-size="14" font-weight="700" text-anchor="middle" fill="${LINE}">${it.weight}</text></g>${mark(x, y, w, h)}` }];
+    }
+    if (it.units !== undefined) {
+      return Array.from({ length: it.units }, () => ({ w: UNIT, h: UNIT, data: `data-item="unit"${crossed ? ' data-crossed="1"' : ''}`,
+        draw: (x, y) => `<rect x="${f(x)}" y="${f(y)}" width="${UNIT}" height="${UNIT}" rx="1.5" fill="${SHADE_2}" fill-opacity="0.75" stroke="${LINE}" stroke-width="1"${fade}/>${mark(x, y, UNIT, UNIT)}` }));
+    }
+    if (it.bag) {
+      const inner = it.bag.flatMap(pieces);
+      const w = inner.reduce((s, p) => s + p.w, 0) + GAP * (inner.length - 1) + 12;
+      const h = Math.max(...inner.map((p) => p.h)) + 12;
+      return [{ w, h, data: `data-item="bag"${crossed ? ' data-crossed="1"' : ''}`,
+        draw: (x, y) => {
+          let cx = x + 6;
+          const kids = inner.map((p) => { const s = `<g ${p.data}>${p.draw(cx, y + h - 6 - p.h)}</g>`; cx += p.w + GAP; return s; });
+          return `<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="9" fill="#f3f4f8" stroke="${LINE}" stroke-width="1.5" stroke-dasharray="4 3"/>${kids.join('')}${mark(x, y, w, h)}`;
+        } }];
+    }
+    throw new Error(`balance: unknown item ${JSON.stringify(item)}`);
+  }
+
+  // Rows of pieces, bottom up, each row centred; returns { w, h, place(cx, baseY) }.
+  function stack(ps, maxW = ROW_W) {
+    const rows = [[]];
+    let width = 0;
+    for (const p of ps) {
+      const row = rows[rows.length - 1];
+      const next = width + (row.length ? GAP : 0) + p.w;
+      if (row.length && next > maxW) { rows.push([p]); width = p.w; } else { row.push(p); width = next; }
+    }
+    const rowW = rows.map((r) => r.reduce((s, p) => s + p.w, 0) + GAP * (r.length - 1));
+    const rowH = rows.map((r) => Math.max(0, ...r.map((p) => p.h)));
+    return {
+      w: Math.max(0, ...rowW),
+      h: rowH.reduce((s, h) => s + h, 0) + GAP * (rows.length - 1),
+      place(cx, baseY) {
+        let y = baseY;
+        return rows.map((r, i) => {
+          let x = cx - rowW[i] / 2;
+          const out = r.map((p) => { const s = `<g ${p.data}>${p.draw(x, y - p.h)}</g>`; x += p.w + GAP; return s; }).join('');
+          y -= rowH[i] + GAP;
+          return out;
+        }).join('');
+      }
+    };
+  }
+
+  // A pan's content: its pieces, in equal ringed groups when asked.
+  function content(items, n) {
+    const ps = items.flatMap(pieces);
+    if (!n) return stack(ps);
+    if (ps.length % n) throw new Error(`balance: ${ps.length} pieces do not split into ${n} equal groups`);
+    const size = ps.length / n;
+    const per = Math.min(ROW_W, Math.max(...ps.map((p) => p.w)) * Math.ceil(Math.sqrt(size)) + GAP * 2);
+    const gs = Array.from({ length: n }, (_, i) => stack(ps.slice(i * size, (i + 1) * size), per));
+    const PAD = 4;
+    const w = gs.reduce((s, g) => s + g.w + 2 * PAD, 0) + 6 * (n - 1);
+    const h = Math.max(...gs.map((g) => g.h)) + 2 * PAD;
+    return {
+      w, h,
+      place(cx, baseY) {
+        let x = cx - w / 2;
+        return gs.map((g, i) => {
+          const gx = x;
+          x += g.w + 2 * PAD + 6;
+          return `<g data-group="${i + 1}"><rect x="${f(gx)}" y="${f(baseY - h)}" width="${f(g.w + 2 * PAD)}" height="${f(h)}" rx="6" fill="none" stroke="${SHADE}" stroke-width="1.5" stroke-dasharray="4 3"/>${g.place(gx + PAD + g.w / 2, baseY - PAD)}</g>`;
+        }).join('');
+      }
+    };
+  }
+
+  const L = content(left, groups.left), R = content(right, groups.right);
+  // A beam on a post; each end carries a tray on a short stem, so a tall pile
+  // never crosses a string. The width follows the wider tray or pile.
+  const panW = Math.max(PAN_W, L.w + 12, R.w + 12);
+  const reach = 118, STEM = 14, cos7 = Math.cos((7 * Math.PI) / 180), sin7 = Math.sin((7 * Math.PI) / 180);
+  const W = Math.round(2 * (reach * cos7 + panW / 2 + 6)), cx = W / 2;
+  const t = tilt === 'left' ? 1 : tilt === 'right' ? -1 : 0;
+  const drop = t * reach * sin7;
+  const pile = Math.max(L.h, R.h, BOX);
+  const pivot = 8 + pile + 4 + STEM + Math.abs(drop) + 4;
+  const ends = [[cx - reach * cos7, pivot + drop], [cx + reach * cos7, pivot - drop]];
+  const baseY = pivot + 46;
+  const H = baseY + 6;
+  const pan = ([ex, ey], c, side) => {
+    const ty = ey - STEM;
+    return `<g data-pan="${side}"><line x1="${f(ex)}" y1="${f(ey)}" x2="${f(ex)}" y2="${f(ty)}" stroke="${LINE}" stroke-width="3"/>`
+      + `<path d="M ${f(ex - panW / 2)} ${f(ty - 3)} L ${f(ex + panW / 2)} ${f(ty - 3)} L ${f(ex + panW / 2 - 8)} ${f(ty + 3)} L ${f(ex - panW / 2 + 8)} ${f(ty + 3)} Z" fill="#dfe3ea" stroke="${LINE}" stroke-width="1.8" stroke-linejoin="round"/>`
+      + `${c.place(ex, ty - 4)}</g>`;
+  };
+  const parts = [
+    `<path d="M ${f(cx - 34)} ${f(baseY)} L ${f(cx + 34)} ${f(baseY)} L ${f(cx + 20)} ${f(baseY - 9)} L ${f(cx - 20)} ${f(baseY - 9)} Z" fill="${LINE}"/>`,
+    `<line x1="${f(cx)}" y1="${f(pivot)}" x2="${f(cx)}" y2="${f(baseY - 9)}" stroke="${LINE}" stroke-width="5" stroke-linecap="round"/>`,
+    `<line x1="${f(ends[0][0])}" y1="${f(ends[0][1])}" x2="${f(ends[1][0])}" y2="${f(ends[1][1])}" stroke="${LINE}" stroke-width="5" stroke-linecap="round"/>`,
+    `<path d="M ${f(cx)} ${f(pivot - 2)} L ${f(cx - 8)} ${f(pivot + 12)} L ${f(cx + 8)} ${f(pivot + 12)} Z" fill="${SHADE}"/>`,
+    pan(ends[0], L, 'left'),
+    pan(ends[1], R, 'right')
+  ];
+  const label = `מאזניים ${t ? 'נוטים' : 'מאוזנים'}`;
+  return svg(Math.round(W * scale), Math.round(H * scale), `<g data-balance="1" data-tilt="${tilt || 'level'}">${parts.join('')}</g>`, label, `0 0 ${W} ${f(H)}`, 'math-grid');
+}
+
 /** Several shapes in a row (e.g. two whole circles and a part). */
 function row(...svgs) {
   return `<span class="math-row">${svgs.join('')}</span>`;
@@ -483,4 +618,4 @@ function figures(...figs) {
   return `<div class="math-figures">${figs.join('')}</div>`;
 }
 
-module.exports = { circle, bar, numberLine, integerLine, coordGrid, triangle, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };
+module.exports = { circle, bar, numberLine, integerLine, coordGrid, triangle, balance, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };

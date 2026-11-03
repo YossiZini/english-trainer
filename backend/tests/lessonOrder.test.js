@@ -25,9 +25,9 @@ describe('compareLessons', () => {
 
   test('math chapters follow MATH_CHAPTER_ORDER: division (105) comes right after the multiplication table', () => {
     const l = (topic, sub) => ({ topic_number: topic, subtopic_number: sub, order_index: 0 });
-    const sorted = [l(108, '108.1'), l(101, '101.1'), l(106, '106.2'), l(105, '105.2'), l(100, '100.3'), l(107, '107.1'), l(105, '105.1'), l(104, '104.1'), l(106, '106.1')].sort(compareLessons);
-    // Negative numbers (106), the axes (107) and triangles (108) come last, after percentage.
-    expect(sorted.map(x => x.subtopic_number)).toEqual(['100.3', '105.1', '105.2', '101.1', '104.1', '106.1', '106.2', '107.1', '108.1']);
+    const sorted = [l(109, '109.2'), l(108, '108.1'), l(101, '101.1'), l(106, '106.2'), l(105, '105.2'), l(100, '100.3'), l(109, '109.1'), l(107, '107.1'), l(105, '105.1'), l(104, '104.1'), l(106, '106.1')].sort(compareLessons);
+    // Negative numbers (106), the axes (107), triangles (108) and equations (109) come last, after percentage.
+    expect(sorted.map(x => x.subtopic_number)).toEqual(['100.3', '105.1', '105.2', '101.1', '104.1', '106.1', '106.2', '107.1', '108.1', '109.1', '109.2']);
     // English and Arabic keep their numbers; every math topic in the data has a place.
     expect([topicRank(1), topicRank(14), topicRank(201)]).toEqual([1, 14, 201]);
     const mathTopics = new Set(lessons.filter(x => x.subject === 'math').map(x => x.topic_number));
