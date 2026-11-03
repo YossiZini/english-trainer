@@ -88,6 +88,34 @@ creates a new lesson and orphans progress.
   - A negative x put into an expression goes in parentheses (`3 × (−2) + 1`),
     except first or right after "(" (`−3 + 1`, `2 × (−5 + 7)`).
   - `scripts/checks/topic109.js` enforces these rules on every text field.
+- **Decimal numbers** (chapter 4; measured in Chromium in a right-to-left
+  paragraph, a `dir="auto"` caption or bot line, and an option box, before
+  the chapter was built):
+  - A decimal has a point and a leading zero: `0.5`, never `.5` (it shows
+    as "5." in Hebrew text) and never `0,5`.
+  - A positive decimal needs no isolate in Hebrew text. "המספר 0.45 קטן
+    מ-0.5." reads in order, and so does a decimal at the end of a sentence,
+    before a comma or a colon, after a prefix (ב-0.5) and beside a stacked
+    fraction. An expression with an operator, `=` or `≈` still goes in its
+    isolate (`ltr()`, `eq()`); a negative decimal too, as every negative
+    number.
+  - A unit or ₪ is Hebrew text after the number, outside the isolate:
+    "2.50 ₪", "2.5 ס״מ", "⁦2.5 + 1.75 = 4.25⁩ ₪". Inside an isolate the ₪
+    moves to the other side of the number.
+  - Options are bare decimals (`2.5`, not `2.5 ₪`): the question names the
+    unit. Options differ by value, so `0.5` and `0.50` are one answer, never
+    two options.
+  - A list in Hebrew text reads right to left, the first number on the
+    right ("0.5, 0.45 ו-0.405", as in the average chapter); inside an
+    isolate it reads left to right. Ask for an order with a chain of
+    comparisons (`0.405 < 0.45 < 0.5`), which reads the same in every box
+    and in the bot; never with a bare list as an option.
+  - Trailing zeros only where the lesson is about them (`0.5 = 0.50`) or for
+    money (`2.50`).
+  - Never put a decimal over a fraction bar (`2.5/10` is not stacked): write
+    `25/100`. Stacking leaves decimals alone (`0.25 = 25/100` stacks only
+    `25/100`; `1.25 = 1 1/4` stacks the mixed number).
+  - `scripts/checks/topic110.js` enforces these rules on every text field.
 
 ## Exercises
 
