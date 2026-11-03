@@ -105,7 +105,10 @@ const MultipleChoice = ({ question, selectedAnswer, onAnswerChange, feedback, su
                     isSelected ? '●' : '○'
                   )}
                 </div>
-                <MathText as="div" className="option-text" text={option} />
+                {/* The box is left to right (numbers, equations, English); the text
+                    takes its own direction, so a Hebrew option that starts with a
+                    fraction ("3/4 הוא יותר משלם") still reads right to left. */}
+                <MathText as="div" className="option-text" dir={arabic ? undefined : 'auto'} text={option} />
               </div>
             );
           })}

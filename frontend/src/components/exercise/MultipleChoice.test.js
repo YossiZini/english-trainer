@@ -32,3 +32,23 @@ describe('MultipleChoice: a question with its own picture', () => {
     expect(container.querySelector('.question-picture')).toBeNull();
   });
 });
+
+describe('MultipleChoice: each option reads in its own direction', () => {
+  const render3 = (subject, options) => render(
+    <MultipleChoice question={question({ options })} selectedAnswer={null} onAnswerChange={() => {}} feedback={null} subject={subject} />
+  ).container;
+
+  test('a Hebrew option that starts with a fraction is laid out right to left, aligned like the rest', () => {
+    const c = render3('math', ['3/4 הוא יותר משלם', '3/4 שווה ל-4/3', '(2, −3)', 'goes']);
+    const texts = [...c.querySelectorAll('.option-text')];
+    // dir="auto": the first strong letter decides, so Hebrew reads right to left and numbers or English left to right.
+    expect(texts.map((t) => t.getAttribute('dir'))).toEqual(['auto', 'auto', 'auto', 'auto']);
+    expect([...c.querySelectorAll('.option')].every((o) => o.getAttribute('dir') === 'ltr')).toBe(true);
+  });
+
+  test('Arabic options keep the right-to-left box as they were', () => {
+    const c = render3('arabic', ['ب', 'ت', 'ث', 'ن']);
+    expect([...c.querySelectorAll('.option-text')].every((t) => !t.hasAttribute('dir'))).toBe(true);
+    expect([...c.querySelectorAll('.option')].every((o) => o.getAttribute('dir') === 'rtl')).toBe(true);
+  });
+});
