@@ -5,10 +5,11 @@ import registry, { getScenes } from './index';
 // and + − × ÷ only; "?" rows and lists are skipped) has equal sides, and a
 // DivEq (the division with its remainder) gives back its dividend.
 const value = (side) => {
-  const js = side.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+  // Degrees are numbers too ("180° − 40° = 140°").
+  const js = side.replace(/°/g, '').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
   if (!/^[\d\s+\-*/().]+$/.test(js)) return null;
   // eslint-disable-next-line no-new-func
-  return Function(`"use strict"; return (${js});`)();
+  return Function(`"use strict"; return (${js});`)() + 0; // + 0: −2 × 0 is 0, not −0
 };
 
 const steps = Object.keys(registry).flatMap((key) => getScenes(key).flatMap((scene) => scene.steps.map((step) => [key, scene.name, step.caption, step])));

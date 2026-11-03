@@ -16,6 +16,14 @@ import division1051 from './division/105-1';
 import division1052 from './division/105-2';
 import division1053 from './division/105-3';
 import division1054 from './division/105-4';
+import negatives1061 from './negatives/106-1';
+import negatives1062 from './negatives/106-2';
+import negatives1063 from './negatives/106-3';
+import axes1071 from './axes/107-1';
+import axes1072 from './axes/107-2';
+import triangles1081 from './triangles/108-1';
+import triangles1082 from './triangles/108-2';
+import triangles1083 from './triangles/108-3';
 
 const registry = {
   '100.1': multiplication1001,
@@ -34,6 +42,14 @@ const registry = {
   '105.2': division1052,
   '105.3': division1053,
   '105.4': division1054,
+  '106.1': negatives1061,
+  '106.2': negatives1062,
+  '106.3': negatives1063,
+  '107.1': axes1071,
+  '107.2': axes1072,
+  '108.1': triangles1081,
+  '108.2': triangles1082,
+  '108.3': triangles1083,
 };
 
 /** Scenes for a lesson, or null. */
