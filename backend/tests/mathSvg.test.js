@@ -1,4 +1,4 @@
-const { balance } = require('../src/database/seeds/math-svg');
+const { balance, hundredGrid, decimalLine, placeValue, columnCalc } = require('../src/database/seeds/math-svg');
 
 /**
  * The balance scale of the equations chapter (math-svg.js balance()): each
@@ -93,5 +93,167 @@ describe('balance(): a balance scale for equations', () => {
 
   test('an unknown item is refused', () => {
     expect(() => balance({ left: [{ apple: 1 }], right: [1] })).toThrow('balance: unknown item');
+  });
+});
+
+/** The cells of a hundred grid: { kind, x, y } in the order drawn. */
+const cells = (svg) => [...svg.matchAll(/<rect data-cell="(\w)" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)" fill="([^"]+)"/g)]
+  .map((m) => ({ kind: m[1], x: Number(m[2]), y: Number(m[3]), w: Number(m[4]), h: Number(m[5]), fill: m[6] }));
+
+describe('hundredGrid(): tenths and hundredths of a square', () => {
+  test('the first cells are shaded column by column, so a full column is a tenth', () => {
+    const c = cells(hundredGrid(45));
+    expect(c).toHaveLength(100);
+    const shaded = c.filter((q) => q.kind === 'a');
+    expect(shaded).toHaveLength(45);
+    // Four full columns and five cells of the fifth, from the top.
+    expect(new Set(shaded.map((q) => q.x)).size).toBe(5);
+    expect(shaded.filter((q) => q.x === Math.max(...shaded.map((s) => s.x))).map((q) => q.y)).toEqual([0, 12, 24, 36, 48]);
+    expect(shaded.every((q) => q.fill === '#667eea')).toBe(true);
+  });
+
+  test('parts 10 draws ten whole columns', () => {
+    const c = cells(hundredGrid(3, { parts: 10 }));
+    expect(c).toHaveLength(10);
+    expect(c.every((q) => q.h === 120)).toBe(true);
+    expect(c.filter((q) => q.kind === 'a').map((q) => q.x)).toEqual([0, 12, 24]);
+  });
+
+  test('extra cells follow in the second colour', () => {
+    const svg = hundredGrid(30, { extra: 25 });
+    const c = cells(svg);
+    expect(c.filter((q) => q.kind === 'b')).toHaveLength(25);
+    expect(c.filter((q) => q.kind === 'b').every((q) => q.fill === '#f5a623' && q.x >= 36)).toBe(true);
+    expect(svg).toContain('data-shaded="30" data-extra="25"');
+  });
+
+  test('too many cells or other parts are refused', () => {
+    expect(() => hundredGrid(80, { extra: 30 })).toThrow('do not fit');
+    expect(() => hundredGrid(5, { parts: 20 })).toThrow('parts must be 10 or 100');
+  });
+});
+
+/** Ticks, labels and points of a decimal number line, with their x. */
+function line(svg) {
+  const ticks = [...svg.matchAll(/<line data-tick="([\d.]+)" x1="([\d.]+)"/g)].map((m) => [m[1], Number(m[2])]);
+  const labels = [...svg.matchAll(/<text data-label="([\d.]+)" x="([\d.]+)"[^>]*>([^<]*)</g)].map((m) => [m[1], Number(m[2]), m[3]]);
+  const points = [...svg.matchAll(/<circle data-point="([\d.]+)" cx="([\d.]+)"/g)].map((m) => [m[1], Number(m[2])]);
+  return { ticks, labels, points };
+}
+
+describe('decimalLine(): a number line of tenths or hundredths', () => {
+  test('a tick for every tenth, evenly spaced, each labelled with its number', () => {
+    const { ticks, labels } = line(decimalLine({ from: '0', to: '1' }));
+    expect(ticks.map((t) => t[0])).toEqual(['0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1']);
+    const gaps = ticks.slice(1).map((t, i) => +(t[1] - ticks[i][1]).toFixed(1));
+    expect(new Set(gaps).size).toBe(1);
+    expect(labels.every(([v, , text]) => v === text)).toBe(true);
+  });
+
+  test('hundredths between two tenths; labelEvery keeps the ends and every fifth', () => {
+    const { ticks, labels } = line(decimalLine({ from: '0.4', to: '0.5', places: 2, labelEvery: 5 }));
+    expect(ticks).toHaveLength(11);
+    expect(ticks[5][0]).toBe('0.45');
+    expect(labels.map((l) => l[0])).toEqual(['0.4', '0.45', '0.5']);
+  });
+
+  test('a point stands on its tick, with its label or the number above it', () => {
+    const svg = decimalLine({ from: '0.4', to: '0.5', places: 2, points: [{ at: '0.45' }, { at: '0.42', label: 'A', color: 'b' }] });
+    const { ticks, points } = line(svg);
+    for (const [at, x] of points) expect(x).toBe(ticks.find((t) => t[0] === at)[1]);
+    expect(svg).toMatch(/fill="#667eea">0\.45</);
+    expect(svg).toMatch(/fill="#f5a623">A</);
+  });
+
+  test('too many ticks, a point off the line, or too many digits are refused', () => {
+    expect(() => decimalLine({ from: '0', to: '1', places: 2 })).toThrow('1 to 20 ticks');
+    expect(() => decimalLine({ from: '0', to: '1', points: [{ at: '1.5' }] })).toThrow('off the line');
+    expect(() => decimalLine({ from: '0', to: '1', points: [{ at: '0.45' }] })).toThrow('at most 1 places');
+  });
+});
+
+/** The digits of each row of a place-value table, by place, and the column of each header. */
+function table(svg) {
+  const digits = [...svg.matchAll(/data-row="(\d)" data-place="(\w+)" data-digit="(\d)" x="([\d.]+)"/g)]
+    .map((m) => ({ row: Number(m[1]), place: m[2], digit: m[3], x: Number(m[4]) }));
+  const heads = [...svg.matchAll(/<text x="([\d.]+)" y="17"[^>]*>([^<]+)</g)].map((m) => [m[2], Number(m[1])]);
+  const points = [...svg.matchAll(/data-row="(\d)" data-point="1" x="([\d.]+)"/g)].map((m) => [Number(m[1]), Number(m[2])]);
+  return { digits, heads, points };
+}
+
+describe('placeValue(): a place-value table', () => {
+  test('each digit stands under its place, the point between ones and tenths', () => {
+    const { digits, heads, points } = table(placeValue(['3.45']));
+    expect(heads.map((h) => h[0])).toEqual(['אחדות', 'עשיריות', 'מאיות']);
+    expect(digits.map((d) => `${d.place}:${d.digit}`)).toEqual(['ones:3', 'tenths:4', 'hundredths:5']);
+    const headX = Object.fromEntries(heads);
+    expect(digits.map((d) => d.x)).toEqual([headX['אחדות'], headX['עשיריות'], headX['מאיות']]);
+    expect(points[0][1]).toBeGreaterThan(digits[0].x);
+    expect(points[0][1]).toBeLessThan(digits[1].x);
+  });
+
+  test('only the columns the numbers need; a whole number has no point', () => {
+    const { heads, points } = table(placeValue(['125.6', '7']));
+    expect(heads.map((h) => h[0])).toEqual(['מאות', 'עשרות', 'אחדות', 'עשיריות']);
+    expect(points.map((p) => p[0])).toEqual([0]);
+  });
+
+  test('mark shades the column of that place', () => {
+    const svg = placeValue(['3.45'], { mark: 'tenths' });
+    const x = Number(svg.match(/data-mark="tenths" x="([\d.]+)" y="0" width="([\d.]+)"/)[1]);
+    const w = Number(svg.match(/data-mark="tenths" x="[\d.]+" y="0" width="([\d.]+)"/)[1]);
+    const four = table(svg).digits.find((d) => d.place === 'tenths');
+    expect(four.x).toBe(x + w / 2);
+    expect(() => placeValue(['3.45'], { mark: 'thousandths' })).toThrow('no thousandths column');
+  });
+
+  test('move draws an arrow from each digit to its new place, from the first non-zero digit', () => {
+    const times10 = placeValue(['0.45', '4.5'], { move: 1 });
+    expect([...times10.matchAll(/data-arrow="([^"]+)"/g)].map((m) => m[1])).toEqual(['tenths>ones', 'hundredths>tenths']);
+    const by100 = placeValue(['125.6', '1.256'], { move: -2 });
+    expect([...by100.matchAll(/data-arrow="([^"]+)"/g)].map((m) => m[1])).toEqual(['hundreds>ones', 'tens>tenths', 'ones>hundredths', 'tenths>thousandths']);
+    expect(placeValue(['3.45'])).not.toContain('data-arrow');
+  });
+
+  test('a number it cannot draw is refused', () => {
+    expect(() => placeValue(['3.4567'])).toThrow('not a decimal');
+    expect(() => placeValue(['.5'])).toThrow('not a decimal');
+  });
+});
+
+/** Each row of a column sum as written (digits, point and filled zeros) and the x of its point. */
+function columns(svg) {
+  return Object.fromEntries([...svg.matchAll(/<g data-row="(\w+)" data-value="([\d.]+)">(.*?)<\/g>/g)].map((m) => {
+    const chars = [...m[3].matchAll(/<text x="([\d.-]+)" y="[\d.]+"( data-filled="1")?[^>]*>([^<]+)</g)]
+      .map((c) => ({ x: Number(c[1]), filled: !!c[2], ch: c[3] }))
+      .filter((c) => /[\d.]/.test(c.ch))
+      .sort((a, b) => a.x - b.x);
+    return [m[1], { value: m[2], written: chars.map((c) => c.ch).join(''), filled: chars.filter((c) => c.filled).length, point: (chars.find((c) => c.ch === '.') || {}).x, xs: chars.map((c) => c.x) }];
+  }));
+}
+
+describe('columnCalc(): adding and subtracting with the points lined up', () => {
+  test('every row has as many digits after the point as the longest; the filled zeros are marked', () => {
+    const c = columns(columnCalc({ top: '2.5', bottom: '1.75', op: '+', result: '4.25' }));
+    expect([c.top.written, c.bottom.written, c.result.written]).toEqual(['2.50', '1.75', '4.25']);
+    expect([c.top.filled, c.bottom.filled, c.result.filled]).toEqual([1, 0, 0]);
+    expect(new Set([c.top.point, c.bottom.point, c.result.point]).size).toBe(1);
+  });
+
+  test('digits of the same place stand in one column; a whole number gets its point and zeros', () => {
+    const svg = columnCalc({ top: '5', bottom: '1.25', op: '−', result: '3.75' });
+    const c = columns(svg);
+    expect(c.top.written).toBe('5.00');
+    expect(c.top.filled).toBe(2);
+    expect(c.top.xs).toEqual(c.bottom.xs);
+    expect(c.bottom.xs).toEqual(c.result.xs);
+    expect(svg).toMatch(/>−<\/text>/);
+    // A longer whole part lines up from the point too.
+    const d = columns(columnCalc({ top: '12.5', bottom: '3.75', result: '16.25' }));
+    expect(d.bottom.xs).toEqual(d.top.xs.slice(1));
+  });
+
+  test('only + and − are drawn', () => {
+    expect(() => columnCalc({ top: '2', bottom: '3', op: '×', result: '6' })).toThrow('op must be + or −');
   });
 });
