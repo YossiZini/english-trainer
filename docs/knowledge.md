@@ -31,8 +31,9 @@ session cannot see elsewhere.
 - `check:viewport` fails the laptop "at top" check here (navbar 69px, layout
   reserves 68px), on `main` too. Compare with a `main` build (git worktree,
   symlinked `node_modules`) before calling a regression.
-- Hard math questions with a picture overflow the pinned bar (laptop, 360px
-  phone): known, accepted by the owner.
+- Math questions whose explanation has a picture overflow the pinned bar once
+  checked, at every level (chapters 9–10: up to ~180px on a laptop, ~200px
+  at 360px): known; the owner accepted it for hard questions.
 - Right-to-left text: judge order by measuring (`Range.getClientRects`),
   never from a screenshot. A bare "−1" in Hebrew text shows as "1−": isolate it.
 - The API loads bundled content at startup: restart it after `generate-data`.
@@ -40,7 +41,8 @@ session cannot see elsewhere.
 ## Codebase facts
 - Topic numbers: English 1+, math 100–199, Arabic 201+. Math chapters
   follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
-  100, 105 (Division), 101, 102–104, 106 (negatives), 107 (axes), 108 (triangles).
+  100, 105 (Division), 101, 102–104, 106 (negatives), 107 (axes), 108 (triangles),
+  109 (equations).
 - `question_picture`: only on questions that have one (keeps other records
   byte-identical); the API passes it, `QuestionPicture` shows it, the bot
   sends its PNG (`frontend/public/question-pictures/<hash>.png`; after
