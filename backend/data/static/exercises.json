@@ -66458,7 +66458,7 @@
       "5"
     ],
     "correct_answer": "5",
-    "explanation_he": "⁦2 × 5 = 10⁩ וגם ⁦3 × 5 = 15⁩: כפלו ב-5.",
+    "explanation_he": "בודקים: ⁦2 × 5 = 10⁩ וגם ⁦3 × 5 = 15⁩, ולכן כפלו ב-5.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
@@ -66543,7 +66543,7 @@
       "3:4"
     ],
     "correct_answer": "3:4",
-    "explanation_he": "⁦4:6⁩, ⁦6:9⁩ ו-⁦10:15⁩ מצטמצמים ל-2:3. היחס 3:4 כבר מצומצם, והוא אחר.",
+    "explanation_he": "היחסים 4:6, 6:9 ו-10:15 מצטמצמים ל-2:3. היחס 3:4 כבר מצומצם, והוא אחר.",
     "explanation_en": null,
     "hint_he": null,
     "explanation_picture": null,
