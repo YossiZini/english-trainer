@@ -140,12 +140,16 @@ function integerLine({ from = -6, to = 6, points = [], hops = [], flat = false, 
  *   segment, with an arrowhead at `to` when `arrow`, its label at the middle
  *   (or at `labelAt`: [x, y], away from the axes' numbers).
  * - texts: [{ x, y, text }] a word at a place (the quarters' names).
+ * - graphs: [{ m, b, color, dashed, label, labelAt, anchor }] the whole line
+ *   y = m·x + b across the grid (clipped to its edges), under the segments
+ *   and the points; `label` (its rule) is written at `labelAt` ([x, y]),
+ *   starting there (`anchor` 'start') or ending there ('end').
  * Each number is 22px apart; a picture for a question stays at most 9 units
  * high, so a phone shows it whole with the options under it. `scale` draws
  * it smaller (under an explanation); the class math-grid keeps the feedback
  * box from squeezing it further (ExerciseFeedback.css).
  */
-function coordGrid({ xMin = -4, xMax = 4, yMin = -4, yMax = 4, points = [], lines = [], texts = [], scale = 1 } = {}) {
+function coordGrid({ xMin = -4, xMax = 4, yMin = -4, yMax = 4, points = [], lines = [], texts = [], graphs = [], scale = 1 } = {}) {
   const unit = 22, pad = 22;
   const width = (xMax - xMin) * unit + 2 * pad, height = (yMax - yMin) * unit + 2 * pad;
   const X = (x) => pad + (x - xMin) * unit, Y = (y) => pad + (yMax - y) * unit;
@@ -175,6 +179,22 @@ function coordGrid({ xMin = -4, xMax = 4, yMin = -4, yMax = 4, points = [], line
   parts.push(`<text x="${f(ox - 5)}" y="${f(oy + 14)}" font-size="11" text-anchor="end" fill="${LINE}" font-weight="700">0</text>`);
   for (const t of texts) {
     parts.push(`<text x="${f(X(t.x))}" y="${f(Y(t.y) + 4)}" font-size="12" text-anchor="middle" fill="#8a8fa0" font-weight="700">${esc(t.text)}</text>`);
+  }
+  for (const g of graphs) {
+    // Where y = m·x + b enters and leaves the grid.
+    let [xa, xb] = [xMin, xMax];
+    if (g.m !== 0) {
+      const [u, v] = [(yMin - g.b) / g.m, (yMax - g.b) / g.m].sort((p, q) => p - q);
+      [xa, xb] = [Math.max(xMin, u), Math.min(xMax, v)];
+    }
+    if (!(xb > xa) || (g.m === 0 && (g.b < yMin || g.b > yMax))) throw new Error(`coordGrid: y = ${g.m}x + ${g.b} misses the grid`);
+    const color = g.color === 'b' ? SHADE_2 : SHADE;
+    parts.push(`<line data-graph="1" x1="${f(X(xa))}" y1="${f(Y(g.m * xa + g.b))}" x2="${f(X(xb))}" y2="${f(Y(g.m * xb + g.b))}" stroke="${color}" stroke-width="2.5" stroke-linecap="round"${g.dashed ? ' stroke-dasharray="6 4"' : ''}/>`);
+    if (g.label) {
+      if (!g.labelAt) throw new Error(`coordGrid: the label "${g.label}" needs labelAt`);
+      const anchor = g.anchor || 'start';
+      parts.push(`<text x="${f(X(g.labelAt[0]) + (anchor === 'start' ? 5 : -5))}" y="${f(Y(g.labelAt[1]) - 5)}" font-size="12" text-anchor="${anchor}" fill="${color}" font-weight="700" direction="ltr" stroke="#fff" stroke-width="3" paint-order="stroke">${esc(g.label)}</text>`);
+    }
   }
   for (const l of lines) {
     const [x1, y1] = l.from, [x2, y2] = l.to;
@@ -832,38 +852,63 @@ function ratioBar(rows, { scale = 1 } = {}) {
 }
 
 /**
- * A ratio table: two rows (`heads`, Hebrew names at the right) and a column
- * per pair of equal ratios, `cols` ([[3, 12], [1, 4], [5, 20]]); a value may
- * be 'x' or '?' (the missing term, in the second colour). `steps` writes
- * what turns each column into the next ('÷ 3', '× 5') above the top row and
- * under the bottom one, with an arrow. Cells carry data-col, data-row and
- * data-value; steps data-step.
+ * Two rows of cells, their names at the right end, and a column per pair
+ * (ratioTable, valueTable). A value is a number (written with a real minus
+ * sign) or text; text that starts with neither a digit nor a minus ('x', '?')
+ * is the value to find, in the second colour. `steps` writes what turns each
+ * column into the next above the top row and under the bottom one, with an
+ * arrow: one text for both rows, or [top, bottom] (null leaves that arrow
+ * out). Cells carry data-col, data-row and data-value; steps data-step.
  */
-function ratioTable({ heads, cols, steps = [], scale = 1 }) {
-  if (!heads || heads.length !== 2 || !cols.length || cols.some((c) => c.length !== 2)) throw new Error('ratioTable: two heads and columns of two values');
-  if (steps.length && steps.length !== cols.length - 1) throw new Error(`ratioTable: ${steps.length} steps for ${cols.length} columns`);
-  const CW = 54, RH = 32, HEAD = 70, TOP = steps.length ? 24 : 2, BOTTOM = steps.length ? 24 : 2;
-  const width = cols.length * CW + HEAD;
+function twoRowTable({ name, kind, label, heads, cols, steps, scale, head, italic }) {
+  if (!heads || heads.length !== 2 || !cols.length || cols.some((c) => c.length !== 2)) throw new Error(`${name}: two heads and columns of two values`);
+  if (steps.length && steps.length !== cols.length - 1) throw new Error(`${name}: ${steps.length} steps for ${cols.length} columns`);
+  const CW = 54, RH = 32, TOP = steps.length ? 24 : 2, BOTTOM = steps.length ? 24 : 2;
+  const width = cols.length * CW + head;
   const height = TOP + 2 * RH + BOTTOM;
   const out = [];
   cols.forEach((col, c) => col.forEach((v, r) => {
     const x = c * CW, y = TOP + r * RH;
-    const missing = typeof v === 'string' && !/^\d/.test(v);
+    const text = typeof v === 'number' ? signed(v) : String(v);
+    const missing = typeof v === 'string' && !/^[\d\u2212]/.test(v);
     out.push(`<rect x="${x}" y="${y}" width="${CW}" height="${RH}" fill="${r ? '#fff7ea' : '#eef0fd'}" stroke="${LINE}" stroke-width="1.2"/>`);
-    out.push(`<text data-col="${c}" data-row="${r}" data-value="${esc(v)}" x="${x + CW / 2}" y="${y + RH / 2 + 6}" font-size="17" font-weight="700" text-anchor="middle" fill="${missing ? SHADE_2 : LINE}"${missing ? ' font-style="italic"' : ''}>${esc(v)}</text>`);
+    out.push(`<text data-col="${c}" data-row="${r}" data-value="${esc(text)}" x="${x + CW / 2}" y="${y + RH / 2 + 6}" font-size="17" font-weight="700" text-anchor="middle" fill="${missing ? SHADE_2 : LINE}"${missing ? ' font-style="italic"' : ''}>${esc(text)}</text>`);
   }));
-  heads.forEach((h, r) => out.push(`<text x="${width - 4}" y="${TOP + r * RH + RH / 2 + 5}" font-size="14" font-weight="700" text-anchor="end" fill="${LINE}">${esc(h)}</text>`));
+  heads.forEach((h, r) => out.push(`<text x="${width - 4}" y="${TOP + r * RH + RH / 2 + 5}" font-size="14" font-weight="700" text-anchor="end" fill="${LINE}"${italic ? ' font-style="italic"' : ''}>${esc(h)}</text>`));
   steps.forEach((s, c) => {
     const x1 = c * CW + CW / 2 + 6, x2 = (c + 1) * CW + CW / 2 - 6, mid = (x1 + x2) / 2;
-    for (const [y, ty] of [[TOP - 6, TOP - 10], [TOP + 2 * RH + 6, TOP + 2 * RH + 20]]) {
+    const [top, bottom] = Array.isArray(s) ? s : [s, s];
+    for (const [y, ty, t] of [[TOP - 6, TOP - 10, top], [TOP + 2 * RH + 6, TOP + 2 * RH + 20, bottom]]) {
+      if (t === null || t === undefined) continue;
       out.push(`<path d="M ${x1} ${y} Q ${mid} ${y + (y < TOP ? -10 : 10)} ${x2} ${y}" fill="none" stroke="${SHADE}" stroke-width="1.6" marker-end="url(#rt-head)"/>`);
-      out.push(`<text data-step="${esc(s)}" x="${mid}" y="${ty}" font-size="12" font-weight="700" text-anchor="middle" fill="${SHADE}">${esc(s)}</text>`);
+      out.push(`<text data-step="${esc(t)}" x="${mid}" y="${ty}" font-size="12" font-weight="700" text-anchor="middle" fill="${SHADE}">${esc(t)}</text>`);
     }
   });
   const defs = steps.length ? `<defs><marker id="rt-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="${SHADE}"/></marker></defs>` : '';
-  return svg(Math.round(width * scale), Math.round(height * scale), `${defs}<g data-ratio-table="1">${out.join('')}</g>`,
-    `טבלת יחסים: ${heads.join(' ו')}`, `0 0 ${width} ${height}`, 'math-grid');
+  return svg(Math.round(width * scale), Math.round(height * scale), `${defs}<g data-${kind}="1">${out.join('')}</g>`,
+    label, `0 0 ${width} ${height}`, 'math-grid');
 }
+
+/**
+ * A ratio table: two rows (`heads`, Hebrew names at the right) and a column
+ * per pair of equal ratios, `cols` ([[3, 12], [1, 4], [5, 20]]); a value may
+ * be 'x' or '?' (the missing term, in the second colour). `steps` writes
+ * what turns each column into the next ('÷ 3', '× 5') above the top row and
+ * under the bottom one, with an arrow.
+ */
+const ratioTable = ({ heads, cols, steps = [], scale = 1 }) => twoRowTable({
+  name: 'ratioTable', kind: 'ratio-table', label: `טבלת יחסים: ${(heads || []).join(' ו')}`, heads, cols, steps, scale, head: 70, italic: false
+});
+
+/**
+ * A table of values of a rule: x in the top row, y under it, x growing to the
+ * right as on the x axis; "x" and "y" at the right end. `cols`: [[x, y], …],
+ * '?' for a value to find. `steps`: [[x step, y step], …] between
+ * neighbouring columns ('+1', '+2'), optional.
+ */
+const valueTable = ({ cols, steps = [], scale = 1 }) => twoRowTable({
+  name: 'valueTable', kind: 'value-table', label: 'טבלת ערכים של x ו-y', heads: ['x', 'y'], cols, steps, scale, head: 30, italic: true
+});
 
 /** Several shapes in a row (e.g. two whole circles and a part). */
 function row(...svgs) {
@@ -882,5 +927,5 @@ function figures(...figs) {
 
 module.exports = {
   circle, bar, numberLine, integerLine, coordGrid, triangle, balance, signed, grid, array, groups, longDivision, longDivisionSteps,
-  hundredGrid, decimalLine, placeValue, columnCalc, ratioBar, ratioTable, row, figure, figures
+  hundredGrid, decimalLine, placeValue, columnCalc, ratioBar, ratioTable, valueTable, row, figure, figures
 };

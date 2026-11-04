@@ -1,4 +1,4 @@
-const { balance, hundredGrid, decimalLine, placeValue, columnCalc, ratioBar, ratioTable } = require('../src/database/seeds/math-svg');
+const { balance, hundredGrid, decimalLine, placeValue, columnCalc, ratioBar, ratioTable, valueTable, coordGrid } = require('../src/database/seeds/math-svg');
 
 /**
  * The balance scale of the equations chapter (math-svg.js balance()): each
@@ -311,5 +311,64 @@ describe('ratioTable(): a table of equal ratios', () => {
     expect((svg.match(/marker-end="url\(#rt-head\)"/g) || []).length).toBe(4);
     expect(svg).toMatch(/data-value="x"[^>]*fill="#f5a623" font-style="italic">x</);
     expect(() => ratioTable({ heads: ['א', 'ב'], cols: [[1, 2], [2, 4]], steps: ['× 2', '× 3'] })).toThrow('2 steps for 2 columns');
+  });
+});
+
+describe('valueTable(): the table of values of a rule', () => {
+  test('x on top and y under it, negatives with a real minus, "x" and "y" in italics at the right', () => {
+    const svg = valueTable({ cols: [[-1, -1], [0, 1], [1, 3], [2, '?']] });
+    const cells = [...svg.matchAll(/data-col="(\d)" data-row="(\d)" data-value="([^"]*)" x="([\d.]+)"/g)].map((m) => `${m[1]}${m[2]}:${m[3]}`);
+    expect(cells).toEqual(['00:\u22121', '01:\u22121', '10:0', '11:1', '20:1', '21:3', '30:2', '31:?']);
+    // A negative value is a value, not the one to find; '?' is.
+    expect(svg).toMatch(/data-value="\u22121"[^>]*fill="#2b2f3a">\u22121</);
+    expect(svg).toMatch(/data-value="\?"[^>]*fill="#f5a623" font-style="italic">\?</);
+    expect(svg).toMatch(/font-style="italic">x<\/text>/);
+    expect(svg).toMatch(/aria-label="טבלת ערכים של x ו-y"/);
+  });
+
+  test('a step can differ between the rows, and one row may have no arrow', () => {
+    const svg = valueTable({ cols: [[0, 1], [1, 3], [2, 5]], steps: [['+1', '+2'], ['+1', null]] });
+    expect([...svg.matchAll(/data-step="([^"]+)"/g)].map((m) => m[1])).toEqual(['+1', '+2', '+1']);
+    expect((svg.match(/marker-end="url\(#rt-head\)"/g) || []).length).toBe(3);
+    expect(() => valueTable({ cols: [[0, 1], [1, 3]], steps: [['+1', '+2'], ['+1', '+2']] })).toThrow('valueTable: 2 steps for 2 columns');
+  });
+
+  test('a ratio table is unchanged: plain heads, one step for both rows', () => {
+    const svg = ratioTable({ heads: ['מחברות', 'מחיר'], cols: [[3, 12], [6, 24]], steps: ['× 2'] });
+    expect(svg).toMatch(/text-anchor="end" fill="#2b2f3a">מחברות<\/text>/);
+    expect(svg).toContain('data-ratio-table="1"');
+    expect(svg).not.toContain('data-value-table');
+  });
+});
+
+describe('coordGrid(): a whole line y = mx + b', () => {
+  // Back from pixels to the grid: 22 per unit, 22 from the edge.
+  const ends = (svg, xMin = -4, yMax = 4) => {
+    const m = svg.match(/<line data-graph="1" x1="([\d.]+)" y1="([\d.]+)" x2="([\d.]+)" y2="([\d.]+)"/);
+    return [[m[1], m[2]], [m[3], m[4]]].map(([x, y]) => [xMin + (Number(x) - 22) / 22, yMax - (Number(y) - 22) / 22]);
+  };
+
+  test('the line runs from edge to edge of the grid and keeps its rule', () => {
+    const [[x1, y1], [x2, y2]] = ends(coordGrid({ graphs: [{ m: 2, b: 1 }] }));
+    // y = 2x + 1 leaves a −4…4 grid through its bottom and top edges.
+    expect([x1, y1, x2, y2]).toEqual([-2.5, -4, 1.5, 4]);
+    const [[a, c], [d, e]] = ends(coordGrid({ xMin: -2, xMax: 6, yMin: -3, yMax: 6, graphs: [{ m: -1, b: 3 }] }), -2, 6);
+    expect([a, c, d, e]).toEqual([-2, 5, 6, -3]);
+    expect((e - c) / (d - a)).toBe(-1);
+  });
+
+  test('a flat line spans the grid; a line that misses it, or a label without a place, is refused', () => {
+    expect(ends(coordGrid({ graphs: [{ m: 0, b: 3 }] }))).toEqual([[-4, 3], [4, 3]]);
+    expect(() => coordGrid({ graphs: [{ m: 0, b: 5 }] })).toThrow('misses the grid');
+    expect(() => coordGrid({ graphs: [{ m: 1, b: 9 }] })).toThrow('misses the grid');
+    expect(() => coordGrid({ graphs: [{ m: 1, b: 0, label: 'y = x' }] })).toThrow('needs labelAt');
+  });
+
+  test('the line is drawn under the points, with its rule left to right', () => {
+    const svg = coordGrid({ points: [{ x: 1, y: 3, label: 'A' }], graphs: [{ m: 2, b: 1, color: 'b', label: 'y = 2x + 1', labelAt: [1.5, 4], anchor: 'end' }] });
+    expect(svg.indexOf('data-graph')).toBeLessThan(svg.indexOf('<circle'));
+    expect(svg).toMatch(/<line data-graph="1"[^>]*stroke="#f5a623"/);
+    expect(svg).toMatch(/text-anchor="end"[^>]*direction="ltr"[^>]*>y = 2x \+ 1<\/text>/);
+    expect(coordGrid({})).not.toContain('data-graph');
   });
 });
