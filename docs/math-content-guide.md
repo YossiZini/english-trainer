@@ -117,6 +117,22 @@ creates a new lesson and orphans progress.
     `25/100`. Stacking leaves decimals alone (`0.25 = 25/100` stacks only
     `25/100`; `1.25 = 1 1/4` stacks the mixed number).
   - `scripts/checks/topic110.js` enforces these rules on every text field.
+- **Ratios** (chapter 12; measured in Chromium in a right-to-left paragraph,
+  a `dir="auto"` caption or bot line, and an option box, before the chapter
+  was built):
+  - Write a ratio with no spaces around the colon: `3:5`, `3:5:2`. It reads
+    left to right in Hebrew text with no isolate, like a number, also after a
+    prefix (ל-6:10), before a comma and at the start of a caption. Read it as
+    "3 ל-5": the first term is on the left, as in every equation.
+  - Never `3 : 5` with spaces in Hebrew text: it shows as "5 : 3", the ratio
+    turned round. Inside an isolate it reads right, but write it without
+    spaces there too.
+  - Equal ratios and every ratio with x go in an isolate, like any equation:
+    `⁦3:4 = x:12⁩`. A missing term is solved with the product of the outer
+    terms and the inner terms (`3 × 12 = 4 × x`), an equation of chapter 11.
+  - Options are bare ratios (`3:5`), numbers or fractions; a question about
+    which ratios are equal has exactly one option equal to the given ratio.
+  - `scripts/checks/topic111.js` enforces these rules on every text field.
 
 ## Exercises
 
