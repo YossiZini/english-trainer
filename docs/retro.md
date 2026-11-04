@@ -1487,3 +1487,105 @@ Result: 5 PRs (#88–#92), all merged, each deployed green on the first run.
 - Carried from Sprint 18: the review agent should see the picture, watch the
   photo resend, and the owner's live check of `math 21`. Older carried
   items stand.
+
+## Sprint 20 — Decimals, ratio and linear functions (2026-11-03 → 2026-11-04)
+
+Goal: three new math chapters, decimals (4), ratio and proportion (12) and
+linear functions (13). Every lesson has a picture for each rule, 30 computed
+questions and an independent check.
+Result: 3 PRs (#94–#96), all merged and deployed green, plus this close.
+- **#94:** decimals, 4 lessons (topic 110). Exact decimal helpers, four new
+  pictures, and the `oneLine` fix for equations that hold a stacked fraction.
+  It also added `reading-order-check.js` to the repository.
+- **#95:** ratio and proportion, 3 lessons (topic 111). The bar model and
+  the ratio table.
+- **#96:** linear functions, 3 lessons (topic 112). Whole lines on the grid
+  and tables of values. Every picture question fits a phone even when it is
+  first in a session.
+
+### What went well
+- **Rules before lessons, three times.** Decimals, ratios and `y = mx + b`
+  were each measured in Chromium (18 to 40 cases) and written into the guide
+  before the chapter. Measuring also found something new: "את x, m, הוא"
+  shows m first to a reader from the right. Two bare letters with only
+  punctuation between them join into one left-to-right run.
+- **The checks did their job.**
+  - `topic110.js`, `topic111.js` and `topic112.js` recompute every answer
+    from the question's words, with their own exact arithmetic.
+  - They read the pictures back: `topic112.js` reads each line from the two
+    ends of its pixels.
+  - Their planted faults (39, 32 and 42) were all caught.
+  - They found real faults before review: a wrong equation in a 110.4
+    warning, and five explanations that started with an isolate.
+- **Identity by id after every regeneration.** No record outside the new
+  chapters ever changed. Moving `ratioTable` onto a shared drawing
+  (`twoRowTable`) was proven byte-identical.
+- **A carried follow-up landed.** The reading-order measurement on the real
+  pages now lives in the repository (`frontend/scripts/reading-order-check.js`,
+  with `serve-build.js`). It ran on all three chapters and in the bot's
+  messages: 5,443 runs for chapter 12 and 4,104 for chapter 13.
+
+### What hurt
+- **Picture questions were measured where they happened to fall.** The
+  first question of a session sits under the lesson header, with 33–58 px
+  less room. The fit tool measured each question wherever the page was
+  scrolled. 11 chapter 13 questions failed only as the first question; this
+  showed up late, in the last task, and they were reworded or given 5-unit
+  grids.
+- **The review found a content bug the checks missed.** 110.2 q23's
+  explanation table showed three of the four numbers it ordered
+  (`slice(0, 3)` in `orderQ`). `topic110.js` compared the caption with the
+  table, never the answer with the table. The check now does both.
+- **Helpers were copied again.** `functions/common.js` wrote its own
+  `pointQ` (without the "at least three options" guard), `glue` and `gcd`.
+  `ratio/common.js` wrote `wrongsOf`, which is `firstWrongs`. Sprint 19's rule
+  covered moving a chapter's own earlier lessons onto a shared helper, not
+  looking for one before writing a new helper.
+- **Edits through heredocs, against Sprint 18's rule.** Many file edits went
+  through Python heredocs with escaped anchors. They missed whenever the file
+  held a literal no-break space, and one script stopped halfway, so the
+  edits had to be redone.
+- **A stacked fraction breaks an equation on a phone.** Decimals fixed it
+  per chapter (`oneLine`). The Fractions chapter (101) still breaks 58 runs
+  at 360/390 px on main.
+- **GitHub's PR #95 kept an old head.** "Head branch is out of date" blocked
+  the merge until an empty re-sync commit, pushed on the owner's OK.
+
+### Lessons → rules
+- Measure a question with its own picture as the first question of a
+  session: scrolled to the top, under the lesson header, at 360, 390 and
+  1366 px. Its question fits on one line (about 38 characters) or its grid
+  is at most 5 units high (refines "budget its height at 360, 390 and
+  1366 px").
+- Before writing a helper, search the shared modules for one that does the
+  job (`multiplication/common.js`, `axes/common.js`, `ratio/common.js`,
+  `math-helpers.js`, `math-svg.js`). Import it; never copy it (refines
+  "leave no local copies").
+- A picture that explains an answer shows every value the answer names, and
+  the topic's check compares the picture with the answer, not only with its
+  caption.
+- Edit files with the Edit tool. A Python or Bash heredoc that edits files is
+  an inline script (Sprint 18's rule). When an anchor holds no-break spaces
+  or isolates, edit by line number in a script file.
+- When GitHub's PR head does not match the pushed branch, tell the owner
+  both SHAs. Push an empty re-sync commit only when they agree.
+
+### Follow-ups
+- **Keep an equation with a fraction on one line, everywhere, at the
+  stacking step.** `stackFractions` (`backend/src/database/seeds/math-helpers.js:35`)
+  could mark the enclosing `<span dir="ltr">` `math-line` when it inserts a
+  fraction. That would fix the Fractions chapter's 58 broken runs on phones
+  and drop the per-chapter `oneLine` flag
+  (`multiplication/common.js:187`).
+- **Arrowheads without shared ids.** `placeValue` and `twoRowTable` repeat
+  `<marker id="pv-head">`/`"rt-head"` in every SVG
+  (`math-svg.js:768`, `:888`). Draw the heads as paths, as `coordGrid` does,
+  so two pictures on one page never share an id.
+- **Move the browser checks into the repository, still carried.** The
+  worst-case picture fit (scrolled to the top) and the planted-fault
+  harnesses of `topic110.js`–`topic112.js` live only in a session's
+  scratchpad. Suggested homes: `frontend/scripts/picture-fit-check.js`, and
+  `backend/scripts/checks/plant/`.
+- Carried: run every `scripts/checks/topic*.js` in CI, the bot's isolation
+  by the absence of right-to-left letters, and `numberQuestion` onto
+  `optionsQuestion`. Older carried items stand.
