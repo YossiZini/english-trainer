@@ -271,7 +271,12 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     // Topic 111: Ratio and proportion (Math, chapter 12)
     '111.1': [ltr('12:18 = 2:3'), 'הסדר חשוב'],
     '111.2': [ltr('3 + 5 = 8'), ltr('40 ÷ 8 = 5')],
-    '111.3': [ltr('3:4 = x:12'), ltr('3 × 12 = 4 × x')]
+    '111.3': [ltr('3:4 = x:12'), ltr('3 × 12 = 4 × x')],
+
+    // Topic 112: Linear functions (Math, chapter 13)
+    '112.1': [ltr('y = 2x + 1'), ltr('(2, 5)')],
+    '112.2': ['שיפוע', ltr('y = mx + b')],
+    '112.3': [ltr('0 = 2x − 6'), 'מונית: 10 ₪ ועוד 3 ₪ לקילומטר']
   };
 
   return subtopicExamples[key] || [];
@@ -309,7 +314,8 @@ const mathTopicNames = {
   107: { en: 'The x and y Axes', he: 'מערכת צירים' },
   108: { en: 'Triangles', he: 'משולשים' },
   109: { en: 'Equations with One Unknown', he: 'משוואה עם נעלם אחד' },
-  111: { en: 'Ratio and Proportion', he: 'יחס ופרופורציה' }
+  111: { en: 'Ratio and Proportion', he: 'יחס ופרופורציה' },
+  112: { en: 'Linear Functions', he: 'פונקציה קווית' }
 };
 
 const mathTocExamples = {
@@ -324,7 +330,8 @@ const mathTocExamples = {
   107: '(ציר x וציר y, שיעורי נקודה, סימון נקודות)',
   108: '(סוגי משולשים, סכום הזוויות, היקף ושטח)',
   109: '(מהו נעלם, שומרים על איזון, שני צעדים, נעלם בשני האגפים, סוגריים, בעיות מילוליות)',
-  111: '(מהו יחס, חלוקה לפי יחס, פרופורציה ואיבר חסר)'
+  111: '(מהו יחס, חלוקה לפי יחס, פרופורציה ואיבר חסר)',
+  112: '(מכלל לטבלה ולישר, שיפוע, חיתוך עם הצירים וסיפורים)'
 };
 
 // Math expressions inside Hebrew text keep their left-to-right order when
@@ -379,6 +386,10 @@ const mathTopicDescriptions = {
   111: {
     description: 'יחס משווה בין שתי כמויות: כותבים אותו כמו 3:5, הסדר חשוב, ומצמצמים אותו כמו שבר. מחלקים כמות לפי יחס, ומוצאים איבר חסר בפרופורציה: מחיר ליחידה, מתכונים וקנה מידה.',
     examples: [ltr('12:18 = 2:3'), `40 ביחס 3:5: ${ltr('15 + 25 = 40')}`, ltr('3:4 = 9:12')]
+  },
+  112: {
+    description: `כלל כמו ${ltr('y = 2x + 1')} נותן לכל x ערך y: מהכלל בונים טבלה, הנקודות שלה נמצאות על ישר אחד, ומהישר קוראים בחזרה את הכלל. השיפוע אומר בכמה y גדל כש-x גדל ב-1, ונקודת החיתוך עם ציר ה-y היא הערך כש-x הוא 0. בסוף: איפה הישר חותך את הצירים, וסיפורים כמו מונית או נר שנשרף.`,
+    examples: [`כש-${ltr('x = 2')}, ${ltr('y = 2 × 2 + 1 = 5')}`, `ב-${ltr('y = 3x − 2')} השיפוע 3`, `הישר ${ltr('y = −2x + 6')} חותך את ציר ה-x ב-${ltr('(3, 0)')}`]
   }
 };
 
@@ -435,10 +446,11 @@ const topicMeta = {
     // right after the multiplication table, decimals (110) right after
     // fractions; negative numbers (106), graphs on the x and y axes (107),
     // triangles (108) and equations (109) come after percentage, as chapters
-    // 8–11, and ratio and proportion (111) after them, as chapter 12 (a chapter
-    // shows once it has lessons). The same list orders lessons in
-    // the API (backend/src/config/subjects.js MATH_CHAPTER_ORDER).
-    topicOrder: [100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109, 111],
+    // 8–11, ratio and proportion (111) after them, as chapter 12, and linear
+    // functions (112) last, as chapter 13 (a chapter shows once it has
+    // lessons). The same list orders lessons in the API
+    // (backend/src/config/subjects.js MATH_CHAPTER_ORDER).
+    topicOrder: [100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109, 111, 112],
     topicNames: mathTopicNames,
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,

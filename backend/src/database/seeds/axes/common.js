@@ -92,4 +92,4 @@ const named = (coords, opts = {}) => coords.map(([x, y], i) => ({ x, y, label: '
 /** A lesson object with the shared fields of topic 107: after negative numbers (1061…); triangles are 1081…. */
 const lesson = (...args) => mathLesson({ topic: 107, order: 1070, options: 'letters', noQuote: true }, ...args);
 
-module.exports = { ltr, P, S, pair, at, num, eq, QUARTERS, quarterOf, walk, grid, gridPic, named, pointQ, intQ, choiceQ, quarterQ, lesson };
+module.exports = { ltr, P, S, pair, at, num, eq, spans, QUARTERS, quarterOf, walk, grid, gridPic, named, pointQ, intQ, choiceQ, quarterQ, lesson };
