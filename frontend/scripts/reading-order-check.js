@@ -6,7 +6,7 @@
  * level) of the given lessons, answers every question and opens its feedback,
  * and measures where each character is drawn (Range.getClientRects): every
  * isolate (LRI…PDI), every <span dir="ltr">, every option without letters and
- * every decimal number must stay on one line and read left to right. A
+ * every decimal number and ratio must stay on one line and read left to right. A
  * stacked fraction counts as one token. With BOT_MESSAGES (a JSON list of
  * { where, text }, the bot's messages) it measures each line of each message
  * in a dir="auto" line, as Telegram shows it.
@@ -124,12 +124,12 @@ function measure(selector) {
       count++;
       check(tokens(opt), 'option', problems);
     }
-    // Every decimal number, wherever it stands.
+    // Every decimal number and every ratio (3:5, 1.5:2), wherever it stands.
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
       if (node.parentElement.closest('svg')) continue;
-      for (const m of node.data.matchAll(/\d+\.\d+/g)) {
+      for (const m of node.data.matchAll(/\d+(?:[.:]\d+)+/g)) {
         const list = [];
         for (let i = m.index; i < m.index + m[0].length; i++) { const rect = charRect(node, i); if (rect) list.push({ ch: node.data[i], rect }); }
         count++;
