@@ -266,7 +266,12 @@ const getSubtopicExamples = (topicNumber, subtopicNumber) => {
     '109.4': [ltr('2x + 3 = 11'), ltr('2x = 8')],
     '109.5': [ltr('3x + 2 = x + 10'), ltr('2x + 2 = 10')],
     '109.6': [ltr('2(x + 3) = 14'), ltr('3x + 2x = 5x')],
-    '109.7': ['נסמן ב-x', ltr('x + x + 4 = 20')]
+    '109.7': ['נסמן ב-x', ltr('x + x + 4 = 20')],
+
+    // Topic 111: Ratio and proportion (Math, chapter 12)
+    '111.1': [ltr('12:18 = 2:3'), 'הסדר חשוב'],
+    '111.2': [ltr('3 + 5 = 8'), ltr('40 ÷ 8 = 5')],
+    '111.3': [ltr('3:4 = x:12'), ltr('3 × 12 = 4 × x')]
   };
 
   return subtopicExamples[key] || [];
@@ -303,7 +308,8 @@ const mathTopicNames = {
   106: { en: 'Negative Numbers', he: 'מספרים שליליים' },
   107: { en: 'The x and y Axes', he: 'מערכת צירים' },
   108: { en: 'Triangles', he: 'משולשים' },
-  109: { en: 'Equations with One Unknown', he: 'משוואה עם נעלם אחד' }
+  109: { en: 'Equations with One Unknown', he: 'משוואה עם נעלם אחד' },
+  111: { en: 'Ratio and Proportion', he: 'יחס ופרופורציה' }
 };
 
 const mathTocExamples = {
@@ -317,7 +323,8 @@ const mathTocExamples = {
   106: '(ישר המספרים, חיבור וחיסור, כפל וחילוק)',
   107: '(ציר x וציר y, שיעורי נקודה, סימון נקודות)',
   108: '(סוגי משולשים, סכום הזוויות, היקף ושטח)',
-  109: '(מהו נעלם, שומרים על איזון, שני צעדים, נעלם בשני האגפים, סוגריים, בעיות מילוליות)'
+  109: '(מהו נעלם, שומרים על איזון, שני צעדים, נעלם בשני האגפים, סוגריים, בעיות מילוליות)',
+  111: '(מהו יחס, חלוקה לפי יחס, פרופורציה ואיבר חסר)'
 };
 
 // Math expressions inside Hebrew text keep their left-to-right order when
@@ -368,6 +375,10 @@ const mathTopicDescriptions = {
   109: {
     description: 'מהו נעלם: מספר שמסתתר בקופסה, אות במקומו, ומשוואה כמו מאזניים מאוזנים. פותרים צעד אחרי צעד, ועושים אותו דבר לשני האגפים: חיבור וחיסור, כפל וחילוק, משוואות בשני צעדים, נעלם בשני האגפים וסוגריים, ובסוף בודקים. בשיעור האחרון הופכים סיפור למשוואה ופותרים אותו.',
     examples: [`הפתרון של ${ltr('x + 5 = 12')} הוא 7`, `מורידים 5 משני האגפים: ${ltr('x = 7')}`, `בדיקה: ${ltr('3 × 4 = 12')}`]
+  },
+  111: {
+    description: 'יחס משווה בין שתי כמויות: כותבים אותו כמו 3:5, הסדר חשוב, ומצמצמים אותו כמו שבר. מחלקים כמות לפי יחס, ומוצאים איבר חסר בפרופורציה: מחיר ליחידה, מתכונים וקנה מידה.',
+    examples: [ltr('12:18 = 2:3'), `40 ביחס 3:5: ${ltr('15 + 25 = 40')}`, ltr('3:4 = 9:12')]
   }
 };
 
@@ -424,9 +435,10 @@ const topicMeta = {
     // right after the multiplication table, decimals (110) right after
     // fractions; negative numbers (106), graphs on the x and y axes (107),
     // triangles (108) and equations (109) come after percentage, as chapters
-    // 8–11 (a chapter shows once it has lessons). The same list orders lessons in
+    // 8–11, and ratio and proportion (111) after them, as chapter 12 (a chapter
+    // shows once it has lessons). The same list orders lessons in
     // the API (backend/src/config/subjects.js MATH_CHAPTER_ORDER).
-    topicOrder: [100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109],
+    topicOrder: [100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109, 111],
     topicNames: mathTopicNames,
     tocExamples: mathTocExamples,
     topicDescriptions: mathTopicDescriptions,
