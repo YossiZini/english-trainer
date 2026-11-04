@@ -137,17 +137,20 @@ describe('API', () => {
   test('Math lessons are ordered by subtopic and navigate across topics', async () => {
     const math = await request(app).get('/api/lessons?subject=math').set(auth());
     const numbers = math.body.data.flatMap(t => t.lessons.map(l => l.subtopicNumber));
-    // The multiplication table (topic 100) comes first, then Division (105), then Fractions.
-    expect(numbers.slice(0, 14)).toEqual(['100.1', '100.2', '100.3', '105.1', '105.2', '105.3', '105.4',
-      '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '102.1']);
+    // The multiplication table (topic 100) comes first, then Division (105), Fractions and Decimals (110).
+    expect(numbers.slice(0, 18)).toEqual(['100.1', '100.2', '100.3', '105.1', '105.2', '105.3', '105.4',
+      '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '110.1', '110.2', '110.3', '110.4', '102.1']);
 
-    const [table, division, fractions, order] = math.body.data;
-    expect([table, division, fractions, order].map(t => t.topicNumber)).toEqual([100, 105, 101, 102]);
+    const [table, division, fractions, decimals, order] = math.body.data;
+    expect([table, division, fractions, decimals, order].map(t => t.topicNumber)).toEqual([100, 105, 101, 110, 102]);
     const last = fractions.lessons[5];
     const detail = await request(app).get(`/api/lessons/${last.id}`).set(auth());
     expect(detail.status).toBe(200);
-    expect(detail.body.data.navigation.next.id).toBe(order.lessons[0].id);
+    expect(detail.body.data.navigation.next.id).toBe(decimals.lessons[0].id);
     expect(detail.body.data.navigation.previous.id).toBe(fractions.lessons[4].id);
+    // From the last Decimals lesson on to Order of operations.
+    const decimalsEnd = await request(app).get(`/api/lessons/${decimals.lessons[3].id}`).set(auth());
+    expect(decimalsEnd.body.data.navigation.next.id).toBe(order.lessons[0].id);
 
     // From the last multiplication-table lesson on to Division, and from Division on to Fractions.
     const tableEnd = await request(app).get(`/api/lessons/${table.lessons[2].id}`).set(auth());

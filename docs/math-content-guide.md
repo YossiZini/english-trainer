@@ -10,8 +10,8 @@ explanations. Short by design; the code it points to is the reference.
 | Topic seed (one lesson) | `backend/src/database/seeds/topic1NN-<name>.js` exporting `{ lessonsData }` |
 | Topic with subtopics | folder `seeds/<topic>/` with one file per subtopic, composed by `topic1NN-<name>.js` (see `seeds/fractions/`) |
 | Text helpers | `seeds/math-helpers.js`: `ltr`, `expr`, `mc`, `fib`, `stackFractions` |
-| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `coordGrid` (x and y axes: named `points` with dashed `guide`s, `lines` with arrows and labels, `texts`; `scale`), `triangle` (to shape from `angles`, `sides` or `base` and `apex`: `angleLabels`, `sideLabels`, `ticks`, `height`, `box`; `scale`), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures`; `balance` (a balance scale for equations: boxes for the unknown `'x'`/`{ box: '?' }`, weights `5`, unit cubes `{ units: 4 }`, bags `{ bag: [...] }` for parentheses, `crossed: true` for what leaves both pans, `groups` rings in equal parts, `tilt` toward the heavier pan; every pan and item carries `data-*` for the checks) |
-| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); shared by the chapters from the multiplication table on: `seeds/multiplication/common.js` (`ltr`, `mcq`, `pic`, `glue`, `glueEquations`, `eq`, `withQuestionPicture`, `optionsQuestion`, and `mathLesson`, the one lesson builder: 10 questions per level, glued equations, and per chapter the option check `options: 'digits'`/`'letters'` and `noQuote` (`true`: no quote mark at all; `'units'`: none inside a Hebrew word)); per chapter `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`), `seeds/axes/common.js` (`pair`, `at`, `pointQ` with the swapped and sign-flipped points as wrong options, `quarterQ`, `grid`, `gridPic`), `seeds/triangles/common.js` (`deg`, `ang`, `numQ`, `degQ`, `triPic`, `triFig`), `seeds/equations/common.js` (`lin` writes a·x + b as 3x + 2, `eqn`, `solve` refuses an equation without one whole solution, `numQ`, `pans` turns an equation into balance items (`take` cubes and `takeX` boxes struck on both pans), `balFig`/`balPic`, `steps` the explanation of any linear equation (the smaller x off both sides, then the number, then the division) with its check in the equation as written, `plug`/`putIn` that check, `checkQ` is x = s the solution, `by` a negative divisor in its isolate, `xs` kx as written) |
+| Pictures | `seeds/math-svg.js`: `circle`, `bar`, `numberLine`, `integerLine` (whole numbers with negatives: `points`, `hops` as arrows, `flat` equal hops on one level, `labelEvery` to label only the hop ends), `coordGrid` (x and y axes: named `points` with dashed `guide`s, `lines` with arrows and labels, `texts`; `scale`), `triangle` (to shape from `angles`, `sides` or `base` and `apex`: `angleLabels`, `sideLabels`, `ticks`, `height`, `box`; `scale`), `grid`, `array` (dots in rows × columns), `groups` (equal groups; `leftover` dots in the second colour after them, `across` groups per row), `longDivision` (the written steps), `row`, `figure`, `figures`; `balance` (a balance scale for equations: boxes for the unknown `'x'`/`{ box: '?' }`, weights `5`, unit cubes `{ units: 4 }`, bags `{ bag: [...] }` for parentheses, `crossed: true` for what leaves both pans, `groups` rings in equal parts, `tilt` toward the heavier pan; every pan and item carries `data-*` for the checks); for decimals `hundredGrid` (`count` of 100 cells shaded column by column, so a column is a tenth; `parts: 10` for ten columns; `extra` cells in the second colour), `decimalLine` (`from`/`to` as text, a tick every 10^−`places`, at most 20; `labelEvery`; `points` with `at`, `label`, `color`), `placeValue` (a row per number under place headers; `mark` shades a place, `move` draws each digit's move for × and ÷ 10, 100, 1000) and `columnCalc` (`top`, `op` + or −, `bottom`, `result` with the points lined up and the filled zeros in the second colour); each carries `data-*` for the checks |
+| Exact arithmetic + lesson builders | `seeds/fractions/rat.js`, `seeds/fractions/common.js` (`mcq`, `fibR`, `lesson`); shared by the chapters from the multiplication table on: `seeds/multiplication/common.js` (`ltr`, `mcq`, `pic`, `glue`, `glueEquations`, `eq`, `withQuestionPicture`, `optionsQuestion`, and `mathLesson`, the one lesson builder: 10 questions per level, glued equations, and per chapter the option check `options: 'digits'`/`'letters'` and `noQuote` (`true`: no quote mark at all; `'units'`: none inside a Hebrew word)); per chapter `seeds/division/common.js`, `seeds/negatives/common.js` (`S` signed number with U+2212, `op` with a negative term in parentheses, `intQ`, `choiceQ`, `linePic`), `seeds/axes/common.js` (`pair`, `at`, `pointQ` with the swapped and sign-flipped points as wrong options, `quarterQ`, `grid`, `gridPic`), `seeds/triangles/common.js` (`deg`, `ang`, `numQ`, `degQ`, `triPic`, `triFig`), `seeds/equations/common.js` (`lin` writes a·x + b as 3x + 2, `eqn`, `solve` refuses an equation without one whole solution, `numQ`, `pans` turns an equation into balance items (`take` cubes and `takeX` boxes struck on both pans), `balFig`/`balPic`, `steps` the explanation of any linear equation (the smaller x off both sides, then the number, then the division) with its check in the equation as written, `plug`/`putIn` that check, `checkQ` is x = s the solution, `by` a negative divisor in its isolate, `xs` kx as written), `seeds/decimals/common.js` (`D` a decimal as BigInt millionths, so `add`, `sub`, `mul`, `div`, `shift`, `round` are exact and refuse what does not end; `str` writes the lessons' way, `places` for money; wrong options `pointWrongs`, `addWrongs`, `subWrongs`, `mulWrongs`; `decQ`, `choiceQ`) |
 | Names, TOC line, descriptions, subtopic examples (an equation is wrapped in `ltr()`) | `frontend/src/content/topicMeta.js` |
 | Registration | `subjectFiles.math` in `backend/src/data/generateJsonData.js` |
 | Status and activity log (required by CLAUDE.md) | `docs/topics-status.md` |
@@ -20,12 +20,13 @@ Numbering: topics `100+`, shown as chapters `1+` in curriculum order, which
 is not the order of the numbers: `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` (lesson order, next lesson) and `topicOrder`
 in `topicMeta.js` (chapter numbers on screen) list them, and must stay equal
-(the multiplication table 100, Division 105, Fractions 101, then 102–104,
-Negative numbers 106, the axes 107, triangles 108). A new topic takes the
+(the multiplication table 100, Division 105, Fractions 101, Decimals 110,
+then 102–104, Negative numbers 106, the axes 107, triangles 108, equations
+109). A new topic takes the
 next free number and its place in both lists. Subtopics
-`'101.3'`, `orderIndex` `1000 + topic offset` (Fractions 1001–1006, Order of
-operations 1021, …; before them the multiplication table 991–993 and
-Division 994–997).
+`'101.3'`, `orderIndex` `1000 + topic offset` (Fractions 1001–1006, Decimals
+1011–1014, Order of operations 1021, …; before them the multiplication table
+991–993 and Division 994–997).
 Lesson ids are preserved by `topic/subtopic`, so renaming a subtopic key
 creates a new lesson and orphans progress.
 
@@ -88,6 +89,34 @@ creates a new lesson and orphans progress.
   - A negative x put into an expression goes in parentheses (`3 × (−2) + 1`),
     except first or right after "(" (`−3 + 1`, `2 × (−5 + 7)`).
   - `scripts/checks/topic109.js` enforces these rules on every text field.
+- **Decimal numbers** (chapter 4; measured in Chromium in a right-to-left
+  paragraph, a `dir="auto"` caption or bot line, and an option box, before
+  the chapter was built):
+  - A decimal has a point and a leading zero: `0.5`, never `.5` (it shows
+    as "5." in Hebrew text) and never `0,5`.
+  - A positive decimal needs no isolate in Hebrew text. "המספר 0.45 קטן
+    מ-0.5." reads in order, and so does a decimal at the end of a sentence,
+    before a comma or a colon, after a prefix (ב-0.5) and beside a stacked
+    fraction. An expression with an operator, `=` or `≈` still goes in its
+    isolate (`ltr()`, `eq()`); a negative decimal too, as every negative
+    number.
+  - A unit or ₪ is Hebrew text after the number, outside the isolate:
+    "2.50 ₪", "2.5 ס״מ", "⁦2.5 + 1.75 = 4.25⁩ ₪". Inside an isolate the ₪
+    moves to the other side of the number.
+  - Options are bare decimals (`2.5`, not `2.5 ₪`): the question names the
+    unit. Options differ by value, so `0.5` and `0.50` are one answer, never
+    two options.
+  - A list in Hebrew text reads right to left, the first number on the
+    right ("0.5, 0.45 ו-0.405", as in the average chapter); inside an
+    isolate it reads left to right. Ask for an order with a chain of
+    comparisons (`0.405 < 0.45 < 0.5`), which reads the same in every box
+    and in the bot; never with a bare list as an option.
+  - Trailing zeros only where the lesson is about them (`0.5 = 0.50`) or for
+    money (`2.50`).
+  - Never put a decimal over a fraction bar (`2.5/10` is not stacked): write
+    `25/100`. Stacking leaves decimals alone (`0.25 = 25/100` stacks only
+    `25/100`; `1.25 = 1 1/4` stacks the mixed number).
+  - `scripts/checks/topic110.js` enforces these rules on every text field.
 
 ## Exercises
 
@@ -95,7 +124,13 @@ creates a new lesson and orphans progress.
   questions; fewer gets padded from other levels). `mathLesson()` enforces
   this. A new chapter's `lesson` is one line: `(...args) => mathLesson({ topic,
   order, options: 'letters', noQuote: true }, ...args)`; `mathLesson` refuses
-  a misspelt `options` or `noQuote`. The question builders of chapters 7–10
+  a misspelt `options`, `noQuote` or `oneLine`. A chapter whose equations
+  hold stacked fractions (decimals: `0.7 = 7/10`) sets `oneLine: true`: its
+  theory and caption spans get `class="math-line"`, which the website keeps
+  on one line, and `MathText` keeps a glued isolate with a fraction on one
+  line. A browser breaks a line right next to a stacked fraction even before
+  a no-break space (measured at 360 and 390 px), so glue alone does not hold
+  such an equation together. The question builders of chapters 7–10
   go through `optionsQuestion`, which takes pictures as an options object
   (`{ picture, question }`) and refuses a picture passed in its place;
   chapters 1–2's `numberQuestion` still takes a positional picture.
@@ -226,4 +261,11 @@ creates a new lesson and orphans progress.
 4. Screenshot the learn page and one exercise per level at 1366×768 and
    360×740 (Playwright; see `docs/screenshots/sprint-3` for the expected look);
    for an animated lesson run `scripts/animation-check.js`.
-5. Update `docs/topics-status.md` (table row + activity log entry).
+5. Measure the reading order: `TOPICS=<n> node scripts/reading-order-check.js`
+   in `frontend/` (build, API on :5000) walks the learn page and every
+   question with its feedback at 1366/390/360 px; every isolate, equation
+   span, letterless option and decimal must read left to right on one line,
+   inside its box. `BOT_MESSAGES=<json>` measures the bot's messages too
+   (a list of `{ where, text }` built with the bot's `question_reply` and
+   `verdict_text`).
+6. Update `docs/topics-status.md` (table row + activity log entry).

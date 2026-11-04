@@ -183,17 +183,18 @@ For each topic, these assets must exist:
 Math lessons live in the same content files with `subject: "math"` and are
 numbered 100+. On the `/math` page and in the lesson order they appear in
 curriculum order, chapters 1+: the multiplication table (100), Division (105),
-Fractions (101), then 102–104, then Negative numbers (106), the x and y
+Fractions (101), Decimals (110), then 102–104, then Negative numbers (106), the x and y
 axes (107), Triangles (108) and Equations with one unknown (109). The order is `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
 them equal); a new topic number goes where it belongs in both lists. A topic
 with several subtopics keeps them in a folder (`seeds/fractions/`,
-`seeds/multiplication/`, `seeds/division/`, `seeds/negatives/`, `seeds/axes/`, `seeds/triangles/`) and composes them in
+`seeds/multiplication/`, `seeds/division/`, `seeds/decimals/`, `seeds/negatives/`, `seeds/axes/`, `seeds/triangles/`) and composes them in
 `topic1NN-*.js`; write fractions as `a/b` in text and
 theory, the app shows them stacked (`MathText` for exercise text,
 `stackFractions` for theory HTML). Pictures for theory come from
 `seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `integerLine`,
-`coordGrid`, `triangle`, `grid`, `array`, `groups`, `longDivision`, `figure`). A
+`coordGrid`, `triangle`, `grid`, `array`, `groups`, `longDivision`, `hundredGrid`,
+`decimalLine`, `placeValue`, `columnCalc`, `figure`). A
 question that needs a picture to be answered carries it as
 `questionPicture` (`question_picture`, shown between the question and its
 options; the Telegram bot sends it as a PNG photo, so after a picture
@@ -212,13 +213,14 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 100 | Multiplication Table (3 subtopics 100.1–100.3) | לוח הכפל | topic100-multiplication.js + multiplication/*.js | Yes | Yes | Complete |
 | 105 | Division (4 subtopics 105.1–105.4, shown as chapter 2) | חילוק | topic105-division.js + division/*.js | Yes | Yes | Complete |
 | 101 | Fractions (6 subtopics 101.1–101.6) | שברים | topic101-fractions.js + fractions/*.js | Yes | Yes | Complete |
-| 102 | Order of Operations | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
-| 103 | Average | ממוצע | topic103-average.js | Yes | Yes | Complete |
-| 104 | Percentage | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
-| 106 | Negative Numbers (3 subtopics 106.1–106.3, shown as chapter 7) | מספרים שליליים | topic106-negatives.js + negatives/*.js | Yes | Yes | Complete |
-| 107 | The x and y Axes (2 subtopics 107.1–107.2, shown as chapter 8) | מערכת צירים | topic107-axes.js + axes/*.js | Yes | Yes | Complete |
-| 108 | Triangles (3 subtopics 108.1–108.3, shown as chapter 9) | משולשים | topic108-triangles.js + triangles/*.js | Yes | Yes | Complete |
-| 109 | Equations with One Unknown (7 subtopics 109.1–109.7, shown as chapter 10) | משוואה עם נעלם אחד | topic109-equations.js + equations/*.js | Yes | Yes | Complete |
+| 110 | Decimals (4 subtopics 110.1–110.4, shown as chapter 4) | שברים עשרוניים | topic110-decimals.js + decimals/*.js | Yes | Yes | Complete |
+| 102 | Order of Operations (shown as chapter 5) | סדר פעולות חשבון | topic102-order-of-operations.js | Yes | Yes | Complete |
+| 103 | Average (shown as chapter 6) | ממוצע | topic103-average.js | Yes | Yes | Complete |
+| 104 | Percentage (shown as chapter 7) | אחוזים | topic104-percentage.js | Yes | Yes | Complete |
+| 106 | Negative Numbers (3 subtopics 106.1–106.3, shown as chapter 8) | מספרים שליליים | topic106-negatives.js + negatives/*.js | Yes | Yes | Complete |
+| 107 | The x and y Axes (2 subtopics 107.1–107.2, shown as chapter 9) | מערכת צירים | topic107-axes.js + axes/*.js | Yes | Yes | Complete |
+| 108 | Triangles (3 subtopics 108.1–108.3, shown as chapter 10) | משולשים | topic108-triangles.js + triangles/*.js | Yes | Yes | Complete |
+| 109 | Equations with One Unknown (7 subtopics 109.1–109.7, shown as chapter 11) | משוואה עם נעלם אחד | topic109-equations.js + equations/*.js | Yes | Yes | Complete |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -246,7 +248,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 9 math topics (100–108), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 11 math topics (100–110), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -376,6 +378,39 @@ Track changes per topic with dates and descriptions.
   were reversed in the right-to-left caption ("340 = 4 × 85"); the player
   now isolates them, each on one line. Content unchanged. Sprint 17.
 
+### Topic 110: Decimals (Math)
+- 2026-11-03: New topic, chapter 4 of Math (right after Fractions), in four
+  lessons: 110.1 tenths and hundredths (place value, a fraction of 10 or 100
+  and back, widening 1/2, 1/4, 3/4 and 3/20, zeros at the end), 110.2
+  comparing and rounding (the wholes first, longer is not larger, the number
+  line, ordering asked as a chain of <, rounding to a whole and to a tenth),
+  110.3 adding and subtracting (the points lined up, filled zeros, ten tenths
+  make a whole, subtracting from a whole number, money and length stories),
+  110.4 multiplying and dividing (× and ÷ 10, 100, 1000 move every digit,
+  counting the digits after the point, dividing by a decimal by moving both
+  points). Each a Hebrew teaching document with a picture for every rule and
+  30 multiple-choice questions (10 per level); six are asked on their own
+  hundred square or number line (PNGs for the bot). Pictures: `hundredGrid`,
+  `decimalLine`, `placeValue` and `columnCalc`, new in `math-svg.js`
+  (existing ones untouched), with `grid`, `groups` and `longDivision`.
+  Exact arithmetic on whole numbers and wrong options from the common
+  mistakes (points not lined up, the smaller digit from the larger, 0.3 × 0.2
+  = 0.6, the point moved) come from `seeds/decimals/common.js`. The
+  reading-order rules for decimals were measured and written into the math
+  guide before the lessons. `scripts/checks/topic110.js` re-computes all 120
+  answers with its own exact arithmetic (stories from their words), reads
+  every picture back against its caption and enforces the guide's rules on
+  the raw text (39 planted faults caught); it found three defects, fixed
+  before the PR. Equations that hold a stacked fraction are kept on one line
+  (`oneLine` in `mathLesson`, `math-line` on the website): a browser broke
+  them next to the fraction even before a no-break space. 10,695 runs
+  (isolates, equation spans, options, decimals) read in order on one line on
+  the real pages at 360/390/1366 px and in the bot's messages
+  (`frontend/scripts/reading-order-check.js`); every picture question ends
+  above the pinned bar. Order of operations to Equations show as chapters
+  5–11; every existing lesson and exercise is unchanged (compared by id).
+  Sprint 20.
+
 ### Topic 102: Order of Operations (Math)
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
   nested parentheses, negative results, exponents note) and 30 exercises; every
@@ -387,6 +422,8 @@ Track changes per topic with dates and descriptions.
 - 2026-11-01: The animation captions show their equations in order: they
   were reversed in the right-to-left caption ("340 = 4 × 85"); the player
   now isolates them, each on one line. Content unchanged. Sprint 17.
+- 2026-11-03: Shown as chapter 5: Decimals (topic 110) is chapter 4. Content
+  unchanged (identical by id). Sprint 20.
 
 ### Topic 103: Average (Math)
 - 2026-09-27: Teaching document (sum ÷ count, sum from average, missing value,
@@ -397,6 +434,8 @@ Track changes per topic with dates and descriptions.
 - 2026-11-01: The animation captions show their equations in order: they
   were reversed in the right-to-left caption ("340 = 4 × 85"); the player
   now isolates them, each on one line. Content unchanged. Sprint 17.
+- 2026-11-03: Shown as chapter 6: Decimals (topic 110) is chapter 4. Content
+  unchanged (identical by id). Sprint 20.
 
 ### Topic 104: Percentage (Math)
 - 2026-09-27: Teaching document (percent ↔ fraction ↔ decimal, percent of a
@@ -409,6 +448,8 @@ Track changes per topic with dates and descriptions.
 - 2026-11-01: The animation captions show their equations in order: they
   were reversed in the right-to-left caption ("340 = 4 × 85"); the player
   now isolates them, each on one line. Content unchanged. Sprint 17.
+- 2026-11-03: Shown as chapter 7: Decimals (topic 110) is chapter 4. Content
+  unchanged (identical by id). Sprint 20.
 
 ### Topic 106: Negative Numbers (Math)
 - 2026-11-02: New topic, chapter 7 of Math (after percentage): 106.1 negative
@@ -438,6 +479,8 @@ Track changes per topic with dates and descriptions.
   also refuses a Latin letter next to Hebrew, and a quote mark is refused.
   Pictures pass to `intQ`/`choiceQ` as `{ picture }`. Content unchanged
   (identical by id). Sprint 19.
+- 2026-11-03: Shown as chapter 8: Decimals (topic 110) is chapter 4. Content
+  unchanged (identical by id). Sprint 20.
 
 ### Topic 107: The x and y Axes (Math)
 - 2026-11-02: New topic, chapter 8 of Math (after negative numbers): 107.1
@@ -472,6 +515,8 @@ Track changes per topic with dates and descriptions.
 - 2026-11-03: Lessons built by the shared `mathLesson` (`eq` and
   `withQuestionPicture` shared too), which now also refuses a quote mark.
   Content unchanged (identical by id). Sprint 19.
+- 2026-11-03: Shown as chapter 9: Decimals (topic 110) is chapter 4. Content
+  unchanged (identical by id). Sprint 20.
 
 ### Topic 108: Triangles (Math)
 - 2026-11-02: New topic, chapter 9 of Math (after the axes): 108.1 kinds
@@ -505,6 +550,8 @@ Track changes per topic with dates and descriptions.
 - 2026-11-03: Lessons built by the shared `mathLesson` (`eq` and
   `withQuestionPicture` shared too). Content unchanged (identical by id).
   Sprint 19.
+- 2026-11-03: Shown as chapter 10: Decimals (topic 110) is chapter 4. Content
+  unchanged (identical by id). Sprint 20.
 
 ### Topic 109: Equations with One Unknown (Math)
 - 2026-11-03: New topic, chapter 10 of Math (after the triangles), in seven
@@ -570,6 +617,8 @@ Track changes per topic with dates and descriptions.
   was q8's 7 and 15). 16 explanations changed; every id kept. The check now
   enforces the parentheses rule (35 planted faults caught); 777 equations of
   10.1–10.2 read in order on the real pages, 3,838 in the bot's messages.
+- 2026-11-03: Shown as chapter 11: Decimals (topic 110) is chapter 4. Content
+  unchanged (identical by id). Sprint 20.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

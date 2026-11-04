@@ -171,13 +171,20 @@ const QUOTE = { all: /"/, units: /[\u0590-\u05FF]"[\u0590-\u05FF]/ };
  * mixes Hebrew with digits (or with digits or Latin letters); `noQuote`, no
  * quote mark in a question or explanation (units take ״, as in ס״מ), or with
  * `noQuote: 'units'` none inside a Hebrew word.
+ * `oneLine: true` marks every equation span of the theory and the pictures'
+ * captions `class="math-line"`, which the website keeps on one line: a
+ * browser breaks a line right next to a stacked fraction, even before a
+ * no-break space (measured in Chromium at 360 and 390 px), so glue alone does
+ * not hold an equation with a fraction together.
  */
 function mathLesson(chapter, index, titleEn, titleHe, theoryContentHe, exercises) {
-  const { topic, order, options = null, noQuote = false } = chapter;
+  const { topic, order, options = null, noQuote = false, oneLine = false } = chapter;
   const id = `${topic}.${index}`;
   // A misspelt check would turn itself off (noQuote) or fail with a TypeError (options).
   if (options !== null && !MIXED[options]) throw new Error(`${id}: options must be 'digits' or 'letters', not ${JSON.stringify(options)}`);
   if (noQuote !== false && noQuote !== true && !QUOTE[noQuote]) throw new Error(`${id}: noQuote must be true, false or 'units', not ${JSON.stringify(noQuote)}`);
+  if (oneLine !== false && oneLine !== true) throw new Error(`${id}: oneLine must be true or false, not ${JSON.stringify(oneLine)}`);
+  const lines = (html) => (oneLine ? glueEquations(html).replace(/<span dir="ltr">/g, '<span dir="ltr" class="math-line">') : glueEquations(html));
   const byLevel = exercises.reduce((m, e) => ({ ...m, [e.difficulty]: (m[e.difficulty] || 0) + 1 }), {});
   for (const level of ['easy', 'medium', 'hard']) {
     if (byLevel[level] !== 10) throw new Error(`${id} ${titleEn}: ${byLevel[level] || 0} ${level} exercises, expected 10`);
@@ -198,9 +205,9 @@ function mathLesson(chapter, index, titleEn, titleHe, theoryContentHe, exercises
     titleHe,
     level: 'beginner',
     orderIndex: order + index,
-    theoryContentHe: glueEquations(theoryContentHe),
+    theoryContentHe: lines(theoryContentHe),
     exercises: exercises.map((e) =>
-      (e.explanationPicture ? { ...e, explanationPicture: glueEquations(e.explanationPicture) } : e))
+      (e.explanationPicture ? { ...e, explanationPicture: lines(e.explanationPicture) } : e))
   };
 }
 

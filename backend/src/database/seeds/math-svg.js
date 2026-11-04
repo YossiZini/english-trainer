@@ -603,6 +603,197 @@ function balance({ left = [], right = [], tilt = null, groups = {}, scale = 1 } 
   return svg(Math.round(W * scale), Math.round(H * scale), `<g data-balance="1" data-tilt="${tilt || 'level'}">${parts.join('')}</g>`, label, `0 0 ${W} ${f(H)}`, 'math-grid');
 }
 
+// ---------------------------------------------------------------------------
+// Decimals (chapter 4). Each picture carries data-* attributes, so the
+// chapter's check reads back what is drawn.
+
+/** A decimal as a whole number of 10^-places units: units('0.45', 2) = 45; more places than that are refused. */
+function units(s, places) {
+  const m = String(s).match(/^(\d+)(?:\.(\d+))?$/);
+  if (!m || (m[2] || '').length > places) throw new Error(`decimals: ${s} is not a decimal with at most ${places} places`);
+  return Number(m[1]) * 10 ** places + Number((m[2] || '').padEnd(places, '0') || 0);
+}
+/** Back to text, without trailing zeros: text(45, 2) = '0.45', text(40, 2) = '0.4'. */
+function unitsText(u, places) {
+  const whole = Math.floor(u / 10 ** places);
+  const frac = String(u % 10 ** places).padStart(places, '0').replace(/0+$/, '');
+  return places && frac ? `${whole}.${frac}` : String(whole);
+}
+
+/**
+ * A square of 100 cells (10 columns of 10) for hundredths, or of 10 columns
+ * for tenths (`parts: 10`). The first `count` cells are shaded column by
+ * column from the left, so each full column is a tenth; `extra` more cells
+ * follow in the second colour (adding). The square carries data-parts,
+ * data-shaded and data-extra, and every cell data-cell ("a", "b" or "0").
+ */
+function hundredGrid(count, { parts = 100, extra = 0, size = 120 } = {}) {
+  if (parts !== 10 && parts !== 100) throw new Error(`hundredGrid: parts must be 10 or 100, not ${parts}`);
+  if (![count, extra].every((v) => Number.isInteger(v) && v >= 0) || count + extra > parts) {
+    throw new Error(`hundredGrid: ${count} + ${extra} cells do not fit in ${parts}`);
+  }
+  const rows = parts / 10, cw = size / 10, ch = size / rows;
+  const cells = [];
+  for (let c = 0; c < 10; c++) {
+    for (let r = 0; r < rows; r++) {
+      const i = c * rows + r;
+      const kind = i < count ? 'a' : i < count + extra ? 'b' : '0';
+      const fill = kind === 'a' ? SHADE : kind === 'b' ? SHADE_2 : LIGHT;
+      cells.push(`<rect data-cell="${kind}" x="${(c * cw).toFixed(2)}" y="${(r * ch).toFixed(2)}" width="${cw.toFixed(2)}" height="${ch.toFixed(2)}" fill="${fill}" stroke="${LINE}" stroke-width="${rows > 1 ? 0.6 : 1.2}"/>`);
+    }
+  }
+  // The columns (tenths) drawn bolder over the cells, and the outline.
+  const cols = Array.from({ length: 9 }, (_, k) => `<line x1="${((k + 1) * cw).toFixed(2)}" y1="0" x2="${((k + 1) * cw).toFixed(2)}" y2="${size}" stroke="${LINE}" stroke-width="1.4"/>`);
+  const body = `<g data-hundred="1" data-parts="${parts}" data-shaded="${count}" data-extra="${extra}">${cells.join('')}${cols.join('')}<rect x="0" y="0" width="${size}" height="${size}" fill="none" stroke="${LINE}" stroke-width="2"/></g>`;
+  return svg(size, size, body, `${count + extra} מתוך ${parts} חלקים צבועים`, `-1 -1 ${size + 2} ${size + 2}`);
+}
+
+/**
+ * A number line of decimals from `from` to `to` (text: '0', '0.4'), a tick
+ * every 10^-places (places 1: tenths, 2: hundredths), at most 20 ticks. Every
+ * `labelEvery`-th tick (and both ends) is labelled; `points` are marked above
+ * the line ([{ at: '0.45', label, color: 'a' | 'b' }], the label defaults to
+ * the number). Ticks, labels and points carry data-tick, data-label and
+ * data-point.
+ */
+function decimalLine({ from = '0', to = '1', places = 1, points = [], labelEvery = 1, width = 300 } = {}) {
+  const a = units(from, places), b = units(to, places);
+  if (!(b > a) || b - a > 20) throw new Error(`decimalLine: ${from} to ${to} needs 1 to 20 ticks of ${unitsText(1, places)}`);
+  const pad = 18, y = 30, span = width - 2 * pad;
+  const x = (u) => pad + ((u - a) / (b - a)) * span;
+  const parts = [`<line x1="${pad - 6}" y1="${y}" x2="${width - pad + 6}" y2="${y}" stroke="${LINE}" stroke-width="2"/>`];
+  for (let u = a; u <= b; u++) {
+    const labelled = u === a || u === b || (u - a) % labelEvery === 0;
+    const big = u % 10 ** places === 0 || u % 10 === 0;
+    parts.push(`<line data-tick="${unitsText(u, places)}" x1="${x(u).toFixed(1)}" y1="${y - (big ? 9 : 6)}" x2="${x(u).toFixed(1)}" y2="${y + (big ? 9 : 6)}" stroke="${LINE}" stroke-width="${big ? 2 : 1}"/>`);
+    if (labelled) parts.push(`<text data-label="${unitsText(u, places)}" x="${x(u).toFixed(1)}" y="${y + 24}" font-size="11" text-anchor="middle" fill="${LINE}">${unitsText(u, places)}</text>`);
+  }
+  for (const p of points) {
+    const u = units(p.at, places);
+    if (u < a || u > b) throw new Error(`decimalLine: point ${p.at} is off the line`);
+    const color = p.color === 'b' ? SHADE_2 : SHADE;
+    parts.push(`<circle data-point="${unitsText(u, places)}" cx="${x(u).toFixed(1)}" cy="${y}" r="5" fill="${color}" stroke="${LIGHT}" stroke-width="1.5"/>`);
+    parts.push(`<text x="${x(u).toFixed(1)}" y="${y - 12}" font-size="12" font-weight="700" text-anchor="middle" fill="${color}">${esc(p.label ?? unitsText(u, places))}</text>`);
+  }
+  return svg(width, 62, `<g data-line="1" data-from="${unitsText(a, places)}" data-to="${unitsText(b, places)}">${parts.join('')}</g>`, `ישר מספרים מ-${from} עד ${to}`);
+}
+
+const PLACE_NAMES = {
+  thousands: 'אלפים', hundreds: 'מאות', tens: 'עשרות', ones: 'אחדות',
+  tenths: 'עשיריות', hundredths: 'מאיות', thousandths: 'אלפיות'
+};
+const WHOLE_PLACES = ['thousands', 'hundreds', 'tens', 'ones'];
+const FRACTION_PLACES = ['tenths', 'hundredths', 'thousandths'];
+
+/**
+ * A place-value table: a column for each place (hundreds … thousandths, as
+ * many as the numbers need), the point between ones and tenths, and one row
+ * per number in `rows` ('3.45'). `mark` shades one place's column
+ * ('tenths'); `move` draws an arrow from each digit of the first row to its
+ * place in the second, `move` columns to the left (× 10, × 100) or right
+ * (÷, a negative `move`). Digits carry data-row, data-place and data-digit;
+ * the point data-point.
+ */
+function placeValue(rows, { mark = null, move = null, scale = 1 } = {}) {
+  const nums = rows.map((r) => {
+    const m = String(r).match(/^(\d{1,4})(?:\.(\d{1,3}))?$/);
+    if (!m) throw new Error(`placeValue: ${r} is not a decimal with at most 4 whole digits and 3 after the point`);
+    return { whole: m[1], frac: m[2] ?? null };
+  });
+  const nw = Math.max(...nums.map((n) => n.whole.length));
+  const nf = Math.max(0, ...nums.map((n) => (n.frac || '').length));
+  const places = [...WHOLE_PLACES.slice(4 - nw), ...FRACTION_PLACES.slice(0, nf)];
+  if (mark && !places.includes(mark)) throw new Error(`placeValue: no ${mark} column`);
+  const CW = 52, PT = 14, HEAD = 26, RH = 34, ARROW = move ? 22 : 0;
+  const colX = (i) => i * CW + (i >= nw ? PT : 0); // left edge of column i
+  const width = places.length * CW + (nf ? PT : 0);
+  const rowY = (r) => HEAD + r * (RH + ARROW) + RH / 2 + 7;
+  const parts = [];
+  places.forEach((p, i) => {
+    if (p === mark) parts.push(`<rect data-mark="${p}" x="${colX(i)}" y="0" width="${CW}" height="${HEAD + rows.length * RH + (rows.length - 1) * ARROW}" fill="${SHADE}" fill-opacity="0.14"/>`);
+    parts.push(`<text x="${colX(i) + CW / 2}" y="17" font-size="12" font-weight="700" text-anchor="middle" fill="${LINE}">${PLACE_NAMES[p]}</text>`);
+  });
+  parts.push(`<line x1="0" y1="${HEAD}" x2="${width}" y2="${HEAD}" stroke="${LINE}" stroke-width="1.5"/>`);
+  for (let i = 1; i < places.length; i++) {
+    const x = i === nw ? colX(i) - PT / 2 : colX(i);
+    if (i !== nw) parts.push(`<line x1="${x}" y1="4" x2="${x}" y2="${HEAD + rows.length * RH + (rows.length - 1) * ARROW}" stroke="${LINE}" stroke-opacity="0.35" stroke-width="1"/>`);
+  }
+  const centre = (r, place) => colX(places.indexOf(place)) + CW / 2;
+  nums.forEach((n, r) => {
+    const y = rowY(r);
+    const ds = [
+      ...n.whole.split('').map((d, k) => ({ d, place: WHOLE_PLACES[4 - n.whole.length + k] })),
+      ...(n.frac || '').split('').map((d, k) => ({ d, place: FRACTION_PLACES[k] }))
+    ];
+    for (const { d, place } of ds) {
+      parts.push(`<text data-row="${r}" data-place="${place}" data-digit="${d}" x="${centre(r, place)}" y="${y}" font-size="20" font-weight="700" text-anchor="middle" fill="${r ? SHADE : LINE}">${d}</text>`);
+    }
+    if (n.frac !== null) parts.push(`<text data-row="${r}" data-point="1" x="${colX(nw) - PT / 2}" y="${y}" font-size="22" font-weight="700" text-anchor="middle" fill="${LINE}">.</text>`);
+  });
+  if (move && rows.length === 2) {
+    // Each digit of the first row, from its first non-zero digit, moves `move` places.
+    const first = [...nums[0].whole.split('').map((d, k) => ({ d, place: WHOLE_PLACES[4 - nums[0].whole.length + k] })),
+      ...(nums[0].frac || '').split('').map((d, k) => ({ d, place: FRACTION_PLACES[k] }))];
+    const all = [...WHOLE_PLACES, ...FRACTION_PLACES];
+    const from = first.findIndex((q) => q.d !== '0');
+    first.slice(from < 0 ? first.length : from).forEach(({ place }) => {
+      const to = all[all.indexOf(place) - move];
+      if (!to || !places.includes(to)) return;
+      const x1 = centre(0, place), x2 = centre(1, to);
+      const y1 = rowY(0) + 6, y2 = rowY(1) - 20;
+      parts.push(`<line data-arrow="${place}>${to}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${SHADE_2}" stroke-width="2" marker-end="url(#pv-head)"/>`);
+    });
+  }
+  const height = HEAD + rows.length * RH + (rows.length - 1) * ARROW + 4;
+  const defs = move ? `<defs><marker id="pv-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="${SHADE_2}"/></marker></defs>` : '';
+  return svg(Math.round(width * scale), Math.round(height * scale), `${defs}<g data-place-value="1">${parts.join('')}</g>`,
+    `טבלת ערך המקום: ${rows.join(', ')}`, `0 0 ${width} ${height}`, 'math-grid');
+}
+
+/**
+ * Adding or subtracting in columns with the points lined up: `top`, then
+ * `op` ('+' or '−') and `bottom`, a line, and `result`. Every number is
+ * written with as many digits after the point as the longest; the zeros
+ * added to fill a number up are drawn in the second colour. Each row is a
+ * group with data-row ("top", "bottom", "result") and data-value; its
+ * characters are separate texts, so the check reads the row back.
+ */
+function columnCalc({ top, bottom, op = '+', result, scale = 1 } = {}) {
+  if (op !== '+' && op !== '−') throw new Error(`columnCalc: op must be + or −, not ${op}`);
+  const nums = [top, bottom, result].map((s) => {
+    const m = String(s).match(/^(\d+)(?:\.(\d+))?$/);
+    if (!m) throw new Error(`columnCalc: ${s} is not a decimal`);
+    return { whole: m[1], frac: m[2] || '' };
+  });
+  const nw = Math.max(...nums.map((n) => n.whole.length));
+  const nf = Math.max(...nums.map((n) => n.frac.length));
+  const CW = 15, PT = 9, RH = 28, LEFT = 22;
+  const x = (k) => LEFT + k * CW + (k >= nw ? PT : 0) + CW / 2; // centre of digit column k (0 = leftmost whole digit)
+  const pointX = LEFT + nw * CW + PT / 2;
+  const t = (cx, cy, s, fill, extra = '') => `<text x="${cx}" y="${cy}"${extra} font-family="Arial, sans-serif" font-size="19" font-weight="700" text-anchor="middle" fill="${fill}">${s}</text>`;
+  const rowsSvg = nums.map((n, r) => {
+    const y = 22 + r * RH + (r === 2 ? 8 : 0);
+    const color = r === 2 ? SHADE : LINE;
+    const chars = [];
+    n.whole.split('').forEach((d, k) => chars.push(t(x(nw - n.whole.length + k), y, d, color)));
+    if (nf) {
+      chars.push(t(pointX, y, '.', color));
+      for (let k = 0; k < nf; k++) {
+        const filled = k >= n.frac.length;
+        chars.push(t(x(nw + k), y, filled ? '0' : n.frac[k], filled ? SHADE_2 : color, filled ? ' data-filled="1"' : ''));
+      }
+    }
+    if (r === 1) chars.push(t(LEFT - 8, y, op, LINE));
+    return `<g data-row="${['top', 'bottom', 'result'][r]}" data-value="${[top, bottom, result][r]}">${chars.join('')}</g>`;
+  });
+  const width = LEFT + (nw + nf) * CW + (nf ? PT : 0) + 8;
+  const lineY = 22 + RH + 9;
+  const height = 22 + 2 * RH + 8 + 10;
+  const body = `${rowsSvg.join('')}<line x1="${LEFT - 16}" y1="${lineY}" x2="${width - 4}" y2="${lineY}" stroke="${LINE}" stroke-width="1.6"/>`;
+  return svg(Math.round(width * scale), Math.round(height * scale), `<g data-column="${op}">${body}</g>`,
+    `${top} ${op} ${bottom} = ${result}`, `0 0 ${width} ${height}`, 'math-grid');
+}
+
 /** Several shapes in a row (e.g. two whole circles and a part). */
 function row(...svgs) {
   return `<span class="math-row">${svgs.join('')}</span>`;
@@ -618,4 +809,7 @@ function figures(...figs) {
   return `<div class="math-figures">${figs.join('')}</div>`;
 }
 
-module.exports = { circle, bar, numberLine, integerLine, coordGrid, triangle, balance, signed, grid, array, groups, longDivision, longDivisionSteps, row, figure, figures };
+module.exports = {
+  circle, bar, numberLine, integerLine, coordGrid, triangle, balance, signed, grid, array, groups, longDivision, longDivisionSteps,
+  hundredGrid, decimalLine, placeValue, columnCalc, row, figure, figures
+};
