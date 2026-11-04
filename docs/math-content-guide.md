@@ -220,7 +220,13 @@ creates a new lesson and orphans progress.
   השיעורים של הנקודה A?") carries it as `questionPicture`, an SVG shown
   between the question and its options (on a wide screen, beside them).
   Keep it at most 9 grid units high (a 360px phone shows it at 200px with
-  the options above the pinned bar) and the question to one line. The
+  the options above the pinned bar) and the question to one line. Measure
+  it as the first question of a session, scrolled to the top under the
+  lesson header (measured in chapter 13): there an 8- or 9-unit grid with a
+  one-line question (up to about 38 characters) ends 5px above the bar at
+  360px, and every further line of the question, or options with stacked
+  fractions, pushes it under. A question that needs two lines (a story
+  graph) takes a grid at most 5 units high (154px, under the 200px cap). The
   Telegram bot sends the picture as a PNG with the question as its
   caption: after `npm run generate-data`, run `npm run question-pictures`
   in `frontend/` (with `CHROMIUM_PATH=/opt/pw-browsers/chromium`) and

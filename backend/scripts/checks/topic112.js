@@ -481,14 +481,9 @@ function recompute(q, options, pics) {
     const [r, s] = [R(m[1]), R(m[2])];
     return { value: div(sub(s.b, r.b), sub(r.m, s.m)) };
   }
-  if ((m = t.match(new RegExp(`^הישר שבציור עובר בראשית הצירים ובנקודה [A-Z]?${PT}\\. מה הכלל שלו\\?$`)))) {
-    const r = lineOf(pics), p = P(m[1]);
-    if (sign(r.b) !== 0 || !onRule(r, p)) throw new Error('the drawn line is not the one the question describes');
-    return one((o) => sameRule(optRule(o), r), 'the line\'s rule');
-  }
   if ((m = t.match(new RegExp(`^הנקודה \\(a, (\\S+)\\) נמצאת על הישר ${RULE}\\. מה a\\?$`)))) { const r = R(m[2]); return { value: div(sub(num(m[1]), r.b), r.m) }; }
   if ((m = t.match(new RegExp(`^איזה ישר עובר גם דרך ${PT} וגם דרך ${PT}\\?$`)))) { const [p, q2] = [P(m[1]), P(m[2])]; return one((o) => onRule(optRule(o), p) && onRule(optRule(o), q2), 'through both points'); }
-  if ((m = t.match(/^על הישר שבציור יש נקודה שה-x שלה (\S+)\. מה ה-y שלה\?$/))) return { value: at(lineOf(pics), num(m[1])) };
+  if ((m = t.match(/^בישר שבציור, מה y כאשר x = (\S+)\?$/))) return { value: at(lineOf(pics), num(m[1])) };
   // ---- 112.2
   if ((m = t.match(new RegExp(`^מה השיפוע של הישר ${RULE}\\?$`)))) return { value: R(m[1]).m };
   if ((m = t.match(new RegExp(`^באיזו נקודה הישר ${RULE} חותך את ציר ה-y\\?$`)))) return { option: pointText([ZERO, R(m[1]).b]) };
@@ -496,8 +491,8 @@ function recompute(q, options, pics) {
   if ((m = t.match(new RegExp(`^הישר ${RULE} הוא:$`)))) return { option: ways(R(m[1]).m) };
   if (/^הישר שבציור הוא:$/.test(t)) return { option: ways(lineOf(pics).m) };
   if (/^מה השיפוע לפי הטבלה\?$/.test(t)) { const tb = tableOf(pics); if (!tb.rule) throw new Error('a table without a rule'); return { value: tb.rule.m }; }
-  if (/^באיזו נקודה הישר שבציור חותך את ציר ה-y\?$/.test(t)) return { option: pointText([ZERO, lineOf(pics).b]) };
-  if (/^באיזו נקודה הישר שבציור חותך את ציר ה-x\?$/.test(t)) { const r = lineOf(pics); return { option: pointText([div(neg(r.b), r.m), ZERO]) }; }
+  if (/^איפה הישר שבציור חותך את ציר ה-y\?$/.test(t)) return { option: pointText([ZERO, lineOf(pics).b]) };
+  if (/^איפה הישר שבציור חותך את ציר ה-x\?$/.test(t)) { const r = lineOf(pics); return { option: pointText([div(neg(r.b), r.m), ZERO]) }; }
   if ((m = t.match(/^לאיזה ישר שיפוע (\S+)\?$/))) return one((o) => same(optRule(o).m, num(m[1])), `of slope ${m[1]}`);
   if ((m = t.match(new RegExp(`^מה השיפוע של הישר שעובר דרך ${PT} ו-${PT}\\?$`)))) return { value: through(P(m[1]), P(m[2])).m, frac: true };
   if (/^מה הכלל של הישר שבציור\?$/.test(t)) { const r = lineOf(pics); return one((o) => sameRule(optRule(o), r), 'the line\'s rule'); }
@@ -568,13 +563,13 @@ function recompute(q, options, pics) {
     return { option: same(dan, ron) ? 'לשניהם אותו מספר' : sign(sub(dan, ron)) > 0 ? 'לדן' : 'לרון' };
   }
   // Graphs of stories.
-  if (/^הגרף מראה/.test(t) || /^בגרף:/.test(t)) {
-    if ((m = t.match(/מה האורך אחרי (שעה אחת|\d+ שעות)\?$/))) return { value: at(lineOf(pics), /שעה אחת/.test(m[1]) ? ONE : num(m[1].split(' ')[0])) };
-    if ((m = t.match(/אחרי כמה שעות האורך (\d+) ס״מ\?$/))) { const r = lineOf(pics); return { value: div(sub(num(m[1]), r.b), r.m) }; }
-    if (/כמה ליטרים היו בו בהתחלה\?$/.test(t)) return { value: lineOf(pics).b };
-    if (/בכמה ליטרים גדלה הכמות בכל דקה\?$/.test(t)) return { value: lineOf(pics).m };
-    if ((m = t.match(/מה יהיה הגובה שלו אחרי (\d+) שבועות\?$/))) return { value: at(lineOf(pics), num(m[1])) };
-    if (/אחרי כמה סיבובים יש להם אותו מספר נקודות\?$/.test(t)) { const [r, s] = [lineOf(pics, 0), lineOf(pics, 1)]; return { value: div(sub(s.b, r.b), sub(r.m, s.m)) }; }
+  if (/^לפי הגרף/.test(t)) {
+    if ((m = t.match(/^לפי הגרף של הנר, מה האורך שלו בס״מ אחרי (\d+) שעות\?$/))) return { value: at(lineOf(pics), num(m[1])) };
+    if ((m = t.match(/^לפי הגרף של הנר, אחרי כמה שעות האורך (\d+) ס״מ\?$/))) { const r = lineOf(pics); return { value: div(sub(num(m[1]), r.b), r.m) }; }
+    if (/^לפי הגרף של המיכל, כמה ליטרים היו בו בהתחלה\?$/.test(t)) return { value: lineOf(pics).b };
+    if (/^לפי הגרף, כמה ליטרים נוספים למיכל בכל דקה\?$/.test(t)) return { value: lineOf(pics).m };
+    if ((m = t.match(/^לפי הגרף, מה יהיה גובה הצמח בס״מ אחרי (\d+) שבועות\?$/))) return { value: at(lineOf(pics), num(m[1])) };
+    if (/^לפי הגרף, אחרי כמה סיבובים יש לדן ולרון אותו מספר נקודות\?$/.test(t)) { const [r, s] = [lineOf(pics, 0), lineOf(pics, 1)]; return { value: div(sub(s.b, r.b), sub(r.m, s.m)) }; }
   }
   return undefined;
 }

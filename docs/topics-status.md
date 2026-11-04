@@ -184,12 +184,12 @@ Math lessons live in the same content files with `subject: "math"` and are
 numbered 100+. On the `/math` page and in the lesson order they appear in
 curriculum order, chapters 1+: the multiplication table (100), Division (105),
 Fractions (101), Decimals (110), then 102–104, then Negative numbers (106), the x and y
-axes (107), Triangles (108), Equations with one unknown (109) and Ratio and
-proportion (111). The order is `MATH_CHAPTER_ORDER` in
+axes (107), Triangles (108), Equations with one unknown (109), Ratio and
+proportion (111) and Linear functions (112). The order is `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
 them equal); a new topic number goes where it belongs in both lists. A topic
 with several subtopics keeps them in a folder (`seeds/fractions/`,
-`seeds/multiplication/`, `seeds/division/`, `seeds/decimals/`, `seeds/negatives/`, `seeds/axes/`, `seeds/triangles/`, `seeds/ratio/`) and composes them in
+`seeds/multiplication/`, `seeds/division/`, `seeds/decimals/`, `seeds/negatives/`, `seeds/axes/`, `seeds/triangles/`, `seeds/ratio/`, `seeds/functions/`) and composes them in
 `topic1NN-*.js`; write fractions as `a/b` in text and
 theory, the app shows them stacked (`MathText` for exercise text,
 `stackFractions` for theory HTML). Pictures for theory come from
@@ -223,6 +223,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 108 | Triangles (3 subtopics 108.1–108.3, shown as chapter 10) | משולשים | topic108-triangles.js + triangles/*.js | Yes | Yes | Complete |
 | 109 | Equations with One Unknown (7 subtopics 109.1–109.7, shown as chapter 11) | משוואה עם נעלם אחד | topic109-equations.js + equations/*.js | Yes | Yes | Complete |
 | 111 | Ratio and Proportion (3 subtopics 111.1–111.3, shown as chapter 12) | יחס ופרופורציה | topic111-ratio.js + ratio/*.js | Yes | Yes | Complete |
+| 112 | Linear Functions (3 subtopics 112.1–112.3, shown as chapter 13) | פונקציה קווית | topic112-functions.js + functions/*.js | Yes | Yes | Complete |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -250,7 +251,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 12 math topics (100–111), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 13 math topics (100–112), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -650,6 +651,36 @@ Track changes per topic with dates and descriptions.
   messages; every picture question ends above the pinned bar. No chapter
   moves; every existing lesson and exercise is unchanged (compared by id).
   Sprint 20.
+
+### Topic 112: Linear Functions (Math)
+- 2026-11-04: New topic, chapter 13 of Math (last), in three lessons:
+  112.1 from a rule to a line (put x in and build a table of values, the
+  table's points lie on one line, y = kx goes through the origin as in a
+  proportion, is a point on the line), 112.2 slope and the y-intercept (b
+  where the line meets the y axis, the slope as the change in y for one
+  step in x, rising, falling or flat, parallel lines, the slope from two
+  points, a fraction slope, the rule of a drawn line), 112.3 crossing the
+  axes and stories (y = 0 as an equation of chapter 11, the two crossings
+  draw the line, a taxi, savings, a phone plan, candles, a game, reading a
+  value off a graph). Each a Hebrew teaching document with a picture for
+  every rule and 30 multiple-choice questions (10 per level); 23 are asked
+  on their own graph or table of values (PNGs for the bot). Pictures:
+  `coordGrid` draws a whole line y = mx + b across the grid (`graphs`, with
+  its rule as a label), and `valueTable` (x on top, y under it, the steps
+  between columns), which shares its drawing with `ratioTable`. Rules,
+  substitutions and wrong options come from `seeds/functions/common.js`.
+  The reading-order rules were measured first (40 cases) and written into
+  the math guide: every rule and point in an isolate, and never two bare
+  Latin letters with only a comma or a colon between them ("את x, m, הוא"
+  reads m first). `scripts/checks/topic112.js` re-computes all 90 answers
+  from the words of the questions, reads every line back from its SVG
+  pixels, and checks the points, the steps of a slope, the tables, every
+  equation and the rules on the raw text (42 planted faults caught). 4,104
+  runs read in order on one line on the real pages at 360/390/1366 px and
+  in the bot's messages. Every picture question ends above the pinned bar
+  even as the first question of a session (11 were reworded or given a
+  5-unit grid to get there). No chapter moves; every existing lesson and
+  exercise is unchanged (compared by id). Sprint 20.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

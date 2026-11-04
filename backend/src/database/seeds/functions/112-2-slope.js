@@ -70,7 +70,7 @@ const LINE_9 = questionGraph({ lines: [{ m: -1, b: 1 }] });
 const LINE_13 = questionGraph({ lines: [{ m: 2, b: -1 }] });
 const TABLE_16 = P.valueTable({ cols: tableOf(3, 1, [0, 2, 4]) });
 const LINE_17 = questionGraph({ lines: [{ m: -1, b: 3 }] });
-const LINE_24 = questionGraph({ lines: [{ m: 0.5, b: -1 }], points: [{ x: 0, y: -1, label: 'A', at: 'se' }, { x: 2, y: 0, label: 'B' }] });
+const LINE_24 = questionGraph({ xMin: -2, xMax: 4, yMin: -3, yMax: 2, lines: [{ m: 0.5, b: -1 }], points: [{ x: 0, y: -1, label: 'A', at: 'se' }, { x: 2, y: 0, label: 'B' }] });
 const LINE_26 = questionGraph({ xMin: -2, xMax: 4, yMin: -4, yMax: 5, lines: [{ m: -2, b: 4 }] });
 const TABLE_29 = P.valueTable({ cols: tableOf(-2, 3, [-2, 1, 3]) });
 
@@ -93,7 +93,7 @@ const exercises = [
   numQ(7, 'easy', 'מה השיפוע לפי הטבלה?', 4, [-1, 3, 1, 5],
     `בכל פעם ש-x גדל ב-1, y גדל ב-4: ${ltr('3 − (−1) = 4')}, ${ltr('7 − 3 = 4')}.`,
     { question: TABLE_7 }),
-  pointQ(8, 'easy', 'באיזו נקודה הישר שבציור חותך את ציר ה-y?', [0, 2],
+  pointQ(8, 'easy', 'איפה הישר שבציור חותך את ציר ה-y?', [0, 2],
     `הישר עובר את ציר ה-y בגובה 2: ${at(0, 2)}.`,
     { question: LINE_8, extra: [[-2, 0], [2, 0], [0, -2]] }),
   wayQ(9, 'easy', 'הישר שבציור הוא:', 'יורד',

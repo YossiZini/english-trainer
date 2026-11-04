@@ -45,7 +45,7 @@ session cannot see elsewhere.
 - Topic numbers: English 1+, math 100–199, Arabic 201+. Math chapters
   follow `MATH_CHAPTER_ORDER` (API) = `topicOrder` (web), not the number:
   100, 105 (Division), 101, 110 (decimals), 102–104, 106 (negatives), 107 (axes),
-  108 (triangles), 109 (equations), 111 (ratio).
+  108 (triangles), 109 (equations), 111 (ratio), 112 (linear functions).
 - `question_picture`: only on questions that have one (keeps other records
   byte-identical); the API passes it, `QuestionPicture` shows it, the bot
   sends its PNG (`frontend/public/question-pictures/<hash>.png`; after
