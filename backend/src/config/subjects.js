@@ -13,9 +13,10 @@ const isSubject = (s) => SUBJECTS.includes(s);
  * gets a free number and its place here (division, 105, comes right after
  * the multiplication table; decimals, 110, right after fractions; negative
  * numbers, 106, the axes, 107, triangles, 108, and equations, 109, come after
- * percentage), so no existing lesson is renumbered. The
+ * percentage; ratio and proportion, 111, after the equations), so no existing
+ * lesson is renumbered. The
  * website shows chapters in this order too (frontend topicMeta.topicOrder).
  */
-const MATH_CHAPTER_ORDER = [100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109];
+const MATH_CHAPTER_ORDER = [100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109, 111];
 
 module.exports = { SUBJECTS, isSubject, MATH_CHAPTER_ORDER };

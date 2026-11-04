@@ -184,17 +184,18 @@ Math lessons live in the same content files with `subject: "math"` and are
 numbered 100+. On the `/math` page and in the lesson order they appear in
 curriculum order, chapters 1+: the multiplication table (100), Division (105),
 Fractions (101), Decimals (110), then 102–104, then Negative numbers (106), the x and y
-axes (107), Triangles (108) and Equations with one unknown (109). The order is `MATH_CHAPTER_ORDER` in
+axes (107), Triangles (108), Equations with one unknown (109) and Ratio and
+proportion (111). The order is `MATH_CHAPTER_ORDER` in
 `backend/src/config/subjects.js` and `topicOrder` in `topicMeta.js` (keep
 them equal); a new topic number goes where it belongs in both lists. A topic
 with several subtopics keeps them in a folder (`seeds/fractions/`,
-`seeds/multiplication/`, `seeds/division/`, `seeds/decimals/`, `seeds/negatives/`, `seeds/axes/`, `seeds/triangles/`) and composes them in
+`seeds/multiplication/`, `seeds/division/`, `seeds/decimals/`, `seeds/negatives/`, `seeds/axes/`, `seeds/triangles/`, `seeds/ratio/`) and composes them in
 `topic1NN-*.js`; write fractions as `a/b` in text and
 theory, the app shows them stacked (`MathText` for exercise text,
 `stackFractions` for theory HTML). Pictures for theory come from
 `seeds/math-svg.js` (`circle`, `bar`, `numberLine`, `integerLine`,
 `coordGrid`, `triangle`, `grid`, `array`, `groups`, `longDivision`, `hundredGrid`,
-`decimalLine`, `placeValue`, `columnCalc`, `figure`). A
+`decimalLine`, `placeValue`, `columnCalc`, `ratioBar`, `ratioTable`, `figure`). A
 question that needs a picture to be answered carries it as
 `questionPicture` (`question_picture`, shown between the question and its
 options; the Telegram bot sends it as a PNG photo, so after a picture
@@ -221,6 +222,7 @@ implicitly). Display text: `frontend/src/content/topicMeta.js` (`math`).
 | 107 | The x and y Axes (2 subtopics 107.1–107.2, shown as chapter 9) | מערכת צירים | topic107-axes.js + axes/*.js | Yes | Yes | Complete |
 | 108 | Triangles (3 subtopics 108.1–108.3, shown as chapter 10) | משולשים | topic108-triangles.js + triangles/*.js | Yes | Yes | Complete |
 | 109 | Equations with One Unknown (7 subtopics 109.1–109.7, shown as chapter 11) | משוואה עם נעלם אחד | topic109-equations.js + equations/*.js | Yes | Yes | Complete |
+| 111 | Ratio and Proportion (3 subtopics 111.1–111.3, shown as chapter 12) | יחס ופרופורציה | topic111-ratio.js + ratio/*.js | Yes | Yes | Complete |
 
 ### Arabic Topics (Hebrew instruction, grade 7, reading and recognition)
 
@@ -248,7 +250,7 @@ recognise; they never write Arabic. Regenerate with
 
 ### Summary
 
-- **Complete:** 15 English topics (1–15), 11 math topics (100–110), 1 Arabic topic (201)
+- **Complete:** 15 English topics (1–15), 12 math topics (100–111), 1 Arabic topic (201)
 - **Planned:** 3 topics (16, 17, 18)
 
 ---
@@ -619,6 +621,35 @@ Track changes per topic with dates and descriptions.
   10.1–10.2 read in order on the real pages, 3,838 in the bot's messages.
 - 2026-11-03: Shown as chapter 11: Decimals (topic 110) is chapter 4. Content
   unchanged (identical by id). Sprint 20.
+
+### Topic 111: Ratio and Proportion (Math)
+- 2026-11-04: New topic, chapter 12 of Math (after the equations), in three
+  lessons: 111.1 what a ratio is (comparing two amounts, written 3:5 and read
+  3 ל-5, the order matters, simplifying, equal ratios, a part of the whole,
+  ratios of quantities in different units), 111.2 dividing in a ratio (count
+  the parts, one part, each share; from one share to the other and to the
+  whole, from the difference, ratios of three terms, a triangle's angles and
+  a rectangle's sides), 111.3 proportion (the products of the outer and
+  inner terms, a missing term by how many times and by an equation of
+  chapter 11, unit price, recipes, map scale). Each a Hebrew teaching
+  document with a picture for every rule and 30 multiple-choice questions
+  (10 per level); eight are asked on their own bar model or ratio table
+  (PNGs for the bot). Pictures: `ratioBar` (equal parts per amount, the
+  value of a part, a whole split in two colours) and `ratioTable` (equal
+  ratios in columns, the step between them), new in `math-svg.js`, and one
+  `balance`. Ratios, shares and missing terms come from
+  `seeds/ratio/common.js`, which refuses whatever does not come out whole.
+  The reading-order rules for ratios were measured and written into the
+  math guide first: 3:5 with no spaces reads right with no isolate, 3 : 5
+  with spaces shows as 5 : 3. `scripts/checks/topic111.js` re-computes all
+  90 answers with its own exact arithmetic (stories from their words), reads
+  every picture back and enforces the rules on the raw text (32 planted
+  faults caught); it found two explanations starting with an isolate, fixed.
+  5,443 runs (isolates, equation spans, options, decimals and ratios) read in
+  order on one line on the real pages at 360/390/1366 px and in the bot's
+  messages; every picture question ends above the pinned bar. No chapter
+  moves; every existing lesson and exercise is unchanged (compared by id).
+  Sprint 20.
 
 ### Topic 1: Grammar Basics
 - Initial seed file created

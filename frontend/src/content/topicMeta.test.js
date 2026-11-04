@@ -23,7 +23,7 @@ describe('subject metadata', () => {
 
 describe('topic numbers on screen', () => {
   test('each subject counts from 1; math follows its teaching order (division, 105, is chapter 2; decimals, 110, chapter 4)', () => {
-    expect([100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109].map(displayTopic)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect([100, 105, 101, 110, 102, 103, 104, 106, 107, 108, 109, 111].map(displayTopic)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     expect([displaySubtopic('100.1'), displaySubtopic('105.2'), displaySubtopic('101.3'), displaySubtopic('110.4'), displaySubtopic('102.1')])
       .toEqual(['1.1', '2.2', '3.3', '4.4', '5.1']);
     expect([displayTopic(3), displaySubtopic('201.2')]).toEqual([3, '1.2']);
@@ -38,7 +38,7 @@ describe('topic numbers on screen', () => {
 describe('math example badges', () => {
   // The page is right-to-left: without an isolate "56 ÷ 8 = 7" shows as "7 = 8 ÷ 56".
   test('every badge with an equation is a left-to-right isolate', () => {
-    const badges = ['100.1', '100.2', '100.3', '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '110.1', '110.2', '110.3', '110.4']
+    const badges = ['100.1', '100.2', '100.3', '101.1', '101.2', '101.3', '101.4', '101.5', '101.6', '110.1', '110.2', '110.3', '110.4', '111.1', '111.2', '111.3']
       .flatMap((sub) => getSubtopicExamples(Number(sub.split('.')[0]), sub));
     const equations = badges.filter((b) => /[=<>×÷+−]/.test(b));
     expect(equations.length).toBeGreaterThanOrEqual(15);

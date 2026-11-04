@@ -1,4 +1,4 @@
-const { balance, hundredGrid, decimalLine, placeValue, columnCalc } = require('../src/database/seeds/math-svg');
+const { balance, hundredGrid, decimalLine, placeValue, columnCalc, ratioBar, ratioTable } = require('../src/database/seeds/math-svg');
 
 /**
  * The balance scale of the equations chapter (math-svg.js balance()): each
@@ -255,5 +255,61 @@ describe('columnCalc(): adding and subtracting with the points lined up', () => 
 
   test('only + and − are drawn', () => {
     expect(() => columnCalc({ top: '2', bottom: '3', op: '×', result: '6' })).toThrow('op must be + or −');
+  });
+});
+
+/** The rows of a bar model: label, parts, each value and the colour of each part, with x of each part. */
+const bars = (svg) => [...svg.matchAll(/<g data-row="(\d+)" data-label="([^"]*)" data-parts="(\d+)" data-each="([^"]*)" data-split="([^"]*)">([\s\S]*?)<\/g>/g)]
+  .map((m) => ({
+    label: m[2], parts: Number(m[3]), each: m[4], split: m[5],
+    kinds: [...m[6].matchAll(/data-part="(\w)" x="([\d.]+)"/g)].map((p) => p[1]).join(''),
+    xs: [...m[6].matchAll(/data-part="\w" x="([\d.]+)"/g)].map((p) => Number(p[1])),
+    values: [...m[6].matchAll(/fill="#ffffff">([^<]+)</g)].map((v) => v[1])
+  }));
+
+describe('ratioBar(): a bar model of a ratio', () => {
+  test('a row of equal parts for each amount, lined up from the same edge, named at the right', () => {
+    const svg = ratioBar([{ label: 'בנים', parts: 2 }, { label: 'בנות', parts: 3, color: 'b' }]);
+    const [boys, girls] = bars(svg);
+    expect([boys.parts, girls.parts]).toEqual([2, 3]);
+    expect([boys.kinds, girls.kinds]).toEqual(['aa', 'bbb']);
+    expect(girls.xs.slice(0, 2)).toEqual(boys.xs);
+    expect(new Set(girls.xs.slice(1).map((x, i) => x - girls.xs[i])).size).toBe(1);
+    expect(svg).toMatch(/text-anchor="end"[^>]*>בנים</);
+  });
+
+  test('each writes the value of one part in every part', () => {
+    const [dan] = bars(ratioBar([{ label: 'דן', parts: 3, each: 5 }]));
+    expect(dan.values).toEqual(['5', '5', '5']);
+    expect(bars(ratioBar([{ label: 'דן', parts: 3 }]))[0].values).toEqual([]);
+  });
+
+  test('split colours the first parts blue and the rest orange', () => {
+    const [whole] = bars(ratioBar([{ label: 'הכיתה', parts: 5, split: 2 }]));
+    expect(whole.kinds).toBe('aabbb');
+    expect(() => ratioBar([{ parts: 3, split: 3 }])).toThrow('does not cut');
+    expect(() => ratioBar([{ parts: 13 }])).toThrow('1 to 12 parts');
+  });
+});
+
+describe('ratioTable(): a table of equal ratios', () => {
+  test('a column per pair, each value in its row and column', () => {
+    const svg = ratioTable({ heads: ['מחברות', 'מחיר'], cols: [[3, 12], [1, 4], [5, 20]] });
+    const cells = [...svg.matchAll(/data-col="(\d)" data-row="(\d)" data-value="([^"]*)" x="([\d.]+)" y="([\d.]+)"/g)]
+      .map((m) => ({ c: Number(m[1]), r: Number(m[2]), v: m[3], x: Number(m[4]), y: Number(m[5]) }));
+    expect(cells.map((q) => `${q.c}${q.r}:${q.v}`)).toEqual(['00:3', '01:12', '10:1', '11:4', '20:5', '21:20']);
+    // A column shares its x; a row shares its y, the top row above the bottom one.
+    expect(cells[0].x).toBe(cells[1].x);
+    expect(cells[0].y).toBe(cells[2].y);
+    expect(cells[1].y).toBeGreaterThan(cells[0].y);
+    expect(svg).not.toContain('data-step');
+  });
+
+  test('steps are written above and below with an arrow; the missing term stands out', () => {
+    const svg = ratioTable({ heads: ['מחברות', 'מחיר'], cols: [[3, 12], [1, 4], [5, 'x']], steps: ['÷ 3', '× 5'] });
+    expect([...svg.matchAll(/data-step="([^"]+)"/g)].map((m) => m[1])).toEqual(['÷ 3', '÷ 3', '× 5', '× 5']);
+    expect((svg.match(/marker-end="url\(#rt-head\)"/g) || []).length).toBe(4);
+    expect(svg).toMatch(/data-value="x"[^>]*fill="#f5a623" font-style="italic">x</);
+    expect(() => ratioTable({ heads: ['א', 'ב'], cols: [[1, 2], [2, 4]], steps: ['× 2', '× 3'] })).toThrow('2 steps for 2 columns');
   });
 });
