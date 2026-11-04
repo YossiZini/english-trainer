@@ -794,6 +794,77 @@ function columnCalc({ top, bottom, op = '+', result, scale = 1 } = {}) {
     `${top} ${op} ${bottom} = ${result}`, `0 0 ${width} ${height}`, 'math-grid');
 }
 
+// ---------------------------------------------------------------------------
+// Ratios (chapter 12). Each picture carries data-* attributes for the checks.
+
+/**
+ * A bar model of a ratio: one row per amount, each a row of equal parts, its
+ * Hebrew name at the right. A row is { label, parts, each, color, split }:
+ * `each` writes the value of one part in every part, `color` is 'a' (blue)
+ * or 'b' (orange), and `split` colours the first `split` parts 'a' and the
+ * rest 'b' (one whole cut in a ratio). Every row carries data-label,
+ * data-parts, data-each and data-split; every part data-part ("a" or "b").
+ */
+function ratioBar(rows, { scale = 1 } = {}) {
+  const PART = 30, H = 26, GAP = 8, LABEL = 58;
+  if (!rows.length || rows.some((r) => !Number.isInteger(r.parts) || r.parts < 1 || r.parts > 12)) {
+    throw new Error('ratioBar: every row needs 1 to 12 parts');
+  }
+  const most = Math.max(...rows.map((r) => r.parts));
+  const width = most * PART + GAP + LABEL;
+  const parts = rows.map((r, i) => {
+    if (r.split !== undefined && !(Number.isInteger(r.split) && r.split > 0 && r.split < r.parts)) throw new Error(`ratioBar: split ${r.split} does not cut ${r.parts} parts`);
+    const y = i * (H + GAP);
+    const boxes = Array.from({ length: r.parts }, (_, k) => {
+      const kind = r.split !== undefined ? (k < r.split ? 'a' : 'b') : (r.color === 'b' ? 'b' : 'a');
+      const fill = kind === 'a' ? SHADE : SHADE_2;
+      const x = k * PART;
+      const value = r.each !== undefined && r.each !== null
+        ? `<text x="${x + PART / 2}" y="${y + H / 2 + 5}" font-size="13" font-weight="700" text-anchor="middle" fill="${LIGHT}">${esc(r.each)}</text>` : '';
+      return `<rect data-part="${kind}" x="${x}" y="${y}" width="${PART}" height="${H}" fill="${fill}" stroke="${LINE}" stroke-width="1.5"/>${value}`;
+    }).join('');
+    const label = `<text x="${width - 2}" y="${y + H / 2 + 5}" font-size="14" font-weight="700" text-anchor="end" fill="${LINE}">${esc(r.label || '')}</text>`;
+    return `<g data-row="${i}" data-label="${esc(r.label || '')}" data-parts="${r.parts}" data-each="${r.each ?? ''}" data-split="${r.split ?? ''}">${boxes}${label}</g>`;
+  }).join('');
+  const height = rows.length * (H + GAP) - GAP;
+  return svg(Math.round(width * scale), Math.round(height * scale), `<g data-ratio-bar="1">${parts}</g>`,
+    `מודל פסים: ${rows.map((r) => `${r.label || ''} ${r.parts}`).join(', ')}`, `-1 -1 ${width + 2} ${height + 2}`, 'math-grid');
+}
+
+/**
+ * A ratio table: two rows (`heads`, Hebrew names at the right) and a column
+ * per pair of equal ratios, `cols` ([[3, 12], [1, 4], [5, 20]]); a value may
+ * be 'x' or '?' (the missing term, in the second colour). `steps` writes
+ * what turns each column into the next ('÷ 3', '× 5') above the top row and
+ * under the bottom one, with an arrow. Cells carry data-col, data-row and
+ * data-value; steps data-step.
+ */
+function ratioTable({ heads, cols, steps = [], scale = 1 }) {
+  if (!heads || heads.length !== 2 || !cols.length || cols.some((c) => c.length !== 2)) throw new Error('ratioTable: two heads and columns of two values');
+  if (steps.length && steps.length !== cols.length - 1) throw new Error(`ratioTable: ${steps.length} steps for ${cols.length} columns`);
+  const CW = 54, RH = 32, HEAD = 70, TOP = steps.length ? 24 : 2, BOTTOM = steps.length ? 24 : 2;
+  const width = cols.length * CW + HEAD;
+  const height = TOP + 2 * RH + BOTTOM;
+  const out = [];
+  cols.forEach((col, c) => col.forEach((v, r) => {
+    const x = c * CW, y = TOP + r * RH;
+    const missing = typeof v === 'string' && !/^\d/.test(v);
+    out.push(`<rect x="${x}" y="${y}" width="${CW}" height="${RH}" fill="${r ? '#fff7ea' : '#eef0fd'}" stroke="${LINE}" stroke-width="1.2"/>`);
+    out.push(`<text data-col="${c}" data-row="${r}" data-value="${esc(v)}" x="${x + CW / 2}" y="${y + RH / 2 + 6}" font-size="17" font-weight="700" text-anchor="middle" fill="${missing ? SHADE_2 : LINE}"${missing ? ' font-style="italic"' : ''}>${esc(v)}</text>`);
+  }));
+  heads.forEach((h, r) => out.push(`<text x="${width - 4}" y="${TOP + r * RH + RH / 2 + 5}" font-size="14" font-weight="700" text-anchor="end" fill="${LINE}">${esc(h)}</text>`));
+  steps.forEach((s, c) => {
+    const x1 = c * CW + CW / 2 + 6, x2 = (c + 1) * CW + CW / 2 - 6, mid = (x1 + x2) / 2;
+    for (const [y, ty] of [[TOP - 6, TOP - 10], [TOP + 2 * RH + 6, TOP + 2 * RH + 20]]) {
+      out.push(`<path d="M ${x1} ${y} Q ${mid} ${y + (y < TOP ? -10 : 10)} ${x2} ${y}" fill="none" stroke="${SHADE}" stroke-width="1.6" marker-end="url(#rt-head)"/>`);
+      out.push(`<text data-step="${esc(s)}" x="${mid}" y="${ty}" font-size="12" font-weight="700" text-anchor="middle" fill="${SHADE}">${esc(s)}</text>`);
+    }
+  });
+  const defs = steps.length ? `<defs><marker id="rt-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="${SHADE}"/></marker></defs>` : '';
+  return svg(Math.round(width * scale), Math.round(height * scale), `${defs}<g data-ratio-table="1">${out.join('')}</g>`,
+    `טבלת יחסים: ${heads.join(' ו')}`, `0 0 ${width} ${height}`, 'math-grid');
+}
+
 /** Several shapes in a row (e.g. two whole circles and a part). */
 function row(...svgs) {
   return `<span class="math-row">${svgs.join('')}</span>`;
@@ -811,5 +882,5 @@ function figures(...figs) {
 
 module.exports = {
   circle, bar, numberLine, integerLine, coordGrid, triangle, balance, signed, grid, array, groups, longDivision, longDivisionSteps,
-  hundredGrid, decimalLine, placeValue, columnCalc, row, figure, figures
+  hundredGrid, decimalLine, placeValue, columnCalc, ratioBar, ratioTable, row, figure, figures
 };
