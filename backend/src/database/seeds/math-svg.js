@@ -718,7 +718,11 @@ function placeValue(rows, { mark = null, move = null, scale = 1 } = {}) {
   const nums = rows.map((r) => {
     const m = String(r).match(/^(\d{1,4})(?:\.(\d{1,3}))?$/);
     if (!m) throw new Error(`placeValue: ${r} is not a decimal with at most 4 whole digits and 3 after the point`);
-    return { whole: m[1], frac: m[2] ?? null };
+    const [whole, frac = null] = [m[1], m[2]];
+    // Each digit with its place: 2.09 → 2 ones, 0 tenths, 9 hundredths.
+    const digits = [...whole.split('').map((d, k) => ({ d, place: WHOLE_PLACES[4 - whole.length + k] })),
+      ...(frac || '').split('').map((d, k) => ({ d, place: FRACTION_PLACES[k] }))];
+    return { whole, frac, digits };
   });
   const nw = Math.max(...nums.map((n) => n.whole.length));
   const nf = Math.max(0, ...nums.map((n) => (n.frac || '').length));
@@ -735,25 +739,21 @@ function placeValue(rows, { mark = null, move = null, scale = 1 } = {}) {
   });
   parts.push(`<line x1="0" y1="${HEAD}" x2="${width}" y2="${HEAD}" stroke="${LINE}" stroke-width="1.5"/>`);
   for (let i = 1; i < places.length; i++) {
-    const x = i === nw ? colX(i) - PT / 2 : colX(i);
-    if (i !== nw) parts.push(`<line x1="${x}" y1="4" x2="${x}" y2="${HEAD + rows.length * RH + (rows.length - 1) * ARROW}" stroke="${LINE}" stroke-opacity="0.35" stroke-width="1"/>`);
+    if (i === nw) continue; // the point stands between the ones and the tenths, not a line
+    const x = colX(i);
+    parts.push(`<line x1="${x}" y1="4" x2="${x}" y2="${HEAD + rows.length * RH + (rows.length - 1) * ARROW}" stroke="${LINE}" stroke-opacity="0.35" stroke-width="1"/>`);
   }
   const centre = (r, place) => colX(places.indexOf(place)) + CW / 2;
   nums.forEach((n, r) => {
     const y = rowY(r);
-    const ds = [
-      ...n.whole.split('').map((d, k) => ({ d, place: WHOLE_PLACES[4 - n.whole.length + k] })),
-      ...(n.frac || '').split('').map((d, k) => ({ d, place: FRACTION_PLACES[k] }))
-    ];
-    for (const { d, place } of ds) {
+    for (const { d, place } of n.digits) {
       parts.push(`<text data-row="${r}" data-place="${place}" data-digit="${d}" x="${centre(r, place)}" y="${y}" font-size="20" font-weight="700" text-anchor="middle" fill="${r ? SHADE : LINE}">${d}</text>`);
     }
     if (n.frac !== null) parts.push(`<text data-row="${r}" data-point="1" x="${colX(nw) - PT / 2}" y="${y}" font-size="22" font-weight="700" text-anchor="middle" fill="${LINE}">.</text>`);
   });
   if (move && rows.length === 2) {
     // Each digit of the first row, from its first non-zero digit, moves `move` places.
-    const first = [...nums[0].whole.split('').map((d, k) => ({ d, place: WHOLE_PLACES[4 - nums[0].whole.length + k] })),
-      ...(nums[0].frac || '').split('').map((d, k) => ({ d, place: FRACTION_PLACES[k] }))];
+    const first = nums[0].digits;
     const all = [...WHOLE_PLACES, ...FRACTION_PLACES];
     const from = first.findIndex((q) => q.d !== '0');
     first.slice(from < 0 ? first.length : from).forEach(({ place }) => {
@@ -869,8 +869,9 @@ function twoRowTable({ name, kind, label, heads, cols, steps, scale, head, itali
   const out = [];
   cols.forEach((col, c) => col.forEach((v, r) => {
     const x = c * CW, y = TOP + r * RH;
-    const text = typeof v === 'number' ? signed(v) : String(v);
-    const missing = typeof v === 'string' && !/^[\d\u2212]/.test(v);
+    // A number is written with a real minus, also one typed as text with a hyphen; '?' or 'x' is the value to find.
+    const text = typeof v === 'number' ? signed(v) : String(v).replace(/^-(?=\d)/, '\u2212');
+    const missing = !/^[\d\u2212]/.test(text);
     out.push(`<rect x="${x}" y="${y}" width="${CW}" height="${RH}" fill="${r ? '#fff7ea' : '#eef0fd'}" stroke="${LINE}" stroke-width="1.2"/>`);
     out.push(`<text data-col="${c}" data-row="${r}" data-value="${esc(text)}" x="${x + CW / 2}" y="${y + RH / 2 + 6}" font-size="17" font-weight="700" text-anchor="middle" fill="${missing ? SHADE_2 : LINE}"${missing ? ' font-style="italic"' : ''}>${esc(text)}</text>`);
   }));

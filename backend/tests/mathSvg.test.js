@@ -326,6 +326,13 @@ describe('valueTable(): the table of values of a rule', () => {
     expect(svg).toMatch(/aria-label="טבלת ערכים של x ו-y"/);
   });
 
+  test('a negative typed with a hyphen is a value with a real minus, not the one to find', () => {
+    const svg = valueTable({ cols: [[-1, '-3'], [0, '?']] });
+    expect(svg).toMatch(/data-value="\u22123"[^>]*fill="#2b2f3a">\u22123</);
+    expect((svg.match(/font-style="italic">\?</g) || []).length).toBe(1);
+    expect(svg).not.toMatch(/data-value="-3"/);
+  });
+
   test('a step can differ between the rows, and one row may have no arrow', () => {
     const svg = valueTable({ cols: [[0, 1], [1, 3], [2, 5]], steps: [['+1', '+2'], ['+1', null]] });
     expect([...svg.matchAll(/data-step="([^"]+)"/g)].map((m) => m[1])).toEqual(['+1', '+2', '+1']);

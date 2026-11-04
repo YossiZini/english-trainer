@@ -24,10 +24,6 @@
   font-size: 0.85rem;
   color: #555;
 }
-/* A caption's equation marked math-line (it holds a stacked fraction) stays on one line */
-.feedback-picture .math-line {
-  white-space: nowrap;
-}
 .feedback-picture .math-pic {
   max-width: 100%;
   height: auto;

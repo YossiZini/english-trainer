@@ -3,7 +3,7 @@
 // amount in a ratio, the missing term of a proportion, wrong options from the
 // common mistakes, pictures under an explanation, and the lesson builder.
 // Reading order: math-content-guide.md, "Ratios".
-const { ltr, P, eq, pic, mathLesson, optionsQuestion } = require('../multiplication/common');
+const { ltr, P, eq, pic, mathLesson, optionsQuestion, firstWrongs } = require('../multiplication/common');
 
 const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));
 
@@ -45,15 +45,8 @@ function missing(a, b, c, d) {
   return num / den;
 }
 
-/** The first three different whole numbers of `candidates` that are not `answer`. */
-function wrongsOf(answer, candidates) {
-  const out = [];
-  for (const v of candidates) {
-    if (Number.isInteger(v) && v >= 0 && v !== answer && !out.includes(v)) out.push(v);
-  }
-  if (out.length < 3) throw new Error(`Not enough wrong options for ${answer}`);
-  return out.slice(0, 3).map(String);
-}
+/** The first three different whole numbers of `candidates` that are not `answer`, as options. */
+const wrongsOf = (answer, candidates) => firstWrongs(answer, candidates).map(String);
 
 /** A question whose answer is a whole number. */
 const numQ = (n, level, text, answer, candidates, explanation, opts) =>

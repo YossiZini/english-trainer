@@ -53,6 +53,8 @@ describe('linear function helpers', () => {
     expect(n.correctAnswer).toBe(`${M}3`);
     expect(n.options.sort()).toEqual(['0', '2', '3', `${M}3`].sort());
     expect(() => f.wrongsOf(1, [1, 2])).toThrow('Not enough wrong options');
+    // Every swap and sign flip of the origin is the origin: too few wrong points, refused.
+    expect(() => f.pointQ(3, 'easy', 'איזו נקודה?', [0, 0], 'הסבר.')).toThrow('Not enough wrong options');
   });
 
   test('a question grid is at most 9 units high', () => {

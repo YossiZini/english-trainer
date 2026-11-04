@@ -413,6 +413,12 @@ Track changes per topic with dates and descriptions.
   above the pinned bar. Order of operations to Equations show as chapters
   5–11; every existing lesson and exercise is unchanged (compared by id).
   Sprint 20.
+- 2026-11-04: 110.2 q23 (ordering 2.1, 2.09, 2.19 and 2.9): the place-value
+  table under its explanation showed only the first three numbers and left
+  out 2.90, which ends the chain. It now shows all four.
+  `scripts/checks/topic110.js` now checks that an order's table holds every
+  number of the answer; it fails on the old data. The only record that
+  changed. Sprint 20 close (review).
 
 ### Topic 102: Order of Operations (Math)
 - 2026-09-27: Teaching document (parentheses, × ÷ before + −, left to right,
