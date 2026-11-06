@@ -69,12 +69,16 @@ describe('Bot API', () => {
     const start = await bot('/api/bot/session/start');
     expect(start.status).toBe(200);
     expect(start.body.data.setup).toBe('level');
-    expect(start.body.data.options.map(o => o.label)).toEqual(['קל', 'בינוני', 'קשה']);
+    // Five levels, from a real beginner level up in small steps.
+    expect(start.body.data.options.map(o => o.label)).toEqual(['מתחיל', 'קל', 'בינוני', 'מתקדם', 'קשה']);
+    expect(start.body.data.options.map(o => o.key)).toEqual([1, 2, 3, 4, 5]);
 
     // A wrong choice repeats the question; a level starts the session.
-    const invalid = (await bot('/api/bot/session/answer', { text: 'Band 2' })).body.data;
-    expect(invalid.invalid).toBe(true);
-    expect(invalid.setup).toBe('level');
+    for (const text of ['Band 2', '6', '0']) {
+      const invalid = (await bot('/api/bot/session/answer', { text })).body.data;
+      expect(invalid.invalid).toBe(true);
+      expect(invalid.setup).toBe('level');
+    }
     // A level asks for the direction; a direction starts the session.
     const hard = (await bot('/api/bot/session/answer', { text: 'Hard' })).body.data;
     expect(hard.started).toBeUndefined();
@@ -85,13 +89,16 @@ describe('Bot API', () => {
     expect(badDirection).toMatchObject({ invalid: true, setup: 'direction' });
     const hardStarted = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
     expect(hardStarted).toMatchObject({ started: true, level: 'קשה', direction: 'en-he' });
-    // Starting again replaces it; this time easy words.
+    const hardIds = (await db.findById('bot_sessions', hard.sessionId)).word_ids;
+    const levelOf = (id) => db.getCollection('vocabulary_words', true).find(w => w.id === id).difficulty_level;
+    hardIds.forEach(id => expect(levelOf(id)).toBeGreaterThanOrEqual(9));
+    // Starting again replaces it; this time the beginner level, by its number.
     await bot('/api/bot/session/start');
     expect((await db.findById('bot_sessions', hard.sessionId)).status).toBe('ended');
     await bot('/api/bot/session/answer', { text: '1' });
     const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
     expect(started.started).toBe(true);
-    expect(started.level).toBe('קל');
+    expect(started.level).toBe('מתחיל');
     expect(started.wordSet).toBeUndefined();
     const { word, progress } = started;
     expect(word.english).toBeTruthy();
@@ -106,7 +113,8 @@ describe('Bot API', () => {
     expect(word.options).toHaveLength(4);
     expect(word.options).toContain(translation(word.id));
     const wrongOption = (w) => w.options.find(o => o !== translation(w.id));
-    session.word_ids.forEach(id => expect(words.find(x => x.id === id).difficulty_level).toBeLessThanOrEqual(5));
+    // The beginner level serves only the first two word levels.
+    session.word_ids.forEach(id => expect(words.find(x => x.id === id).difficulty_level).toBeLessThanOrEqual(2));
     const pointsBefore = (await db.findOne('users', { name: 'bot-student' })).total_points || 0;
 
     // Round 1: answer words 1..3 wrong, the rest right.
@@ -217,6 +225,20 @@ describe('Bot API', () => {
     expect(await BotSession.claimAnswer(session.id, 1, { answered: 2 }, 'completed', 'answered')).toMatchObject({ answered: 2, status: 'ended', end_reason: 'completed' });
   });
 
+  test('five levels, two word levels each, every one with at least 100 words; a level by name too', () => {
+    const { LEVELS } = require('../src/services/bot/wordPicker');
+    const { parseChoice } = require('../src/services/bot.service');
+    const ranges = Object.values(LEVELS).map(l => l.range);
+    expect(ranges).toEqual([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]]);
+    const words = db.getCollection('vocabulary_words', true);
+    for (const [min, max] of ranges) {
+      expect(words.filter(w => w.difficulty_level >= min && w.difficulty_level <= max).length).toBeGreaterThanOrEqual(100);
+    }
+    expect([parseChoice('Beginner'), parseChoice('קל'), parseChoice('medium'), parseChoice('מתקדם'), parseChoice('hard')])
+      .toEqual([1, 2, 3, 4, 5]);
+    expect(parseChoice('6')).toBeNull();
+  });
+
   test('"?" returns the example sentence of the current word without counting as an answer', async () => {
     await bot('/api/bot/session/start');
     await bot('/api/bot/session/answer', { text: '1' });
@@ -286,7 +308,7 @@ describe('Bot API', () => {
     const firstIds = (await db.findById('bot_sessions', first.sessionId)).word_ids;
 
     const switched = (await bot('/api/bot/session/switch')).body.data;
-    expect(switched).toMatchObject({ started: true, switched: true, direction: 'he-en', level: 'קל' });
+    expect(switched).toMatchObject({ started: true, switched: true, direction: 'he-en', level: 'מתחיל' });
     expect(switched.progress).toEqual({ round: 1, index: 1, total: 20, failedInRound: 0 });
     expect(switched.word.english).toBeUndefined();
     expect(switched.word.options).toHaveLength(4);

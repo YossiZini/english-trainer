@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import vocabularyService from '../../services/vocabularyService';
+import { stageRange } from './stages';
 import './VocabularyHomePage.css';
 
 const VocabularyHomePage = () => {
@@ -297,7 +298,7 @@ const VocabularyHomePage = () => {
               >
                 <div className="difficulty-icon">🌱</div>
                 <div className="difficulty-label">מתחיל</div>
-                <div className="difficulty-range">רמות 1-3</div>
+                <div className="difficulty-range">רמות {stageRange(1)}</div>
               </button>
               <button
                 className={`difficulty-option intermediate ${difficultyLevel === 2 ? 'selected' : ''}`}
@@ -305,7 +306,7 @@ const VocabularyHomePage = () => {
               >
                 <div className="difficulty-icon">⚡</div>
                 <div className="difficulty-label">בינוני</div>
-                <div className="difficulty-range">רמות 3-5</div>
+                <div className="difficulty-range">רמות {stageRange(2)}</div>
               </button>
               <button
                 className={`difficulty-option advanced ${difficultyLevel === 3 ? 'selected' : ''}`}
@@ -313,7 +314,7 @@ const VocabularyHomePage = () => {
               >
                 <div className="difficulty-icon">🔥</div>
                 <div className="difficulty-label">מתקדם</div>
-                <div className="difficulty-range">רמות 5-10</div>
+                <div className="difficulty-range">רמות {stageRange(3)}</div>
               </button>
             </div>
           </div>

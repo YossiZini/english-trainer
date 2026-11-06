@@ -11,8 +11,15 @@ round after round, until none are left. `/end` ends the session.
 
 ## What a session looks like
 
-1. `/words` → the bot asks the level (1 קל = difficulty 1–5, 2 בינוני =
-   6–7, 3 קשה = 8–10), then the direction: מאנגלית לעברית (the English word
+1. `/words` → the bot asks the level, five steps of two word levels each
+   (`LEVELS` in `services/bot/wordPicker.js`): 1 מתחיל = word levels 1–2,
+   2 קל = 3–4, 3 בינוני = 5–6, 4 מתקדם = 7–8, 5 קשה = 9–10. The word levels
+   come from `docs/words/relevel` (Sprint 21): every word level is harder
+   than the one below it, so the beginner step holds the first words a
+   child learns (cow, dinner, tooth). A level can also be typed by name
+   (beginner, easy, medium, advanced, hard, or the Hebrew). A session keeps
+   the words it picked, so one started before a change of levels finishes
+   as it began. Then the direction: מאנגלית לעברית (the English word
    is shown with four Hebrew options) or מעברית לאנגלית (the Hebrew is
    shown with four English options), both with buttons; typing 1/2 works
    too. Words always come from the whole vocabulary. The choices are stored

@@ -117,6 +117,14 @@ async def test_question_mark_shows_the_example_sentence_and_repeats_the_word():
     assert (await c.handle("7", "?")).text == replies.NO_EXAMPLE + "\n" + WORD_LINES
 
 
+def test_the_help_names_the_five_word_levels_and_fits_one_message():
+    words = replies.HELP.split("📚 אוצר מילים")[1].split("✏️")[0]
+    for name in ("מתחיל", "קל", "בינוני", "מתקדם", "קשה"):
+        assert name in words
+    assert "בלי להקליד" in words
+    assert len(replies.HELP) <= 4096  # Telegram's limit for one message
+
+
 DIRECTIONS = [{"key": 1, "label": "מאנגלית לעברית"}, {"key": 2, "label": "מעברית לאנגלית"}]
 
 

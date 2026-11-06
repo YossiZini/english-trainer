@@ -2,11 +2,18 @@ const VocabularyWord = require('../../models/VocabularyWord');
 const VocabularyWordScores = require('../../models/VocabularyWordScores');
 const { shuffleArray } = require('../../utils/shuffle');
 
-/** Difficulty ranges the student can choose in the bot (1 easy .. 3 hard). */
+/**
+ * The levels the student can choose in the bot, each two word levels
+ * (docs/words/relevel), from a real beginner level up in small steps. A
+ * session keeps the words it picked, so one started under the old three
+ * levels finishes as it began.
+ */
 const LEVELS = {
-  1: { range: [1, 5], he: 'קל' },
-  2: { range: [6, 7], he: 'בינוני' },
-  3: { range: [8, 10], he: 'קשה' }
+  1: { range: [1, 2], he: 'מתחיל' },
+  2: { range: [3, 4], he: 'קל' },
+  3: { range: [5, 6], he: 'בינוני' },
+  4: { range: [7, 8], he: 'מתקדם' },
+  5: { range: [9, 10], he: 'קשה' }
 };
 
 /**
