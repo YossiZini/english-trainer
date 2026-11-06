@@ -42,7 +42,7 @@ word in `moves.csv` is pinned to its level and takes one of its places.
 ## What the result looks like
 
 See `report.md`. Frequency falls from level 1 (median zipf 5.3) to level 10
-(4.0), and the Band III share rises from 1% to 98%. Frequency is not strictly
+(4.0), and the Band III share rises from 1% to 99%. Frequency is not strictly
 falling at every step: levels 1–3 hold concrete words (cow, tooth) that are
 rarer in adult English than the grammar and abstract words placed above them,
 on purpose.
