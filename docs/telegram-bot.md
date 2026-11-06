@@ -77,13 +77,15 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 | `/end` (also `stop`) | ends any open session |
 
 A multiple-choice answer is a number, so a bare command works during a
-question too. Only while a typed question is open (a fill-in question, or a
-`/kefel` or `/hiluk` drill, whose questions have type `number`) or a word of
-the words exam is asked (its buttons carry words) is a bare word the answer
-(it may be "help", "report", "english" or "חילוק"); during a drill the API asks the same
-question again. No lesson exercise is fill-in any more. The "/" form is always the
-command, and a bare `end` or `stop` ends the session unless it is one of the
-word's options ("stop" and "end" are words of the list). A free-form message (for example "איך זה
+question too. A bare command word is the answer only where it can be one:
+while a typed question is open (a fill-in question, or a `/kefel` or `/hiluk`
+drill, whose questions have type `number`; it may be "english" or "חילוק"),
+or when it is one of the shown word's options in the words exam (its buttons
+carry words: "help", "report" and "stop" are words of the list). Anywhere
+else it runs as the command, so "help" or "report" typed during a words exam
+still works. During a drill the API asks the same question again for a text
+that is not a number, and ends the drill for "end" or "stop". No lesson
+exercise is fill-in any more. The "/" form is always the command. A free-form message (for example "איך זה
 עובד?") goes to the agent, whose `show_help` tool sends the same help text.
 
 ## Usage

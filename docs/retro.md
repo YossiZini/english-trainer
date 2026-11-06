@@ -1589,3 +1589,122 @@ Result: 3 PRs (#94–#96), all merged and deployed green, plus this close.
 - Carried: run every `scripts/checks/topic*.js` in CI, the bot's isolation
   by the absence of right-to-left letters, and `numberQuestion` onto
   `optionsQuestion`. Older carried items stand.
+
+## Sprint 21 — Gradual Hebrew→English words (2026-11-06 → 2026-11-06)
+
+Goal: make word practice in the bot gradual for Alona. Words become four
+choices instead of typing, the 3,287 words are re-levelled by how hard they
+are for a Hebrew-speaking student, and the bot's levels climb in small
+steps, with every student's progress kept.
+Result: 3 PRs, all merged; the last deploy (#100) carried #99.
+- **#98:** four-choice word questions in both directions. Close wrong
+  options come from word groups, opposites, families and look-alikes. The
+  Gemini answer judge and `@google/genai` are gone: the API calls no model.
+- **#99:** every word re-levelled from a documented score, with 80 hand
+  moves and the owner's approval of a sample. Ids are unchanged. The bot has
+  five levels and the website's stages follow the new levels.
+- **#100:** the fix for a flaky test that blocked #99's deploy, and a
+  readable `/usage` report (asked for by the owner during the close).
+
+### What went well
+- **The owner's idea shipped the same day, with less code.** Choices
+  replaced typing, and the judge, its cap, the typed matchers and a
+  dependency went away with it.
+- **Wrong options were measured over the whole vocabulary.**
+  `word-options.js` runs every word in both directions with its own sense
+  splitting. It found no option that is also right, and it reports how often
+  a question gets a close option. After the re-level, that is 98% and 90%
+  at the two beginner word levels.
+- **Re-levelling was safe for students' data.** A score and a README went
+  into the repository, a sample page went to the owner, and the approved
+  levels were applied in place by `apply.py`. That changed 2,714 levels and
+  proved every id and every other field unchanged. `word-levels.js` fails on
+  the old levels.
+- **Every bot message was measured.** All 13,148 word messages, built with
+  the bot's own replies, went through `reading-order-check.js`. It found a
+  real fault: a Hebrew option holding an English word was isolated left to
+  right.
+- **A full exam ran end to end** through the real coach against the API on
+  the emulator, in both directions, before each PR.
+- **Production data stayed off limits.** The plan used the word lists, as
+  the owner decided.
+
+### What hurt
+- **A flaky test shipped and blocked a deploy.** #98's test of "stop" as an
+  option overwrote option 2 of randomly ordered options. In one run in four
+  that option was the answer. It passed locally and in #98's CI by chance,
+  then failed #99's deploy, so nothing of #99 shipped until #100.
+- **Heredoc edits again, a third sprint in a row.** Test rewrites and
+  constants in `replies.py` went through Python heredocs during big changes,
+  against Sprint 18's and Sprint 20's rule. They applied cleanly this time;
+  the cause is the temptation of many small replacements at once.
+- **A helper was copied again.** `word-levels.js` wrote its own CSV parser,
+  though `generateJsonData.js` had `parseCSVLine`. Sprint 20's rule named
+  only the math seed modules, so a search outside them never happened.
+  Fixed in the close.
+- **Input routing kept the old meaning of "a bare word".** With buttons as
+  answers, "help" or "report" typed during an exam still went to the answer
+  endpoint, and "stop" got a special case. The review found the root cause:
+  a bare word is an answer only when it is one of the shown options.
+- **`/usage` was unreadable in Telegram, and the owner found it.** Its
+  week|month pairs read backwards in a right-to-left message, and an English
+  name turned its line left to right. It was never rendered before it
+  shipped. Fixing it also showed that a line's direction comes from its
+  first letter (`dir="auto"`, Telegram) and ignores isolates, so a name line
+  needs a right-to-left mark.
+- **An acceptance was written before the data was measured.** "Median
+  frequency rising level by level" conflicts with putting concrete words
+  (cow, tooth) first. It was relaxed to "falling from level 5 up".
+- **The close's review left the checkout detached.** The forked code review
+  checked out `origin/main` in the shared working tree. The review fixes
+  and the retro were committed on a detached HEAD, and a quiet push
+  (`git push -q`) reported nothing, so opening the PR failed with "no
+  commits". The commits were safe, and moving the branch onto them fixed it.
+
+### Lessons → rules
+- A test that changes random data picks its target by what it is (the
+  answer's id), never by position. Run a new test that touches random data
+  ten times before pushing.
+- Render every new or changed bot message at 360 px with a Hebrew name, an
+  English name and an empty value before it ships. A line whose first letter
+  may be Latin starts with a right-to-left mark; an isolate alone does not
+  set the line's direction.
+- Before writing any helper or parser, search the whole repository for one
+  (`grep -rn "function parse"`), not only the math seed modules. Export it
+  and import it (refines Sprint 20's rule).
+- Never edit a repository file from a heredoc or `python -c`, tests
+  included. When a change needs many replacements, rewrite the file with
+  Write (refines Sprint 18's and Sprint 20's rule).
+- When answers become buttons, route input by what is on screen: a bare
+  word is an answer only if it is one of the shown options; otherwise it is
+  a command.
+- Write a measurable acceptance criterion only after measuring the data it
+  is about.
+- After any delegated review or agent run, check `git status -sb` before
+  committing: the branch must be the work branch. Push without `-q` and read
+  the line that names the pushed range.
+
+### Follow-ups
+- **Drop repeated Telegram updates.** A retried update, or a typed number
+  sent twice, can answer the next word or question too. Keep the last
+  `update_id` per chat in the webhook (`bot/app/main.py`) and ignore repeats.
+- **`/help` during an exam removes the option buttons.** A reply without
+  buttons sends `remove_keyboard` (`bot/app/telegram.py:51`). Show the
+  current question under the help, as `/report` already does
+  (`bot/app/coach.py`, `report`).
+- **Serve the quiz stages from the API.** `frontend/src/components/vocabulary/stages.js`
+  copies `DIFFICULTY_STAGES` (`backend/src/services/vocabulary.service.js`);
+  a test keeps them equal. Returning the stage's range with the quiz would
+  remove the copy.
+- **More close wrong options above the beginner levels.** They reach 33–50%
+  at word levels 3–10 (49% overall). Grow `backend/src/data/wordGroups.json`
+  beyond the everyday groups.
+- **The lexis source filter's easy website stage has 4 words** (a quiz
+  needs 5). Hide that combination, or widen the stage for one source.
+- **A queued word id that no longer resolves ends a words exam as
+  completed** (`backend/src/services/bot.service.js`, `answer`). Today this
+  happens only after a vocabulary regeneration, which `knowledge.md`
+  forbids. Skip such ids rather than end the exam.
+- **With `FAST_PATH_ANSWERS=false`** (unused in production) a "stop" option
+  button ends the exam (`bot/app/coach.py:150`).
+- Carried: Sprint 20's follow-ups stand.

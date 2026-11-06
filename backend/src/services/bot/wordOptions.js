@@ -52,7 +52,8 @@ function englishSenses(english) {
 const cache = new Map();
 /** What the picker needs of a word, computed once per id and text. */
 function facts(word) {
-  const id = `${word.id}|${word.english_word}|${word.hebrew_translation}`;
+  const alternatives = word.english_alternatives || [];
+  const id = `${word.id}|${word.english_word}|${word.hebrew_translation}|${alternatives.join('|')}`;
   if (!cache.has(id)) {
     const english = englishSenses(word.english_word);
     const hebrew = new Set(hebrewForms(word.hebrew_translation));
@@ -61,6 +62,8 @@ function facts(word) {
     const firstHebrew = String(word.hebrew_translation || '').trim().split(/[\s/,;]/)[0] || '';
     cache.set(id, {
       english, hebrew, main,
+      // Other English answers a review accepted for this word.
+      accepted: new Set(alternatives.flatMap((x) => [...englishSenses(x)])),
       groups: new Set([...english].flatMap((e) => groupsOf.get(e) || [])),
       verb: /^ל/.test(firstHebrew),
       words: Math.min(main.split(' ').length, 3)
@@ -75,8 +78,8 @@ const overlaps = (a, b) => [...a].some((x) => b.has(x));
 function alsoRight(answer, candidate) {
   const a = facts(answer), c = facts(candidate);
   if (overlaps(a.hebrew, c.hebrew) || overlaps(a.english, c.english)) return true;
-  const accepted = new Set((answer.english_alternatives || []).flatMap((x) => [...englishSenses(x)]));
-  return overlaps(c.english, accepted);
+  // A review may have accepted another English for either word (large → also "big").
+  return overlaps(c.english, a.accepted) || overlaps(a.english, c.accepted);
 }
 
 /** Levenshtein distance, for spelling look-alikes (short words only). */

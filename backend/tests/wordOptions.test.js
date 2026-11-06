@@ -35,6 +35,11 @@ describe('wordOptions: what is close, what is also right', () => {
     expect(alsoRight(byId('learn'), byId('study'))).toBe(true); // ללמוד
     expect(alsoRight(byId('light1'), byId('light2'))).toBe(true); // the same English: its Hebrew is right too
     expect(alsoRight(W('x', 'answer', 'תשובה', 2, { english_alternatives: ['reply'] }), W('y', 'reply', 'מענה'))).toBe(true);
+    // Either word's accepted alternative counts: a review accepted "big" for "large" (רחב).
+    expect(alsoRight(W('b', 'big', 'גדול'), W('l', 'large', 'רחב', 2, { english_alternatives: ['big'] }))).toBe(true);
+    // A review that adds an alternative later is seen (not a stale cached answer).
+    expect(alsoRight(W('b', 'big', 'גדול'), W('l2', 'vast', 'עצום'))).toBe(false);
+    expect(alsoRight(W('b', 'big', 'גדול'), W('l2', 'vast', 'עצום', 2, { english_alternatives: ['big'] }))).toBe(true);
     expect(alsoRight(byId('cow'), byId('horse'))).toBe(false);
   });
 

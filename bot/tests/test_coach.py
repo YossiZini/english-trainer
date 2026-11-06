@@ -210,3 +210,17 @@ async def test_stop_is_an_answer_when_it_is_an_option_and_ends_the_exam_otherwis
     assert (await c.handle("7", "end")).text.startswith("סיימנו להיום.")
     assert (await c.handle("7", "/stop")).text.startswith("סיימנו להיום.")
     assert end.call_count == 2 and answer.call_count == 1
+
+
+@respx.mock
+async def test_in_a_words_exam_a_bare_command_that_is_not_an_option_runs():
+    # Answers are the shown options now, so "help" or "report" typed during an exam are the commands.
+    word = {"id": "w", "direction": "en-he", "prompt": "cow", "options": ["פרה", "סוס", "כבשה", "עז"]}
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True, "kind": "vocab", "word": word, "progress": progress(3)}))
+    answer = respx.post(f"{API}/bot/session/answer")
+    report = respx.post(f"{API}/bot/report").mock(return_value=ok(
+        {"ask": True, "target": "word", "reasons": ["wrong_translation", "missing_translation", "bad_sentence", "other"]}))
+    c = coach()
+    assert (await c.handle("7", "help")).text == replies.HELP
+    await c.handle("7", "report")
+    assert report.called and not answer.called
