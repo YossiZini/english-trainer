@@ -346,7 +346,8 @@ describe('Bot API', () => {
     // "stop" and "end" are words of the list: as an option they answer the question, they do not end it.
     const open = await db.findOne('bot_sessions', { chat_id: chatId, status: 'active' });
     const options = [...open.current_options];
-    options[1] = { id: 'other-word', text: 'stop' };
+    // A wrong option becomes "stop" (never the answer: then the question would have no right option).
+    options[options.findIndex(o => o.id !== open.queue[0])] = { id: 'other-word', text: 'stop' };
     await db.updateById('bot_sessions', open.id, { current_options: options });
     const stop = (await bot('/api/bot/session/answer', { text: 'Stop' })).body.data;
     expect(stop).toMatchObject({ correct: false, chosen: 'stop', progress: { index: 2 } });
