@@ -89,9 +89,13 @@ word's options ("stop" and "end" are words of the list). A free-form message (fo
 ## Usage
 
 `/usage` shows every student's participation in the last 7 and the last 30
-days, one line per student, most active first: active days, lessons done,
-words practised, reading texts done, `/kefel` questions answered ("כפל") and
-`/hiluk` questions answered ("חילוק") (week|month), and the last active day.
+days, most active first, one short block per student: the name and the last
+day practised, then a line for the week and a line for the month. Each line
+names only what the student did, in words ("השבוע: 2 ימים · שיעור אחד · 10
+תרגילי כפל"; "בלי תרגול" when nothing): active days, lessons done, words
+practised, reading texts done, `/kefel` and `/hiluk` questions answered. The
+name line starts with a right-to-left mark and isolates the name, so an
+English name does not turn the line left to right (`bot/app/usage_replies.py`).
 There are no scores, points or right/wrong counts. Days are Israel dates
 and each window includes today.
 

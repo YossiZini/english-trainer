@@ -4,10 +4,11 @@ import respx
 
 from app.api_client import TrainerApi
 from app.coach import Coach, parse_command
-from app.usage_replies import MAX_CHARS, NOBODY, usage_reply
+from app.usage_replies import FSI, MAX_CHARS, NOBODY, NOTHING, PDI, RLM, usage_reply
 
 API = "http://api.test/api"
 WINDOWS = {"week": {"from": "2026-06-09", "to": "2026-06-15"}, "month": {"from": "2026-05-17", "to": "2026-06-15"}}
+ZERO = {"activeDays": 0, "lessons": 0, "words": 0, "reading": 0, "drill": 0, "division": 0}
 
 
 class NoAgentRunner:
@@ -22,9 +23,11 @@ def coach():
     return c
 
 
-def student(name, week_days=2, month_days=3, last="2026-06-15"):
-    return {"name": name, "week": {"activeDays": week_days, "lessons": 1, "words": 3, "reading": 1, "drill": 10, "division": 4},
-            "month": {"activeDays": month_days, "lessons": 2, "words": 3, "reading": 1, "drill": 24, "division": 7}, "lastActive": last}
+def student(name, week=None, month=None, last="2026-06-15"):
+    return {"name": name,
+            "week": week or {"activeDays": 2, "lessons": 1, "words": 3, "reading": 1, "drill": 10, "division": 4},
+            "month": month or {"activeDays": 3, "lessons": 2, "words": 3, "reading": 1, "drill": 24, "division": 7},
+            "lastActive": last}
 
 
 def ok(data):
@@ -36,34 +39,52 @@ def test_parse_usage():
     assert parse_command("usage") == ("usage", {})
 
 
-def test_one_line_per_student_week_then_month_without_scores():
-    reply = usage_reply(ok({"windows": WINDOWS, "students": [student("dana"), student("omer", 0, 1, "2026-05-17")], "inactive": 2}))
-    lines = reply.text.split("\n")
-    assert lines[0] == "📊 מי תרגל: שבוע (09.06–15.06) | חודש (17.05–15.06)"
-    assert lines[1] == "המספרים: השבוע|החודש"
-    assert lines[2] == "1. dana: ימים 2|3 · שיעורים 1|2 · מילים 3|3 · קריאה 1|1 · כפל 10|24 · חילוק 4|7 · אחרון 15.06"
-    assert lines[3].startswith("2. omer: ימים 0|1") and lines[3].endswith("אחרון 17.05")
-    assert lines[4] == "2 תלמידים לא תרגלו ב-30 הימים האחרונים."
-    assert "ציון" not in reply.text and reply.buttons == []
+def test_one_block_per_student_the_week_then_the_month_in_words_without_scores():
+    omer = student("omer", week=ZERO, month={**ZERO, "activeDays": 1, "lessons": 1}, last="2026-05-17")
+    reply = usage_reply(ok({"windows": WINDOWS, "students": [student("dana"), omer], "inactive": 2}))
+    assert reply.text.split("\n") == [
+        "📊 מי תרגל",
+        "השבוע: 09.06 עד 15.06",
+        "החודש: 17.05 עד 15.06",
+        "",
+        f"{RLM}👤 {FSI}dana{PDI} · תרגול אחרון: 15.06",
+        "השבוע: 2 ימים · שיעור אחד · 3 מילים · קטע קריאה אחד · 10 תרגילי כפל · 4 תרגילי חילוק",
+        "החודש: 3 ימים · 2 שיעורים · 3 מילים · קטע קריאה אחד · 24 תרגילי כפל · 7 תרגילי חילוק",
+        "",
+        f"{RLM}👤 {FSI}omer{PDI} · תרגול אחרון: 17.05",
+        f"השבוע: {NOTHING}",
+        "החודש: יום אחד · שיעור אחד",
+        "",
+        "2 תלמידים לא תרגלו ב-30 הימים האחרונים.",
+    ]
+    assert "ציון" not in reply.text and "|" not in reply.text and reply.buttons == []
 
 
-def test_a_summary_without_drills_shows_zero():
-    old = student("dana")
-    for window in ("week", "month"):
-        del old[window]["drill"]
-        del old[window]["division"]
-    line = usage_reply(ok({"windows": WINDOWS, "students": [old], "inactive": 0})).text.split("\n")[2]
-    assert "· כפל 0|0 · חילוק 0|0 ·" in line
+def test_what_a_student_did_not_do_is_left_out():
+    old = student("dana", week={"activeDays": 1, "words": 1}, month={"activeDays": 4, "words": 12})
+    lines = usage_reply(ok({"windows": WINDOWS, "students": [old], "inactive": 0})).text.split("\n")
+    assert lines[5:7] == ["השבוע: יום אחד · מילה אחת", "החודש: 4 ימים · 12 מילים"]
 
 
-def test_long_lists_are_cut_to_30_lines_and_one_message():
+def test_a_hebrew_or_english_name_cannot_turn_the_line_around():
+    # The line starts with a right-to-left mark (its first letter sets its direction); the name is isolated.
+    reply = usage_reply(ok({"windows": WINDOWS, "students": [student("Dana Levi"), student("אלונה")], "inactive": 0}))
+    assert f"\n{RLM}👤 {FSI}Dana Levi{PDI} · " in reply.text and f"\n{RLM}👤 {FSI}אלונה{PDI} · " in reply.text
+
+
+def test_long_lists_are_cut_to_30_students_and_one_message():
     many = [student(f"student number {i} with a very long name indeed") for i in range(45)]
     reply = usage_reply(ok({"windows": WINDOWS, "students": many, "inactive": 0}))
     assert len(reply.text) <= MAX_CHARS
-    shown = [l for l in reply.text.split("\n") if l[:1].isdigit() and ". " in l]
+    shown = [l for l in reply.text.split("\n") if l.startswith(f"{RLM}👤")]
     assert 0 < len(shown) <= 30
     assert reply.text.endswith(f"ועוד {45 - len(shown)} תלמידים.")
     assert "…" in shown[0]  # long names are shortened
+
+
+def test_one_inactive_student_is_said_in_the_singular():
+    reply = usage_reply(ok({"windows": WINDOWS, "students": [student("dana")], "inactive": 1}))
+    assert reply.text.endswith("תלמיד אחד לא תרגל ב-30 הימים האחרונים.")
 
 
 def test_nobody_active_and_errors():
@@ -77,4 +98,4 @@ async def test_usage_command_calls_the_api():
         "success": True, "data": {"windows": WINDOWS, "students": [student("dana")], "inactive": 0}}))
     reply = await coach().handle("7", "/usage")
     assert route.calls.last.request.url.params["chatId"] == "7"
-    assert "1. dana:" in reply.text
+    assert f"{RLM}👤 {FSI}dana{PDI}" in reply.text
