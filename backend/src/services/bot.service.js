@@ -27,7 +27,11 @@ const ReportService = require('./report.service');
 const POINTS_PER_CORRECT = 1;
 const isExampleRequest = (text) => EXAMPLE_WORDS.includes(String(text || '').trim().toLowerCase());
 
-const LEVEL_WORDS = { easy: 1, medium: 2, hard: 3, 'קל': 1, 'בינוני': 2, 'קשה': 3 };
+/** Level names a student may type instead of the number (wordPicker.LEVELS). */
+const LEVEL_WORDS = Object.assign(
+  { beginner: 1, easy: 2, medium: 3, advanced: 4, hard: 5 },
+  ...Object.entries(LEVELS).map(([key, v]) => ({ [v.he]: Number(key) }))
+);
 
 /** The two directions of the words exam: the shown side → the side the student chooses from. */
 const DIRECTIONS = {
@@ -39,10 +43,10 @@ const directionOf = (session) => session.direction || 'en-he';
 const directionLabel = (key) => Object.values(DIRECTIONS).find(d => d.key === key).he;
 const opposite = (key) => (key === 'he-en' ? 'en-he' : 'he-en');
 
-/** 1, 2 or 3 from a button press or a level word, else null. */
+/** A level's number (1–5) from a button press or a level word, else null. */
 function parseChoice(text) {
   const t = String(text || '').trim().toLowerCase();
-  if (/^[123]$/.test(t)) return Number(t);
+  if (/^\d$/.test(t)) return LEVELS[t] ? Number(t) : null;
   return LEVEL_WORDS[t] || null;
 }
 

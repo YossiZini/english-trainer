@@ -12,11 +12,13 @@ const { shuffleArray } = require('../utils/shuffle');
  * Handles all vocabulary quiz business logic
  */
 class VocabularyService {
-  // Difficulty stage ranges
+  // The quiz's stages: word levels (docs/words/relevel), one level shared with
+  // the next stage, about a third of the words each. The website shows the
+  // same ranges (frontend/src/components/vocabulary/stages.js); keep them equal.
   static DIFFICULTY_STAGES = {
-    1: { min: 1, max: 3 },    // Easy
-    2: { min: 3, max: 5 },    // Medium
-    3: { min: 5, max: 10 }    // Hard
+    1: { min: 1, max: 4 },    // Easy
+    2: { min: 4, max: 7 },    // Medium
+    3: { min: 7, max: 10 }    // Hard
   };
 
   /**

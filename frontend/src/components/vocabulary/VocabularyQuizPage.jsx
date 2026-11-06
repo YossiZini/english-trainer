@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import vocabularyService from '../../services/vocabularyService';
 import VocabularyQuestion from './VocabularyQuestion';
+import { stageRange } from './stages';
 import { startEncouragement } from '../../content/encouragement';
 import './VocabularyQuizPage.css';
 
@@ -88,9 +89,9 @@ const VocabularyQuizPage = () => {
 
   const getDifficultyLabel = (stage) => {
     switch (stage) {
-      case 1: return 'קל (1-3)';
-      case 2: return 'בינוני (3-5)';
-      case 3: return 'קשה (5-10)';
+      case 1: return `קל (${stageRange(1)})`;
+      case 2: return `בינוני (${stageRange(2)})`;
+      case 3: return `קשה (${stageRange(3)})`;
       default: return 'רמה ' + stage;
     }
   };

@@ -22,6 +22,9 @@ session cannot see elsewhere.
   :3000 and proxies `/api`.
 - Content: `npm run generate-data -- math`, then restart the API. Records of
   other topics must stay identical (compare by id).
+- Vocabulary: never `generate-data -- --all` (new random ids cut students'
+  scores off their words). Levels change through `docs/words/relevel`
+  (`relevel.py`, `moves.csv`, then `apply.py`); check `word-levels.js`.
 - Reading texts: seed `seed-unseen-paragraphs.js`, then
   `npm run generate-data -- --unseen` (ids kept by English title); guide
   `backend/create-unseen.md`.
