@@ -12,6 +12,18 @@ student.
 | `moves.csv` | Moves made by hand, each with its reason (edit this, then rerun) |
 | `proposal.csv` | Every word: old level, score parts, new level, the hand move's reason |
 | `report.md` | Per level, before and after: size, median frequency, Band III share, concrete share, multi-word share, patterns, first letters |
+| `apply.py` | Writes `proposal.csv`'s new levels into `backend/data/static/vocabulary_words.json` (by id) and `docs/words/words.csv` (the level field only, in place), and proves every id and every other field unchanged |
+
+The owner approved the levels on 2026-11-06 and they were applied with
+`apply.py`. `node backend/scripts/checks/word-levels.js` checks the applied
+levels: sizes, first letters, no pattern, phrasal verb or 3+ word phrase
+below level 5, falling frequency, and the CSV, the JSON and the proposal
+agreeing for every word.
+
+Do not regenerate the vocabulary with `npm run generate-data -- --all`
+to change a level: the generator gives every word a new id, which would cut
+students' scores off their words. Edit `moves.csv` (or the score), rerun
+`relevel.py`, then `apply.py`.
 
 Run from the repository root with a Python that has `wordfreq` (a dev-time
 tool; the app never imports it):
