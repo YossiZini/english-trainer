@@ -27,7 +27,11 @@
   border-top: 0.09em solid currentColor;
 }
 
-/* A glued equation that holds a fraction stays on one line (MathText). */
-.math-text .math-line {
+/* An equation marked math-line stays on one line, wherever it is shown: a
+   browser breaks a line right next to a stacked fraction, and an equation
+   broken in two reads backwards in Hebrew. MathText marks a glued isolate
+   that holds a fraction; a chapter with `oneLine` (seeds) marks every
+   equation span of its theory and picture captions. */
+.math-line {
   white-space: nowrap;
 }

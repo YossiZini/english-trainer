@@ -326,6 +326,7 @@ function checkPictures(where, html) {
         for (const p of l.points) if (p.label !== 'A' && f.caption && !cap.all.some((v) => same(v, dec(p.at)))) fail(where, `the caption does not name point ${p.at}`);
       } else if (/data-place-value="1"/.test(svg)) {
         const t = readTable(where, svg);
+        read.push({ kind: 'place', numbers: t.numbers });
         for (const d of cap.decimals) if (!t.numbers.some((n) => same(dec(n), d))) fail(where, `the caption's ${write(d)} is not a row of the table`);
         const said = capText.match(/הספרה (\d)|(אפס) במקום/);
         if (said && t.mark && (said[1] || '0') !== t.marked) fail(where, `the caption names digit ${said[1] || '0'}, the marked one is ${t.marked}`);
@@ -536,7 +537,13 @@ for (const e of exercises) {
   const qPicture = e.question_picture ? checkPictures(`${where} question picture`, `<figure class="math-figure">${e.question_picture}</figure>`) : [];
   if (stackedDecimal(e.explanation_picture)) fail(where, 'a decimal over a fraction bar in the explanation picture');
   if (unmarked(e.explanation_picture)) fail(where, 'an equation span without class math-line in the explanation picture');
-  if (e.explanation_picture) checkPictures(`${where} explanation picture`, unstack(e.explanation_picture));
+  const ePicture = e.explanation_picture ? checkPictures(`${where} explanation picture`, unstack(e.explanation_picture)) : [];
+  // An order's place-value table shows every number of the chain it explains.
+  if (/^איזה סדר נכון, מהקטן לגדול\?$/.test(bare(e.question_text_he).trim())) {
+    const table = ePicture.find((p) => p.kind === 'place');
+    const left = answer.split(' < ').filter((n) => !table || !table.numbers.some((t) => same(dec(t), dec(n))));
+    if (left.length) fail(where, `the explanation's table leaves out ${left.join(', ')}`);
+  }
 
   let r;
   try { r = recompute(e.question_text_he, options, qPicture); } catch (err) { fail(where, err.message); continue; }

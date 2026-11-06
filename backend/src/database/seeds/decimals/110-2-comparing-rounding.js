@@ -40,7 +40,7 @@ function orderQ(n, level, numbers) {
   const p = Math.max(...numbers.map(places));
   return choiceQ(n, level, 'איזה סדר נכון, מהקטן לגדול?', chain(up), wrongs.slice(0, 3),
     `משלימים אפסים עד ${p} ספרות אחרי הנקודה ומשווים: ${ltr(chain(up.map((s) => fill(s, p))))}.`,
-    { picture: pic(P.placeValue(up.slice(0, 3).map((s) => fill(s, p))), 'אותו מספר ספרות אחרי הנקודה') });
+    { picture: pic(P.placeValue(up.map((s) => fill(s, p))), 'אותו מספר ספרות אחרי הנקודה') });
 }
 
 /** Round x to a whole (k = 0) or to a tenth (k = 1); the picture shows the two neighbours. */

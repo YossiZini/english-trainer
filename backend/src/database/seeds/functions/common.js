@@ -4,10 +4,11 @@
 // from the common mistakes, grids with the whole line and tables of values for
 // the theory, the explanation and the question, and the lesson builder.
 // Reading order: math-content-guide.md, "Linear functions".
-const { ltr, P, eq, pic, mathLesson, optionsQuestion } = require('../multiplication/common');
-const { S, pair, at, num, spans } = require('../axes/common');
-
-const glue = (s) => s.replace(/ /g, ' ');
+const { ltr, P, eq, pic, glue, mathLesson, optionsQuestion } = require('../multiplication/common');
+// pointQ: a question whose answer is a point ("(3, 0)"), wrong ones from `extra`
+// first, then x and y swapped and the signs flipped; it refuses fewer than three.
+const { S, pair, at, num, spans, pointQ } = require('../axes/common');
+const { gcd } = require('../ratio/common');
 
 /**
  * A rule as written: rule(2, 1) → "y = 2x + 1", rule(−1, 3) → "y = −x + 3",
@@ -45,7 +46,6 @@ function slopeOf([x1, y1], [x2, y2]) {
   const [p, q] = [rise / g * Math.sign(run), Math.abs(run) / g];
   return { rise, run, slope: q === 1 ? S(p) : `${p < 0 ? '−' : ''}${Math.abs(p)}/${q}` };
 }
-function gcd(a, b) { return b ? gcd(b, a % b) : a; }
 
 /** The first three different whole numbers of `candidates` that are not `answer`, written with a real minus. */
 function wrongsOf(answer, candidates) {
@@ -80,17 +80,6 @@ function ruleQ(n, level, text, [m, b], explanation, { extra = [], ...opts } = {}
     if (r !== answer && !wrongs.includes(r)) wrongs.push(r);
   }
   if (wrongs.length < 3) throw new Error(`Not enough wrong rules for ${answer}`);
-  return optionsQuestion(n, level, text, answer, wrongs.slice(0, 3), explanation, opts);
-}
-
-/** A question whose answer is a point: "(3, 0)"; wrong ones from `extra` first, then x and y swapped, a sign flipped. */
-function pointQ(n, level, text, [x, y], explanation, { extra = [], ...opts } = {}) {
-  const answer = pair(x, y);
-  const wrongs = [];
-  for (const [p, q] of [...extra, [y, x], [-x, y], [x, -y], [-x, -y], [x + 1, y], [x, y + 1]]) {
-    const w = pair(p, q);
-    if (w !== answer && !wrongs.includes(w)) wrongs.push(w);
-  }
   return optionsQuestion(n, level, text, answer, wrongs.slice(0, 3), explanation, opts);
 }
 

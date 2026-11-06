@@ -788,11 +788,6 @@
   font-size: 0.95rem;
   color: #555;
 }
-/* An equation the seed marks math-line (it holds a stacked fraction) stays on
-   one line: a browser would break it next to the fraction's box. */
-.theory-html .math-line {
-  white-space: nowrap;
-}
 .theory-html .math-pic {
   max-width: 100%;
   height: auto;
