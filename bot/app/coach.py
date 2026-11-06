@@ -151,17 +151,15 @@ class Coach:
             return await self.run_command(chat_id, *command) if command else None
         status = await self.api.status(chat_id)
         active = status["ok"] and status["data"].get("active")
-        # A bare word is an answer where one is a word: a fill-in question,
-        # or the words exam, whose buttons carry the options' words ("review",
-        # "report", "help" and "math" are words of the list). A multiple-choice
-        # answer is a number, so there a bare command still works. "/help"
-        # always does; a bare "end" or "stop" too, unless it is one of the
-        # word's options ("stop" is a word of the list).
+        # A bare command word is an answer only where it can be one: a fill-in
+        # question (any word), or one of the shown word's options in the words
+        # exam, whose buttons carry words ("review", "report", "help", "stop"
+        # are words of the list). Anywhere else it runs as the command, so
+        # "help" or "report" typed during an exam still works. "/help" always
+        # does.
         question = status["data"].get("question") if active else None
         word = status["data"].get("word") if active and status["data"].get("kind") == "vocab" else None
-        typed = bool(word) or (bool(question) and question.get("type") != "multiple_choice")
-        if command and command[0] == "end" and not _is_option(text, word):
-            return await self.run_command(chat_id, *command)
+        typed = _is_option(text, word) or (bool(question) and question.get("type") != "multiple_choice")
         if command and not typed:
             return await self.run_command(chat_id, *command)
         if active and status["data"].get("kind") == "review":

@@ -12,6 +12,8 @@
 const fs = require('fs');
 const path = require('path');
 const { core } = require('../../src/utils/englishAnswer');
+// words.csv read the way the generator reads it.
+const { parseCSVLine: fields } = require('../../src/data/generateJsonData');
 
 const ROOT = path.join(__dirname, '../../..');
 const words = require(path.join(ROOT, 'backend/data/static/vocabulary_words.json'));
@@ -21,18 +23,6 @@ const SHAPED_FROM = 5;
 const PARTICLES = new Set(['up', 'down', 'off', 'on', 'out', 'in', 'away', 'back', 'over', 'around', 'about',
   'along', 'through', 'into', 'after', 'by', 'for', 'with']);
 
-// CSV fields as generateJsonData.js reads them: a quote only toggles.
-function fields(line) {
-  const out = [];
-  let current = '';
-  let quoted = false;
-  for (const ch of line) {
-    if (ch === '"') quoted = !quoted;
-    else if (ch === ',' && !quoted) { out.push(current); current = ''; } else current += ch;
-  }
-  out.push(current);
-  return out;
-}
 const rowsOf = (file) => {
   const [head, ...lines] = fs.readFileSync(file, 'utf8').split('\n').filter((l) => l.trim());
   const names = fields(head);

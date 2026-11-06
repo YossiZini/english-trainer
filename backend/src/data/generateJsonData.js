@@ -731,6 +731,7 @@ if (require.main === module) {
 module.exports = {
   generateLessonsAndExercises,
   generateVocabularyWords,
+  parseCSVLine,
   generateUnseenData,
   buildUnseenRecords,
   loadUnseenSeed,
