@@ -71,17 +71,9 @@ class VocabularyWord {
     }));
   }
 
-  /** English entries of the other words stored with this exact Hebrew translation. */
-  static async findEnglishByHebrew(hebrew, excludeId = null) {
-    return (await served('kept'))
-      .filter(w => w.hebrew_translation === hebrew && w.id !== excludeId)
-      .map(w => w.english_word);
-  }
-
-  /** Whether any stored English entry equals `text` once both go through `normalize`. */
-  static async isEnglishWord(text, normalize = s => String(s || '').trim().toLowerCase()) {
-    const t = normalize(text);
-    return !!t && db.getCollection('vocabulary_words', true).some(w => normalize(w.english_word) === t);
+  /** Every word a question may offer: the bundled words with the reviews applied, none under review or removed. */
+  static async visible() {
+    return served('visible');
   }
 
   /**

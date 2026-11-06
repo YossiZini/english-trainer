@@ -105,6 +105,12 @@ def parse_command(text: str) -> tuple[str, dict] | None:
     return None
 
 
+def _is_option(text: str, word: dict | None) -> bool:
+    """Whether `text` is one of the current word's options (as its button sends it)."""
+    options = (word or {}).get("options") or []
+    return text.strip().lower() in (o.strip().lower() for o in options)
+
+
 class Coach:
     def __init__(self, api: TrainerApi | None = None, agent=None, reviewer=None):
         self.api = api or TrainerApi()
@@ -139,20 +145,23 @@ class Coach:
             # The button under a words summary: the same words, the other way round.
             return await self.run_command(chat_id, "switch", {})
         command = parse_command(text)
-        if command and (text.startswith("/") or command[0] == "end"):
+        if command and text.startswith("/"):
             return await self.run_command(chat_id, *command)
         if not config.FAST_PATH_ANSWERS:
             return await self.run_command(chat_id, *command) if command else None
         status = await self.api.status(chat_id)
         active = status["ok"] and status["data"].get("active")
-        # A bare word is an answer while the student types one: a fill-in
-        # question, or a word of the words exam (where "review", "report",
-        # "help" and "math" are real words to translate). A multiple-choice
+        # A bare word is an answer where one is a word: a fill-in question,
+        # or the words exam, whose buttons carry the options' words ("review",
+        # "report", "help" and "math" are words of the list). A multiple-choice
         # answer is a number, so there a bare command still works. "/help"
-        # always does.
+        # always does; a bare "end" or "stop" too, unless it is one of the
+        # word's options ("stop" is a word of the list).
         question = status["data"].get("question") if active else None
-        words_exam = active and status["data"].get("kind") == "vocab" and bool(status["data"].get("word"))
-        typed = words_exam or (bool(question) and question.get("type") != "multiple_choice")
+        word = status["data"].get("word") if active and status["data"].get("kind") == "vocab" else None
+        typed = bool(word) or (bool(question) and question.get("type") != "multiple_choice")
+        if command and command[0] == "end" and not _is_option(text, word):
+            return await self.run_command(chat_id, *command)
         if command and not typed:
             return await self.run_command(chat_id, *command)
         if active and status["data"].get("kind") == "review":
@@ -367,8 +376,9 @@ class Coach:
             return Reply(replies.UNREACHABLE)
         if direct:
             # A tool's whole reply, as it is: an /unseen text before its question (longer than the model
-            # may write), or a question's picture (the model cannot send a photo).
-            return Reply(direct["reply"], list(direct.get("buttons") or []), list(direct.get("before") or []), direct.get("photo"))
+            # may write), a question's picture (the model cannot send a photo) or a word's option buttons.
+            return Reply(direct["reply"], list(direct.get("buttons") or []), list(direct.get("before") or []), direct.get("photo"),
+                         direct.get("columns") or 0)
         # The help text is longer than the model's output cap: send it as is.
         return Reply(replies.HELP if helped else reply or replies.HELP)
 

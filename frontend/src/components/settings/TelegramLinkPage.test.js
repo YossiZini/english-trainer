@@ -36,4 +36,11 @@ describe('TelegramLinkPage', () => {
     ['/words', '/english', '/math', '/arabic', '/unseen', '/kefel', '/hiluk', '/mistakes', '/end', '/help'].forEach((command) =>
       expect(screen.getByText(command)).toBeInTheDocument());
   });
+
+  test('says a word is chosen from four options, not typed', async () => {
+    telegramService.getLink.mockResolvedValue({ linked: false });
+    render(<TelegramLinkPage />);
+    await screen.findByText('הטלגרם עדיין לא מחובר');
+    expect(screen.getByText(/4 תרגומים לבחירה/)).toHaveTextContent('בלי להקליד');
+  });
 });

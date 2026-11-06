@@ -8,7 +8,9 @@ from app.api_client import TrainerApi
 
 class Ctx:
     def __init__(self, chat_id="42"):
+        from google.adk.events.event_actions import EventActions
         self.state = {"chat_id": chat_id}
+        self.actions = EventActions()
 
 
 def api():
@@ -33,16 +35,22 @@ async def test_answer_wrong_shows_expected_and_round_start_and_done():
     tools.set_api(api())
     respx.post("http://api.test/api/bot/session/answer").mock(side_effect=[
         httpx.Response(200, json={"success": True, "data": {
-            "correct": False, "expected": "תפוח", "roundStarted": True, "done": False,
-            "word": {"id": "w2", "english": "dog"}, "progress": {"round": 2, "index": 1, "total": 3, "failedInRound": 0}}}),
+            "correct": False, "chosen": "שולחן", "expected": "תפוח", "roundStarted": True, "done": False,
+            "word": {"id": "w2", "english": "dog", "prompt": "dog", "options": ["חתול", "כלב", "דג", "דוב"]},
+            "progress": {"round": 2, "index": 1, "total": 3, "failedInRound": 0}}}),
         httpx.Response(200, json={"success": True, "data": {
             "correct": True, "expected": None, "points": 1, "roundStarted": False, "done": True, "word": None,
             "summary": {"words": 20, "rounds": 2, "correct": 20, "wrong": 3, "remainingFailed": 0, "points": 20, "totalPoints": 57}}}),
     ])
-    first = (await tools.answer_word("שולחן", Ctx()))["reply"]
+    ctx = Ctx()
+    sent = await tools.answer_word("שולחן", ctx)
+    first = sent["reply"]
     from app.encouragement import LINES
     assert first.startswith(f"{LINES[0]}\nהתרגום: תפוח")
-    assert "חוזרים על 3 המילים" in first and first.endswith("(1/3) dog")
+    assert "חוזרים על 3 המילים" in first and first.endswith("(1/3) dog\n1) חתול\n2) כלב\n3) דג\n4) דוב")
+    # The next word's options are buttons the model cannot send: the reply goes out as it is.
+    assert sent["direct"] is True and ctx.actions.skip_summarization is True
+    assert sent["buttons"] == ["חתול", "כלב", "דג", "דוב"] and sent["columns"] == 2
     done = (await tools.answer_word("כלב", Ctx()))["reply"]
     assert done.startswith("✅ נכון! +1") and "כל הכבוד" in done and "20 מילים" in done
     assert "⭐ צברתם 20 נקודות (סה\"כ 57)." in done

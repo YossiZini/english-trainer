@@ -48,20 +48,22 @@ def parse_update(update: dict) -> tuple[str, str] | None:
     return str(chat["id"]), message["text"]
 
 
-def reply_markup(buttons: list[str] | None) -> dict:
-    """A one-row reply keyboard for the given buttons, or remove the keyboard."""
+def reply_markup(buttons: list[str] | None, columns: int = 0) -> dict:
+    """A reply keyboard for the given buttons, in one row or `columns` a row; or remove the keyboard."""
     if buttons:
-        return {"keyboard": [[{"text": b} for b in buttons]], "resize_keyboard": True, "one_time_keyboard": True}
+        size = columns or len(buttons)
+        rows = [[{"text": b} for b in buttons[i:i + size]] for i in range(0, len(buttons), size)]
+        return {"keyboard": rows, "resize_keyboard": True, "one_time_keyboard": True}
     return {"remove_keyboard": True}
 
 
 async def send_message(chat_id: str, text: str, buttons: list[str] | None = None,
-                       client: httpx.AsyncClient | None = None) -> bool:
+                       client: httpx.AsyncClient | None = None, columns: int = 0) -> bool:
     url = f"{config.TELEGRAM_API}/bot{config.TELEGRAM_BOT_TOKEN}/sendMessage"
     own = client is None
     client = client or httpx.AsyncClient(timeout=config.API_TIMEOUT_SECONDS)
     try:
-        res = await client.post(url, json={"chat_id": chat_id, "text": text, "reply_markup": reply_markup(buttons)})
+        res = await client.post(url, json={"chat_id": chat_id, "text": text, "reply_markup": reply_markup(buttons, columns)})
         return res.status_code == 200
     except httpx.HTTPError:
         return False

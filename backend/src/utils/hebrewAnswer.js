@@ -1,10 +1,10 @@
 /**
- * Free-text matching of a Hebrew translation against the stored one.
+ * The Hebrew senses of a stored translation, for the bot's word options (a
+ * wrong option never shares one with the answer).
  *
- * The bot student types the translation; the stored translation may list
- * alternatives ("לגמרי לבד / בעצמו", "גדול, ענק") and optional parts in
- * parentheses ("(מאוד) גדול"). Matching ignores nikkud, punctuation, letter
- * case (Latin) and extra spaces. Nothing is judged by a model.
+ * A stored translation may list alternatives ("לגמרי לבד / בעצמו", "גדול,
+ * ענק") and optional parts in parentheses ("(מאוד) גדול"). Senses ignore
+ * nikkud, punctuation, letter case (Latin) and extra spaces.
  */
 
 const NIKKUD = /[֑-ׇ]/g;
@@ -37,22 +37,4 @@ function alternatives(translation) {
   return [...forms];
 }
 
-/** True when the student's text matches any accepted form. */
-function hebrewAnswerMatches(userText, translation) {
-  const given = normalize(userText);
-  if (!given) return false;
-  return alternatives(translation).includes(given);
-}
-
-/**
- * Whether a non-matching answer may be sent to a model for a second opinion:
- * short, and Hebrew letters (plus spaces and punctuation) only, so a message
- * can never carry instructions in another language to the judge.
- */
-function judgeable(userText, maxChars = 40) {
-  const t = String(userText || '').trim();
-  return t.length > 0 && t.length <= maxChars && /[\u05D0-\u05EA]/.test(t)
-    && /^[\u0590-\u05FF\s.,'"׳״\-()/]+$/.test(t);
-}
-
-module.exports = { normalize, alternatives, hebrewAnswerMatches, judgeable };
+module.exports = { normalize, alternatives };

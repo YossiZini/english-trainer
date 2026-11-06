@@ -133,7 +133,6 @@ flowchart LR
   tg -. "question pictures, PNG by URL" .-> browser
   bot -- "/api/bot, service key + chat id" --> api
   bot -. "free-form messages" .-> gemini
-  api -. "answer checks" .-> gemini
   api --> fs
   api --> content
   browser --> gcs
@@ -178,14 +177,14 @@ flowchart LR
             <li>Progress, points, achievements, daily challenges</li>
             <li>Mistakes exam per subject: up to 20 of a student's unfixed mistakes in one subject; each answer is graded as it comes and a right one fixes its mistake at once; one rule for the web and the bot</li>
             <li>Vocabulary quiz, word scores, failed words, review mode</li>
-            <li>Answer check: a typed translation (Hebrew or English) that misses the dictionary gets one yes/no from Gemini</li>
+            <li>Words exam in the bot: every word is a choice of four, the answer and wrong options of the same group, family or look-alike spelling, never another right translation; a choice is graded against the options shown, once</li>
             <li>Bot API: vocabulary, lesson-exercise, reading-text and drill sessions, chat linking, service key, rate and daily caps</li>
             <li>Drills: ten new questions per round, made and graded by the API inside the bot session, multiplication table (/kefel) or division with a remainder and long division (/hiluk); nothing goes to results, points, progress or mistakes, and the usage summary counts the answered questions</li>
             <li>Reading texts in the bot: the student's next English text (or one picked from the list) with its five questions; the reading is recorded in the website's own reading records (answers, score, the text's progress), so the website and the usage summary count it, with no points or mistakes; each answer is taken once, in a transaction, so two answers to one question never both count; a reading's end is safe to repeat, and an end that failed to reach the website is saved by the next /unseen</li>
             <li>Question and word reports: a reported question or word is hidden until a student reviews it in Telegram; review decisions are applied live as a layer over the bundled questions and words</li>
             <li>Usage summary: participation per student across lessons, words, reading and the two drills, read with date-range queries and cached for 10 minutes</li>
           </ul></dd></div>
-          <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Node 22</span><span class="chip">Express 5</span><span class="chip">Firestore SDK</span><span class="chip">Google Gen AI SDK</span><span class="chip">Cloud Run</span><span class="chip">Jest + emulator</span></dd></div>
+          <div><dt>Tech stack</dt><dd class="stack"><span class="chip">Node 22</span><span class="chip">Express 5</span><span class="chip">Firestore SDK</span><span class="chip">Cloud Run</span><span class="chip">Jest + emulator</span></dd></div>
         </dl>
       </article>
 
@@ -218,7 +217,7 @@ flowchart LR
           <tr><td>Firestore</td><td>Student database, reached only through the API</td><td>Users, progress, results, word scores, failed words, bot sessions, Telegram links, bot usage, question and word reports and review corrections</td></tr>
           <tr><td>Curriculum content</td><td>Read-only JSON built from seed files and shipped inside the API image</td><td>Lessons, exercises, vocabulary words, reading passages</td></tr>
           <tr><td>Secret Manager</td><td>Keys injected into the services at start</td><td>JWT secret, bot API key, Telegram token, webhook secret</td></tr>
-          <tr><td>Vertex AI</td><td>Gemini Flash for the bot's free-form messages and the API's answer checks; Gemini Pro for the review agent</td><td>Nothing; billed per call, capped by the bot and a daily review cap per student</td></tr>
+          <tr><td>Vertex AI</td><td>Gemini Flash for the bot's free-form messages; Gemini Pro for the review agent (the API calls no model)</td><td>Nothing; billed per call, capped by the bot and a daily review cap per student</td></tr>
           <tr><td>Cloud Storage</td><td>Public lesson videos</td><td>Video files</td></tr>
           <tr><td>Google Fonts</td><td>The Arabic font (Noto Naskh Arabic), loaded by the browser without holding up the page; if it is blocked, Arabic shows in the device's own font</td><td>Nothing</td></tr>
           <tr><td>GitHub Actions</td><td>Tests, then deploys on every merge to main</td><td>No keys: signs in through Workload Identity</td></tr>
@@ -295,7 +294,7 @@ sequenceDiagram
       <div class="flow-head">
         <span class="tag bot">Telegram bot</span>
         <h3>A vocabulary session in Telegram</h3>
-        <p>The bot asks the level and the direction (English to Hebrew or Hebrew to English), then sends 20 words from the whole vocabulary. Failed words come back shuffled until none are left. The API scores every answer; an answer that misses the dictionary is first checked by the API with Gemini. "?" shows an example sentence for the current word. After the summary, one button repeats the same words the other way round.</p>
+        <p>The bot asks the level and the direction (English to Hebrew or Hebrew to English), then sends 20 words from the whole vocabulary, each with four options as buttons; the student taps one, nothing is typed. Failed words come back shuffled until none are left. The API picks the options and scores every choice; no model is involved. "?" shows an example sentence for the current word. After the summary, one button repeats the same words the other way round.</p>
       </div>
       <div class="diagram">
 <pre class="mermaid">
@@ -303,7 +302,6 @@ sequenceDiagram
   actor S as Student
   participant B as Bot service
   participant A as Trainer API
-  participant G as Gemini
   participant D as Firestore
   S->>B: /words
   B->>A: Start session
@@ -316,8 +314,9 @@ sequenceDiagram
   S->>B: Direction
   B->>A: Answer
   A->>A: Pick 20 words at that level
-  A-->>B: First word, in the chosen language
-  B-->>S: Translate it
+  A->>A: Four options for the first word
+  A-->>B: First word, in the chosen language, with its options
+  B-->>S: The word, four options as buttons
   loop Each word, then rounds of failed words
     opt Student sends ?
       S->>B: ?
@@ -325,14 +324,11 @@ sequenceDiagram
       A-->>B: Example sentence, same word
       B-->>S: Example sentence
     end
-    S->>B: Typed translation
+    S->>B: Taps an option
     B->>A: Answer
-    opt Answer misses the dictionary
-      A->>G: Is this translation acceptable
-      G-->>A: Yes or no
-    end
+    A->>A: Is it the word, and claimed once
     A->>D: Word score, failed word, points
-    A-->>B: Right or wrong, next word
+    A-->>B: Right or wrong, next word with its options
     B-->>S: Verdict with points, next word
   end
   A-->>B: Summary
@@ -496,8 +492,8 @@ flowchart LR
     <div class="principles">
       <div class="principle"><h3>One owner for data</h3><p>Only the API touches Firestore. The database rules deny all direct client access.</p></div>
       <div class="principle"><h3>Every call authenticated</h3><p>Students use a JWT. The bot uses a service key plus a linked chat. Telegram must present the webhook secret.</p></div>
-      <div class="principle"><h3>The model has narrow jobs</h3><p>Words, points and counters come from the API. Gemini routes free-form messages, gives a yes/no on answers that miss the dictionary, and proposes fixes to reported questions and words; the API validates every fix and the reviewer approves in manual mode.</p></div>
-      <div class="principle"><h3>Hard caps</h3><p>60 messages per minute per chat, 300 per student per day, 2 bot instances, 100 answer checks per student per day, bounded tokens and calls, and a monthly budget alert.</p></div>
+      <div class="principle"><h3>The model has narrow jobs</h3><p>Words, points and counters come from the API. Gemini routes free-form messages and proposes fixes to reported questions and words; every answer is a choice the API grades; the API validates every fix and the reviewer approves in manual mode.</p></div>
+      <div class="principle"><h3>Hard caps</h3><p>60 messages per minute per chat, 300 per student per day, 2 bot instances, 40 review proposals per student per day, bounded tokens and calls, and a monthly budget alert.</p></div>
     </div>
   </section>
 

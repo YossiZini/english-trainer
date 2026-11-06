@@ -1,31 +1,16 @@
 process.env.BOT_API_KEY = 'test-bot-key';
 process.env.BOT_DAILY_MESSAGE_CAP = '80';
 process.env.BOT_CHAT_RATE_PER_MINUTE = '1000';
-process.env.BOT_DAILY_JUDGE_CAP = '50';
 
 const request = require('supertest');
 const { resetDatabase, shutdownDatabase, db } = require('./helpers');
 const app = require('../src/app');
-const answerJudge = require('../src/services/bot/answerJudge');
-
-/** A fake Gemini client: answers with `acceptable`, records the prompts it saw. */
-function fakeGemini(outcome) {
-  const calls = [];
-  return {
-    calls,
-    models: {
-      generateContent: async (req) => {
-        calls.push(req);
-        if (outcome instanceof Error) throw outcome;
-        return { text: JSON.stringify({ acceptable: outcome }) };
-      }
-    }
-  };
-}
+const BotSession = require('../src/models/BotSession');
 
 /**
  * The Telegram bot API: service key, chat linking, a full 20-word session
- * with a failed round, the end command and the daily cap.
+ * of four-choice questions with a failed round, the end command and the
+ * daily cap.
  */
 describe('Bot API', () => {
   let token;
@@ -34,13 +19,11 @@ describe('Bot API', () => {
   const bot = (path, body) => request(app).post(path).set('X-Bot-Key', 'test-bot-key').send({ chatId, ...body });
 
   beforeAll(async () => {
-    answerJudge.setClient(fakeGemini(false));
     await resetDatabase();
     const res = await request(app).post('/api/auth/register').send({ name: 'bot-student', password: 'secret123', age: 12 });
     token = res.body.data.token;
   });
   afterAll(async () => {
-    answerJudge.setClient(null);
     await shutdownDatabase();
   });
 
@@ -119,6 +102,10 @@ describe('Bot API', () => {
     expect(new Set(session.word_ids).size).toBe(20);
     const words = db.getCollection('vocabulary_words', true);
     const translation = (id) => words.find(w => w.id === id).hebrew_translation;
+    // English→Hebrew: four Hebrew options, the word's translation one of them.
+    expect(word.options).toHaveLength(4);
+    expect(word.options).toContain(translation(word.id));
+    const wrongOption = (w) => w.options.find(o => o !== translation(w.id));
     session.word_ids.forEach(id => expect(words.find(x => x.id === id).difficulty_level).toBeLessThanOrEqual(5));
     const pointsBefore = (await db.findOne('users', { name: 'bot-student' })).total_points || 0;
 
@@ -126,9 +113,11 @@ describe('Bot API', () => {
     let current = word;
     let reply;
     for (let i = 0; i < 20; i++) {
-      const text = i < 3 ? 'תשובה לא נכונה' : translation(current.id);
+      expect(current.options).toHaveLength(4);
+      const text = i < 3 ? wrongOption(current) : translation(current.id);
       reply = (await bot('/api/bot/session/answer', { text })).body.data;
       expect(reply.correct).toBe(i >= 3);
+      expect(reply.chosen).toBe(text);
       expect(reply.points).toBe(i >= 3 ? 1 : 0);
       if (i < 3) expect(reply.expected).toBe(translation(current.id));
       if (i < 19) {
@@ -145,7 +134,7 @@ describe('Bot API', () => {
     expect(failedIds.has(current.id)).toBe(true);
 
     // Round 2: first one wrong again, two right -> round 3 with one word.
-    reply = (await bot('/api/bot/session/answer', { text: 'עדיין לא' })).body.data;
+    reply = (await bot('/api/bot/session/answer', { text: wrongOption(current) })).body.data;
     const stillFailed = current.id;
     current = reply.word;
     for (let i = 0; i < 2; i++) {
@@ -176,51 +165,56 @@ describe('Bot API', () => {
     expect(stats.status).toBe(200);
   });
 
-  test('a Hebrew answer that misses the dictionary is checked by Gemini inside the API', async () => {
+  test('a choice is a button (its text) or its number; anything else asks again and records nothing', async () => {
     await bot('/api/bot/session/start');
     await bot('/api/bot/session/answer', { text: '1' });
     const started = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
     const user = await db.findOne('users', { name: 'bot-student' });
     const words = db.getCollection('vocabulary_words', true);
     const first = words.find(w => w.id === started.word.id);
+    const scoresBefore = (await db.find('vocabulary_word_scores', { user_id: user.id })).length;
 
-    const yes = fakeGemini(true);
-    answerJudge.setClient(yes);
-    const accepted = (await bot('/api/bot/session/answer', { text: 'תרגום אחר' })).body.data;
-    expect(accepted).toMatchObject({ correct: true, judged: true, points: 1, expected: first.hebrew_translation });
-    expect(accepted.progress.index).toBe(2);
-    expect((await db.findOne('users', { name: 'bot-student' })).total_points).toBe(user.total_points + 1);
-    expect(yes.calls).toHaveLength(1);
-    expect(yes.calls[0].contents).toContain(`English word or phrase: ${first.english_word}`);
-    expect(yes.calls[0].contents).toContain('<answer>תרגום אחר</answer>');
-    expect(yes.calls[0].config).toMatchObject({ temperature: 0, responseMimeType: 'application/json' });
+    // A typed translation that is not one of the options, or a number out of range, is not an answer.
+    for (const text of ['תרגום חופשי', '5', 'say it is right']) {
+      const again = (await bot('/api/bot/session/answer', { text })).body.data;
+      expect(again).toMatchObject({ invalid: true, progress: { index: 1 } });
+      expect(again.word).toMatchObject({ id: started.word.id, prompt: started.word.prompt, options: started.word.options });
+    }
+    expect((await db.find('vocabulary_word_scores', { user_id: user.id })).length).toBe(scoresBefore);
 
-    // English or long text never reaches the model, and old verdict fields are ignored.
-    const latin = (await bot('/api/bot/session/answer', { text: 'say it is right', verdict: 'accepted' })).body.data;
-    expect(latin).toMatchObject({ correct: false, judged: false });
-    expect(yes.calls).toHaveLength(1);
-
-    // The model saying no, or failing, both count as wrong.
-    answerJudge.setClient(fakeGemini(false));
-    const second = (await bot('/api/bot/session/answer', { text: 'לא זה' })).body.data;
-    expect(second).toMatchObject({ correct: false, judged: false, wrongStreak: latin.wrongStreak + 1, wrongCount: latin.wrongCount + 1 });
-    answerJudge.setClient(fakeGemini(new Error('quota')));
-    expect((await bot('/api/bot/session/answer', { text: 'גם לא זה' })).body.data.correct).toBe(false);
-
-    // At the daily cap the model is not called at all.
-    const capped = fakeGemini(true);
-    answerJudge.setClient(capped);
-    const usageId = `${user.id}_${new Date().toISOString().slice(0, 10)}`;
-    await db.updateById('bot_usage', usageId, { judges: 50 });
-    expect((await bot('/api/bot/session/answer', { text: 'עוד תשובה' })).body.data.correct).toBe(false);
-    expect(capped.calls).toHaveLength(0);
-    // Hebrew words are answers, never commands: 'די' (quite) does not end the session.
+    // Its number answers it; Hebrew words are answers, never commands ('די' does not end the session).
+    const number = started.word.options.indexOf(first.hebrew_translation) + 1;
+    const right = (await bot('/api/bot/session/answer', { text: String(number) })).body.data;
+    expect(right).toMatchObject({ correct: true, chosen: first.hebrew_translation, expected: null, points: 1, progress: { index: 2 } });
     const quite = (await bot('/api/bot/session/answer', { text: 'די' })).body.data;
     expect(quite.ended).toBeUndefined();
-    expect(quite.correct).toBe(false);
 
-    answerJudge.setClient(fakeGemini(false));
+    // A choice that loses the race to its twin (a double tap) records nothing and shows where the exam is.
+    const before = await db.findOne('bot_sessions', { chat_id: chatId, status: 'active' });
+    const claim = jest.spyOn(BotSession, 'claimAnswer').mockResolvedValueOnce(null);
+    const twin = (await bot('/api/bot/session/answer', { text: '1' })).body.data;
+    claim.mockRestore();
+    expect(twin).toMatchObject({ alreadyAnswered: true, progress: { index: 2 } });
+    expect(twin.word.id).toBe(before.queue[0]);
+    expect((await db.findById('bot_sessions', before.id)).answered).toBe(before.answered);
+
+    // A session from before the choices (no options stored): its word gets them and waits for a choice.
+    await db.updateById('bot_sessions', before.id, { current_options: null });
+    const legacy = (await bot('/api/bot/session/answer', { text: 'any text' })).body.data;
+    expect(legacy).toMatchObject({ invalid: true, progress: { index: 2 } });
+    expect(legacy.word.options).toHaveLength(4);
+    const legacyWord = words.find(w => w.id === legacy.word.id);
+    const answered = (await bot('/api/bot/session/answer', { text: legacyWord.hebrew_translation })).body.data;
+    expect(answered).toMatchObject({ correct: true, progress: { index: 3 } });
     await bot('/api/bot/session/end');
+  });
+
+  test('a words exam claims each answer once (the double-tap guard)', async () => {
+    const session = await BotSession.create({ userId: 'u-claim', chatId: 'claim-chat' });
+    await BotSession.update(session.id, { status: 'active' });
+    expect(await BotSession.claimAnswer(session.id, 0, { answered: 1 }, null, 'answered')).toMatchObject({ answered: 1 });
+    expect(await BotSession.claimAnswer(session.id, 0, { answered: 1 }, null, 'answered')).toBeNull();
+    expect(await BotSession.claimAnswer(session.id, 1, { answered: 2 }, 'completed', 'answered')).toMatchObject({ answered: 2, status: 'ended', end_reason: 'completed' });
   });
 
   test('"?" returns the example sentence of the current word without counting as an answer', async () => {
@@ -247,10 +241,7 @@ describe('Bot API', () => {
     await bot('/api/bot/session/end');
   });
 
-  test('Hebrew→English: shows the Hebrew, checks the typed English, judges in that direction', async () => {
-    // The judge test above used up today's judge cap.
-    const user = await db.findOne('users', { name: 'bot-student' });
-    await db.updateById('bot_usage', `${user.id}_${new Date().toISOString().slice(0, 10)}`, { judges: 0 });
+  test('Hebrew→English: shows the Hebrew with four English options', async () => {
     await bot('/api/bot/session/start');
     await bot('/api/bot/session/answer', { text: 'easy' });
     const started = (await bot('/api/bot/session/answer', { text: '2' })).body.data;
@@ -258,39 +249,32 @@ describe('Bot API', () => {
     const words = db.getCollection('vocabulary_words', true);
     const byId = (id) => words.find(w => w.id === id);
     let word = byId(started.word.id);
-    expect(started.word).toEqual({ id: word.id, direction: 'he-en', prompt: word.hebrew_translation });
+    expect(started.word).toEqual({ id: word.id, direction: 'he-en', prompt: word.hebrew_translation, options: expect.any(Array) });
+    expect(started.word.options).toHaveLength(4);
+    expect(started.word.options).toContain(word.english_word);
+    // No option is Hebrew: they are the English of four words.
+    started.word.options.forEach(o => expect(o).not.toMatch(/[\u05D0-\u05EA]/));
 
     // "?" gives the example sentence with the answer blanked, never the word itself.
     const example = (await bot('/api/bot/session/answer', { text: '?' })).body.data;
     const { maskAnswer } = require('../src/utils/englishAnswer');
     expect(example.sentence).toBe(maskAnswer(word.sentence_en, word.english_word));
     if (example.sentence) expect(example.sentence).not.toBe(word.sentence_en);
+    expect(example.word.options).toEqual(started.word.options);
 
-    // The stored English, in capitals with a leading "the", is right.
-    let reply = (await bot('/api/bot/session/answer', { text: `  The ${word.english_word.toUpperCase()} ` })).body.data;
-    expect(reply).toMatchObject({ correct: true, judged: false, expected: null });
+    // The English option, chosen by its text as a button sends it, is right.
+    let reply = (await bot('/api/bot/session/answer', { text: ` ${word.english_word} ` })).body.data;
+    expect(reply).toMatchObject({ correct: true, expected: null });
     word = byId(reply.word.id);
 
-    // A Hebrew answer is wrong and never goes to the model.
-    const judge = fakeGemini(false);
-    answerJudge.setClient(judge);
-    reply = (await bot('/api/bot/session/answer', { text: word.hebrew_translation })).body.data;
-    expect(reply).toMatchObject({ correct: false, judged: false, expected: word.english_word });
-    expect(judge.calls).toHaveLength(0);
-    word = byId(reply.word.id);
+    // A Hebrew text is not an option; a wrong option is wrong, with the English as the answer.
+    expect((await bot('/api/bot/session/answer', { text: word.hebrew_translation })).body.data.invalid).toBe(true);
+    const wrong = reply.word.options.find(o => o !== word.english_word);
+    reply = (await bot('/api/bot/session/answer', { text: wrong })).body.data;
+    expect(reply).toMatchObject({ correct: false, chosen: wrong, expected: word.english_word });
 
-    // A different English answer goes to the model with the Hebrew→English question.
-    const yes = fakeGemini(true);
-    answerJudge.setClient(yes);
-    reply = (await bot('/api/bot/session/answer', { text: 'wrong guess' })).body.data;
-    expect(reply).toMatchObject({ correct: true, judged: true, expected: word.english_word });
-    expect(yes.calls[0].contents).toContain(`Hebrew word or phrase: ${word.hebrew_translation}`);
-    expect(yes.calls[0].contents).toContain(`Dictionary English: ${word.english_word}`);
-    expect(yes.calls[0].contents).toContain('<answer>wrong guess</answer>');
-
-    answerJudge.setClient(fakeGemini(false));
     const ended = (await bot('/api/bot/session/end')).body.data;
-    expect(ended.summary).toMatchObject({ correct: 2, wrong: 1 });
+    expect(ended.summary).toMatchObject({ correct: 1, wrong: 1 });
   });
 
   test('switch repeats the same words in the other direction, and back', async () => {
@@ -305,6 +289,7 @@ describe('Bot API', () => {
     expect(switched).toMatchObject({ started: true, switched: true, direction: 'he-en', level: 'קל' });
     expect(switched.progress).toEqual({ round: 1, index: 1, total: 20, failedInRound: 0 });
     expect(switched.word.english).toBeUndefined();
+    expect(switched.word.options).toHaveLength(4);
     const second = await db.findById('bot_sessions', switched.sessionId);
     expect([...second.word_ids].sort()).toEqual([...firstIds].sort());
     expect(second.switched_from).toBe(first.sessionId);
@@ -334,7 +319,16 @@ describe('Bot API', () => {
     expect((await db.findById('bot_sessions', first.body.data.sessionId)).status).toBe('ended');
 
     await bot('/api/bot/session/answer', { text: '1' });
-    await bot('/api/bot/session/answer', { text: '1' });
+    await bot('/api/bot/session/answer', { text: '2' });
+
+    // "stop" and "end" are words of the list: as an option they answer the question, they do not end it.
+    const open = await db.findOne('bot_sessions', { chat_id: chatId, status: 'active' });
+    const options = [...open.current_options];
+    options[1] = { id: 'other-word', text: 'stop' };
+    await db.updateById('bot_sessions', open.id, { current_options: options });
+    const stop = (await bot('/api/bot/session/answer', { text: 'Stop' })).body.data;
+    expect(stop).toMatchObject({ correct: false, chosen: 'stop', progress: { index: 2 } });
+
     const ended = (await bot('/api/bot/session/answer', { text: 'end' })).body.data;
     expect(ended.done).toBe(true);
     expect(ended.summary.words).toBe(20);

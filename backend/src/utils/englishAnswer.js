@@ -1,12 +1,11 @@
 /**
- * Free-text matching of an English word against the stored one, for the
- * bot's Hebrew→English words exam.
+ * The English forms of a stored word, for the bot's word options (a wrong
+ * option never shares one with the answer) and its "?" hint.
  *
  * Stored entries may list alternatives ("adviser/advisor", "a bit; a little"),
  * optional parts in parentheses ("(just) in case"), placeholders ("about to do
- * sth") and a trailing "etc". Matching ignores case, punctuation, extra
- * spaces and a leading a/an/the/to, and forgives one wrong, missing or extra
- * letter in words of five letters or more. Nothing is judged by a model.
+ * sth") and a trailing "etc". Forms ignore case, punctuation, extra spaces and
+ * a leading a/an/the/to.
  */
 
 const PLACEHOLDERS = new Set(['sth', 'sb', 'something', 'someone', 'somebody', 'etc']);
@@ -58,45 +57,6 @@ function alternatives(english) {
   return [...forms];
 }
 
-/** Edit distance, stopping early once it is above `max`. */
-function withinOneEdit(a, b) {
-  if (Math.abs(a.length - b.length) > 1) return false;
-  let i = 0;
-  let j = 0;
-  let edits = 0;
-  while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) { i++; j++; continue; }
-    if (++edits > 1) return false;
-    if (a.length > b.length) i++;
-    else if (a.length < b.length) j++;
-    else { i++; j++; }
-  }
-  return edits + (a.length - i) + (b.length - j) <= 1;
-}
-
-/**
- * How the student's text matches the stored English entry, or one of
- * `others` (other English words stored with the same Hebrew translation):
- * 'exact', 'typo' (one letter off), or null. A typo can be another real
- * word ("horse" for "house"); the caller decides with `core(userText)`.
- */
-function englishAnswerMatch(userText, english, others = []) {
-  const given = core(userText);
-  if (!given) return null;
-  const forms = [english, ...others].flatMap(alternatives);
-  if (forms.includes(given)) return 'exact';
-  return forms.some(form => form.length >= 5 && withinOneEdit(given, form)) ? 'typo' : null;
-}
-
-/**
- * Whether a non-matching English answer may go to the model for a second
- * opinion: short, Latin letters (plus spaces and simple punctuation) only.
- */
-function judgeable(userText, maxChars = 40) {
-  const t = String(userText || '').trim();
-  return t.length > 0 && t.length <= maxChars && /[a-z]/i.test(t) && /^[a-z\s.,'’\-/()]+$/i.test(t);
-}
-
 /**
  * The example sentence with the answer blanked, for the Hebrew→English
  * exam: every sentence word that starts like a word of the answer (its
@@ -122,4 +82,4 @@ function maskAnswer(sentence, english) {
   return masked ? out : null;
 }
 
-module.exports = { normalize, core, alternatives, englishAnswerMatch, judgeable, maskAnswer };
+module.exports = { normalize, core, alternatives, maskAnswer };

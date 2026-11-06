@@ -4,31 +4,31 @@ A student practises from Telegram in several ways: vocabulary (below), a
 lesson's exercises, English or Math (see "Lesson exercises"), English reading
 texts with questions (see "Reading texts (unseen)") and the multiplication
 drill. For vocabulary, the bot sends a word,
-English or Hebrew as the student chose, the student types the translation, the bot says ✅, or a kind, funny line followed by the translation
-and sends the next word. After 20 words the failed ones come back, shuffled,
+English or Hebrew as the student chose, with four translations to choose
+from as buttons; the student taps one (nothing is typed), the bot says ✅,
+or a kind, funny line followed by the translation, and sends the next word. After 20 words the failed ones come back, shuffled,
 round after round, until none are left. `/end` ends the session.
 
 ## What a session looks like
 
 1. `/words` → the bot asks the level (1 קל = difficulty 1–5, 2 בינוני =
    6–7, 3 קשה = 8–10), then the direction: מאנגלית לעברית (the English word
-   is shown, the student types Hebrew) or מעברית לאנגלית (the Hebrew is
-   shown, the student types English), both with buttons; typing 1/2 works
+   is shown with four Hebrew options) or מעברית לאנגלית (the Hebrew is
+   shown with four English options), both with buttons; typing 1/2 works
    too. Words always come from the whole vocabulary. The choices are stored
    on the API session (`status: setup`, then `level` and `direction`), so
    the bot keeps no state of its own.
 2. 20 words, one per message. ✅ נכון! +1, or an encouraging line (a new one each time, a bigger cheer after 3 wrong in a row; `bot/app/encouragement.py`) with the translation, then
    the next word. Every correct answer is 1 point (`User.addPoints`, the
    same points as the web quiz), in either direction.
-   Hebrew answers are matched by `utils/hebrewAnswer.js`; English answers by
-   `utils/englishAnswer.js`, which ignores case, punctuation and a leading
-   a/an/the/to, accepts listed alternatives ("adviser/advisor"), optional
-   parts and other English words stored with the same Hebrew, and forgives
-   one wrong letter in words of 5+ letters unless the result is another
-   stored word ("horse" for "house" is wrong).
-   An answer that misses the dictionary gets one Gemini check in the API
-   (see "Answer judging" below); if Gemini accepts it, it counts as right
-   and the reply shows the dictionary translation too.
+   Every word is a question with four options (see "Word options" below),
+   listed "1) …" in the message and sent as buttons, two a row, each
+   carrying its option's text. The student taps one or sends its number;
+   the verdict is whether the chosen option is the word. Any other text (a
+   typed translation, a button of an earlier word) asks the same word again
+   and records nothing; a double tap records one answer (the API claims each
+   answer once on the session's `answered` counter) and the second gets
+   "על המילה הזו כבר עניתם".
    "?" (or `hint`) shows the current word's English example sentence (in
    Hebrew→English with the answer blanked, or none when it cannot be
    blanked) and asks the same word again; it is not an answer and nothing
@@ -71,10 +71,12 @@ There are no Hebrew command words: a Hebrew word such as "די" (quite) or
 
 A multiple-choice answer is a number, so a bare command works during a
 question too. Only while a typed question is open (a fill-in question, or a
-`/kefel` or `/hiluk` drill, whose questions have type `number`) is a bare word
-the answer (it may be "help", "english" or "חילוק"); during a drill the API asks the same
+`/kefel` or `/hiluk` drill, whose questions have type `number`) or a word of
+the words exam is asked (its buttons carry words) is a bare word the answer
+(it may be "help", "report", "english" or "חילוק"); during a drill the API asks the same
 question again. No lesson exercise is fill-in any more. The "/" form is always the
-command, and `end` always ends the session. A free-form message (for example "איך זה
+command, and a bare `end` or `stop` ends the session unless it is one of the
+word's options ("stop" and "end" are words of the list). A free-form message (for example "איך זה
 עובד?") goes to the agent, whose `show_help` tool sends the same help text.
 
 ## Usage
@@ -375,50 +377,58 @@ Telegram ──webhook──► Cloud Run: english-trainer-bot (bot/, Python, Go
                           ▼  every tool = one call to the trainer API with X-Bot-Key + chatId
                        Cloud Run: english-trainer-api  /api/bot/*  (backend/)
                           │  chat → student through telegram_links (one-time code from the web app)
-                          │  word selection, answer matching, rounds, counters, rate limits
+                          │  word selection, four options per word, verdicts, rounds, counters, rate limits
                           │  lesson exercises: questions, verdicts, grading through ExerciseService
                           │  /kefel and /hiluk drills: ten generated questions, verdicts, nothing recorded
                           │  /unseen readings: a text, its questions, recorded like the website's readings
-                          │  a dictionary miss: one yes/no from Gemini (Vertex AI)
                           ▼
                        Firestore: bot_sessions, telegram_links, bot_usage (+ vocabulary_word_scores, unseen_*)
 ```
 
 The bot never chooses words, keeps score or reports progress: every reply
-text is built from the API's answer (`bot/app/replies.py`). Gemini has two
-narrow jobs. In the bot, the ADK agent decides which tool a free-form
-message needs. In the API, the answer judge gives a yes/no on a Hebrew
-answer that missed the dictionary. Answers that match the dictionary never
-touch the model.
+text is built from the API's answer (`bot/app/replies.py`). Gemini's job in
+the bot is narrow: the ADK agent decides which tool a free-form message
+needs. A word's answer is one of four options, so no model judges it (until
+November 2026 a typed answer that missed the dictionary got a yes/no from
+Gemini in the API; that judge is gone).
 
-### Answer judging (in the API)
+### Word options (in the API)
 
-`backend/src/services/bot/answerJudge.js`, called by `bot.service.js`:
+`backend/src/services/bot/wordOptions.js` picks a word's four options when
+the word comes up (`bot.service.js` stores them on the session as
+`current_options`, so a choice is graded against what was shown):
 
-1. The answer is compared with the dictionary as before.
-2. On a miss, the answer is judged only if it is short text in the language
-   asked for (Hebrew letters only in English→Hebrew, Latin letters only in
-   Hebrew→English, at most 40 characters) and the student has checks left
-   today (`bot_usage.judges`, 100 per day, in a Firestore transaction).
-3. One Gemini call with the question for the exam's direction
-   (`PROMPT` / `PROMPT_HE_EN`): temperature 0, JSON `{"acceptable": bool}`, the answer
-   fenced as data, no thinking, at most 30 output tokens, 8 second timeout.
-4. Accepted counts as right (+1 point) and the reply also shows the
-   dictionary translation; everything else counts as wrong.
+1. **Close wrong options**, up to two, from nearby levels when there are
+   any: a word of the same group or the answer's opposite
+   (`backend/src/data/wordGroups.json`: animals, colours, days, family,
+   amounts, buy/sell…), a word of the same family (absolute/absolutely), or a
+   spelling look-alike (advise/advice, quite/quiet). They make the student
+   read every option.
+2. **The rest**: words of the same kind from within two levels (a verb for a
+   verb, by the Hebrew infinitive's ל; a phrase for a phrase).
+3. **Never a wrong option that is also right**: no word that shares a Hebrew
+   sense or an English form with the answer (קצת: a bit / a little, two
+   entries of "light"), nor an English alternative a review accepted
+   (`english_alternatives`).
 
-Any failure (error, timeout, unparsable output, the daily cap) counts as
-wrong, so the judge can only turn a wrong answer into a right one. Every
-verdict is logged by the API (`answer judge direction=… english=… given=… acceptable=…`)
-in the API service's Cloud Run logs. The API calls Vertex AI as its runtime
-service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
+Options show the English in Hebrew→English and the Hebrew in
+English→Hebrew. `node backend/scripts/checks/word-options.js` runs every
+word in both directions and reports per level how many questions get one
+and two close options, and fails on a question with fewer than four
+distinct options or a wrong option that is also right. At the change (3,287
+words): at least one close option for 94% of questions at levels 1–3 and
+49% overall.
+
+A session opened before the deploy has no stored options: its next message
+stores them and shows the word again.
 
 | Piece | Where |
 |---|---|
-| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/drillSession.js` (`/kefel`, `/hiluk` with `divisionDrill.js`), `services/bot/unseenSession.js` (`/unseen`), `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `utils/hebrewAnswer.js` |
+| Bot API (sessions, linking, limits) | `backend/src/routes/bot.routes.js`, `services/bot.service.js`, `services/bot/exerciseSession.js`, `services/bot/drillSession.js` (`/kefel`, `/hiluk` with `divisionDrill.js`), `services/bot/unseenSession.js` (`/unseen`), `services/bot/sessionKinds.js`, `services/mistakes.service.js` (the mistakes exam), `middleware/botAuth.middleware.js`, `middleware/botLimits.middleware.js`, `services/bot/wordOptions.js` with `data/wordGroups.json` (a word's four options), `utils/hebrewAnswer.js` |
 | Student side of linking | `backend/src/routes/telegram.routes.js`, web page `/settings/telegram` |
 | Agent, tools, replies, webhook | `bot/app/` (`agent.py`, `tools.py`, `replies.py`, `exercise_replies.py`, `drill_replies.py`, `unseen_replies.py`, `coach.py`, `main.py`) |
 | Cloud Run spec, secrets | `infra/cloudrun-bot.yaml`, `infra/setup-bot.sh`, `infra/set-webhook.sh` |
-| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/botDrill.test.js`, `backend/tests/botUnseen.test.js`, `backend/tests/mistakesExam.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/` |
+| Tests | `backend/tests/bot.test.js`, `backend/tests/botExercise.test.js`, `backend/tests/botDrill.test.js`, `backend/tests/botUnseen.test.js`, `backend/tests/mistakesExam.test.js`, `backend/tests/wordOptions.test.js`, `backend/tests/hebrewAnswer.test.js`, `bot/tests/`; `backend/scripts/checks/word-options.js` over all words |
 | Local end-to-end | `bot/scripts/smoke.py` |
 
 ## Security
@@ -447,8 +457,6 @@ service account, which `infra/setup-bot.sh` gives `roles/aiplatform.user`.
 | Turns per chat per day (bot, in memory) | 400 | `MAX_TURNS_PER_CHAT_PER_DAY`, `infra/cloudrun-bot.yaml` |
 | Model calls per turn | 4 | `MAX_LLM_CALLS_PER_TURN` |
 | Output tokens per model reply | 200 | `MAX_OUTPUT_TOKENS` |
-| Answer checks per student per day (API, durable) | 100 | `BOT_DAILY_JUDGE_CAP`, `infra/cloudrun-service.yaml` (`JUDGE_ANSWERS=false` turns checking off) |
-| Output tokens and time per answer check | 30 tokens, 8 s | `JUDGE_MAX_OUTPUT_TOKENS`, `JUDGE_TIMEOUT_MS` |
 | Review-agent (Gemini Pro) proposals per student per day (API, durable) | 40 | `BOT_DAILY_REVIEW_CAP`, `infra/cloudrun-service.yaml` |
 | Conversation history kept for the model | 12 events | `HISTORY_EVENTS` |
 | Bot instances × concurrency | 2 × 10, 30 s per request | `infra/cloudrun-bot.yaml` |
