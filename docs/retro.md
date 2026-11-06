@@ -1655,6 +1655,11 @@ Result: 3 PRs, all merged; the last deploy (#100) carried #99.
 - **An acceptance was written before the data was measured.** "Median
   frequency rising level by level" conflicts with putting concrete words
   (cow, tooth) first. It was relaxed to "falling from level 5 up".
+- **The close's review left the checkout detached.** The forked code review
+  checked out `origin/main` in the shared working tree. The review fixes
+  and the retro were committed on a detached HEAD, and a quiet push
+  (`git push -q`) reported nothing, so opening the PR failed with "no
+  commits". The commits were safe, and moving the branch onto them fixed it.
 
 ### Lessons → rules
 - A test that changes random data picks its target by what it is (the
@@ -1675,6 +1680,9 @@ Result: 3 PRs, all merged; the last deploy (#100) carried #99.
   a command.
 - Write a measurable acceptance criterion only after measuring the data it
   is about.
+- After any delegated review or agent run, check `git status -sb` before
+  committing: the branch must be the work branch. Push without `-q` and read
+  the line that names the pushed range.
 
 ### Follow-ups
 - **Drop repeated Telegram updates.** A retried update, or a typed number
