@@ -93,8 +93,14 @@ describe('Word reports', () => {
     const current = await db.findOne('word_reports', { word_id: started.word.id });
     expect(current).toMatchObject({ source: 'bot', direction: 'he-en', given: null });
 
-    // After an answer, the answered word, with the student's answer.
-    await bot(studentChat).post('/api/bot/session/answer', { text: 'my guess' });
+    // A text that is not one of the options is no answer: still the current word.
+    const again = (await bot(studentChat).post('/api/bot/session/answer', { text: 'my guess' })).body.data;
+    expect(again).toMatchObject({ invalid: true });
+    expect((await bot(studentChat).post('/api/bot/report', { reason: 'bad_sentence' })).body.data).toMatchObject({ duplicate: true });
+
+    // After an answer, the answered word, with the option the student chose.
+    const choice = (await bot(studentChat).post('/api/bot/session/answer', { text: '1' })).body.data;
+    expect(choice.chosen).toBe(started.word.options[0]);
     const status = (await bot(studentChat).get('/api/bot/session/status')).body.data;
     res = (await bot(studentChat).post('/api/bot/report', { reason: 'missing_translation' })).body.data;
     expect(res).toMatchObject({ reported: true, duplicate: true, active: true });
@@ -165,25 +171,28 @@ describe('Word reports', () => {
     expect(back.some(w => w.id === second.wordId)).toBe(true);
   });
 
-  test('an English alternative is accepted in Hebrew→English; a new sentence drops the old Hebrew one', async () => {
-    const BotSession = require('../src/models/BotSession');
+  test('a reviewed English alternative is never a wrong option; a new sentence drops the old Hebrew one', async () => {
+    const { pickOptions } = require('../src/services/bot/wordOptions');
     const word = words().find(w => w.difficulty_level === 2 && /^[a-z]+$/.test(w.english_word));
+    const other = words().find(w => w.id !== word.id && w.difficulty_level === 2 && /^[a-z]+$/.test(w.english_word)
+      && w.hebrew_translation !== word.hebrew_translation);
     await webReport({ wordId: word.id, reason: 'wrong_translation' });
-    const change = { hebrew_translation: word.hebrew_translation, sentence_en: 'A brand new sentence.', english_alternatives: ['zzqword'] };
+    const change = { hebrew_translation: word.hebrew_translation, sentence_en: 'A brand new sentence.', english_alternatives: [other.english_word] };
     const res = await bot(adminChat).post('/api/bot/review/decide', { key: `word:${word.id}`, decision: 'change', change });
     expect(res.body.data).toMatchObject({ decided: true, decision: 'change' });
     expect(await VocabularyWord.findById(word.id)).toMatchObject({
-      english_alternatives: ['zzqword'], sentence_en: 'A brand new sentence.', sentence_he: null
+      english_alternatives: [other.english_word], sentence_en: 'A brand new sentence.', sentence_he: null
     });
 
-    // A Hebrew→English exam on that word accepts the reviewed alternative.
-    const studentUser = await db.findOne('users', { name: 'word-student' });
-    const created = await BotSession.create({ userId: studentUser.id, chatId: studentChat });
-    await BotSession.update(created.id, {
-      level: 2, direction: 'he-en', status: 'active', setup_step: null, word_ids: [word.id], queue: [word.id], round_size: 1
-    });
-    const answer = (await bot(studentChat).post('/api/bot/session/answer', { text: 'zzqword' })).body.data;
-    expect(answer).toMatchObject({ correct: true, judged: false });
+    // The served word carries the alternative, so a Hebrew→English question
+    // never offers it as a wrong option, however often it is drawn.
+    const visible = await VocabularyWord.visible();
+    const served = visible.find(w => w.id === word.id);
+    expect(served.english_alternatives).toEqual([other.english_word]);
+    for (let i = 0; i < 20; i++) {
+      const { options } = pickOptions(served, [other, ...visible.slice(0, 30)], { direction: 'he-en' });
+      expect(options.map(o => o.id)).not.toContain(other.id);
+    }
   });
 
   test('a removed word stays out', async () => {

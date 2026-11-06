@@ -265,13 +265,15 @@ class BotSession {
    * `index` (a Firestore transaction): of two answers sent together, the
    * first moves the session on and the second changes nothing. With
    * `endReason` the same write ends the session. Returns the session after
-   * the write, or null when that question was already answered.
+   * the write, or null when that question was already answered. `field`
+   * names the counter (a reading's `index`, a words exam's `answered`); a
+   * missing counter is 0.
    */
-  static async claimAnswer(id, index, updates, endReason = null) {
+  static async claimAnswer(id, index, updates, endReason = null, field = 'index') {
     let claimed = false;
     const after = await db.transactUpdate('bot_sessions', id, (current) => {
       // A transaction may run this more than once; the last run decides.
-      claimed = current.status === 'active' && current.index === index;
+      claimed = current.status === 'active' && (current[field] || 0) === index;
       if (!claimed) return null;
       return endReason ? { ...updates, ...endFields(endReason) } : updates;
     });
