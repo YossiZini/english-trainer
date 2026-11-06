@@ -70,7 +70,26 @@ def test_a_reply_with_a_message_before_it_sends_both_in_order():
     assert Reply("q", before=["t"]).messages == ["t", "q"] and Reply("q").messages == ["q"]
 
 
-MENU = "http://telegram.test/bot123:abc/setMyCommands"
+class WordCoach(FakeCoach):
+    async def handle(self, chat_id, text):
+        self.calls.append((chat_id, text))
+        return Reply("(1/20) חתול", ["cat", "cap", "dog", "a sharp rise"], columns=2)
+
+
+@respx.mock
+def test_a_words_four_options_are_buttons_two_a_row():
+    import json
+    send = respx.post("http://telegram.test/bot123:abc/sendMessage").mock(return_value=httpx.Response(200, json={"ok": True}))
+    client = TestClient(create_app(WordCoach()))
+    client.post("/telegram/webhook", json=update("cap", 42), headers={"X-Telegram-Bot-Api-Secret-Token": "hook-secret"})
+    body = json.loads(send.calls.last.request.content)
+    assert body["reply_markup"]["keyboard"] == [[{"text": "cat"}, {"text": "cap"}], [{"text": "dog"}, {"text": "a sharp rise"}]]
+    # Under a verdict the options keep their rows.
+    assert Reply("q", ["a", "b", "c"], columns=2).under("✅").columns == 2
+    assert telegram.reply_markup(["a", "b", "c"], 2)["keyboard"] == [[{"text": "a"}, {"text": "b"}], [{"text": "c"}]]
+
+
+MENU ="http://telegram.test/bot123:abc/setMyCommands"
 
 
 @respx.mock

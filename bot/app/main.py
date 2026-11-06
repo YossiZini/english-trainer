@@ -57,7 +57,7 @@ def create_app(coach: Coach | None = None) -> FastAPI:
         if reply.photo:
             await telegram.send_question_photo(chat_id, reply.photo, reply.text, reply.buttons)
         else:
-            await telegram.send_message(chat_id, reply.text, reply.buttons)
+            await telegram.send_message(chat_id, reply.text, reply.buttons, columns=reply.columns)
         return {"ok": True}
 
     return app

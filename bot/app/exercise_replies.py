@@ -9,7 +9,7 @@ right option and the score always come from the API."""
 import re
 
 from . import config
-from .replies import Reply
+from .replies import LRI, PDI, Reply
 from .encouragement import wrong_line
 
 SUBJECT_COMMAND = {"english": "/english", "math": "/math", "arabic": "/arabic"}
@@ -23,7 +23,6 @@ PICK_INVALID = "שלחו מספר של שיעור מהרשימה:"
 PICK_CLOSED = "סגרנו את רשימת השיעורים."
 NO_HINT = "אין רמז לשאלה הזו."
 START_INTRO = "מתחילים! ענו במספר התשובה (? לרמז), או /end כדי לעצור."
-LRI, PDI = "\u2066", "\u2069"
 
 ALL_DONE = "סיימתם את כל השיעורים במקצוע הזה! 🎓 אפשר לבחור שיעור לחזרה מהרשימה: /lessons_english, /lessons_math או /lessons_arabic."
 LESSON_NOT_FOUND = "לא מצאתי את השיעור הזה."

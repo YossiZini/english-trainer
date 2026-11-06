@@ -319,7 +319,16 @@ describe('Bot API', () => {
     expect((await db.findById('bot_sessions', first.body.data.sessionId)).status).toBe('ended');
 
     await bot('/api/bot/session/answer', { text: '1' });
-    await bot('/api/bot/session/answer', { text: '1' });
+    await bot('/api/bot/session/answer', { text: '2' });
+
+    // "stop" and "end" are words of the list: as an option they answer the question, they do not end it.
+    const open = await db.findOne('bot_sessions', { chat_id: chatId, status: 'active' });
+    const options = [...open.current_options];
+    options[1] = { id: 'other-word', text: 'stop' };
+    await db.updateById('bot_sessions', open.id, { current_options: options });
+    const stop = (await bot('/api/bot/session/answer', { text: 'Stop' })).body.data;
+    expect(stop).toMatchObject({ correct: false, chosen: 'stop', progress: { index: 2 } });
+
     const ended = (await bot('/api/bot/session/answer', { text: 'end' })).body.data;
     expect(ended.done).toBe(true);
     expect(ended.summary.words).toBe(20);

@@ -166,7 +166,10 @@ class BotService {
   static async answer(user, chatId, text) {
     const session = await BotSession.findOpenByChat(chatId);
     if (!session) return { error: 'no_session' };
-    if (isEndCommand(text)) return this.end(user, chatId);
+    // "stop" and "end" are words of the list: as one of the options they are
+    // an answer, not the end ("/end" always ends).
+    const isOption = session.status === 'active' && !!session.current_options && chosenOption(text, session.current_options) >= 0;
+    if (isEndCommand(text) && !isOption) return this.end(user, chatId);
     if (session.status === 'setup') return this.setup(user, session, text);
 
     const word = await currentWord(session);

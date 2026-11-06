@@ -57,7 +57,10 @@ session cannot see elsewhere.
 - Bot session kinds: vocab, exercise, review, drill (variant kefel or hiluk), unseen (`sessionKinds.js`). A
   question type other than `multiple_choice` makes every message a typed
   answer (fast path, no model). `BotSession.claimAnswer` takes an answer in a
-  transaction (unseen uses it; the other kinds do not yet). For a minute after
+  transaction (unseen on `index`, the words exam on `answered`). A words-exam
+  word is four options (`wordOptions.js`, stored as `current_options`); its
+  buttons carry the options' texts, so a bare word there is an answer, and
+  "stop"/"end" are words of the list. For a minute after
   a last answer, `/session/status` says `justEnded` (the bot's double-tap rule).
 - A new bot command touches: `config.py`, `parse_command`/`run_command`,
   `COMMANDS` (pinned in `test_webhook.py`), HELP/NO_SESSION/LINKED, the agent

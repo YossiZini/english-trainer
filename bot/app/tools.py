@@ -2,8 +2,9 @@
 owns the conversation; the chat id comes from the session state that the
 webhook set, never from the model. Every tool returns a ready Hebrew reply.
 
-A reply longer than the model may write (an /unseen text) or with a photo (a
-question's picture) is `direct`: the tool ends the turn without asking the
+A reply longer than the model may write (an /unseen text), with a photo (a
+question's picture) or with a word's four option buttons is `direct`: the
+tool ends the turn without asking the
 model again, and the coach sends the reply as it is, with its buttons, the
 messages before it and its photo."""
 from google.adk.tools import ToolContext
@@ -38,7 +39,7 @@ async def start_session(tool_context: ToolContext) -> dict:
 
 
 async def answer_word(text: str, tool_context: ToolContext) -> dict:
-    """Submit the student's answer in the open session (a word's translation, or an exercise option number); returns the verdict and what comes next."""
+    """Submit the student's answer in the open session (one of the word's four options, by its text or number, or an exercise option number); returns the verdict and what comes next."""
     return _sent(replies.answer_reply(await _api.answer(_chat(tool_context), text)), tool_context)
 
 
@@ -98,14 +99,16 @@ async def start_hiluk_drill(tool_context: ToolContext) -> dict:
 def _direct(reply: replies.Reply, tool_context: ToolContext) -> dict:
     """A reply the coach sends as it is; the model is not asked to write it again."""
     tool_context.actions.skip_summarization = True
-    return {"reply": reply.text, "buttons": reply.buttons, "before": reply.before, "photo": reply.photo, "direct": True}
+    return {"reply": reply.text, "buttons": reply.buttons, "before": reply.before, "photo": reply.photo,
+            "columns": reply.columns, "direct": True}
 
 
 def _sent(reply: replies.Reply, tool_context: ToolContext) -> dict:
     """Sent as it is when the model could not pass it on whole: with messages before it (a reading's
-    text is longer than the model may write) or with a photo (a question's picture). Any other reply
+    text is longer than the model may write), a photo (a question's picture) or a word's four option
+    buttons (the student taps a word; a lesson's option is a number, easy to type). Any other reply
     is the model's to pass on."""
-    return _direct(reply, tool_context) if reply.before or reply.photo else {"reply": str(reply)}
+    return _direct(reply, tool_context) if reply.before or reply.photo or reply.columns else {"reply": str(reply)}
 
 
 async def start_unseen(tool_context: ToolContext, number: int = 0) -> dict:

@@ -11,7 +11,8 @@ from app.coach import Coach
 from app.limits import DailyTurnCounter
 
 API = "http://api.test/api"
-WORD = {"id": "w", "english": "cat"}
+WORD = {"id": "w", "english": "cat", "prompt": "cat", "options": ["חתול", "כלב", "סוס", "פרה"]}
+WORD_LINES = "(1/20) cat\n1) חתול\n2) כלב\n3) סוס\n4) פרה"
 
 
 class NoAgentRunner:
@@ -51,7 +52,7 @@ async def test_code_start_level_answer_and_end_take_the_fast_path():
     respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True}))
     respx.post(f"{API}/bot/session/answer").mock(side_effect=[
         ok({"sessionId": "s", "started": True, "level": "קל", "word": WORD, "progress": progress(1)}),
-        ok({"correct": True, "judged": False, "expected": None, "points": 1, "roundStarted": False, "done": False,
+        ok({"correct": True, "chosen": "חתול", "expected": None, "points": 1, "roundStarted": False, "done": False,
             "word": {"id": "w2", "english": "dog"}, "progress": progress(2)}),
     ])
     respx.post(f"{API}/bot/session/end").mock(return_value=ok({
@@ -61,20 +62,28 @@ async def test_code_start_level_answer_and_end_take_the_fast_path():
     setup = await c.handle("7", "/words")
     assert setup.text == "מתחילים תרגול של 20 מילים.\nאיזו רמה?\n1. קל\n2. בינוני\n3. קשה" and setup.buttons == ["1", "2", "3"]
     started = await c.handle("7", "1")
-    assert started.text == "רמה קל. תרגמו לעברית (\"?\" למשפט לדוגמה):\n(1/20) cat" and started.buttons == []
+    # The word with its four options, numbered, and the options as buttons, two a row.
+    assert started.text == "רמה קל. בחרו את התרגום לעברית (\"?\" למשפט לדוגמה):\n" + WORD_LINES
+    assert started.buttons == WORD["options"] and started.columns == 2
     assert (await c.handle("7", "חתול")).text.startswith("✅ נכון! +1")
     assert "נשארו 19 מילים" in (await c.handle("7", "end")).text
 
 
 @respx.mock
-async def test_an_answer_the_api_accepted_through_gemini_shows_the_dictionary_word():
-    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True}))
-    route = respx.post(f"{API}/bot/session/answer").mock(return_value=ok({
-        "correct": True, "judged": True, "expected": "חתול", "points": 1, "roundStarted": False, "done": False,
-        "word": {"id": "w2", "english": "dog"}, "progress": progress(2)}))
-    reply = await coach().handle("7", "חתלתול")
-    assert reply.text == "✅ נכון! +1\nבמילון: חתול\n(2/20) dog"
-    assert __import__("json").loads(route.calls.last.request.content) == {"chatId": "7", "text": "חתלתול"}
+async def test_a_text_that_is_not_an_option_asks_again_and_a_double_tap_says_so():
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True, "kind": "vocab", "word": WORD, "progress": progress(1)}))
+    route = respx.post(f"{API}/bot/session/answer").mock(side_effect=[
+        ok({"invalid": True, "word": WORD, "progress": progress(1)}),
+        ok({"alreadyAnswered": True, "word": {"id": "w2", "english": "dog", "prompt": "dog", "options": ["כלב", "חתול", "דג", "דוב"]},
+            "progress": progress(2)}),
+    ])
+    c = coach()
+    again = await c.handle("7", "חתלתול")
+    assert again.text == replies.NOT_AN_OPTION + "\n" + WORD_LINES
+    assert again.buttons == WORD["options"] and again.columns == 2
+    assert json.loads(route.calls.last.request.content) == {"chatId": "7", "text": "חתלתול"}
+    twin = await c.handle("7", "חתול")
+    assert twin.text == replies.WORD_ALREADY_ANSWERED + "\n(2/20) dog\n1) כלב\n2) חתול\n3) דג\n4) דוב"
 
 
 @respx.mock
@@ -103,8 +112,9 @@ async def test_question_mark_shows_the_example_sentence_and_repeats_the_word():
         ok({"example": True, "sentence": None, "word": WORD, "progress": progress(1)}),
     ])
     c = coach()
-    assert (await c.handle("7", "?")).text == "💡 The cat is sleeping.\n(1/20) cat"
-    assert (await c.handle("7", "?")).text == replies.NO_EXAMPLE + "\n(1/20) cat"
+    example = await c.handle("7", "?")
+    assert example.text == "💡 The cat is sleeping.\n" + WORD_LINES and example.buttons == WORD["options"]
+    assert (await c.handle("7", "?")).text == replies.NO_EXAMPLE + "\n" + WORD_LINES
 
 
 DIRECTIONS = [{"key": 1, "label": "מאנגלית לעברית"}, {"key": 2, "label": "מעברית לאנגלית"}]
@@ -116,19 +126,27 @@ async def test_direction_buttons_start_a_hebrew_to_english_exam():
     route = respx.post(f"{API}/bot/session/answer").mock(side_effect=[
         ok({"sessionId": "s", "level": "קל", "setup": "direction", "options": DIRECTIONS}),
         ok({"sessionId": "s", "started": True, "level": "קל", "direction": "he-en", "directionLabel": "מעברית לאנגלית",
-            "word": {"id": "w", "direction": "he-en", "prompt": "חתול"}, "progress": progress(1)}),
-        ok({"correct": False, "judged": False, "expected": "cat", "points": 0, "roundStarted": False, "done": False,
-            "word": {"id": "w2", "direction": "he-en", "prompt": "כלב"}, "progress": progress(2)}),
+            "word": {"id": "w", "direction": "he-en", "prompt": "חתול", "options": ["cat", "cap", "dog", "etc."]},
+            "progress": progress(1)}),
+        ok({"correct": False, "chosen": "cap", "expected": "cat", "points": 0, "roundStarted": False, "done": False,
+            "word": {"id": "w2", "direction": "he-en", "prompt": "כלב", "options": ["dig", "dog", "cow", "bird"]},
+            "progress": progress(2)}),
     ])
     c = coach()
     question = await c.handle("7", "1")
     assert question.text == "רמה קל.\nבאיזה כיוון?\n1. מאנגלית לעברית\n2. מעברית לאנגלית"
     assert question.buttons == ["מאנגלית לעברית", "מעברית לאנגלית"]
     started = await c.handle("7", "מעברית לאנגלית")
-    assert started.text == "רמה קל, מעברית לאנגלית. תרגמו לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול"
-    assert __import__("json").loads(route.calls[1].request.content)["text"] == "מעברית לאנגלית"
+    # English options read left to right inside the Hebrew message (a final "." stays at its end).
+    iso = lambda s: f"⁦{s}⁩"  # noqa: E731
+    assert started.text == ("רמה קל, מעברית לאנגלית. בחרו את התרגום לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול\n"
+                            f"1) {iso('cat')}\n2) {iso('cap')}\n3) {iso('dog')}\n4) {iso('etc.')}")
+    assert started.buttons == ["cat", "cap", "dog", "etc."]
+    assert json.loads(route.calls[1].request.content)["text"] == "מעברית לאנגלית"
     from app.encouragement import LINES
-    assert (await c.handle("7", "dgo")).text == f"{LINES[0]}\nהתרגום: cat\n(2/20) כלב"
+    wrong = await c.handle("7", "cap")
+    assert wrong.text == (f"{LINES[0]}\nהתרגום: {iso('cat')}\n(2/20) כלב\n"
+                          f"1) {iso('dig')}\n2) {iso('dog')}\n3) {iso('cow')}\n4) {iso('bird')}")
 
 
 @respx.mock
@@ -147,16 +165,16 @@ async def test_summary_button_repeats_the_same_words_the_other_way_round():
     ended = await c.handle("7", "end")
     assert ended.buttons == ["🔄 אותן מילים מעברית לאנגלית"]
     again = await c.handle("7", ended.buttons[0])
-    assert again.text == "אותן מילים, מעברית לאנגלית. תרגמו לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול"
+    assert again.text == "אותן מילים, מעברית לאנגלית. בחרו את התרגום לאנגלית (\"?\" למשפט לדוגמה):\n(1/20) חתול"
     assert (await c.handle("7", "/switch")).text == replies.NO_WORDS_TO_SWITCH
     assert switch.call_count == 2
 
 
 @respx.mock
 async def test_in_a_words_exam_a_bare_command_word_is_the_answer():
-    # "review", "report", "help" and "math" are words of the list: typed bare, they are answers.
-    respx.get(f"{API}/bot/session/status").mock(return_value=ok(
-        {"active": True, "kind": "vocab", "word": {"id": "w", "direction": "he-en", "prompt": "סקירה"}, "progress": progress(3)}))
+    # "review", "report", "help" and "math" are words of the list: as buttons (or typed bare), they are answers.
+    word = {"id": "w", "direction": "he-en", "prompt": "סקירה", "options": ["review", "report", "help", "math"]}
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True, "kind": "vocab", "word": word, "progress": progress(3)}))
     answer = respx.post(f"{API}/bot/session/answer").mock(return_value=ok(
         {"correct": True, "points": 1, "done": False, "word": {"id": "w2", "direction": "he-en", "prompt": "לדווח"},
          "progress": progress(4)}))
@@ -167,3 +185,20 @@ async def test_in_a_words_exam_a_bare_command_word_is_the_answer():
         assert reply.text.startswith("✅ נכון!")
         assert json.loads(answer.calls.last.request.content)["text"] == word
     assert not review.called
+
+
+@respx.mock
+async def test_stop_is_an_answer_when_it_is_an_option_and_ends_the_exam_otherwise():
+    # "stop" is a word of the list (לעצור): its button answers; "end", not an option, ends; "/stop" always ends.
+    word = {"id": "w", "direction": "he-en", "prompt": "לעצור", "options": ["store", "stop", "step", "start"]}
+    respx.get(f"{API}/bot/session/status").mock(return_value=ok({"active": True, "kind": "vocab", "word": word, "progress": progress(3)}))
+    answer = respx.post(f"{API}/bot/session/answer").mock(return_value=ok(
+        {"correct": True, "points": 1, "done": False, "word": word, "progress": progress(4)}))
+    end = respx.post(f"{API}/bot/session/end").mock(return_value=ok(
+        {"done": True, "summary": {"words": 20, "rounds": 1, "correct": 4, "wrong": 0, "remainingFailed": 16}}))
+    c = coach()
+    assert (await c.handle("7", "stop")).text.startswith("✅ נכון!")
+    assert json.loads(answer.calls.last.request.content)["text"] == "stop" and not end.called
+    assert (await c.handle("7", "end")).text.startswith("סיימנו להיום.")
+    assert (await c.handle("7", "/stop")).text.startswith("סיימנו להיום.")
+    assert end.call_count == 2 and answer.call_count == 1

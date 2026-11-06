@@ -3,10 +3,12 @@ verdict, the expected translation and the next word never come from the
 model, and the same text serves the fast path and the agent's tools.
 
 A reply is a `Reply(text, buttons)`; `buttons` (a list of strings) becomes
-a Telegram reply keyboard for the setup questions. `before` holds messages
+a Telegram reply keyboard, in one row, or `columns` buttons a row (a word's
+four options, two a row, so a longer translation fits). `before` holds messages
 sent ahead of it, in order (an /unseen text before its first question); the
 buttons ride on the last message. `photo` is the URL of a question's picture:
 the reply's text is then the photo's caption."""
+import re
 from dataclasses import dataclass, field
 
 from .encouragement import wrong_line
@@ -18,6 +20,7 @@ class Reply:
     buttons: list[str] = field(default_factory=list)
     before: list[str] = field(default_factory=list)
     photo: str | None = None
+    columns: int = 0
 
     def __str__(self) -> str:
         return self.text
@@ -31,8 +34,8 @@ class Reply:
         """This reply with `head` (a verdict, a confirmation) above it. Under a
         photo the caption stays the question, so the head is its own message first."""
         if self.photo:
-            return Reply(self.text, self.buttons, [*self.before, head], self.photo)
-        return Reply(head + "\n\n" + self.text, self.buttons, self.before)
+            return Reply(self.text, self.buttons, [*self.before, head], self.photo, self.columns)
+        return Reply(head + "\n\n" + self.text, self.buttons, self.before, columns=self.columns)
 
 NOT_LINKED = ("הצ'אט הזה עדיין לא מחובר לחשבון. באתר, בכפתור \"טלגרם\" למעלה, קבלו קוד בן 6 ספרות "
               "ושלחו אותו לי כאן.")
@@ -49,7 +52,15 @@ SETUP_QUESTIONS = {"level": "איזו רמה?", "direction": "באיזה כיו�
 # The button under a words summary; the coach knows it by this sign (no
 # translation starts with it), so it works without a session.
 SWITCH_SIGN = "🔄"
-TRANSLATE_TO = {"en-he": "תרגמו לעברית", "he-en": "תרגמו לאנגלית"}
+CHOOSE = {"en-he": "בחרו את התרגום לעברית", "he-en": "בחרו את התרגום לאנגלית"}
+# A text that is not one of the word's options (a typed word, an old button).
+NOT_AN_OPTION = "בחרו אחת מ-4 האפשרויות, בכפתור או במספר שלה:"
+# A choice that was the twin of one just recorded (a double tap).
+WORD_ALREADY_ANSWERED = "על המילה הזו כבר עניתם. ממשיכים:"
+WORD_COLUMNS = 2
+LRI, PDI = "\u2066", "\u2069"
+_LATIN = re.compile("[A-Za-z]")
+_HEBREW = re.compile("[\u05d0-\u05ea]")
 INVALID_CHOICE = "בחרו מספר מהאפשרויות:"
 NOT_ENOUGH_FOR_CHOICE = "אין מספיק מילים ברמה הזו בקבוצה שבחרתם. בחרו רמה אחרת:"
 NOT_ENOUGH_WORDS = "אין מספיק מילים ברמה שלכם כרגע."
@@ -58,8 +69,8 @@ HELP = """🤖 איך זה עובד
 הפקודות באנגלית; אפשר ללחוץ עליהן, להקליד אותן (עם / או בלי) או לבחור מכפתור התפריט ליד תיבת הטקסט.
 
 📚 אוצר מילים: /words
-בוחרים רמה (1 קל, 2 בינוני, 3 קשה) וכיוון בכפתור: מאנגלית לעברית או מעברית לאנגלית. מקבלים 20 מילים, אחת בכל הודעה, וכותבים את התרגום.
-• כל תשובה נכונה שווה נקודה. תרגום נכון שלא מופיע במילון נבדק גם הוא.
+בוחרים רמה (1 קל, 2 בינוני, 3 קשה) וכיוון בכפתור: מאנגלית לעברית או מעברית לאנגלית. מקבלים 20 מילים, אחת בכל הודעה, ובוחרים את התרגום מתוך 4 אפשרויות: בלחיצה על כפתור או במספר שלה (1–4), בלי להקליד.
+• כל תשובה נכונה שווה נקודה. חלק מהאפשרויות קרובות בכוונה (מילה דומה, מאותה קבוצה או ההפך), אז כדאי לקרוא את כולן.
 • בסוף הסבב המילים שטעיתם בהן חוזרות בסדר אקראי, עד שכולן נכונות.
 • ? נותן משפט לדוגמה (מעברית לאנגלית: עם מקום ריק במקום המילה).
 • בסוף המבחן כפתור 🔄 (או /switch) נותן את אותן מילים בכיוון השני.
@@ -117,6 +128,27 @@ def _word_line(word: dict | None, progress: dict | None) -> str:
     return f"{prefix}{word.get('prompt') or word.get('english', '')}"
 
 
+def english(text) -> str:
+    """English text inside a left-to-right isolate: in a Hebrew message it
+    reads in order, a final "." included. Hebrew with an English word in it
+    ('סה"כ / מ total') keeps its own direction."""
+    s = str(text)
+    return f"{LRI}{s}{PDI}" if _LATIN.search(s) and not _HEBREW.search(s) and not s.startswith(LRI) else s
+
+
+def word_reply(head: str, word: dict | None, progress: dict | None) -> Reply:
+    """`head`, then the word and its four options as "1) …" lines (English
+    isolated), with the options' texts as buttons, two a row. A button sends
+    its option's text, which the API takes as the choice; so does its number."""
+    lines = [head] if head else []
+    if not word:
+        return Reply("\n".join(lines))
+    lines.append(_word_line(word, progress))
+    options = word.get("options") or []
+    lines += [f"{i}) {english(option)}" for i, option in enumerate(options, start=1)]
+    return Reply("\n".join(lines), list(options), columns=WORD_COLUMNS if options else 0)
+
+
 def error_reply(result: dict) -> str:
     code = result.get("code")
     if code == "not_linked":
@@ -155,7 +187,7 @@ def start_reply(result: dict) -> Reply:
     data = result["data"]
     if data.get("setup"):
         return setup_reply(data, "מתחילים תרגול של 20 מילים.")
-    return Reply("מתחילים! תרגמו לעברית:\n" + _word_line(data["word"], data["progress"]))
+    return word_reply(f"מתחילים! {CHOOSE['en-he']}:", data["word"], data["progress"])
 
 
 def started_reply(data: dict) -> Reply:
@@ -165,7 +197,7 @@ def started_reply(data: dict) -> Reply:
         head = f"אותן מילים, {data['directionLabel']}"
     elif data.get("directionLabel"):
         head += f", {data['directionLabel']}"
-    return Reply(f"{head}. {TRANSLATE_TO[direction]} (\"?\" למשפט לדוגמה):\n" + _word_line(data["word"], data["progress"]))
+    return word_reply(f"{head}. {CHOOSE[direction]} (\"?\" למשפט לדוגמה):", data["word"], data["progress"])
 
 
 def switch_reply(result: dict) -> Reply:
@@ -201,20 +233,21 @@ def answer_reply(result: dict) -> Reply:
         return started_reply(data)
     if data.get("example"):
         line = f"💡 {data['sentence']}" if data.get("sentence") else NO_EXAMPLE
-        return Reply(line + "\n" + _word_line(data["word"], data["progress"]))
+        return word_reply(line, data["word"], data["progress"])
+    if data.get("invalid"):
+        return word_reply(NOT_AN_OPTION, data["word"], data["progress"])
+    if data.get("alreadyAnswered"):
+        return word_reply(WORD_ALREADY_ANSWERED, data["word"], data["progress"])
     if data["correct"]:
         verdict = "✅ נכון!" + (f" +{data['points']}" if data.get("points") else "")
-        if data.get("judged") and data.get("expected"):
-            verdict += f"\nבמילון: {data['expected']}"
     else:
-        verdict = f"{wrong_line(data)}\nהתרגום: {data['expected']}"
+        verdict = f"{wrong_line(data)}\nהתרגום: {english(data['expected'])}"
     if data.get("done"):
         return _summary_reply(verdict + "\n", data["summary"])
     lines = [verdict]
     if data.get("roundStarted"):
         lines.append(f"סיימנו את הסבב. עכשיו חוזרים על {data['progress']['total']} המילים שטעיתם בהן, בסדר אקראי:")
-    lines.append(_word_line(data["word"], data["progress"]))
-    return Reply("\n".join(lines))
+    return word_reply("\n".join(lines), data["word"], data["progress"])
 
 
 def end_reply(result: dict) -> Reply:
@@ -252,7 +285,7 @@ def status_reply(result: dict) -> Reply:
         return unseen_status_reply(data)
     if data.get("setup"):
         return setup_reply(data)
-    return Reply("התרגול ממשיך. המילה הנוכחית:\n" + _word_line(data["word"], data["progress"]))
+    return word_reply("התרגול ממשיך. המילה הנוכחית:", data["word"], data["progress"])
 
 
 def summary_text(summary: dict) -> str:
