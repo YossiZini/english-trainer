@@ -1,0 +1,69 @@
+id,english_word,level,reason
+44f9ae17-36f0-464f-b2c5-5d8ecfb1c98f,hello,1,a first word a child learns
+a7173f30-c9aa-4681-8232-64c977f14349,thank you,1,a first word a child learns
+e602155b-d80b-4e7f-8bfc-91d611f893c9,cow,1,a first word a child learns
+c2b89225-eb12-444d-ab0c-24b453adb53f,horse,1,a first word a child learns
+ca5a6236-06b7-43d6-8a49-57433da01f88,this,2,a first word a child learns
+d65c2547-8f0d-410b-921d-6dae30ee1b49,that,2,a first word a child learns
+32374112-0f63-4098-bf91-b8c179a6f56b,want,2,a first word a child learns
+d949f402-2f7b-4766-8cab-544c8255e920,very,2,a first word a child learns
+0240b888-213a-4a48-9330-7d4c1355bb21,aunt,2,"an everyday concrete word, learned early"
+4828f6e8-0b38-4e9b-9c78-1144a2bfe9b9,leg,2,"an everyday concrete word, learned early"
+4449767a-97f6-4679-80a5-adb16c51b5fb,kitchen,2,"an everyday concrete word, learned early"
+b893e334-7c71-4394-bdf0-56d0131c7dc1,tooth,2,"an everyday concrete word, learned early"
+d5dcf32c-fefa-4a6e-bee3-891d5cc9224c,dance,2,"an everyday concrete word, learned early"
+96ef187a-9c1f-43e9-a5d4-827f7215d32f,sing,2,"an everyday concrete word, learned early"
+e2e05ec7-b94b-41c9-a5f6-308fd8fe4035,computer,2,"an everyday concrete word, learned early"
+57511eb3-963d-4b31-aa33-f68fbaee5077,jump,2,"an everyday concrete word, learned early"
+94957fb0-7e50-42e5-b67a-fb18b41b32dc,sugar,2,"an everyday concrete word, learned early"
+d849eb5c-b7dc-4cee-ac80-cc4bab49c07d,vegetable,2,"an everyday concrete word, learned early"
+c5bc944a-e74f-4656-ac0f-2f0883f8db2a,shoe,2,"an everyday concrete word, learned early"
+34f5a797-4f26-4d11-84de-e7432824e313,birthday,2,"an everyday concrete word, learned early"
+f8663ffa-fba1-4ac9-8f73-2b0a0dc600ce,cookie,2,"an everyday concrete word, learned early"
+e3b61207-5430-4de8-ad22-3fc8fdc4333b,bicycle,2,"an everyday concrete word, learned early"
+a0fbadab-3759-452b-88e8-7f2af235dc2e,taxi,2,"an everyday concrete word, learned early"
+a475e6a0-7bd1-47a6-a59d-ca7e28c8d061,photo,2,"an everyday concrete word, learned early"
+1813a493-75ef-4d5b-bf19-cf452c3e664a,chocolate,2,"an everyday concrete word, learned early"
+797fa8ce-6bdb-41d3-8ab7-529b2e7abb33,beautiful,2,"an everyday concrete word, learned early"
+6803190e-adfb-4776-97b6-3dce3c9b8e5b,bathroom,2,"an everyday concrete word, learned early"
+c0fe966f-8a81-4ff6-be09-4ebcd1bdc58a,weekend,2,"an everyday concrete word, learned early"
+175d4b5c-52ad-4c83-be92-ff3e383a514d,may,6,the modal verb (אולי / עשוי / רשאי); it matched the month May by mistake
+b67779bd-fae4-4e62-9da2-ee1af4ebef1d,look(s),6,"the noun 'looks' (appearance), not the verb"
+c1c06c4d-2d90-472c-853f-c2b2cca9c145,last,6,"the verb 'to last' (להמשיך / לארוך), not 'last' (אחרון)"
+3bbaad36-1b6c-4f9a-95ae-beed1bcd39fb,enter,5,"the computer sense, to enter data (להזין מידע)"
+83d10595-81dd-44de-af33-8585ba496922,state,5,מדינה / מצב / להצהיר: several abstract senses
+695727e4-efc8-44db-901e-cf4929ccc55b,any time,4,"a phrase, not a first word"
+72fc9e68-9543-47bf-be55-ab923eeb52f2,any place,4,"a phrase, not a first word"
+68c3c394-2ec3-41ba-a5df-72947d577618,the whole,5,"a phrase, not a first word"
+dab6a709-aea9-4a42-9a29-042c8c490707,about,4,"a grammar word, hard to translate alone"
+70295ebb-ed3e-4053-8459-460db470d29d,at,4,"a grammar word, hard to translate alone"
+df17e8b4-a7e3-4634-bb79-badc7a9082b1,to,4,"a grammar word, hard to translate alone"
+c6c00bef-7030-46af-b9ff-9dc2ea098b8f,way,4,"a grammar word, hard to translate alone"
+5d372de2-e95d-48ec-9cdb-4a9966252e32,well,4,"a grammar word, hard to translate alone"
+24099d77-f683-4b19-b149-d00cd244c2ee,any,4,"a grammar word, hard to translate alone"
+5bb8f154-c2d6-4ddd-a667-b5ac725fb51b,through,4,"a grammar word, hard to translate alone"
+3cadd8c1-7ce7-4edc-9b73-4e43281fbd84,as,5,"a grammar word, hard to translate alone"
+17193aa8-1ef3-4c3d-8484-ed071ebec278,by,5,"a grammar word, hard to translate alone"
+16fb988b-9cc1-455c-b189-001ad2bc0ec2,do (auxiliary),5,"a grammar word, hard to translate alone"
+50cdfdc0-dab2-4d1f-93b9-a0bafa9a48b9,could,5,"a grammar word, hard to translate alone"
+81d5a753-fa24-4835-be1f-2d8ff8ff6919,would,5,"a grammar word, hard to translate alone"
+e91ef2ca-21ab-4e27-9b38-78751d750df9,should,5,"a grammar word, hard to translate alone"
+7775abbd-c204-4b2b-87d2-e6aacc3ce425,even,5,"a grammar word, hard to translate alone"
+043dab2c-1fe7-4139-9f05-5567de6a388a,within,5,"a grammar word, hard to translate alone"
+5546099e-0405-4e32-99e5-6514047b8a44,onto,5,"a grammar word, hard to translate alone"
+23b574be-e08e-4ba9-97bb-abf88ba429c4,least,5,"a grammar word, hard to translate alone"
+486c445c-d2ae-4ddf-9159-ac41eb1b93b0,unless,6,"a grammar word, hard to translate alone"
+c3b4fb5e-b927-4dcf-a23f-97f53db3ffc7,beyond,6,"a grammar word, hard to translate alone"
+9357f848-ba7a-4ea2-9b70-c63b89b30231,indeed,6,"a grammar word, hard to translate alone"
+05bf6fbb-7531-49f8-ace4-2d263f351b5a,relative,6,an abstract word
+438a052b-3a35-4412-bc4b-6eeaee703785,nation,6,an abstract word
+5ee14e8d-e8d7-4e85-96c5-3ebdad4fd7d6,basis,6,an abstract word
+58f99b5d-e0af-4dc6-b811-dd458de5d256,purpose,6,an abstract word
+2f8ad2b1-cd19-47fd-ad07-4262c74b4e46,demand,6,an abstract word
+ed309506-1e52-4f05-b30f-2fcc6777e93f,consider,5,an abstract word
+1f8632a6-eb0e-4918-b9d3-833e9c1c8133,aware,5,an abstract word
+01008d40-80ed-4ed3-a353-fa89f8245386,prove,5,an abstract word
+dc12815a-58e3-4bcf-98b6-e6541462c0d1,degree,5,an abstract word
+5dd67fde-db11-4053-8054-5cd6ef5b2831,ability,5,an abstract word
+b3e19df4-ce62-4628-8dfc-dc40f5cd8c16,appear,5,an abstract word
+fc2dd365-f6f2-46d1-8409-bd45e6b70a1e,apart,5,an abstract word
